@@ -248,7 +248,8 @@ export async function updateUserDetails(request,response){
         const { name, email, mobile, password } = request.body 
 
         let hashPassword = ""
-
+       console.log("i am at update user ");
+       
         if(password){
             const salt = await bcryptjs.genSalt(10)
             hashPassword = await bcryptjs.hash(password,salt)

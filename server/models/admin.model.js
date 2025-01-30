@@ -4,7 +4,10 @@ import mongoose  from "mongoose";
 const adminSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    contact: { type: String, required: true },
+    mobile : {
+        type : Number,
+        default : null
+    },
     role: { type: String, required: true },
     password: { type: String }, // Optional for initial creation
     isPasswordSet: { type: Boolean, default: false }, // New field

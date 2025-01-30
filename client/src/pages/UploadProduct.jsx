@@ -92,17 +92,20 @@ const UploadProduct = () => {
     console.log(allselectedfiles);
     file1.current.value = "";
     
-     
     
     
-    const hasDuplicate = allselectedfiles.some((newFile) =>
-      data.image.some(
-        (existingFile) =>
-          existingFile.name === newFile.name //  compare file name
-      )
-    );
+    
+    var duplicateName = null;
+      const hasDuplicate = allselectedfiles.some((newFile) => {
+        const isDuplicate = data.image.some((existingFile) => existingFile.name === newFile.name);
+        if (isDuplicate) {
+          duplicateName = newFile.name; // Capture the duplicate file name
+        }
+        return isDuplicate;
+      });
     if(hasDuplicate){
-      alert("Duplicate file selected")
+      alert(`${duplicateName} is already there, please select new images.`);
+
       return;
     }
     setData((preve) =>  {
