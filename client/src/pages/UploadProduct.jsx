@@ -92,7 +92,7 @@ const UploadProduct = () => {
     console.log(allselectedfiles);
     file1.current.value = "";
     
-    
+     
     
     
     const hasDuplicate = allselectedfiles.some((newFile) =>

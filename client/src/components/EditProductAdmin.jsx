@@ -72,22 +72,66 @@ useEffect(() => {
       }
     })
   }
+    
 
-  const handleUploadImage = async (e) => {
-    const file = e.target.files[0]
-    
-    if (!file) {
-      return
+    const handleUploadImage = async (e) => {
+      const files =  imageRef.current.files;
+      console.log(files);
+      var allselectedfiles = [];
+      Array.from(files).forEach((element) => {
+        allselectedfiles.push(element);      
+          
+        });
+        // fetch only name and will be compare with new image that uploaded 
+        const imageNames = data.image.map(image => {
+          // Split the path by '/' and get the last part (image name)
+          const parts = image.split('/');
+          return parts[parts.length - 1]; // Return the last part (image name)
+        });
+        console.log(imageNames);
+
+ 
+      // console.log("existed images array ",existedImages); 
+        const hasDuplicate = allselectedfiles.some((newFile) => 
+          imageNames.some(existingFile => existingFile === newFile.name) || 
+        newimage.some(alreadyNewFile => alreadyNewFile.name === newFile.name)
+      );
+      
+      if (hasDuplicate) {
+        alert("Duplicate image detected!");
+        return;
+      } 
+      // Create preview URLs
+      imageRef.current.value = "";
+      const newPreviews = allselectedfiles.map(file => URL.createObjectURL(file));
+      
+      // Update state
+      setImagePreview(prev => [...prev, ...newPreviews]);
+      setNewImage(prev => [...prev, ...allselectedfiles]);
+      
+
+
     }
+
+
+
+
+  // handle upload for single image 
+  // const handleUploadImage = async (e) => {
+  //   const file = e.target.files[0]
     
-    const url = URL.createObjectURL(file);
-    setImagePreview((prevPreview) => [...prevPreview, url]);
-    setNewImage((prevNewImage) => [...prevNewImage, file]);
-    console.log("new image",newimage);
-    console.log("image preview",imagePreview);
-    console.log("data.image",data.image)
-    imageRef.current.value="";
-  }
+  //   if (!file) {
+  //     return
+  //   }
+    
+  //   const url = URL.createObjectURL(file);
+  //   setImagePreview((prevPreview) => [...prevPreview, url]);
+  //   setNewImage((prevNewImage) => [...prevNewImage, file]);
+  //   console.log("new image",newimage);
+  //   console.log("image preview",imagePreview);
+  //   console.log("data.image",data.image)
+  //   imageRef.current.value="";
+  // }
 
   const handleWeightChange = (index, field, value) => {
     const updatedVariants = [...data.weightVariants];
@@ -332,6 +376,7 @@ const handleDeleteImage = (index) => {
                       ref={imageRef}
                       type='file'
                       id='productImage'
+                      multiple
                       className='hidden'
                       accept='image/*'
                       onChange={handleUploadImage}
