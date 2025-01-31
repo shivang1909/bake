@@ -44,10 +44,10 @@ const UpdateUserPage = ({userdetail,isRedirect,updateData,uindex}) => {
       navigate('/dashboard/admin-list');
     } else {
       if (window.confirm("You have unsaved changes. Are you sure you want to cancel?")) {
-        navigate('/users');
+        navigate('/dashboard/admin-list');
       }
     }
-  };
+};
 
   return (
   

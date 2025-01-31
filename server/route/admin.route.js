@@ -9,7 +9,7 @@ import {
   setPassword, 
   userDetails,
   loginController
-} from '../controllers/Admin.controller.js';
+} from '../controllers/admin.controller.js';
 
 const adminRouter = Router();
 
