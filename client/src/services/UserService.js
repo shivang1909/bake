@@ -17,6 +17,8 @@ export const createUser = async (userData) => {
 export const getUsers = async () => {
   try {
     const response = await axios.get(`${API_URL}/api/admin/list`,{withCredentials:true});
+    console.log(response.data);
+    
     return response.data; // Return the list of users
   } catch (error) {
     console.error('Error fetching users:', error.response ? error.response.data : error.message);

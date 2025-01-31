@@ -12,6 +12,9 @@ import fetchUserDetails from '../utils/fetchUserDetails';
 
 const Profile = () => {
     const user = useSelector(state => state.user)
+      const role = user.role;
+
+
     const [openProfileAvatarEdit,setProfileAvatarEdit] = useState(false)
     const [userData,setUserData] = useState({
         name : user.name,
@@ -20,7 +23,7 @@ const Profile = () => {
     })
     const [loading,setLoading] = useState(false)
     const dispatch = useDispatch()
-
+    
     useEffect(()=>{
         setUserData({
             name : user.name,
@@ -28,7 +31,8 @@ const Profile = () => {
             mobile : user.mobile,
         })
     },[user])
-
+    console.log(userData)
+    
     const handleOnChange  = (e)=>{
         const { name, value} = e.target 
 
@@ -44,19 +48,39 @@ const Profile = () => {
         e.preventDefault()
         
         try {
+    
             setLoading(true)
-            const response = await Axios({
-                ...SummaryApi.updateUserDetails,
-                data : userData
-            })
-
-            const { data : responseData } = response
-
-            if(responseData.success){
-                toast.success(responseData.message)
-                const userData = await fetchUserDetails()
-                dispatch(setUserDetails(userData.data))
+            if(role === "USER")
+            {
+                const response = await Axios({
+                    ...SummaryApi.updateUserDetails,
+                    data : userData
+                })
+                const { data : responseData } = response
+                if(responseData.success){
+                    toast.success(responseData.message)
+                    const userData = await fetchUserDetails()
+                    dispatch(setUserDetails(userData.data))
+                }
             }
+            else if (role !== "user")
+                {
+                    const response = await Axios({
+                        ...SummaryApi.UpdateAdminDetails,
+                        data: userData
+                    })
+                    const { data : responseData } = response
+                    console.log(responseData);
+                
+                            if(responseData.success){
+                                toast.success(responseData.message)
+                                const userData = await fetchUserDetails()
+                                 console.log("this is userdata",userData);
+
+                                dispatch(setUserDetails(userData.data))
+                            }
+            }
+
 
         } catch (error) {
             AxiosToastError(error)

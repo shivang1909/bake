@@ -8,6 +8,8 @@ import uploadImageClodinary from '../utils/uploadImageClodinary.js'
 import generatedOtp from '../utils/generatedOtp.js'
 import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+import AdminModel from '../models/Admin.model.js'
 
 export async function registerUserController(request,response){
     try {
@@ -213,14 +215,30 @@ export async function logoutController(request,response){
 //upload user avatar
 export async  function uploadAvatar(request,response){
     try {
-        const userId = request.userId // auth middlware
-        const image = request.file  // multer middleware
+        let imagefullpath = process.env.VITE_API_URL;
 
-        const upload = await uploadImageClodinary(image)
-        
-        const updateUser = await UserModel.findByIdAndUpdate(userId,{
-            avatar : upload.url
-        })
+        console.log("upload avatar")
+        console.log(request.file );
+        const role = request.body.role;
+ 
+
+        const userId = request.userId // auth middlware
+        const image =   imagefullpath + '/uploads/' +  request.file.filename  // multer middleware
+           console.log(image);
+                if(role == "USER")
+                {
+
+                    const updateUser = await UserModel.findByIdAndUpdate(userId,{
+                    avatar : image
+                    })
+                }
+        else
+        {
+
+            const updateUser = await AdminModel.findByIdAndUpdate(userId,{
+                avatar : image
+            })
+        }
 
         return response.json({
             message : "upload profile",
@@ -228,11 +246,12 @@ export async  function uploadAvatar(request,response){
             error : false,
             data : {
                 _id : userId,
-                avatar : upload.url
+                avatar : image
             }
         })
 
     } catch (error) {
+                console.log(error)
         return response.status(500).json({
             message : error.message || error,
             error : true,
@@ -248,7 +267,8 @@ export async function updateUserDetails(request,response){
         const { name, email, mobile, password } = request.body 
 
         let hashPassword = ""
-
+       console.log("i am at update user ");
+       
         if(password){
             const salt = await bcryptjs.genSalt(10)
             hashPassword = await bcryptjs.hash(password,salt)

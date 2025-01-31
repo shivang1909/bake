@@ -78,22 +78,68 @@ useEffect(() => {
       }
     })
   }
-
+    
   const handleUploadImage = async (e) => {
-    const file = e.target.files[0]
-    
-    if (!file) {
-      return
+    const files = imageRef.current.files;
+    console.log(files);
+  
+    // Convert FileList to an array
+    const allSelectedFiles = Array.from(files);
+  
+    // Fetch only the names of existing images (from `data.image`)
+    const imageNames = data.image.map((image) => {
+      const parts = image.split('/');
+      return parts[parts.length - 1]; // Extract the image name
+    });
+  
+    // Fetch the names of already selected new images (from `newimage`)
+    const newImageNames = newimage.map((file) => file.name);
+  
+    // Check for duplicates
+    let duplicateName = null;
+    const hasDuplicate = allSelectedFiles.some((newFile) => {
+      if (imageNames.includes(newFile.name) || newImageNames.includes(newFile.name)) {
+        duplicateName = newFile.name; // Capture the duplicate file name
+        return true; // Stop checking further
+      }
+      return false;
+    });
+  
+    // If a duplicate is found, show an alert with the duplicate name
+    if (hasDuplicate) {
+      alert(`${duplicateName} is already there, please select new images.`);
+      return;
     }
+  
+    // Create preview URLs for the new images
+    const newPreviews = allSelectedFiles.map((file) => URL.createObjectURL(file));
+  
+    // Update state with new previews and files
+    setImagePreview((prev) => [...prev, ...newPreviews]);
+    setNewImage((prev) => [...prev, ...allSelectedFiles]);
+  
+    // Clear the file input
+    imageRef.current.value = "";
+  };
+
+
+
+  // handle upload for single image 
+  // const handleUploadImage = async (e) => {
+  //   const file = e.target.files[0]
     
-    const url = URL.createObjectURL(file);
-    setImagePreview((prevPreview) => [...prevPreview, url]);
-    setNewImage((prevNewImage) => [...prevNewImage, file]);
-    console.log("new image",newimage);
-    console.log("image preview",imagePreview);
-    console.log("data.image",data.image)
-    imageRef.current.value="";
-  }
+  //   if (!file) {
+  //     return
+  //   }
+    
+  //   const url = URL.createObjectURL(file);
+  //   setImagePreview((prevPreview) => [...prevPreview, url]);
+  //   setNewImage((prevNewImage) => [...prevNewImage, file]);
+  //   console.log("new image",newimage);
+  //   console.log("image preview",imagePreview);
+  //   console.log("data.image",data.image)
+  //   imageRef.current.value="";
+  // }
 
   const handleWeightChange = (index, field, value) => {
     const updatedVariants = [...data.weightVariants];
@@ -323,6 +369,7 @@ const handleDeleteImage = (index) => {
                       ref={imageRef}
                       type='file'
                       id='productImage'
+                      multiple
                       className='hidden'
                       accept='image/*'
                       onChange={handleUploadImage}

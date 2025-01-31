@@ -80,42 +80,84 @@ const UploadProduct = () => {
       }
     })
   }
-
   const handleUploadImage = async (e) => {
-    console.log(file1.current.value)
-    const file = e.target.files[0];
     console.log("handleUploadImage")
-    console.log(file);
-    // Check if the file already exists by comparing the file name or lastModified timestamp
-    const isFileExist = data.image.some((uploadedFile) => uploadedFile.name === file.name);
-    if (isFileExist) {
-      alert(`File  already exists. Please select a different file.`);
-      e.target.value = "";  // Reset the file input so the user can select a new file
-      return;  // Don't proceed further if the file already exists
-    }
-
-    const imageURL = URL.createObjectURL(file);
-    console.log(imageURL);
-
-    setImagePreview((prev) => [...prev, imageURL]);
-    console.log(imagePreview)
-    if (!file) {
-      return
-    }
+      
+      const files =  file1.current.files;
+    var allselectedfiles = [];
+    Array.from(files).forEach((element) => {
+    allselectedfiles.push(element);      
+      
+    });
+    console.log(allselectedfiles);
     file1.current.value = "";
+    
+    
+    
+    
+    var duplicateName = null;
+      const hasDuplicate = allselectedfiles.some((newFile) => {
+        const isDuplicate = data.image.some((existingFile) => existingFile.name === newFile.name);
+        if (isDuplicate) {
+          duplicateName = newFile.name; // Capture the duplicate file name
+        }
+        return isDuplicate;
+      });
+    if(hasDuplicate){
+      alert(`${duplicateName} is already there, please select new images.`);
 
-
-
-    setData((preve) => {
-      return {
-        ...preve,
-        image: [...preve.image, file]
-      }
-    })
-    // Reset the file input value
-    setImageLoading(false)
-
+      return;
+    }
+    setData((preve) =>  {
+     return { 
+     ...preve,
+     image: [...preve.image, ... allselectedfiles],
+     };
+   });
+    setImagePreview((prev) => [...prev, ...allselectedfiles.map((file) => URL.createObjectURL(file))]);
   }
+
+  
+  /// old for single image select at a time
+  // const handleUploadImage = async (e) => {
+  //   console.log(file1.current.value)
+  //   // const files =  file1.current.files;
+  //   // Array.from(files).forEach((element) => {
+  //   //   console.log(element);
+  //   // });
+  //   const file = e.target.files[0];
+  //   console.log("handleUploadImage")
+  //   console.log(file);
+  //   // Check if the file already exists by comparing the file name or lastModified timestamp
+  //   const isFileExist = data.image.some((uploadedFile) => uploadedFile.name === file.name);
+  //   if (isFileExist) {
+  //     alert(`File  already exists. Please select a different file.`);
+  //     e.target.value = "";  // Reset the file input so the user can select a new file
+  //     return;  // Don't proceed further if the file already exists
+  //   }
+
+  //   const imageURL = URL.createObjectURL(file);
+  //   console.log(imageURL);
+
+  //   setImagePreview((prev) => [...prev, imageURL]);
+  //   console.log(imagePreview)
+  //   if (!file) {
+  //     return
+  //   }
+  //   file1.current.value = "";
+
+
+
+  //   setData((preve) => {
+  //     return {
+  //       ...preve,
+  //       image: [...preve.image, file]
+  //     }
+  //   })
+  //   // Reset the file input value
+  //   setImageLoading(false)
+
+  // }
 
   const deletepreviw = async (updatedPreviews) => {
     if (file1.current) {
@@ -364,6 +406,7 @@ const UploadProduct = () => {
                   id='productImage'
                   className='hidden'
                   accept='image/*'
+                  multiple
                   onChange={handleUploadImage}
                 />
               </label>

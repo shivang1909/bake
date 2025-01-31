@@ -63,7 +63,7 @@ const AdminListPage = () => {
                 <tr key={user._id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.contact}</td>
+                  <td>{user.mobile}</td>
                   <td>{user.role}</td>
                   <td>
                     <button onClick={() =>{setUpdate(true) ; setUser(user);setUserIndex(index)}}>Update</button>

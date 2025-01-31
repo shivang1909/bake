@@ -17,7 +17,7 @@ const adminRouter = Router();
 adminRouter.post('/login', loginController);
 adminRouter.post('/add', auth, admin, addUser);
 adminRouter.get('/list', auth, admin, getUsers);
-adminRouter.put('/update/:id', auth, admin, updateUser);
+adminRouter.put('/update', auth, admin, updateUser);
 adminRouter.get('/user-details',auth,userDetails)
 
 adminRouter.delete('/delete/:id', auth, admin, deleteUser);

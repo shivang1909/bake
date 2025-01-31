@@ -19,11 +19,15 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
       setOpenDelete(false)
   }
 
+  console.log(data);
+
   const handleDelete = async()=>{
     try {
       const response = await Axios({
         ...SummaryApi.deleteProduct,
         data : {
+          image: data.image,
+          coverimage:  data.coverimage,
           _id : data._id
         }
       })

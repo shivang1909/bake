@@ -1,6 +1,7 @@
 export const baseURL = import.meta.env.VITE_API_URL
 
 const SummaryApi = {
+    
     register : {
         url : '/api/user/register',
         method : 'post'
@@ -48,6 +49,10 @@ const SummaryApi = {
     uploadAvatar : {
         url : "/api/user/upload-avatar",
         method : 'put'
+    },
+    UpdateAdminDetails : {
+        url : '/api/admin/update',
+        method : "put"
     },
     updateUserDetails : {
         url : '/api/user/update-user',
