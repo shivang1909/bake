@@ -77,10 +77,10 @@ export async function loginController(request,response){
 
 
 export const addUser = async (req, res) => {
-    const { name, email, contact, role } = req.body;
+    const { name, email, mobile, role } = req.body;
 
     // Validate required fields
-    if (!name || !email || !contact || !role) {
+    if (!name || !email || !mobile || !role) {
         return res.status(400).json({ message: 'All fields are required!' });
     }
   
@@ -92,7 +92,7 @@ export const addUser = async (req, res) => {
         }
 
         // Create the new user
-        const newUser = await AdminModel.create({ name, email, contact, role });
+        const newUser = await AdminModel.create({ name, email, mobile, role });
 
         // Initialize the email transporter
         const transporter = nodemailer.createTransport({
@@ -200,8 +200,13 @@ export const getUsers = async (req, res) => {
 
 // Update user
 export const updateUser = async (req, res) => {
-    const  id  = req.userId;
-    
+
+
+    let { id } = req.params;
+    // console.log(id);
+    if (id===undefined) {
+        id=req.userId;
+    }
     const { name, email, mobile, role } = req.body;
        console.log(req.body);
        console.log(id);
@@ -212,7 +217,7 @@ export const updateUser = async (req, res) => {
            const updatedUser = await AdminModel.findByIdAndUpdate(
                id,
                updateData,
-               { new: true }
+               { new: true, runValidators: true }
             );
             
             if (!updatedUser) {
@@ -222,6 +227,8 @@ export const updateUser = async (req, res) => {
             
         res.status(200).json({ message: 'User updated', user: updatedUser , success: true });
     } catch (error) {
+        console.log(error);
+        
         res.status(500).json({ message: 'Error updating user', error });
     }
 };

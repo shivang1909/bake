@@ -73,10 +73,10 @@ const UpdateUserPage = ({userdetail,isRedirect,updateData,uindex}) => {
           />
           <input
             type="text"
-            name="contact"
-            value={user.contact}
+            name="mobile"
+            value={user.mobile}
             onChange={handleChange}
-            placeholder="Contact"
+            placeholder="mobile"
             className="input-field"
           />
           <br />

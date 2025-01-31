@@ -310,7 +310,7 @@ const handleDeleteImage = (index) => {
                   className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
                 />
               </div>
-              {user.role === "admin" && (
+              {user.role === "Admin" && (
               <>
                 {/* Cover Image Section */}
                 <div>

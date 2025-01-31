@@ -10,7 +10,7 @@ const AddSubAdmin = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    contact: '',
+    mobile: '',
     role: 'Finance Manager',
   });
   const [error, setError] = useState(null);
@@ -37,7 +37,7 @@ const AddSubAdmin = () => {
       setFormData({
         name: '',
         email: '',
-        contact: '',
+        mobile: '',
         role: 'Finance Manager',
       });
     } catch (error) {
@@ -77,10 +77,10 @@ const AddSubAdmin = () => {
           />
           <input
             type="text"
-            name="contact"
-            value={formData.contact}
+            name="mobile"
+            value={formData.mobile}
             onChange={handleChange}
-            placeholder="Contact Number"
+            placeholder="mobile Number"
             required
           />
           <select name="role" value={formData.role} onChange={handleChange}>

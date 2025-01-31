@@ -51,7 +51,7 @@ const SummaryApi = {
         method : 'put'
     },
     UpdateAdminDetails : {
-        url : '/api/admin/update',
+        url : '/api/admin/update-admin',
         method : "put"
     },
     updateUserDetails : {
