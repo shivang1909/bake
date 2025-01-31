@@ -237,7 +237,8 @@ export const updateProductDetails = async (request, response) => {
 //delete product
 export const deleteProductDetails = async(request,response)=>{
     try {
-        const { _id } = request.body 
+        const { _id,image,coverimage} = request.body 
+       console.log('this is',image);
 
         if(!_id){
             return response.status(400).json({
@@ -246,6 +247,10 @@ export const deleteProductDetails = async(request,response)=>{
                 success : false
             })
         }
+        if (fs.existsSync(image)) {
+                    console.log(image);
+                    fs.unlinkSync(image); // Deletes the image file
+                }
 
         const deleteProduct = await ProductModel.deleteOne({_id : _id })
 

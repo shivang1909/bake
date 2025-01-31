@@ -50,7 +50,7 @@ const Profile = () => {
         try {
     
             setLoading(true)
-            if(role == "user")
+            if(role === "USER")
             {
                 const response = await Axios({
                     ...SummaryApi.updateUserDetails,

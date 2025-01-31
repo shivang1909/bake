@@ -8,6 +8,10 @@ const adminSchema = new mongoose.Schema({
         type : Number,
         default : null
     },
+    avatar : {
+        type : String,
+        default : ""
+    },
     role: { type: String, required: true },
     password: { type: String }, // Optional for initial creation
     isPasswordSet: { type: Boolean, default: false }, // New field
