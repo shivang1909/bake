@@ -25,4 +25,5 @@ adminRouter.delete('/delete/:id', auth, admin, deleteUser);
 // New route for setting a password
 adminRouter.post('/set-password/:userId', setPassword);
 
+
 export default adminRouter;

@@ -132,6 +132,20 @@ const router = createBrowserRouter([
                 ]
             },
             {
+                path: "inventory",
+                element: <Dashboard />,
+                children: [
+                    {
+                        path: "profile",
+                        element: <Profile />
+                    },
+                    {
+                        path: "product",
+                        element: <ProductAdmin />
+                    },
+                ]
+            },
+            {
                 path: ":category",
                 element: <ProductListPage />
             },

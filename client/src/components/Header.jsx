@@ -28,6 +28,9 @@ const Header = () => {
     const redirectToLoginPage = ()=>{
         navigate("/login")
     }
+    const redirectToAdminLoginPage = ()=>{
+        navigate("/admin/login")
+        }
 
     const handleCloseUserMenu = ()=>{
         setOpenUserMenu(false)
@@ -122,7 +125,10 @@ const Header = () => {
                                                     
                                                 </div>
                                             ) : (
+                                                <>
+                                                <button onClick={redirectToAdminLoginPage} className='text-lg px-2'>Admin Login</button>
                                                 <button onClick={redirectToLoginPage} className='text-lg px-2'>Login</button>
+                                                </>
                                             )
                                         }
                                         <button onClick={()=>setOpenCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>

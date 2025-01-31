@@ -13,6 +13,8 @@ import toast from 'react-hot-toast'
 const DisplayCartItem = ({close}) => {
     const { notDiscountTotalPrice, totalPrice ,totalQty} = useGlobalContext()
     const cartItem  = useSelector(state => state.cartItem.cart)
+    console.log(cartItem);
+    
     const user = useSelector(state => state.user)
     const navigate = useNavigate()
 

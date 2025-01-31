@@ -17,8 +17,6 @@
             setLoadingCategory : (state,action)=>{
                 state.loadingCategory = action.payload
             },
-          
-            
         }
     })
 

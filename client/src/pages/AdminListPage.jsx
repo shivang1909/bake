@@ -27,7 +27,6 @@ const AdminListPage = () => {
   }, []);
 
 
-
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/admin/delete/${id}`, {

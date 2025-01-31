@@ -11,10 +11,16 @@ import { useState } from 'react'
 import { useGlobalContext } from '../provider/GlobalProvider'
 import AddToCartButton from './AddToCartButton'
 
+
 const CardProduct = ({data}) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`
     const [loading,setLoading] = useState(false)
-  
+    const [selectedVariant, setSelectedVariant] = useState(data.weightVariants[0]); // Default to first variant
+  // Function to apply discount
+  const priceWithDiscount = (price, discount) => {
+    return price - (price * discount) / 100;
+  };
+
   return (
     <Link to={url} className='border py-2 lg:p-4 grid gap-1 lg:gap-3 min-w-36 lg:min-w-52 rounded cursor-pointer bg-white' >
       <div className='min-h-20 w-full max-h-24 lg:max-h-32 rounded overflow-hidden'>
@@ -44,22 +50,39 @@ const CardProduct = ({data}) => {
       </div>
 
       <div className='px-2 lg:px-0 flex items-center justify-between gap-1 lg:gap-3 text-sm lg:text-base'>
-        <div className='flex items-center gap-1'>
-          <div className='font-semibold'>
-              {DisplayPriceInRupees(pricewithDiscount(data.price,data.discount))} 
-          </div>
-          
-          
-        </div>
-        <div className=''>
-          {
-            data.stock == 0 ? (
-              <p className='text-red-500 text-sm text-center'>Out of stock</p>
-            ) : (
-              <AddToCartButton data={data} />
-            )
-          }
-            
+      <div className="font-semibold">
+      <div>
+        <label>Select Weight:</label>
+        <select
+          value={selectedVariant._id}
+          onChange={(e) => {
+            const variant = data.weightVariants.find(
+              (v) => v._id === e.target.value
+            );
+            setSelectedVariant(variant);
+          }}
+        >
+          {console.log(data.weightVariants)}
+          {data.weightVariants.map((variant) => (
+            <option key={variant._id} value={variant._id}>
+              {variant.weight}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        Price:{" "}
+        {priceWithDiscount(selectedVariant.price, data.discount)} ₹
+      </div>
+    </div>
+        {/* Add to Cart Button with Selected Variant */}
+        <div>
+          {selectedVariant.qty === 0 ? (
+            <p className="text-red-500 text-sm text-center">Out of stock</p>
+          ) : (
+            <AddToCartButton data={{ ...data, selectedVariant }} />
+          )}
         </div>
       </div>
 

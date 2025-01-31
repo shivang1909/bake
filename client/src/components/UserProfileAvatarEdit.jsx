@@ -9,6 +9,7 @@ import { IoClose } from "react-icons/io5";
 
 const UserProfileAvatarEdit = ({close}) => {
     const user = useSelector(state => state.user)
+    
     const dispatch = useDispatch()
     const [loading,setLoading] = useState(false)
 

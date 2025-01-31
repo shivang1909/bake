@@ -7,7 +7,6 @@ const fetchUserDetails = async()=>{
 
 
         if(pathParts[0] === "admin"){
-            console.log("Hell")
             const response = await Axios({
                 ...SummaryApi.adminDetails
             })

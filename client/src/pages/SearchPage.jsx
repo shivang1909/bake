@@ -27,7 +27,6 @@ const SearchPage = () => {
               page : page,
             }
         })
-
         const { data : responseData } = response
 
         if(responseData.success){
@@ -56,7 +55,8 @@ const SearchPage = () => {
   },[page,searchText])
 
   console.log("page",page)
-
+  console.log(data);
+  
   const handleFetchMore = ()=>{
     if(totalPage > page){
       setPage(preve => preve + 1)

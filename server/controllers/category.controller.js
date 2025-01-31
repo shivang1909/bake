@@ -4,8 +4,6 @@ import fs from "fs"
 
 export const  AddCategoryController = async(request,response)=>{
     try {
-        
-
         const { name } = request.body 
         const image = `uploads/` +request.file.filename // Only extract the filename or path
             
@@ -68,6 +66,25 @@ export const getCategoryController = async(request,response)=>{
         })
     }
 }
+
+
+export const getCategoryByIdController = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const category = await CategoryModel.findById(id); 
+
+        if (!category) {
+            return res.status(404).json({ success: false, message: "Category not found" });
+        }
+        // console.log("Category name:", category.name);
+        
+        res.json({ success: true, data: category.name }); // Sending only category name
+    } catch (error) {
+        console.error("Error fetching category:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 export const updateCategoryController = async (request, response) => {
     try {
         console.log("_------------------------------------");

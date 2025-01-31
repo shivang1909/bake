@@ -13,8 +13,14 @@ import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
 import { useRef } from 'react';
+
+// import { useSelector } from 'react-redux'
+
 const serverurl = import.meta.env.VITE_API_URL;
 const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
+  const user = useSelector(state => state.user)
+  console.log(user);
+  
   const [data, setData] = useState({
     _id : propsData._id,
     name: propsData.name,
@@ -223,6 +229,7 @@ const handleDeleteImage = (index) => {
                   value={data.name}
                   onChange={handleChange}
                   required
+                  disabled={user.role === "Inventory Manager"} // Disable if role is 'Inventory Manager'
                   className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
                 />
               </div>
@@ -238,6 +245,7 @@ const handleDeleteImage = (index) => {
                   required
                   multiple
                   rows={3}
+                  disabled={user.role === "Inventory Manager"} // Disable if role is 'Inventory Manager'
                   className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none'
                 />
               </div>
@@ -252,81 +260,64 @@ const handleDeleteImage = (index) => {
                   value={data.sku_code}
                   onChange={handleChange}
                   required
+                  disabled={user.role === "Inventory Manager"} // Disable if role is 'Inventory Manager'
                   className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
                 />
               </div>
-              
-          <div>
-            <p className='font-medium'> 
-              Cover
-              Image
-              
-              </p>
-            <div>
-              <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
-                <div className='text-center flex justify-center items-center flex-col'>
-                  {
-                    imageLoading ? <Loading /> : (
-                      <>
-                        <FaCloudUploadAlt size={35} />
-                        <p>Upload Cover Image</p>
-                      </>
-                    )
-                  }
-                </div>
-                <input
-                  type='file'
-                  name="CoverImage"
-                  id='CoverImage'
-                  className='hidden'
-                  accept='image/*'
-                  onChange={handleUploadCoverImage}
-                  />
-              </label>
-              {/**display uploded image*/}
-              <div className="flex flex-wrap gap-4">
-               
-
-                {/* Condition to check if imagePreview is not null or empty */}
-                {coverimaepreview ? (
-                  
-                    // Display the image preview
-                    <div
-                      key={coverimaepreview}
-                      className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group"
-                    >
-
-                      <img
-                        src={coverimaepreview}
-                        alt={`Preview `}
-                        className="w-full h-full object-scale-down cursor-pointer"
-                        onClick={() => setViewImageURL(coverimaepreview)}
+              {user.role === "admin" && (
+              <>
+                {/* Cover Image Section */}
+                <div>
+                  <p className='font-medium'>Cover Image</p>
+                  <div>
+                    <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
+                      <div className='text-center flex justify-center items-center flex-col'>
+                        {imageLoading ? <Loading /> : (
+                          <>
+                            <FaCloudUploadAlt size={35} />
+                            <p>Upload Cover Image</p>
+                          </>
+                        )}
+                      </div>
+                      <input
+                        type='file'
+                        name="CoverImage"
+                        id='CoverImage'
+                        className='hidden'
+                        accept='image/*'
+                        onChange={handleUploadCoverImage}
                       />
-                    
+                    </label>
+                    {/* Display uploaded cover image */}
+                    <div className="flex flex-wrap gap-4">
+                      {coverimaepreview ? (
+                        <div key={coverimaepreview} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
+                          <img
+                            src={coverimaepreview}
+                            alt={`Preview`}
+                            className="w-full h-full object-scale-down cursor-pointer"
+                            onClick={() => setViewImageURL(coverimaepreview)}
+                          />
+                        </div>
+                      ) : (
+                        <p>No images to display</p> // Optional: You can customize this message
+                      )}
                     </div>
-                  
-                ) : (
-                  <p>No images to display</p> // Optional: You can customize this message
-                )}
-              </div>
+                  </div>
+                </div>
 
-            </div>
-
-          </div>
-
+              {/* Product Images Section */}
               <div>
                 <p className='font-medium'>Image</p>
                 <div>
                   <label htmlFor='productImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
                     <div className='text-center flex justify-center items-center flex-col'>
-                      {
-                        imageLoading ? <Loading /> : (
-                          <>
-                            <FaCloudUploadAlt size={35} />
-                            <p>Upload Image</p>
-                          </>
-                        )
-                      }
+                      {imageLoading ? <Loading /> : (
+                        <>
+                          <FaCloudUploadAlt size={35} />
+                          <p>Upload Image</p>
+                        </>
+                      )}
                     </div>
                     <input
                       ref={imageRef}
@@ -335,41 +326,37 @@ const handleDeleteImage = (index) => {
                       className='hidden'
                       accept='image/*'
                       onChange={handleUploadImage}
-                      
                     />
                   </label>
-                  {/**display uploded image*/}
+                  {/* Display uploaded images */}
                   <div className='flex flex-wrap gap-4'>
-                    
-                  {(imagePreview && imagePreview.length !== 0) ? ( 
-                    imagePreview.map((img, index) => {
-                    console.log("Updated Image Array:", newimage) 
-                    {console.log("image preview",imagePreview.length)}
-                    return (
-                      <div key={img + index} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
-                        <img
-                          src={img}
-                          alt={img}
-                          className="w-full h-full object-scale-down cursor-pointer"
-                          onClick={() => setViewImageURL(img)}
-                        />
-                        <div
-                          onClick={() => {handleDeleteImage(index)}}
-                          className="absolute bottom-0 right-0 p-1 bg-red-600 hover:bg-red-600 rounded text-white hidden group-hover:block cursor-pointer"
-                        >
-                          <MdDelete />
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p>No images to display</p>
-                )}
-
+                    {imagePreview && imagePreview.length !== 0 ? (
+                      imagePreview.map((img, index) => {
+                        return (
+                          <div key={img + index} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
+                            <img
+                              src={img}
+                              alt={img}
+                              className="w-full h-full object-scale-down cursor-pointer"
+                              onClick={() => setViewImageURL(img)}
+                            />
+                            <div
+                              onClick={() => handleDeleteImage(index)}
+                              className="absolute bottom-0 right-0 p-1 bg-red-600 hover:bg-red-600 rounded text-white hidden group-hover:block cursor-pointer"
+                            >
+                              <MdDelete />
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p>No images to display</p>
+                    )}
                   </div>
                 </div>
-
               </div>
+            </>
+          )}
               <div className='grid gap-1'>
                 <label className='font-medium'>Category</label>
                 <div>
@@ -455,6 +442,7 @@ const handleDeleteImage = (index) => {
                   value={data.discount}
                   onChange={handleChange}
                   required
+
                   className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
                 />
               </div>

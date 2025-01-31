@@ -87,7 +87,6 @@ const fetchUser = async () => {
 
   useEffect(()=>{
     fetchUser()
-
     fetchCategory()
     // fetchCartItem()
   },[])

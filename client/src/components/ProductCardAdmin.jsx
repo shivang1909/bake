@@ -6,8 +6,12 @@ import SummaryApi from '../common/SummaryApi'
 import Axios from '../utils/Axios'
 import AxiosToastError from '../utils/AxiosToastError'
 import toast from 'react-hot-toast'
+import { useSelector } from 'react-redux'
 
 const ProductCardAdmin = ({ data, fetchProductData }) => {
+  
+  const user = useSelector(state => state.user)
+  // console.log( user);
   const [editOpen,setEditOpen]= useState(false)
   const [openDelete,setOpenDelete] = useState(false)
    console.log(data)
@@ -48,9 +52,23 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
         </div>
         <p className='text-ellipsis line-clamp-2 font-medium'>{data?.name}</p>
         <p className='text-slate-400'>{data?.unit}</p>
-        <div className='grid grid-cols-2 gap-3 py-2'>
+        {/* <div className='grid grid-cols-2 gap-3 py-2'>
           <button onClick={()=>setEditOpen(true)} className='border px-1 py-1 text-sm border-green-600 bg-green-100 text-green-800 hover:bg-green-200 rounded'>Edit</button>
           <button onClick={()=>setOpenDelete(true)} className='border px-1 py-1 text-sm border-red-600 bg-red-100 text-red-600 hover:bg-red-200 rounded'>Delete</button>
+        </div> */}
+
+<div className='grid grid-cols-2 gap-3 py-2'>
+          {
+            user.role === "Inventory Manager" ? (
+              <button onClick={()=>setEditOpen(true)} className='border px-1 py-1 text-sm border-green-600 bg-green-100 text-green-800 hover:bg-green-200 rounded'>Manage Stock</button>
+            ) : (
+              <>
+          <button onClick={()=>setEditOpen(true)} className='border px-1 py-1 text-sm border-green-600 bg-green-100 text-green-800 hover:bg-green-200 rounded'>Edit</button>
+          <button onClick={()=>setOpenDelete(true)} className='border px-1 py-1 text-sm border-red-600 bg-red-100 text-red-600 hover:bg-red-200 rounded'>Delete</button>
+          </>
+        )}
+
+
         </div>
 
         {

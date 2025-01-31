@@ -20,8 +20,35 @@ const ProductDisplayPage = () => {
     image : []
   })
   const [image,setImage] = useState(0)
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
   const [loading,setLoading] = useState(false)
   const imageContainer = useRef()
+
+
+  const [categoryName, setCategoryName] = useState("");
+
+const fetchCategoryName = async (categoryId) => {
+  try {
+    const response = await Axios(
+      SummaryApi.getCategoryById.url.replace(":id", categoryId)
+    ); // Adjust API endpoint as needed
+    console.log("Category name response:", response.data.data);
+    if (response.data.success) {
+      setCategoryName(response.data.data); // Assuming API returns `{ success: true, data: { name: "Category Name" } }`
+    }
+  } catch (error) {
+    console.error("Error fetching category name:", error);
+  }
+};
+ useEffect(() => {
+    // Ensure that category exists in data before calling fetchCategoryName
+    if (data.category) {
+      console.log("Category ID:", data.category);
+      fetchCategoryName(data.category); // Fetch category name only if category ID exists
+    }
+  }, [data.category]); // Run effect only when data.category changes
+
 
   const fetchProductDetails = async()=>{
     try {
@@ -32,10 +59,16 @@ const ProductDisplayPage = () => {
           }
         })
 
-        const { data : responseData } = response
-
-        if(responseData.success){
-          setData(responseData.data)
+        // const { data : responseData } = response
+        // if(responseData.success){
+        //   setData(responseData.data)
+        // }
+        const { data: responseData } = response;
+        if (responseData.success) {
+          setData(responseData.data);
+          if (responseData.data.weightVariants.length > 0) {
+            setSelectedVariant(responseData.data.weightVariants[0]);
+          }
         }
     } catch (error) {
       AxiosToastError(error)
@@ -47,6 +80,9 @@ const ProductDisplayPage = () => {
   useEffect(()=>{
     fetchProductDetails()
   },[params])
+  const handleVariantChange = (variant) => {
+    setSelectedVariant(variant);
+  };
   
   const handleScrollRight = ()=>{
     imageContainer.current.scrollLeft += 100
@@ -102,7 +138,7 @@ const ProductDisplayPage = () => {
             <div>
             </div>
 
-            <div className='my-4  hidden lg:grid gap-3 '>
+            {/* <div className='my-4  hidden lg:grid gap-3 '>
                 <div>
                     <p className='font-semibold'>Description</p>
                     <p className='text-base'>{data.description}</p>
@@ -121,37 +157,52 @@ const ProductDisplayPage = () => {
                     )
                   })
                 }
-            </div>
+            </div> */}
         </div>
 
 
         <div className='p-4 lg:pl-7 text-base lg:text-lg'>
             <p className='bg-green-300 w-fit px-2 rounded-full'>10 Min</p>
             <h2 className='text-lg font-semibold lg:text-3xl'>{data.name}</h2>  
-            <p className=''>{data.unit}</p> 
+            {/* <p className=''>{data.unit}</p>  */}
             <Divider/>
-            <div>
-              <p className=''>Price</p> 
-              <div className='flex items-center gap-2 lg:gap-4'>
-                <div className='border border-green-600 px-4 py-2 rounded bg-green-50 w-fit'>
-                    <p className='font-semibold text-lg lg:text-xl'>{DisplayPriceInRupees(pricewithDiscount(data.price,data.discount))}</p>
-                </div>
-                {
-                  data.discount && (
-                    <p className='line-through'>{DisplayPriceInRupees(data.price)}</p>
-                  )
-                }
-                {
-                  data.discount && (
-                    <p className="font-bold text-green-600 lg:text-2xl">{data.discount}% <span className='text-base text-neutral-500'>Discount</span></p>
-                  )
-                }
-                
-              </div>
+        {/* Product Pricing */}
+        <div>
+          <p>Price</p>
+          <div className="flex items-center gap-2 lg:gap-4">
+            <div className="border border-green-600 px-4 py-2 rounded bg-green-50 w-fit">
+              <p className="font-semibold text-lg lg:text-xl">
+                {DisplayPriceInRupees(pricewithDiscount(selectedVariant?.price || 0, data.discount))}
+              </p>
+            </div>
+            {data.discount > 0 && (
+              <>
+                <p className="line-through">{DisplayPriceInRupees(selectedVariant?.price || 0)}</p>
+                <p className="font-bold text-green-600 lg:text-2xl">
+                  {data.discount}% <span className="text-base text-neutral-500">Discount</span>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
 
-            </div> 
-              
-              {
+        {/* Available Weight Variants */}
+        <div className="my-4">
+          <p className="font-semibold">Available Variants</p>
+          <div className="flex gap-2">
+            {data.weightVariants?.map((variant) => (
+              <button
+                key={variant._id}
+                className={`px-4 py-2 border rounded ${selectedVariant?._id === variant._id ? 'bg-green-500 text-white' : 'bg-white'}`}
+                onClick={() => handleVariantChange(variant)}
+              >
+                {variant.weight}
+              </button>
+            ))}
+          </div>
+        </div>
+
+              {/* {
                 data.stock === 0 ? (
                   <p className='text-lg text-red-500 my-2'>Out of Stock</p>
                 ) 
@@ -161,9 +212,39 @@ const ProductDisplayPage = () => {
                     <AddToCartButton data={data}/>
                   </div>
                 )
-              }
-           
+              } */}
+                   {/* Add to Cart Button */}
+        {selectedVariant?.qty > 0 ? (
+          <div className="my-4">
+            <AddToCartButton data={{ ...data, selectedVariant }} />
+          </div>
+        ) : (
+          <p className="text-lg text-red-500 my-2">Out of Stock</p>
+        )}
 
+            {/****only mobile */}
+            <div className='my-4 grid gap-3 '>
+                <div>
+                    <p className='font-semibold'>Description</p>
+                    <p className='text-base'>{data.description}</p>
+                </div>
+                <div>
+                    <p className='font-semibold'>Category</p>
+                    {console.log("categoryName",categoryName )
+                    }
+                    <p className='text-base'>{categoryName  || "Loading..."}</p>
+                </div>
+                {
+                  data?.more_details && Object.keys(data?.more_details).map((element,index)=>{
+                    return(
+                      <div>
+                          <p className='font-semibold'>{element}</p>
+                          <p className='text-base'>{data?.more_details[element]}</p>
+                      </div>
+                    )
+                  })
+                }
+            </div>
             <h2 className='font-semibold'>Why shop from binkeyit? </h2>
             <div>
                   <div className='flex  items-center gap-4 my-4'>
@@ -201,27 +282,7 @@ const ProductDisplayPage = () => {
                   </div>
             </div>
 
-            {/****only mobile */}
-            <div className='my-4 grid gap-3 '>
-                <div>
-                    <p className='font-semibold'>Description</p>
-                    <p className='text-base'>{data.description}</p>
-                </div>
-                <div>
-                    <p className='font-semibold'>Unit</p>
-                    <p className='text-base'>{data.unit}</p>
-                </div>
-                {
-                  data?.more_details && Object.keys(data?.more_details).map((element,index)=>{
-                    return(
-                      <div>
-                          <p className='font-semibold'>{element}</p>
-                          <p className='text-base'>{data?.more_details[element]}</p>
-                      </div>
-                    )
-                  })
-                }
-            </div>
+          
         </div>
     </section>
   )

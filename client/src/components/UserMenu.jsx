@@ -66,6 +66,8 @@ const UserMenu = ({ close }) => {
       <Divider />
 
       <div className="text-sm grid gap-1">
+
+        {/* ============================== Admin Role Dashboard Menu ============================== */}
         {isAdmin(user.role) && (
           <>
             <Link
@@ -106,6 +108,8 @@ const UserMenu = ({ close }) => {
           </>
         )}
 
+
+        {/* ============================== Inventory Role Dashboard Menu ============================== */}
         {isInventoryManager(user.role) && (
           <>
             <Link
@@ -139,6 +143,7 @@ const UserMenu = ({ close }) => {
           </>
         )}
 
+        {/* ============================== Finance Role Dashboard Menu ============================== */}
         {isFinanceManager(user.role) && (
           <>
             <Link
@@ -179,6 +184,8 @@ const UserMenu = ({ close }) => {
           </>
         )}
 
+
+        {/* ============================== Delivery Partner Role Dashboard Menu ============================== */}
         {isDeliveryPartner(user.role) && (
           <>
             <Link
@@ -219,6 +226,8 @@ const UserMenu = ({ close }) => {
           </>
         )}
 
+
+        {/* ============================== End User Role Dashboard Menu ============================== */}
         <Link
           onClick={handleClose}
           to={profileUrl}

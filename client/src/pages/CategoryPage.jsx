@@ -111,6 +111,9 @@ const CategoryPage = () => {
                                 src={serverurl+'/'+category.image} // Adjust the URL based on your backend setup
                                 className='w-full object-scale-down'
                             />
+                            <div className='text-center font-semibold text-sm pt-3 pb-2'>
+                                {category.name}
+                            </div>
                             <div className='items-center h-9 flex gap-2'>
                                 <button onClick={()=>{
                                     setOpenEdit(true)
@@ -130,7 +133,6 @@ const CategoryPage = () => {
                 })
             }
         </div>
-
         {
             loading && (
                 <Loading/>

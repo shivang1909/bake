@@ -9,10 +9,6 @@ const SummaryApi = {
         url : '/api/user/login',
         method : 'post'
     },
-    adminLogin : {
-        url : '/api/admin/login',
-        method : 'post'
-    },
     forgot_password : {
         url : "/api/user/forgot-password",
         method : 'put'
@@ -33,10 +29,18 @@ const SummaryApi = {
         url : '/api/user/user-details',
         method : "get"
     },
+
+
+    // =========== Admin ===================  
+    adminLogin : {
+        url : '/api/admin/login',
+        method : 'post'
+    },
     adminDetails : {
         url : '/api/admin/user-details',
         method : "get"
     },
+    
     logout : {
         url : "/api/user/logout",
         method : 'get'
@@ -61,6 +65,11 @@ const SummaryApi = {
         url : '/api/category/get',
         method : 'get'
     },
+    getCategoryById: {
+        url: '/api/category/:id',
+        method: 'get'
+    },
+    
     updateCategory : {
         url : '/api/category/update',
         method : 'put'
@@ -69,8 +78,6 @@ const SummaryApi = {
         url : '/api/category/delete',
         method : 'delete'
     },
-  
-   
     createProduct : {
         url : '/api/product/create',
         method : 'post'
@@ -83,8 +90,11 @@ const SummaryApi = {
         url : '/api/product/get-product-by-category',
         method : 'post'
     },
-  
-
+    getProductByCategoryName : {
+        url : '/api/product/get-product-by-categoryname',
+        method : 'post'
+    },
+    
     getProductDetails : {
         url : '/api/product/get-product-details',
         method : 'post'
@@ -101,6 +111,10 @@ const SummaryApi = {
         url : '/api/product/search-product',
         method : 'post'
     },
+    searchProductByCategory : {
+        url : '/api/product/search-product-bycategory-search',
+        method : 'post'
+    }, // for product seach by name in productList.jsx
     addTocart : {
         url : "/api/cart/create",
         method : 'post'
