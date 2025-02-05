@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import UploadCategoryModel from '../components/UploadCategoryModel'
 import Loading from '../components/Loading'
 import NoData from '../components/NoData'
 import Axios from '../utils/Axios'
 import SummaryApi from '../common/SummaryApi'
-import EditCategory from '../components/EditCategory'
 import CofirmBox from '../components/CofirmBox'
 import toast from 'react-hot-toast'
 import AxiosToastError from '../utils/AxiosToastError'
 import { useDispatch, useSelector } from 'react-redux'
 import { json } from 'react-router-dom'
 import { setAllCategory } from '../store/productSlice'
+import CategoryForm from '../components/CategoryForm'
 const serverurl = import.meta.env.VITE_API_URL;
 
 
@@ -31,9 +30,6 @@ const CategoryPage = () => {
         _id : "",
         image: "",
     })
-  
-  
-
     useEffect(()=>{
            setCategoryData(allCategory)
     },[])
@@ -121,13 +117,15 @@ const CategoryPage = () => {
 
         {
             openUploadCategory && (
-                <UploadCategoryModel  close={()=>setOpenUploadCategory(false)}/>
+                <CategoryForm close={() => setOpenUploadCategory(false)} />
             )
         }
 
         {
             openEdit && (
-                <EditCategory data={editData} close={()=>setOpenEdit(false)} />
+                <CategoryForm close={() => setOpenEdit(false)} isEdit={true} categoryData={editData} />
+
+                // <EditCategory data={editData} close={()=>setOpenEdit(false)} />
             )
         }
 

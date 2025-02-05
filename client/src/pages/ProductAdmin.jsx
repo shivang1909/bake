@@ -9,8 +9,10 @@ import noDataImage from "../assets/nothing here yet.webp"; // Import the image f
 // import { useSelector } from "react-redux";
 import { setAllProduct } from '../store/productSlice';
 import { useDispatch, useSelector } from "react-redux";
+import ProductForm from "../components/ProductForm";
 
 const ProductAdmin = () => {
+    const [openUploadProduct,setOpenUploadProduct] = useState(false)
 
   const [productData, setProductData] = useState([]);
   const [page, setPage] = useState(1);
@@ -117,8 +119,15 @@ const fetchProductData = async () => {
             onChange={handleOnChange}
           />
         </div>
+      <div>
+        <button onClick={()=>setOpenUploadProduct(true)} className='text-sm border border-primary-200 hover:bg-primary-200 px-3 py-1 rounded'>Add Product</button>
       </div>
-
+      </div>
+      {
+            openUploadProduct && (
+                <ProductForm close={() => setOpenUploadProduct(false)} />
+            )
+        }
       {loading && <Loading />}
 
       <div className="p-4 bg-blue-50">
@@ -139,15 +148,16 @@ const fetchProductData = async () => {
               <p className="font-semibold my-2">No Data Found</p>
             </div>
           )}
-          
-          {/* Display Products */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {allProduct.map((p) => (
-              // <ProductCardAdmin key={p.id} data={p} fetchProductData={fetchProductData} />
-              <ProductCardAdmin key={p.id} data={p}/>
-          ))}
-          </div>
+          {!openUploadProduct && (
+  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    {allProduct.map((p) => (
+      <ProductCardAdmin key={p.id} data={p} />
+    ))}
+  </div>
+)}
+
         </div>
+
 
         <div className="flex justify-between my-4">
           <button onClick={handlePrevious} className="border border-primary-200 px-4 py-1 hover:bg-primary-200">
