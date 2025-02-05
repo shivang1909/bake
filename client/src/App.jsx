@@ -40,8 +40,8 @@ const fetchUser = async () => {
   try{
     const userData = await fetchUserDetails();
     dispatch(setUserDetails(userData.data));
-  
-    if (!userData) {
+
+    if (userData === "Provide  token") {
         console.log(location.pathname);
   
         const pathParts = location.pathname.split("/").filter(Boolean); // Remove empty strings
@@ -56,19 +56,14 @@ const fetchUser = async () => {
   catch(error)
   {
     console.log(error);
-    
   }
 };
-
-
   const fetchCategory = async()=>{
     try {
         dispatch(setLoadingCategory(true))
         const response = await Axios({
             ...SummaryApi.getCategory
-        })
-
-        
+        })   
         const { data : responseData } = response;
         console.log(`this is response of category ${JSON.stringify(responseData.data)}`);
         

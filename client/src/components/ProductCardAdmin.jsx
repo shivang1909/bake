@@ -6,14 +6,26 @@ import SummaryApi from '../common/SummaryApi'
 import Axios from '../utils/Axios'
 import AxiosToastError from '../utils/AxiosToastError'
 import toast from 'react-hot-toast'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { setAllProduct } from '../store/productSlice'
 
-const ProductCardAdmin = ({ data, fetchProductData }) => {
+const ProductCardAdmin = ({ data }) => {
   
+  const usedispatch = useDispatch()
   const user = useSelector(state => state.user)
+  const allProduct = useSelector(state => state.product.Allproduct)
+  console.log(allProduct);
+  const serverurl = import.meta.env.VITE_API_URL;
+
   // console.log( user);
   const [editOpen,setEditOpen]= useState(false)
   const [openDelete,setOpenDelete] = useState(false)
+  const [deleteProduct,setDeleteProduct] = useState({
+          _id : data._id,
+          image: data.image,
+      })
+    // console.log(data);
+    
    console.log(data)
   const handleDeleteCancel  = ()=>{
       setOpenDelete(false)
@@ -36,12 +48,17 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
 
       if(responseData.success){
           toast.success(responseData.message)
-          if(fetchProductData){
-            fetchProductData()
-          }
+          console.log('this is ',deleteProduct);
+ 
+            // fetchProductData()
+            usedispatch(
+              setAllProduct(
+                allProduct.filter((p) => p._id !== deleteProduct._id)
+            ));
           setOpenDelete(false)
       }
     } catch (error) {
+      console.log(error)
       AxiosToastError(error)
     }
   }
@@ -49,17 +66,13 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
     <div className='w-36 p-4 bg-white rounded'>
         <div>
             <img
-               src={data?.coverimage}  
+               src={ data?.coverimage}  
                alt={data?.name}
                className='w-full h-full object-scale-down'
             />
         </div>
         <p className='text-ellipsis line-clamp-2 font-medium'>{data?.name}</p>
         <p className='text-slate-400'>{data?.unit}</p>
-        {/* <div className='grid grid-cols-2 gap-3 py-2'>
-          <button onClick={()=>setEditOpen(true)} className='border px-1 py-1 text-sm border-green-600 bg-green-100 text-green-800 hover:bg-green-200 rounded'>Edit</button>
-          <button onClick={()=>setOpenDelete(true)} className='border px-1 py-1 text-sm border-red-600 bg-red-100 text-red-600 hover:bg-red-200 rounded'>Delete</button>
-        </div> */}
 
 <div className='grid grid-cols-2 gap-3 py-2'>
           {
@@ -68,7 +81,7 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
             ) : (
               <>
           <button onClick={()=>setEditOpen(true)} className='border px-1 py-1 text-sm border-green-600 bg-green-100 text-green-800 hover:bg-green-200 rounded'>Edit</button>
-          <button onClick={()=>setOpenDelete(true)} className='border px-1 py-1 text-sm border-red-600 bg-red-100 text-red-600 hover:bg-red-200 rounded'>Delete</button>
+          <button onClick={()=>setOpenDelete(true) } className='border px-1 py-1 text-sm border-red-600 bg-red-100 text-red-600 hover:bg-red-200 rounded'>Delete</button>
           </>
         )}
 
@@ -77,7 +90,7 @@ const ProductCardAdmin = ({ data, fetchProductData }) => {
 
         {
           editOpen && (
-            <EditProductAdmin fetchProductData={fetchProductData} data={data} close={()=>setEditOpen(false)}/>
+            <EditProductAdmin  data={data} close={()=>setEditOpen(false)}/>
           )
         }
 

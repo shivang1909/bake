@@ -22,12 +22,14 @@ const AddToCartButton = ({ data }) => {
 
         try {
             setLoading(true)
+
             const response = await Axios({
                 ...SummaryApi.addTocart,
                 data: {
                     productId: data?._id
                 }
             })
+
             const { data: responseData } = response
 
             if (responseData.success) {
@@ -41,6 +43,7 @@ const AddToCartButton = ({ data }) => {
         } finally {
             setLoading(false)
         }
+
     }
 
     //checking this item in cart or not

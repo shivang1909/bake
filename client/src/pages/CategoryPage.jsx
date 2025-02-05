@@ -24,43 +24,23 @@ const CategoryPage = () => {
         image : "",
     })
     const allCategory = useSelector(state => state.product.allCategory)
+    
     const [openConfimBoxDelete,setOpenConfirmBoxDelete] = useState(false)
     const usedispatch = useDispatch();
     const [deleteCategory,setDeleteCategory] = useState({
         _id : "",
         image: "",
     })
-    // const allCategory = useSelector(state => state.product.allCategory)
-
-
-    // useEffect(()=>{
-    //     setCategoryData(allCategory)
-    // },[allCategory])
-    
-    const fetchCategory = async()=>{
-        try {
-            setLoading(true)
-            const response = await Axios({
-                ...SummaryApi.getCategory
-            })
-            const { data : responseData } = response
-
-            if(responseData.success){
-                setCategoryData(responseData.data)
-            }
-        } catch (error) {
-            
-        }finally{
-            setLoading(false)
-        }
-    }
+  
+  
 
     useEffect(()=>{
-        fetchCategory()
+           setCategoryData(allCategory)
     },[])
 
     const handleDeleteCategory = async()=>{
         try {
+           
             const response = await Axios({
                 ...SummaryApi.deleteCategory,
                 data : deleteCategory
@@ -78,7 +58,7 @@ const CategoryPage = () => {
                     )
                   );
                   
-                fetchCategory()
+           
                 setOpenConfirmBoxDelete(false)
             }
         } catch (error) {
@@ -93,14 +73,14 @@ const CategoryPage = () => {
             <button onClick={()=>setOpenUploadCategory(true)} className='text-sm border border-primary-200 hover:bg-primary-200 px-3 py-1 rounded'>Add Category</button>
         </div>
         {
-            !categoryData[0] && !loading && (
+            !allCategory[0] && !loading && (
                 <NoData/>
             )
         }
 
         <div className='p-4 grid  grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2'>
             {
-                categoryData.map((category,index)=>{
+                allCategory.map((category,index)=>{
                     
                     return(
                         <div className='w-32 h-56 rounded shadow-md' key={category._id}>
@@ -141,13 +121,13 @@ const CategoryPage = () => {
 
         {
             openUploadCategory && (
-                <UploadCategoryModel fetchData={fetchCategory} close={()=>setOpenUploadCategory(false)}/>
+                <UploadCategoryModel  close={()=>setOpenUploadCategory(false)}/>
             )
         }
 
         {
             openEdit && (
-                <EditCategory data={editData} close={()=>setOpenEdit(false)} fetchData={fetchCategory}/>
+                <EditCategory data={editData} close={()=>setOpenEdit(false)} />
             )
         }
 

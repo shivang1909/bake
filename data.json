@@ -1,0 +1,293 @@
+[
+    {
+      "name": "Kaju Katli",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c8650c8c7d0ca48c24156",
+      "discount": 10,
+      "description": "Savor the creamy texture of Kaju Katli, a beloved cashew-based sweet.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 300,
+          "qty": 25,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 600,
+          "qty": 80,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "KajuKatli",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Ladoo",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c8650c8c7d0ca48c24156",
+      "discount": 12,
+      "description": "Ladoo, a traditional Indian sweet made from chickpea flour and sugar.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 280,
+          "qty": 20,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 550,
+          "qty": 60,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "Ladoo",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Churma Ladoo",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c8650c8c7d0ca48c24156",
+      "discount": 8,
+      "description": "A sweet treat made from wheat flour, ghee, and sugar, perfect for festivals.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 320,
+          "qty": 35,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 650,
+          "qty": 90,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "ChurmaLadoo",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Gajar Halwa",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c8650c8c7d0ca48c24156",
+      "discount": 15,
+      "description": "A rich and warm dessert made from grated carrots, milk, and sugar.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 350,
+          "qty": 40,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 700,
+          "qty": 120,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "GajarHalwa",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Methi Thepla",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c86c2c8c7d0ca48c24159",
+      "discount": 5,
+      "description": "A savory Gujarati flatbread made with fenugreek leaves and spices.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 270,
+          "qty": 50,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 500,
+          "qty": 100,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "MethiThepla",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Prawn Masala",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c86c2c8c7d0ca48c24159",
+      "discount": 10,
+      "description": "Spicy and tangy prawns cooked in a flavorful masala sauce.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 350,
+          "qty": 30,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 600,
+          "qty": 85,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "PrawnMasala",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Apple Juice",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "67a1d313a16b23a61ecaf879",
+      "discount": 5,
+      "description": "Refreshing and pure apple juice made from freshly picked apples.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 200,
+          "qty": 50,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 450,
+          "qty": 100,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "AppleJuice",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Mango Chutney",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "67a1d313a16b23a61ecaf879",
+      "discount": 7,
+      "description": "A sweet and tangy mango chutney to pair with your meals.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 220,
+          "qty": 60,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 500,
+          "qty": 110,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "MangoChutney",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Banana Chips",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "679c86c2c8c7d0ca48c24159",
+      "discount": 12,
+      "description": "Crispy and crunchy banana chips, perfect for snacking.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 280,
+          "qty": 45,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 500,
+          "qty": 85,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "BananaChips",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    },
+    {
+      "name": "Fruit Basket",
+      "coverimage": "http://127.0.0.1:5000/uploads/peda.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/peda.jfif"
+      ],
+      "category": "67a1d313a16b23a61ecaf879",
+      "discount": 10,
+      "description": "A fresh fruit basket containing seasonal fruits, perfect for gifting.",
+      "weightVariants": [
+        {
+          "weight": "5000",
+          "price": 400,
+          "qty": 30,
+          "_id": "679c8893c8c7d0ca48c24184"
+        },
+        {
+          "weight": "500",
+          "price": 550,
+          "qty": 100,
+          "_id": "679c8893c8c7d0ca48c24185"
+        }
+      ],
+      "publish": true,
+      "sku_code": "FruitBasket",
+      "createdAt": "2025-02-04T09:17:43.597+00:00",
+      "updatedAt": "2025-02-04T09:17:43.597+00:00",
+      "__v": 0
+    }
+  ]
+  

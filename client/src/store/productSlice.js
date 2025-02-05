@@ -3,8 +3,7 @@
     const initialValue = {
         allCategory : [],
         loadingCategory : false,
-        
-        product : []
+        Allproduct : []
     }
 
     const productSlice = createSlice({
@@ -13,13 +12,20 @@
         reducers : {
             setAllCategory : (state,action)=>{
                 state.allCategory = [...action.payload]
+                console.log(state.allCategory)
             },
             setLoadingCategory : (state,action)=>{
                 state.loadingCategory = action.payload
             },
+            setAllProduct : (state,action)=>{
+
+                console.log("calling",state.product);
+
+                state.Allproduct = [...action.payload]
+            }
         }
     })
 
-    export const  { setAllCategory,setLoadingCategory } = productSlice.actions
+    export const  { setAllCategory,setLoadingCategory ,setAllProduct} = productSlice.actions
 
     export default productSlice.reducer

@@ -16,7 +16,7 @@ const ProductDisplayPage = () => {
   const params = useParams()
   let productId = params?.product?.split("-")?.slice(-1)[0]
   const [data,setData] = useState({
-    name : "",
+    name : "",  
     image : []
   })
   const [image,setImage] = useState(0)
@@ -59,10 +59,6 @@ const fetchCategoryName = async (categoryId) => {
           }
         })
 
-        // const { data : responseData } = response
-        // if(responseData.success){
-        //   setData(responseData.data)
-        // }
         const { data: responseData } = response;
         if (responseData.success) {
           setData(responseData.data);
@@ -138,26 +134,6 @@ const fetchCategoryName = async (categoryId) => {
             <div>
             </div>
 
-            {/* <div className='my-4  hidden lg:grid gap-3 '>
-                <div>
-                    <p className='font-semibold'>Description</p>
-                    <p className='text-base'>{data.description}</p>
-                </div>
-                <div>
-                    <p className='font-semibold'>Unit</p>
-                    <p className='text-base'>{data.unit}</p>
-                </div>
-                {
-                  data?.more_details && Object.keys(data?.more_details).map((element,index)=>{
-                    return(
-                      <div>
-                          <p className='font-semibold'>{element}</p>
-                          <p className='text-base'>{data?.more_details[element]}</p>
-                      </div>
-                    )
-                  })
-                }
-            </div> */}
         </div>
 
 
@@ -201,19 +177,7 @@ const fetchCategoryName = async (categoryId) => {
             ))}
           </div>
         </div>
-
-              {/* {
-                data.stock === 0 ? (
-                  <p className='text-lg text-red-500 my-2'>Out of Stock</p>
-                ) 
-                : (
-                  // <button className='my-4 px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded'>Add</button>
-                  <div className='my-4'>
-                    <AddToCartButton data={data}/>
-                  </div>
-                )
-              } */}
-                   {/* Add to Cart Button */}
+        {/* Add to Cart Button */}
         {selectedVariant?.qty > 0 ? (
           <div className="my-4">
             <AddToCartButton data={{ ...data, selectedVariant }} />

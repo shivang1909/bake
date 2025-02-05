@@ -129,7 +129,7 @@ export const deleteCategoryController = async(request,response)=>{
     try {
         const { _id,image } = request.body 
         //Image Delete  Logic 
-        
+        console.log("try block")
         if (fs.existsSync(image)) {
             console.log(image);
             fs.unlinkSync(image); // Deletes the image file
@@ -160,6 +160,7 @@ export const deleteCategoryController = async(request,response)=>{
         })
 
     } catch (error) {
+        console.log(error);
        return response.status(500).json({
             message : error.message || error,
             success : false,

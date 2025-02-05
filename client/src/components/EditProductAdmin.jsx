@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
 import { FaCloudUploadAlt } from "react-icons/fa";
-import uploadImage from '../utils/UploadImage';
 import Loading from '../components/Loading';
 import ViewImage from '../components/ViewImage';
 import { MdDelete } from "react-icons/md";
-import { useSelector } from 'react-redux'
 import { IoClose } from "react-icons/io5";
 import AddFieldComponent from '../components/AddFieldComponent';
 import Axios from '../utils/Axios';
@@ -13,14 +11,18 @@ import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
 import { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
+import { setAllProduct } from '../store/productSlice';
 
-// import { useSelector } from 'react-redux'
 
-const serverurl = import.meta.env.VITE_API_URL;
-const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
+const EditProductAdmin = ({ close ,data : propsData}) => {
+  const dispatch = useDispatch();
+  const blobimages = useRef([]); 
+
   const user = useSelector(state => state.user)
   console.log(user);
-  
+  const allProduct = useSelector(state => state.product.Allproduct)
+   console.log(allProduct);
   const [data, setData] = useState({
     _id : propsData._id,
     name: propsData.name,
@@ -32,6 +34,7 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
     more_details: propsData.more_details || {},
     weightVariants: propsData.weightVariants || [],
     sku_code: propsData.sku_code,
+    checkcategory: false
   })
   console.log(propsData)
 
@@ -39,12 +42,12 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
   const allCategory = useSelector(state => state.product.allCategory)
-   console.log(data)
+  console.log(data)
   console.log(`this is image previw ${imagePreview[0]}`);
   const [openAddField, setOpenAddField] = useState(false)
   const [fieldName, setFieldName] = useState("")
   const [newimage, setNewImage] = useState([]);
-    const [coverimaepreview, setCoverImagepreview] = useState(propsData.coverimage)
+  const [coverimaepreview, setCoverImagepreview] = useState(propsData.coverimage)
     const imageRef = useRef();
     
     const handleUploadCoverImage = (e) => { 
@@ -61,10 +64,7 @@ const EditProductAdmin = ({ close ,data : propsData,fetchProductData}) => {
     }
 useEffect(() => {
      console.log(data);
-
      setImagePreview([...data.image]);
-
- 
 },[])
 
   
@@ -85,7 +85,8 @@ useEffect(() => {
   
     // Convert FileList to an array
     const allSelectedFiles = Array.from(files);
-  
+    const newBlobs = allSelectedFiles.map((file) => URL.createObjectURL(file));
+    // blobimages =  allSelectedFiles.map((file) => URL.createObjectURL(file));
     // Fetch only the names of existing images (from `data.image`)
     const imageNames = data.image.map((image) => {
       const parts = image.split('/');
@@ -104,13 +105,16 @@ useEffect(() => {
       }
       return false;
     });
-  
+    
     // If a duplicate is found, show an alert with the duplicate name
     if (hasDuplicate) {
       alert(`${duplicateName} is already there, please select new images.`);
       return;
     }
-  
+    
+    blobimages.current.push(...newBlobs);  // Add new blobs to the existing array
+
+    console.log(blobimages);
     // Create preview URLs for the new images
     const newPreviews = allSelectedFiles.map((file) => URL.createObjectURL(file));
   
@@ -121,25 +125,6 @@ useEffect(() => {
     // Clear the file input
     imageRef.current.value = "";
   };
-
-
-
-  // handle upload for single image 
-  // const handleUploadImage = async (e) => {
-  //   const file = e.target.files[0]
-    
-  //   if (!file) {
-  //     return
-  //   }
-    
-  //   const url = URL.createObjectURL(file);
-  //   setImagePreview((prevPreview) => [...prevPreview, url]);
-  //   setNewImage((prevNewImage) => [...prevNewImage, file]);
-  //   console.log("new image",newimage);
-  //   console.log("image preview",imagePreview);
-  //   console.log("data.image",data.image)
-  //   imageRef.current.value="";
-  // }
 
   const handleWeightChange = (index, field, value) => {
     const updatedVariants = [...data.weightVariants];
@@ -174,8 +159,6 @@ const handleDeleteImage = (index) => {
   setNewImage((prevNewImage) => prevNewImage.filter((_, imgIndex) => imgIndex !== datalength));
  return;
 }
-
-
   setData((prevData) => ({
     ...prevData,
     image: prevData.image.filter((_, imgIndex) => imgIndex !== index),
@@ -196,14 +179,39 @@ const handleDeleteImage = (index) => {
     setFieldName("")
     setOpenAddField(false)
   }
+  
+  const handleCategoryChange = (e) => {
+    const selectedCategoryId = e.target.value;
+
+    // Find the selected category from all categories
+    const selectedCategory = allCategory.find(c => c._id === selectedCategoryId);
+
+    // Update state with selected category, and set checkcategory to true if full category object is used
+    setData((prev) => ({
+        ...prev,
+        category: selectedCategory || { _id: selectedCategoryId },
+        checkcategory: selectedCategory ? true : false
+    }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
     console.log("data", data)
     const formData = new FormData();
     formData.append("_id", data._id);
     formData.append("name", data.name);
-    formData.append("category", data.category._id);
+
+
+    // Handle the category appending logic
+    if (data.checkcategory) {
+      // If checkcategory is true, append the full category object
+      formData.append("category", data.category);
+  } else {
+      // If checkcategory is false, append only the category ID
+      formData.append("category", data.category._id);
+  }
+  
     formData.append("coverimage", data.coverimage);
     formData.append("discount", data.discount);
     formData.append("description", data.description);
@@ -232,10 +240,24 @@ const handleDeleteImage = (index) => {
       });
   
       const { data: responseData } = response;
-      if (responseData.success) {
+      if (responseData.success) { 
+        
+        const updatedData = {
+          ...data,
+          image: blobimages.current.length > 0 ?  [...data.image, ...blobimages.current] : data.image,
+          coverimage: data.coverimage instanceof File ? coverimaepreview : data.coverimage,
+        };
+        
+  console.log(updatedData);
+  
+  const updatedproducts = allProduct.map((product) =>
+          product._id === updatedData._id ? updatedData : product
+      );
+      dispatch(setAllProduct([...updatedproducts]));
+      console.log(allProduct);
         successAlert(responseData.message);
         if (close) close();
-        fetchProductData();
+        // fetchProductData();
         setData({
           name: "",
           image: [],
@@ -248,10 +270,14 @@ const handleDeleteImage = (index) => {
         });
       }
     } catch (error) {
+      console.log(error);
+      
       AxiosToastError(error);
     }
 
   }
+  // je new categoery add kareli hoi and koi product na hoi to search by category not working
+  // search by categry works only when product is already added
 
   return (
     <section className='fixed top-0 right-0 left-0 bottom-0 bg-black z-50 bg-opacity-70 p-4'>
@@ -339,7 +365,7 @@ const handleDeleteImage = (index) => {
                       {coverimaepreview ? (
                         <div key={coverimaepreview} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
                           <img
-                            src={coverimaepreview}
+                            src={ coverimaepreview}
                             alt={`Preview`}
                             className="w-full h-full object-scale-down cursor-pointer"
                             onClick={() => setViewImageURL(coverimaepreview)}
@@ -412,10 +438,13 @@ const handleDeleteImage = (index) => {
                       value={data.category._id}
                       onChange={(e)=>{
                         const value = e.target.value 
+                      
+                       
                         setData((preve)=>{
                           return{
                             ...preve,
                             category : value,
+                            checkcategory : true
                           }
                         })    
                       }}

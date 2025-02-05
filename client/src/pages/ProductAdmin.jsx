@@ -7,6 +7,8 @@ import ProductCardAdmin from "../components/ProductCardAdmin";
 import { IoSearchOutline } from "react-icons/io5";
 import noDataImage from "../assets/nothing here yet.webp"; // Import the image for "No Data Found"
 // import { useSelector } from "react-redux";
+import { setAllProduct } from '../store/productSlice';
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductAdmin = () => {
 
@@ -17,10 +19,14 @@ const ProductAdmin = () => {
   const [search, setSearch] = useState("");
   const [searchType, setSearchType] = useState("name"); // "name" or "category"
 
-  const fetchProductData = async () => {
-    try {
-      setLoading(true);
+  const dispatch = useDispatch();
+  const allProduct = useSelector(state => state.product.Allproduct)
+console.log(allProduct);
 
+const fetchProductData = async () => {
+    try {
+      // setLoading(true);
+    console.log("fetch called");
       const requestData = {
         page,
         limit: 12,
@@ -42,8 +48,9 @@ const ProductAdmin = () => {
       const { data: responseData } = response;
 
       if (responseData.success) {
+        dispatch(setAllProduct(responseData.data));
         setTotalPageCount(responseData.totalNoPage || 1);
-        setProductData(responseData.data);
+        setProductData(allProduct);
       }
     } catch (error) {
       AxiosToastError(error);
@@ -54,6 +61,7 @@ const ProductAdmin = () => {
 
   useEffect(() => {
     fetchProductData();
+    setProductData(allProduct); 
   }, [page, search]); // Trigger on page change and search value change
 
   const handleNext = () => {
@@ -115,8 +123,13 @@ const ProductAdmin = () => {
 
       <div className="p-4 bg-blue-50">
         <div className="min-h-[55vh]">
+          {/* {console.log(productData)} */}
+          
           {/* Check if productData is empty */}
-          {productData.length === 0 && !loading && (
+
+          {/* Change this productData to allProduct */}
+          {console.log(allProduct)}
+          {allProduct.length === 0 && !loading && (
             <div className="flex flex-col justify-center items-center w-full mx-auto">
               <img
                 src={noDataImage}
@@ -129,9 +142,10 @@ const ProductAdmin = () => {
           
           {/* Display Products */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {productData.map((p) => (
-              <ProductCardAdmin key={p.id} data={p} fetchProductData={fetchProductData} />
-            ))}
+            {allProduct.map((p) => (
+              // <ProductCardAdmin key={p.id} data={p} fetchProductData={fetchProductData} />
+              <ProductCardAdmin key={p.id} data={p}/>
+          ))}
           </div>
         </div>
 

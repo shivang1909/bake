@@ -14,10 +14,6 @@ const ProductListPage = () => {
   const [loading, setLoading] = useState(false)
   const [totalPage, setTotalPage] = useState(1)
   const params = useParams()
-
-
-  
-
   const categoryId = params.category.split("-").slice(-1)[0]
   
 

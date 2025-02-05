@@ -15,8 +15,8 @@ import AddToCartButton from './AddToCartButton'
 const CardProduct = ({data}) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`
     const [loading,setLoading] = useState(false)
-    const [selectedVariant, setSelectedVariant] = useState(data.weightVariants[0]); // Default to first variant
-  // Function to apply discount
+    const firstVariant = data.weightVariants[0];
+    // Function to apply discount
   const priceWithDiscount = (price, discount) => {
     return price - (price * discount) / 100;
   };
@@ -41,7 +41,7 @@ const CardProduct = ({data}) => {
             }
         </div>
       </div>
-      <div className='px-2 lg:px-0 font-medium text-ellipsis text-sm lg:text-base line-clamp-2'>
+      {/* <div className='px-2 lg:px-0 font-medium text-ellipsis text-sm lg:text-base line-clamp-2'>
         {data.name}
       </div>
       <div className='w-fit gap-1 px-2 lg:px-0 text-sm lg:text-base'>
@@ -75,13 +75,28 @@ const CardProduct = ({data}) => {
         Price:{" "}
         {priceWithDiscount(selectedVariant.price, data.discount)} ₹
       </div>
-    </div>
-        {/* Add to Cart Button with Selected Variant */}
+    </div> */}
+     <div className='px-2 lg:px-0 font-medium text-ellipsis text-sm lg:text-base line-clamp-2'>
+        {data.name}
+      </div>
+
+      {/* Display the first variant's weight
+      <div className='w-fit gap-1 px-2 lg:px-0 text-sm lg:text-base'>
+        Weight:{firstVariant.weight} 
+      </div> */}
+
+      {/* Display the first variant's price with discount */}
+      <div className='px-2 lg:px-0 flex items-center justify-between gap-1 lg:gap-3 text-sm lg:text-base'>
+        <div className="font-semibold">
+          <div>From: {priceWithDiscount(firstVariant.price, data.discount)} ₹</div>
+        </div>
+
+        {/* Add to Cart Button */}
         <div>
-          {selectedVariant.qty === 0 ? (
+          {firstVariant.qty === 0 ? (
             <p className="text-red-500 text-sm text-center">Out of stock</p>
           ) : (
-            <AddToCartButton data={{ ...data, selectedVariant }} />
+            <AddToCartButton data={{ ...data, selectedVariant: firstVariant }} />
           )}
         </div>
       </div>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { IoClose } from "react-icons/io5";
-import uploadImage from '../utils/UploadImage';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
 import toast from 'react-hot-toast'
@@ -23,7 +22,7 @@ const UploadCategoryModel = ({close, fetchData}) => {
     }
     
         const allCategory = useSelector(state => state.product.allCategory)
-       const usedispatch = useDispatch();
+       const dispatch = useDispatch();
     const handleSubmit = async(e)=>{
         e.preventDefault()
     
@@ -39,14 +38,17 @@ const UploadCategoryModel = ({close, fetchData}) => {
             })
             const { data : responseData } = response
           
-            usedispatch(setAllCategory([...allCategory, responseData.data]));
-
+            
             if(responseData.success){
-                // setAllCategory(usedispatch([...allCategory,responseData.data]))
-                // console.log(allCategory)
+                // setAllCategory(usedispatch([...allCategory,responseData.data]))  
+                const arra = [...allCategory,responseData.data] ;
+                console.log (arra);
+
+                dispatch(setAllCategory([...allCategory, responseData.data]));
+                console.log(allCategory)
                 toast.success(responseData.message)
                 close()
-                fetchData()
+                
               
             }
         } catch (error) {
