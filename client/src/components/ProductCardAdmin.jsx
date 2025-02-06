@@ -54,7 +54,7 @@ const ProductCardAdmin = ({ data }) => {
             // fetchProductData()
             usedispatch(
               setAllProduct(
-                allProduct.filter((p) => p._id !== deleteProduct._id)
+                allProduct.filter((p) => p._id !== data._id)
             ));
           setOpenDelete(false)
       }

@@ -15,10 +15,10 @@ import { setAllProduct } from '../store/productSlice';
 import CategorySelect from './CategorySelect';
 
 const ProductForm = ({close, isEdit = false, updatedata}) => {
-  const [imagePreview, setImagePreview] = useState([]);
   console.log(updatedata);
   
   const usedispatch = useDispatch();
+  
   const allProduct = useSelector(state => state.product.Allproduct);
   console.log(allProduct);
   const [selectedcategory, setSelectedCategory] = useState(false)
@@ -37,14 +37,18 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
     sku_code: isEdit ? updatedata.sku_code : "",
     checkcategory: false,
   });
+  const [imagePreview, setImagePreview] = useState(data.image);
   console.log(data);
-  
+  const [newimage, setNewImage] = useState([]); // Stores newly selected images for update  
+const imageRef = useRef(null); // Reference for file input  
+const blobimages = useRef([]); // Stor
   const [coverimaepreview, setCoverImagepreview] = useState(data.coverimage)
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
   const allCategory = useSelector(state => state.product.allCategory)
   const [openAddField, setOpenAddField] = useState(false)
   const [fieldName, setFieldName] = useState("")
+  
   console.log(data);
   const file1 = useRef(null)
 
@@ -68,26 +72,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
       weightVariants: updatedWeightVariants
     }));
   };
-  const handleUploadCoverImage = (e) => {   
-    setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
-    console.log("handle upload cover image")
-      setData((preve) => {
-        return {
-          ...preve,
-          coverimage: e.target.files[0]
-        };
-       });
-  }
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setData((preve) => {
-      return {
-        ...preve,
-        [name]: value
-      }
-    })
-  }
-  const handleUploadImage = async (e) => {
+  const addUpload = (e) =>{
     console.log("handleUploadImage")
     const files =  file1.current.files;
     var allselectedfiles = [];
@@ -118,6 +103,100 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
    });
     setImagePreview((prev) => [...prev, ...allselectedfiles.map((file) => URL.createObjectURL(file))]);
   }
+
+ 
+  const handleUploadCoverImage = (e) => {   
+    setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
+    console.log("handle upload cover image")
+      setData((preve) => {
+        return {
+          ...preve,
+          coverimage: e.target.files[0]
+        };
+       });
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setData((preve) => {
+      return {
+        ...preve,
+        [name]: value
+      }
+    })
+  }
+  const handleEditUpload = async (e) => {
+    console.log("Editing Upload...");
+  
+    const files = file1.current.files; // Use file1 for Edit mode
+    const allSelectedFiles = Array.from(files);
+    
+    const imageNames = data.image.map((image) => image.split("/").pop()); // Extract existing image names
+    const newImageNames = newimage.map((file) => file.name); // Names of newly selected images
+    
+    let duplicateName = null;
+    const hasDuplicate = allSelectedFiles.some((newFile) => {
+      if (imageNames.includes(newFile.name) || newImageNames.includes(newFile.name)) {
+        duplicateName = newFile.name;
+        return true;
+      }
+      return false;
+    });
+  
+    if (hasDuplicate) {
+      alert(`${duplicateName} is already there, please select new images.`);
+      return;
+    }
+  
+    file1.current.value = ""; // Clear input after selecting images
+  
+    const newPreviews = allSelectedFiles.map((file) => URL.createObjectURL(file));
+  
+    setImagePreview((prev) => [...prev, ...newPreviews]);
+    setNewImage((prev) => [...prev, ...allSelectedFiles]);
+  
+    blobimages.current.push(...newPreviews);
+    console.log(blobimages);
+  };
+  
+  const handleUploadImage = async (e) => {
+    if (isEdit) {
+      handleEditUpload(e);
+    } else {
+      addUpload(e);
+    }
+  };
+  
+  // const handleUploadImage = async (e) => {
+  //   console.log("handleUploadImage")
+  //   const files =  file1.current.files;
+  //   var allselectedfiles = [];
+  //   Array.from(files).forEach((element) => {
+  //   allselectedfiles.push(element);      
+      
+  //   });
+  //   console.log(allselectedfiles);
+  //   file1.current.value = "";
+  //   var duplicateName = null;
+  //     const hasDuplicate = allselectedfiles.some((newFile) => {
+  //       const isDuplicate = data.image.some((existingFile) => existingFile.name === newFile.name);
+  //       if (isDuplicate) {
+  //         duplicateName = newFile.name; // Capture the duplicate file name
+  //       }
+  //       return isDuplicate;
+  //     });
+  //   if(hasDuplicate){
+  //     alert(`${duplicateName} is already there, please select new images.`);
+
+  //     return;
+  //   }
+  //   setData((preve) =>  {
+  //    return { 
+  //    ...preve,
+  //    image: [...preve.image, ... allselectedfiles],
+  //    };
+  //  });
+  //   setImagePreview((prev) => [...prev, ...allselectedfiles.map((file) => URL.createObjectURL(file))]);
+  // }
 
   const deletepreviw = async (updatedPreviews) => {
     if (file1.current) {
@@ -390,7 +469,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
                 </div>
               </div>
             </div>
-  
+     {console.log(data.category)}
   {/* Category Selection */}
   <CategorySelect
   allCategory={allCategory}
