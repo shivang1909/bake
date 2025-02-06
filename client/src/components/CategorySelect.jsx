@@ -5,7 +5,8 @@ const CategorySelect = ({ allCategory, selectedCategory, setSelectedCategory }) 
     <div className="grid gap-1">
       <label className="font-medium">Category</label>
       <div>
-        {console.log(selectedCategory._id)}
+        {/* {console.log(selectedCategory._id)} */}
+        {console.log(selectedCategory)}
 
         <select
           className="bg-blue-50 border w-full p-2 rounded"
