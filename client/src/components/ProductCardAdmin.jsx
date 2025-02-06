@@ -8,6 +8,7 @@ import AxiosToastError from '../utils/AxiosToastError'
 import toast from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAllProduct } from '../store/productSlice'
+import ProductForm from './ProductForm'
 
 const ProductCardAdmin = ({ data }) => {
   
@@ -90,7 +91,7 @@ const ProductCardAdmin = ({ data }) => {
 
         {
           editOpen && (
-            <EditProductAdmin  data={data} close={()=>setEditOpen(false)}/>
+            < ProductForm updatedata={data} isEdit={true} close={()=>setEditOpen(false)}/>
           )
         }
 

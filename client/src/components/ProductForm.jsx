@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import { FaCloudUploadAlt } from "react-icons/fa";
-
 import Loading from '../components/Loading';
 import ViewImage from '../components/ViewImage';
 import { MdDelete } from "react-icons/md";
@@ -13,26 +12,34 @@ import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
 import { setAllProduct } from '../store/productSlice';
+import CategorySelect from './CategorySelect';
 
-const ProductForm = ({close}) => {
+const ProductForm = ({close, isEdit = false, updatedata}) => {
   const [imagePreview, setImagePreview] = useState([]);
+  console.log(updatedata);
+  
   const usedispatch = useDispatch();
   const allProduct = useSelector(state => state.product.Allproduct);
   console.log(allProduct);
   const [selectedcategory, setSelectedCategory] = useState(false)
   const [temp, settemp] = useState([])
-  const [coverimaepreview, setCoverImagepreview] = useState(null)
+  
   const [data, setData] = useState({
-    name: "",
-    image: [],
-    category: 0,
-    coverimage: null,
-    discount: "",
-    description: "",
-    more_details: {}, 
-    weightVariants: [],
-    sku_code: "", // New field for weight variants
-  })
+    _id: isEdit ? updatedata._id : "",
+    name: isEdit ? updatedata.name : "",
+    coverimage: isEdit ? updatedata.coverimage : null,
+    image: isEdit ? updatedata.image : [],
+    category: isEdit ? updatedata.category : 0,
+    discount: isEdit ? updatedata.discount : "",
+    description: isEdit ? updatedata.description : "",
+    more_details: isEdit ? updatedata.more_details || {} : {},
+    weightVariants: isEdit ? updatedata.weightVariants : [],
+    sku_code: isEdit ? updatedata.sku_code : "",
+    checkcategory: false,
+  });
+  console.log(data);
+  
+  const [coverimaepreview, setCoverImagepreview] = useState(data.coverimage)
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
   const allCategory = useSelector(state => state.product.allCategory)
@@ -53,16 +60,15 @@ const ProductForm = ({close}) => {
 
  // Handle change in weight variant fields
  const handleWeightVariantChange = (index, e) => {
-  const { name, value } = e.target;
-  const updatedWeightVariants = [...data.weightVariants];
-  updatedWeightVariants[index][name] = value;
-  setData((prev) => ({
-    ...prev,
-    weightVariants: updatedWeightVariants
-  }));
-};
-  const handleUploadCoverImage = (e) => { 
-    
+    const { name, value } = e.target;
+    const updatedWeightVariants = [...data.weightVariants];
+    updatedWeightVariants[index][name] = value;
+    setData((prev) => ({
+      ...prev,
+      weightVariants: updatedWeightVariants
+    }));
+  };
+  const handleUploadCoverImage = (e) => {   
     setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
     console.log("handle upload cover image")
       setData((preve) => {
@@ -71,12 +77,9 @@ const ProductForm = ({close}) => {
           coverimage: e.target.files[0]
         };
        });
-
   }
   const handleChange = (e) => {
-  
     const { name, value } = e.target
-    
     setData((preve) => {
       return {
         ...preve,
@@ -86,8 +89,7 @@ const ProductForm = ({close}) => {
   }
   const handleUploadImage = async (e) => {
     console.log("handleUploadImage")
-      
-      const files =  file1.current.files;
+    const files =  file1.current.files;
     var allselectedfiles = [];
     Array.from(files).forEach((element) => {
     allselectedfiles.push(element);      
@@ -95,10 +97,6 @@ const ProductForm = ({close}) => {
     });
     console.log(allselectedfiles);
     file1.current.value = "";
-    
-    
-    
-    
     var duplicateName = null;
       const hasDuplicate = allselectedfiles.some((newFile) => {
         const isDuplicate = data.image.some((existingFile) => existingFile.name === newFile.name);
@@ -120,7 +118,6 @@ const ProductForm = ({close}) => {
    });
     setImagePreview((prev) => [...prev, ...allselectedfiles.map((file) => URL.createObjectURL(file))]);
   }
-
 
   const deletepreviw = async (updatedPreviews) => {
     if (file1.current) {
@@ -167,6 +164,13 @@ const ProductForm = ({close}) => {
     setOpenAddField(false)
   }
 
+// const handleSubmit = (e) => {
+//   if (isEdit) {
+//     handleEditProduct(e); // Call the edit handler if it's an edit action
+//   } else {
+//     handleAddProduct(e); // Call the add handler if it's an add action
+//   }
+// };
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSelectedCategory(false);
@@ -238,8 +242,6 @@ const ProductForm = ({close}) => {
     } catch (error) {
       AxiosToastError(error)
     }
-
-
   }
 
   return (
@@ -389,34 +391,16 @@ const ProductForm = ({close}) => {
               </div>
             </div>
   
-            {/* Category Section */}
-            <div className='grid gap-1'>
-              <label className='font-medium'>Category</label>
-              <div>
-                <select
-                  className='bg-blue-50 border w-full p-2 rounded'
-                  value={data.category}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    setData((prev) => {
-                      return {
-                        ...prev,
-                        category: value,
-                      }
-                    })
-                    setSelectedCategory(true)
-                  }}
-                >
-                  {!selectedcategory && <option value={0}>Select category</option>}
-                  {allCategory.map((c, index) => (
-                    <option key={c?._id} value={c?._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+  {/* Category Selection */}
+  <CategorySelect
+  allCategory={allCategory}
+  selectedCategory={data.category}
+  setSelectedCategory={(selected) =>
+    setData((prev) => ({ ...prev, category: selected || "" })) // Store only `_id`
+  }
+/>
 
+           
    <div>
             <p className='font-medium'>Weight Variants</p>
             {data.weightVariants.map((variant, index) => (

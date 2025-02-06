@@ -15,7 +15,6 @@ const ProductListPage = () => {
   const [totalPage, setTotalPage] = useState(1)
   const params = useParams()
   const categoryId = params.category.split("-").slice(-1)[0]
-  
 
 
   const fetchProductdata = async () => {
@@ -51,7 +50,6 @@ const ProductListPage = () => {
   useEffect(() => {
     fetchProductdata()
   }, [params])
-
 
 
   return (
