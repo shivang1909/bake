@@ -7,8 +7,15 @@ export const createUser = async (userData) => {
     const response = await axios.post(`${API_URL}/api/admin/add`, userData,{withCredentials:true});
     return response.data;
   } catch (error) {
-    console.error('Error creating user:', error);
-    throw error;
+    if (error.response && error.response.data) {
+      // Check if error is related to email already existing
+      const errorMessage = error.response.data.message || 'An error occurred';
+      console.error('Error creating user:', errorMessage);
+      throw new Error(errorMessage);  // Throw the error message to be handled in the component
+    } else {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   }
 };
 

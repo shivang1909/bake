@@ -13,7 +13,17 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { setAllProduct } from '../store/productSlice';
-
+  // const [data, setData] = useState({
+  //   name: "",
+  //   image: [],
+  //   category: 0,
+  //   coverimage: null,
+  //   discount: "",
+  //   description: "",
+  //   more_details: {}, 
+  //   weightVariants: [],
+  //   sku_code: "", // New field for weight variants
+  // })
 
 const EditProductAdmin = ({ close ,data : propsData}) => {
   const dispatch = useDispatch();
@@ -51,7 +61,6 @@ const EditProductAdmin = ({ close ,data : propsData}) => {
     const imageRef = useRef();
     
     const handleUploadCoverImage = (e) => { 
-    
       setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
       console.log("handle upload cover image")
         setData((preve) => {
@@ -60,7 +69,6 @@ const EditProductAdmin = ({ close ,data : propsData}) => {
             coverimage: e.target.files[0]
           };
          });
-  
     }
 useEffect(() => {
      console.log(data);
@@ -78,7 +86,6 @@ useEffect(() => {
       }
     })
   }
-    
   const handleUploadImage = async (e) => {
     const files = imageRef.current.files;
     console.log(files);
@@ -163,8 +170,6 @@ const handleDeleteImage = (index) => {
     ...prevData,
     image: prevData.image.filter((_, imgIndex) => imgIndex !== index),
   }));
-
-
 };
   const handleAddField = () => {
     setData((preve) => {
@@ -179,20 +184,23 @@ const handleDeleteImage = (index) => {
     setFieldName("")
     setOpenAddField(false)
   }
+
+const handleCategoryChange = (e) => {
+  const selectedCategoryId = e.target.value;
+
+  // Find the selected category object from `allCategory`
+  const selectedCategory = allCategory.find(c => c._id === selectedCategoryId);
+
+  console.log("Selected Category:", selectedCategory);
+
+  setData((prev) => ({
+    ...prev,
+    category: selectedCategory || null, // Ensure category is set
+    checkcategory: !!selectedCategory // Converts to `true` if category exists
+  }));
   
-  const handleCategoryChange = (e) => {
-    const selectedCategoryId = e.target.value;
-
-    // Find the selected category from all categories
-    const selectedCategory = allCategory.find(c => c._id === selectedCategoryId);
-
-    // Update state with selected category, and set checkcategory to true if full category object is used
-    setData((prev) => ({
-        ...prev,
-        category: selectedCategory || { _id: selectedCategoryId },
-        checkcategory: selectedCategory ? true : false
-    }));
 };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -202,15 +210,11 @@ const handleDeleteImage = (index) => {
     formData.append("_id", data._id);
     formData.append("name", data.name);
 
-
-    // Handle the category appending logic
-    if (data.checkcategory) {
-      // If checkcategory is true, append the full category object
-      formData.append("category", data.category);
-  } else {
-      // If checkcategory is false, append only the category ID
+    if (data.checkcategory && data.category) {
+        formData.append("category", data.category._id); // ✅ Send only the ObjectId
+        } else if (data.category?._id) {
       formData.append("category", data.category._id);
-  }
+    }
   
     formData.append("coverimage", data.coverimage);
     formData.append("discount", data.discount);
@@ -241,18 +245,23 @@ const handleDeleteImage = (index) => {
   
       const { data: responseData } = response;
       if (responseData.success) { 
+        console.log(data.category);
         
         const updatedData = {
           ...data,
+          // category: data.checkcategory ? { ...data.category } : data.category._id, 
+
+          // category: data.checkcategory ? data.category  : data.category._id, // Ensures a new object reference
           image: blobimages.current.length > 0 ?  [...data.image, ...blobimages.current] : data.image,
           coverimage: data.coverimage instanceof File ? coverimaepreview : data.coverimage,
         };
-        
   console.log(updatedData);
   
   const updatedproducts = allProduct.map((product) =>
           product._id === updatedData._id ? updatedData : product
       );
+      console.log('updated products' ,updatedproducts);
+      
       dispatch(setAllProduct([...updatedproducts]));
       console.log(allProduct);
         successAlert(responseData.message);
@@ -276,8 +285,6 @@ const handleDeleteImage = (index) => {
     }
 
   }
-  // je new categoery add kareli hoi and koi product na hoi to search by category not working
-  // search by categry works only when product is already added
 
   return (
     <section className='fixed top-0 right-0 left-0 bottom-0 bg-black z-50 bg-opacity-70 p-4'>
@@ -433,23 +440,11 @@ const handleDeleteImage = (index) => {
               <div className='grid gap-1'>
                 <label className='font-medium'>Category</label>
                 <div>
-                  <select
-                      className='bg-blue-50 border w-full p-2 rounded'
-                      value={data.category._id}
-                      onChange={(e)=>{
-                        const value = e.target.value 
-                      
-                       
-                        setData((preve)=>{
-                          return{
-                            ...preve,
-                            category : value,
-                            checkcategory : true
-                          }
-                        })    
-                      }}
-                    >
-                     
+                <select
+                  className="bg-blue-50 border w-full p-2 rounded"
+                  value={data.category ? data.category._id : ""}
+                  onChange={handleCategoryChange} // Call only handleCategoryChange
+                >
                       {
                         allCategory.map((c,index)=>{
                           return(

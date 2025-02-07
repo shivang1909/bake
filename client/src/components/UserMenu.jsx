@@ -77,13 +77,7 @@ const UserMenu = ({ close }) => {
             >
               Category
             </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/upload-product"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Upload Product
-            </Link>
+         
             <Link
               onClick={handleClose}
               to="/admin/dashboard/product"
@@ -104,6 +98,13 @@ const UserMenu = ({ close }) => {
               className="px-2 hover:bg-orange-200 py-1"
             >
               Admin List
+            </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/order-list"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              All Order
             </Link>
           </>
         )}
