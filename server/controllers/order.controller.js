@@ -186,23 +186,56 @@ export async function webhookStripe(request,response){
 }
 
 
-export async function getOrderDetailsController(request,response){
-    try {
-        const userId = request.userId // order id
+// export async function getOrderDetailsController(request,response){
+//     try {
+//         const userId = request.userId // order id
 
-        const orderlist = await OrderModel.find({ userId : userId }).sort({ createdAt : -1 }).populate('delivery_address')
+//         const orderlist = await OrderModel.find({ userId : userId }).sort({ createdAt : -1 }).populate('delivery_address')
+
+//         return response.json({
+//             message : "order list",
+//             data : orderlist,
+//             error : false,
+//             success : true
+//         })
+//     } catch (error) {
+//         return response.status(500).json({
+//             message : error.message || error,
+//             error : true,
+//             success : false
+//         })
+//     }
+// }
+
+export async function getOrderDetailsController(request, response) {
+    try {
+        console.log("hello");
+        
+        // Check if orders exist in the database
+        const orderList = await OrderModel.find().sort({ createdAt: -1 }).populate('delivery_address');
+        
+        console.log("Fetched Orders:", orderList);  // Debugging log
+        
+        if (!orderList || orderList.length === 0) {
+            return response.status(404).json({
+                message: 'No orders found.',
+                error: true,
+                success: false,
+            });
+        }
 
         return response.json({
-            message : "order list",
-            data : orderlist,
-            error : false,
-            success : true
-        })
+            message: 'Order list fetched successfully',
+            data: orderList,
+            error: false,
+            success: true,
+        });
     } catch (error) {
+        console.error("Error fetching orders:", error);  // Debugging log
         return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+            message: error.message || error,
+            error: true,
+            success: false,
+        });
     }
 }

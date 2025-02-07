@@ -13,7 +13,6 @@ import Profile from "../pages/Profile";
 import MyOrders from "../pages/MyOrders";
 import Address from "../pages/Address";
 import CategoryPage from "../pages/CategoryPage";
-import UploadProduct from "../pages/UploadProduct";
 import ProductAdmin from "../pages/ProductAdmin";
 import AdminPermision from "../layouts/AdminPermision";
 import ProductListPage from "../pages/ProductListPage";
@@ -22,13 +21,11 @@ import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
-
 import AddAdmin from "../pages/AddAdmin";
 import SetPasswordPage from "../pages/SetPasswordPage";
 import AdminLogin from "../pages/AdminLogin";
 import AdminListPage from "../pages/AdminListPage";
-
-
+import OrderListPage from "../pages/OrderListPage";
 
 const router = createBrowserRouter([
     {
@@ -114,10 +111,6 @@ const router = createBrowserRouter([
                         element: <CategoryPage />
                     },
                     {
-                        path: "upload-product",
-                        element: <UploadProduct />
-                    },
-                    {
                         path: "product",
                         element: <ProductAdmin />
                     },
@@ -128,6 +121,10 @@ const router = createBrowserRouter([
                     {
                         path: "admin-list",
                         element: <AdminListPage />
+                    },
+                    {
+                        path: "order-list",
+                        element: <OrderListPage />
                     }
                 ]
             },

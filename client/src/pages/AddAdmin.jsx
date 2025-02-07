@@ -41,8 +41,7 @@ const AddSubAdmin = () => {
         role: 'Finance Manager',
       });
     } catch (error) {
-      console.error('Error:', error);
-      setError('Error creating user');
+      setError(error.message);
     }
   };
 

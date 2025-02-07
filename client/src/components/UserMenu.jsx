@@ -99,6 +99,13 @@ const UserMenu = ({ close }) => {
             >
               Admin List
             </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/order-list"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              All Order
+            </Link>
           </>
         )}
 
