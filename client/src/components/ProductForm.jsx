@@ -20,9 +20,10 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
   const usedispatch = useDispatch();
   
   const allProduct = useSelector(state => state.product.Allproduct);
-  console.log(allProduct);
-  const [selectedcategory, setSelectedCategory] = useState(false)
   
+
+  const [selectedCategory, setSelectedCategory] = useState(false);
+
   const [data, setData] = useState({
     _id: isEdit ? updatedata._id : "",
     name: isEdit ? updatedata.name : "",
@@ -172,7 +173,6 @@ const blobimages = useRef([]); // Stor
       file1.current.value = "";
 
     }
-
     await setImagePreview(updatedPreviews)
   }
   const handleDeleteImage = async (index) => {
@@ -215,6 +215,24 @@ const handleSubmit = (e) => {
     handleAddProduct(e); // Call the add handler if it's an add action
   }
 };
+
+
+const handleCategoryChange = (e) => {
+  const selectedCategoryId = e.target.value;
+    console.log("this is function")
+  // Find the selected category object from `allCategory`
+  const selectedCategory = allCategory.find(c => c._id === selectedCategoryId);
+
+  console.log("Selected Category:", selectedCategory);
+
+  // Update the state with the selected category object
+  setData((prev) => ({
+    ...prev,
+    category: selectedCategory || null, // Ensure category is set to the object or null
+    checkcategory: !!selectedCategory // Converts to `true` if category exists, otherwise false
+  }));
+};
+
 
 const handleEditProduct = async (e) => {
   e.preventDefault()
@@ -310,7 +328,9 @@ const updatedproducts = allProduct.map((product) =>
     const formdata = new FormData();
     formdata.append("name", data.name)
 
-    formdata.append("category", data.category)
+    // formdata.append("category", data.category)
+    formdata.append("category", data.category?._id || data.category);  // Ensure `_id` is passed, or fallback to `data.category` if it's already an ID
+
     // console.log("display category",data.category);
     
     formdata.append("unit", data.unit)
@@ -352,7 +372,13 @@ const updatedproducts = allProduct.map((product) =>
         }
         usedispatch(setAllProduct([...allProduct, responseData.data]));
         console.log(responseData.data);
+        console.log(allProduct);
         
+         // Update the selected category
+      // setData({
+      //   ...data,
+      //   category: responseData.data.category._id, // Update the category _id
+      // });
         successAlert(responseData.message)
         // toast.success(responseData.message);
                 close();
@@ -380,7 +406,9 @@ const updatedproducts = allProduct.map((product) =>
     <section className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
       <div className='bg-white p-6 w-full max-w-4xl h-auto max-h-[80vh] overflow-y-auto rounded-lg shadow-lg'>
         <div className='flex items-center justify-between p-2 bg-white shadow-md'>
-          <h2 className='font-semibold text-lg'>Upload Product</h2>
+          <h2 className='font-semibold text-lg'>
+      {isEdit ? "Update Product" : "Add product"}
+          </h2>
           <button onClick={close} className='text-gray-600 hover:text-gray-900'>
             <IoClose size={25} />
           </button>
@@ -437,16 +465,15 @@ const updatedproducts = allProduct.map((product) =>
   
             {/* Cover Image Section */}
             <div>
+              
               <p className='font-medium'>Cover Image</p>
               <div>
                 <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
                   <div className='text-center flex justify-center items-center flex-col'>
-                    {imageLoading ? <Loading /> : (
-                      <>
+                    
                         <FaCloudUploadAlt size={35} />
                         <p>Upload Cover Image</p>
-                      </>
-                    )}
+
                   </div>
                   <input
                     type='file'
@@ -480,12 +507,10 @@ const updatedproducts = allProduct.map((product) =>
               <div>
                 <label htmlFor='productImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
                   <div className='text-center flex justify-center items-center flex-col'>
-                    {imageLoading ? <Loading /> : (
-                      <>
+                    
                         <FaCloudUploadAlt size={35} />
                         <p>Upload Image</p>
-                      </>
-                    )}
+                      
                   </div>
                   <input
                     ref={file1}
@@ -522,19 +547,28 @@ const updatedproducts = allProduct.map((product) =>
                 </div>
               </div>
             </div>
-     {/* {console.log(data.category)} */}
-        {/* Category Selection */}
-        <CategorySelect
-  allCategory={allCategory}
-  selectedCategory={data.category} // Store only _id (string)
-  setSelectedCategory={(selectedId) =>
-    setData((prev) => ({
-      ...prev,
-      category: selectedId, // Store only `_id`
-    }))
-  }
-/>
+    
 
+<div className="grid gap-1">
+  <label className="font-medium">Category</label>
+  <div>
+
+    {console.log(data.category)}
+    {console.log(data.category._id)}
+    {console.log(selectedCategory)}
+    
+<CategorySelect
+  selectedCategory={selectedCategory}
+  allCategory={allCategory}
+  handleCategoryChange={handleCategoryChange}
+  data={data}
+  isEdit={isEdit}
+/>
+  
+  </div>
+</div>
+
+{/* ========================= */}
    <div>
             <p className='font-medium'>Weight Variants</p>
             {data.weightVariants.map((variant, index) => (
