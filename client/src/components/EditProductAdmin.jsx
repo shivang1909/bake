@@ -86,7 +86,6 @@ useEffect(() => {
       }
     })
   }
-    
   const handleUploadImage = async (e) => {
     const files = imageRef.current.files;
     console.log(files);
@@ -250,7 +249,7 @@ const handleCategoryChange = (e) => {
         
         const updatedData = {
           ...data,
-          category: data.checkcategory ? { ...data.category } : data.category._id, 
+          // category: data.checkcategory ? { ...data.category } : data.category._id, 
 
           // category: data.checkcategory ? data.category  : data.category._id, // Ensures a new object reference
           image: blobimages.current.length > 0 ?  [...data.image, ...blobimages.current] : data.image,
