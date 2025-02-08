@@ -194,7 +194,7 @@ const UserMenu = ({ close }) => {
               to="/admin/dashboard/my-deliveries"
               className="px-2 hover:bg-orange-200 py-1"
             >
-              My Deliveries
+              My Deliveries(Order)
             </Link>
             <Link
               onClick={handleClose}

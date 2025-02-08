@@ -26,6 +26,7 @@ import SetPasswordPage from "../pages/SetPasswordPage";
 import AdminLogin from "../pages/AdminLogin";
 import AdminListPage from "../pages/AdminListPage";
 import OrderListPage from "../pages/OrderListPage";
+import MyDeliveries from "../pages/MyDeliveries";
 
 const router = createBrowserRouter([
     {
@@ -125,23 +126,41 @@ const router = createBrowserRouter([
                     {
                         path: "order-list",
                         element: <OrderListPage />
-                    }
-                ]
-            },
-            {
-                path: "inventory",
-                element: <Dashboard />,
-                children: [
-                    {
-                        path: "profile",
-                        element: <Profile />
                     },
                     {
-                        path: "product",
-                        element: <ProductAdmin />
+                        path: "my-deliveries",
+                        element: <MyDeliveries />
                     },
                 ]
             },
+            // {
+            //     path: "inventory",
+            //     element: <Dashboard />,
+            //     children: [
+            //         {
+            //             path: "profile",
+            //             element: <Profile />
+            //         },
+            //         {
+            //             path: "product",
+            //             element: <ProductAdmin />
+            //         },
+            //     ]
+            // },
+            // {
+            //     path: "deliveries",
+            //     element: <Dashboard />,
+            //     children: [
+            //         {
+            //             path: "profile",
+            //             element: <Profile />
+            //         },
+            //         {
+            //             path: "my-deliveries",
+            //             element: <MyDeliveries />
+            //         },
+            //     ]
+            // },
             {
                 path: ":category",
                 element: <ProductListPage />
