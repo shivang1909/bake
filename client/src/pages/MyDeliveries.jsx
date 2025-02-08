@@ -12,7 +12,6 @@ const MyDeliveries = () => {
   // Define possible status options
   const statusOptions = [
     "Assigned",
-    "In Process",
     "Out for Delivery",
     "Delivered"
   ];
