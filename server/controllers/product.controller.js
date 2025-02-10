@@ -329,48 +329,40 @@ export const deleteProductDetails = async(request,response)=>{
     }
 }
 
-//search product
-export const searchProduct = async(request,response)=>{
+export const searchProduct = async (req, res) => {
     try {
-        let { search, page , limit } = request.body 
+        let { search, page, limit } = req.body;
+        page = page || 1;
+        limit = limit || 10;
 
-        if(!page){
-            page = 1
-        }
-        if(!limit){
-            limit  = 10
-        }
+        const query = search
+            ? { $or: [{ name: new RegExp(search, "i") }, { description: new RegExp(search, "i") }] }
+            : {};
 
-        const query = search ? {
-            $text : {
-                $search : search
-            }
-        } : {}
+        const skip = (page - 1) * limit;
 
-        const skip = ( page - 1) * limit
-
-        const [data,dataCount] = await Promise.all([
-            ProductModel.find(query).sort({ createdAt  : -1 }).skip(skip).limit(limit).populate('category'),
+        const [data, dataCount] = await Promise.all([
+            ProductModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate('category'),
             ProductModel.countDocuments(query)
-        ])
+        ]);
 
-        return response.json({
-            message : "Product data",
-            error : false,
-            success : true,
-            data : data,
-            totalCount :dataCount,
-            totalPage : Math.ceil(dataCount/limit),
-            page : page,
-            limit : limit 
-        })
-
+        return res.json({
+            message: "Product data",
+            error: false,
+            success: true,
+            data,
+            totalCount: dataCount,
+            totalPage: Math.ceil(dataCount / limit),
+            page,
+            limit,
+        });
 
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false,
+        });
     }
-}
+};
+

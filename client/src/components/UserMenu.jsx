@@ -55,7 +55,7 @@ const UserMenu = ({ close }) => {
           <span className="text-medium text-red-600">({user.role})</span>
         </span>
         <Link
-          onClick={handleClose}
+          onClick={handleClose}     
           to={profileUrl}
           className="hover:text-primary-200"
         >

@@ -278,7 +278,6 @@ export async function assignDeliveryPartnerController(request, response) {
         const deliveryPartnerId = request.body.partnerId;
         console.log(deliveryPartnerId);
         
-        
         // Validate request
         if (!orderId || !deliveryPartnerId) {
             console.log(orderId);
@@ -365,24 +364,23 @@ export async function updateOrderStatusController(request, response) {
 
 /** Fetch Orders Assigned to a Specific Delivery Partner */
 export async function getOrdersForDeliveryPartnerController(request, response) {
-        try {    
-        const deliveryPartnerId = request.userId; // Extract delivery partner's ID from auth middleware
-        console.log(deliveryPartnerId);
-        
+    try {    
+        const deliveryPartnerId = request.userId; // Extract delivery partner's ID from auth middleware        
         // Fetch orders assigned to the delivery partner
         const orders = await OrderModel.find({ deliveryPartnerId })
             .sort({ createdAt: -1 })
             .populate('delivery_address');
 
         if (!orders.length) {
-            return response.status(404).json({
+            return response.status(200).json({  // ✅ Return 200 OK instead of 404
                 message: "No orders found for this delivery partner",
-                error: true,
-                success: false
+                error: false,
+                success: true,
+                data: []
             });
         }
 
-        return response.json({
+        return response.status(200).json({
             message: "Orders fetched successfully",
             error: false,
             success: true,
@@ -390,14 +388,15 @@ export async function getOrdersForDeliveryPartnerController(request, response) {
         });
 
     } catch (error) {
-        console.log("catch",error);
+        console.log("Error fetching orders:", error);
         return response.status(500).json({
-            message: error.message || error,
+            message: error.message || "Internal Server Error",
             error: true,
             success: false
         });
     }
 }
+
 
 export const pricewithDiscount = (price, dis = 1) => {
     const discountAmount = Math.ceil((Number(price) * Number(dis)) / 100);

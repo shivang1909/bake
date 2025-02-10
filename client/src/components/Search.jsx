@@ -19,12 +19,13 @@ const Search = () => {
         setIsSearchPage(isSearch)
     },[location])
 
-
     const redirectToSearchPage = ()=>{
         navigate("/search")
     }
 
     const handleOnChange = (e)=>{
+        console.log("on change e",e);
+        
         const value = e.target.value
         const url = `/search?q=${value}`
         navigate(url)
