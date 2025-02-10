@@ -225,6 +225,123 @@ import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 
+// ssehandler function 
+let clients = [];
+
+export function sseHandler(req, res) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache'); 
+    res.setHeader('Connection', 'keep-alive');
+
+ 
+    const newClient = { id: req.userId, res };
+    console.log(newClient.id);
+
+    clients.push(newClient);
+
+    console.log(`Client connected: ${newClient.id}`);
+
+    // Remove client when disconnected
+    req.on('close', () => {
+        clients = clients.filter(client => client.id !== newClient);
+        console.log(`Client disconnected: ${clientId}`);
+    });
+}
+
+// Function to notify all connected clients
+function notifyClients(Olddeliverypartner,data) {
+    console.log(data);
+    
+    clients.forEach(client => {
+        
+        
+        // Send only to the assigned delivery partner
+        console.log("--------");
+        console.log("--------");
+        console.log(client.id);
+        console.log(data.updatedOrder.deliveryPartnerId);
+        
+        if (client.id === String(data.updatedOrder.deliveryPartnerId)) {
+            client.res.write(`data: ${JSON.stringify(data)}\n\n`);
+        }
+        else if (client.id === Olddeliverypartner )
+        {
+            console.log("i am in else if ",Olddeliverypartner)
+            client.res.write(`data: ${JSON.stringify({
+                orderId: data.updatedOrder.orderId,
+                isPreviousDeliveryPartner: true // Indicate that this is the previous delivery partner
+            })}\n\n`);
+        }
+    });
+}
+async function  GetOlddeliverypartner(oid)
+{   
+    const record = await OrderModel.findOne({ orderId: oid }); // Correct query syntax
+    if (!record) {
+        throw new Error("Order not found");
+    }
+    return String(record.deliveryPartnerId); // Access document directly
+
+}
+/** Assign a Delivery Partner to an Order */
+export async function assignDeliveryPartnerController(request, response) {
+    try {
+        // const { orderId, deliveryPartnerId } = request.body;
+        const orderId =request.body.orderId;
+        const deliveryPartnerId = request.body.partnerId;
+        console.log(deliveryPartnerId);
+        // console.log("this is is the order id",orderid);
+         const preid =  await GetOlddeliverypartner(orderId);
+            
+
+        
+        // Validate request
+        if (!orderId || !deliveryPartnerId) {
+            console.log(orderId);
+            
+            return response.status(400).json({
+                message: "Order ID and Delivery Partner ID are required",
+                error: true,
+                success: false
+            });
+        }
+        // Update order with assigned delivery partner
+        const updatedOrder = await OrderModel.findOneAndUpdate(
+            { orderId },
+            { deliveryPartnerId, orderStatus: "Assigned" },
+            { new: true }
+        );
+
+        if (!updatedOrder) {
+            console.log("Order not found in DB with orderId:", orderId);
+            return response.status(404).json({
+                message: "Order not found",
+                error: true,
+                success: false
+            });
+        }
+        notifyClients(
+            preid,
+            {
+
+                updatedOrder
+            }
+        );
+        return response.json({
+            message: "Delivery partner assigned successfully",
+            error: false,
+            success: true,
+            data: updatedOrder
+        });
+    } catch (error) {
+        console.log(error);
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
 /** Place a Cash on Delivery Order */
 export async function CashOnDeliveryOrderController(request, response) {
     try {
@@ -270,54 +387,6 @@ export async function CashOnDeliveryOrderController(request, response) {
     }
 }
 
-/** Assign a Delivery Partner to an Order */
-export async function assignDeliveryPartnerController(request, response) {
-    try {
-        // const { orderId, deliveryPartnerId } = request.body;
-        const orderId =request.body.orderId;
-        const deliveryPartnerId = request.body.partnerId;
-        console.log(deliveryPartnerId);
-        
-        
-        // Validate request
-        if (!orderId || !deliveryPartnerId) {
-            console.log(orderId);
-            
-            return response.status(400).json({
-                message: "Order ID and Delivery Partner ID are required",
-                error: true,
-                success: false
-            });
-        }
-        // Update order with assigned delivery partner
-        const updatedOrder = await OrderModel.findOneAndUpdate(
-            { orderId },
-            { deliveryPartnerId, orderStatus: "Assigned" },
-            { new: true }
-        );
-
-        if (!updatedOrder) {
-            console.log("Order not found in DB with orderId:", orderId);
-            return response.status(404).json({
-                message: "Order not found",
-                error: true,
-                success: false
-            });
-        }
-        return response.json({
-            message: "Delivery partner assigned successfully",
-            error: false,
-            success: true,
-            data: updatedOrder
-        });
-    } catch (error) {
-        return response.status(500).json({
-            message: error.message || error,
-            error: true,
-            success: false
-        });
-    }
-}
 
 // import OrderModel from "../models/OrderModel.js"; // Adjust the import based on your project structure
 
