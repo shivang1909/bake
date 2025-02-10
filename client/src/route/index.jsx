@@ -26,7 +26,7 @@ import SetPasswordPage from "../pages/SetPasswordPage";
 import AdminLogin from "../pages/AdminLogin";
 import AdminListPage from "../pages/AdminListPage";
 import OrderListPage from "../pages/OrderListPage";
-import MyDeliveries from "../pages/MyDeliveries";
+import DeliveriesPage from "../pages/DeliveriesPage";
 
 const router = createBrowserRouter([
     {
@@ -129,7 +129,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "my-deliveries",
-                        element: <MyDeliveries />
+                        element: <DeliveriesPage filterDelivered={false} />
+                    },
+                    {
+                        path: "delivery-history",
+                        element: <DeliveriesPage filterDelivered={true}/>
                     },
                 ]
             },
