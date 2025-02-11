@@ -227,15 +227,33 @@ import mongoose from "mongoose";
 
 // ssehandler function 
 let clients = [];
+let admin;
+export function sseHandlerforadmin(req, res) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache'); 
+    res.setHeader('Connection', 'keep-alive');
+
+    console.log("admin calls this page ")
+
+     admin =  { id: req.userId, res };
+     console.log(admin.id);
+     
+    // Remove client when disconnected
+    req.on('close', () => {
+     
+        console.log(`Client disconnected: `);
+    });
+}
 
 export function sseHandler(req, res) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache'); 
     res.setHeader('Connection', 'keep-alive');
 
- 
+    console.log("admin calls this page ")
     const newClient = { id: req.userId, res };
-    console.log(newClient.id);
+
+    
 
     clients.push(newClient);
 
@@ -244,23 +262,26 @@ export function sseHandler(req, res) {
     // Remove client when disconnected
     req.on('close', () => {
         clients = clients.filter(client => client.id !== newClient);
-        console.log(`Client disconnected: ${clientId}`);
+        console.log(`Client disconnected: ${newClient}`);
     });
 }
 
 // Function to notify all connected clients
-function notifyClients(Olddeliverypartner,data) {
-    console.log(data);
-    
+function notifyClients(Olddeliverypartner,data,isadmin) {
+    console.log("this is data",data);
+
+    if(isadmin)
+    {
+        admin.res.write(`data: ${JSON.stringify(data)}\n\n`);
+        return;
+    }
     clients.forEach(client => {
-        
-        
         // Send only to the assigned delivery partner
         console.log("--------");
         console.log("--------");
         console.log(client.id);
         console.log(data.updatedOrder.deliveryPartnerId);
-        
+
         if (client.id === String(data.updatedOrder.deliveryPartnerId)) {
             client.res.write(`data: ${JSON.stringify(data)}\n\n`);
         }
@@ -272,6 +293,7 @@ function notifyClients(Olddeliverypartner,data) {
                 isPreviousDeliveryPartner: true // Indicate that this is the previous delivery partner
             })}\n\n`);
         }
+       
     });
 }
 async function  GetOlddeliverypartner(oid)
@@ -325,7 +347,7 @@ export async function assignDeliveryPartnerController(request, response) {
             {
 
                 updatedOrder
-            }
+            },false
         );
         return response.json({
             message: "Delivery partner assigned successfully",
@@ -406,6 +428,9 @@ export async function updateOrderStatusController(request, response) {
       { orderStatus: status },
       { new: true } // Returns the updated document
     );
+    const isadmin = true;
+    notifyClients("",updatedOrder,isadmin);
+
 
     if (!updatedOrder) {
       return response.status(404).json({

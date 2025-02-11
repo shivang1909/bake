@@ -169,6 +169,7 @@ const MyDeliveries = ({ filterDelivered = false }) => {
     const eventSource = new EventSource("http://localhost:5000/events",{ withCredentials: true });
       console.log('event',eventSource);
       eventSource.onmessage = (event) => {
+        
         var data = JSON.parse(event.data);
         console.log("Order update received:", data);
            console.log(data.orderId);

@@ -3,8 +3,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
 import cookieParser from 'cookie-parser'
-import { sseHandler } from './controllers/order.controller.js'
-
+import { sseHandler,sseHandlerforadmin } from './controllers/order.controller.js'
+import { admin } from './middleware/Admin.js'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import connectDB from './config/connectDB.js'
@@ -51,7 +51,7 @@ app.use("/api/cart",cartRouter)
 app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
 app.get('/events',auth, sseHandler);
-
+app.get('/eventsadmin',auth,admin, sseHandlerforadmin);
 connectDB().then(()=>{
     app.listen(PORT,()=>{
         console.log("Server is running",PORT)

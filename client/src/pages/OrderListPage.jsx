@@ -187,6 +187,37 @@ const OrderListPage = () => {
 
   // Rest of the useEffect hooks remain the same...
   useEffect(() => {
+    console.log("this is log ")
+    let eventSource;
+
+    try{
+
+       eventSource = new EventSource("http://localhost:5000/eventsadmin",{ withCredentials: true });
+    }
+    catch(error)
+    {
+      console.log(error);
+
+    }
+    eventSource.onmessage = (event) => {
+      console.log("i am inside on messagse event")
+      var data = JSON.parse(event.data);
+     console.log(data);
+     setOrders((prevOrders) => {
+      // Check if 'data' exists and is an object
+      if (!data || typeof data !== 'object') return prevOrders;
+  
+      // Create a copy of the previous orders and find the matching order
+      const updatedOrders = prevOrders.map((order) =>
+          order.orderId === data.orderId ? { ...order, ...data } : order
+      );
+  
+      // Return the updated orders array
+      return updatedOrders;
+  });
+  
+    
+    }
     const fetchUsers = async () => {
       try {
         const response = await getUsers();
@@ -350,12 +381,6 @@ if (loading) {
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">All Orders</h2>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
@@ -397,86 +422,67 @@ if (loading) {
                   <td className="border p-2">{order.orderStatus || "Not Available"}</td>
                   <td className="border p-2">
                     <div className="flex items-center justify-center gap-2">
-                      <select
-                        className={`border rounded p-1 ${
-                          assignedPartners[order.orderId]?.isDisabled 
-                            ? 'bg-gray-100' 
-                            : 'bg-white'
-                        }`}
-                        value={
-                          assignedPartners[order.orderId]?.partnerId || 
-                          (order.orderStatus === "Assigned" ? order.deliveryPartnerId : "")
-                        }
-                        onChange={(e) => handleAssignPartner(order.orderId, e.target.value)}
-                        disabled={
-                          assignedPartners[order.orderId]?.isDisabled || 
-                          order.orderStatus === "Completed"
-                        }
-                      >
-                        <option value="">Select Partner</option>
-                        {deliveryPartners.map((partner) => (
-                          <option key={partner._id} value={partner._id}>
-                            {partner.name}
-                          </option>
-                        ))}
-                      </select>
+                      {order.orderStatus === "Delivered" ? (
+                        <span className="text-green-600 font-bold">Order Completed</span>
+                      ) : order.orderStatus === "Out for Delivery" ? (
+                        <input 
+                          type="text" 
+                          value={
+                            deliveryPartners.find(dp => dp._id === order.deliveryPartnerId)?.name || "Not Assigned"
+                          }
+                          disabled
+                          className="border rounded p-1 bg-gray-100 text-center"
+                        />
+                      ) : (
+                        <>
+                          <select
+                            className={`border rounded p-1 ${
+                              assignedPartners[order.orderId]?.isDisabled 
+                                ? 'bg-gray-100' 
+                                : 'bg-white'
+                            }`}
+                            value={
+                              assignedPartners[order.orderId]?.partnerId || 
+                              (order.orderStatus === "Assigned" ? order.deliveryPartnerId : "")
+                            }
+                            onChange={(e) => handleAssignPartner(order.orderId, e.target.value)}
+                            disabled={
+                              assignedPartners[order.orderId]?.isDisabled || 
+                              order.orderStatus === "Completed"
+                            }
+                          >
+                            <option value="">Select Partner</option>
+                            {deliveryPartners.map((partner) => (
+                              <option key={partner._id} value={partner._id}>
+                                {partner.name}
+                              </option>
+                            ))}
+                          </select>
 
-                      {(assignedPartners[order.orderId]?.isDisabled && 
-                        order.orderStatus !== "Completed") && (
-                        <button
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
-                          onClick={() => handleEditPartner(order.orderId)}
-                        >
-                          Edit
-                        </button>
+                           {/* Edit Button */}
+                          {(assignedPartners[order.orderId]?.isDisabled && order.orderStatus !== "Completed" && order.orderStatus !== "Out for Delivery") && (
+                            <button
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                              onClick={() => handleEditPartner(order.orderId)}
+                            >
+                              Edit
+                            </button>
+                          )}
+
+                          {/* Cancel Button */}
+                          {assignedPartners[order.orderId]?.partnerId && assignedPartners[order.orderId]?.partnerId !== "" && !assignedPartners[order.orderId]?.isDisabled && order.orderStatus !== "Completed" && order.orderStatus !== "Out for Delivery" && (
+                            <button
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors"
+                              onClick={() => handleCancelEdit(order.orderId)}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </td>
-                  {/* <td className="border p-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <select
-                        className={`border rounded p-1 ${
-                          assignedPartners[order.orderId]?.isDisabled 
-                            ? 'bg-gray-100' 
-                            : 'bg-white'
-                        }`}
-                        value={
-                          assignedPartners[order.orderId]?.partnerId || 
-                          (order.orderStatus === "Assigned" ? order.deliveryPartnerId : "")
-                        }
-                        onChange={(e) => handleAssignPartner(order.orderId, e.target.value)}
-                        disabled={
-                          assignedPartners[order.orderId]?.isDisabled || 
-                          order.orderStatus === "Completed"
-                        }
-                      >
-                        <option value="">Select Partner</option>
-                        {deliveryPartners.map((partner) => (
-                          <option key={partner._id} value={partner._id}>
-                            {partner.name}
-                          </option>
-                        ))}
-                      </select>
-
-                      {assignedPartners[order.orderId]?.isDisabled ? (
-                        order.orderStatus !== "Completed" && (
-                          <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
-                            onClick={() => handleEditPartner(order.orderId)}
-                          >
-                            Edit
-                          </button>
-                        )
-                      ) : (
-                        <button
-                          className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded transition-colors"
-                          onClick={() => handleCancelEdit(order.orderId)}
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </td> */}
+                
                 </tr>
               ))
             ) : (
