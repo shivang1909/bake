@@ -11,14 +11,14 @@ import SummaryApi from '../common/SummaryApi';
 import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
-import { setAllProduct } from '../store/productSlice';
+import { setAllProduct,addProduct} from '../store/productSlice';
 import CategorySelect from './CategorySelect';
-
 const ProductForm = ({close, isEdit = false, updatedata}) => {
   console.log(updatedata);
   
   const usedispatch = useDispatch();
   
+  const allCategory = useSelector(state => state.product.allCategory)
   const allProduct = useSelector(state => state.product.Allproduct);
   
 
@@ -29,7 +29,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
     name: isEdit ? updatedata.name : "",
     coverimage: isEdit ? updatedata.coverimage : null,
     image: isEdit ? updatedata.image : [],
-    category: isEdit ? updatedata.category : 0,
+    category: isEdit ? updatedata.category : allCategory[0]._id,
     discount: isEdit ? updatedata.discount : "",
     description: isEdit ? updatedata.description : "",
     more_details: isEdit ? updatedata.more_details || {} : {},
@@ -45,7 +45,6 @@ const blobimages = useRef([]); // Stor
   const [coverimaepreview, setCoverImagepreview] = useState(data.coverimage)
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
-  const allCategory = useSelector(state => state.product.allCategory)
   const [openAddField, setOpenAddField] = useState(false)
   const [fieldName, setFieldName] = useState("")
   
@@ -294,6 +293,8 @@ const updatedproducts = allProduct.map((product) =>
     console.log('updated products' ,updatedproducts);
     
     usedispatch(setAllProduct([...updatedproducts]));
+    // usedispatch(setAllProduct({ products: updatedproducts }));
+
     console.log(allProduct);
       successAlert(responseData.message);
       if (close) close();
@@ -370,7 +371,12 @@ const updatedproducts = allProduct.map((product) =>
           coverimage: coverimaepreview,
         
         }
-        usedispatch(setAllProduct([...allProduct, responseData.data]));
+        console.log(responseData.data);
+          // console.log(updatedProduct);
+
+        // usedispatch(setAllProduct([...allProduct, responseData.data]));
+        // usedispatch(setAllProduct({ products: responseData.data }));
+        usedispatch(addProduct(updatedProduct));
         console.log(responseData.data);
         console.log(allProduct);
       
@@ -547,11 +553,11 @@ const updatedproducts = allProduct.map((product) =>
 <div className="grid gap-1">
   <label className="font-medium">Category</label>
   <div>
-
+{/* 
     {console.log(data.category)}
     {console.log(data.category._id)}
     {console.log(selectedCategory)}
-    
+     */}
 <CategorySelect
   selectedCategory={selectedCategory}
   allCategory={allCategory}

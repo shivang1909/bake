@@ -14,7 +14,7 @@ const ProductCardAdmin = ({ data }) => {
   const usedispatch = useDispatch()
   const user = useSelector(state => state.user)
   const allProduct = useSelector(state => state.product.Allproduct)
-  console.log(allProduct);
+  // console.log(allProduct);
   const serverurl = import.meta.env.VITE_API_URL;
 
   // console.log( user);
@@ -26,12 +26,12 @@ const ProductCardAdmin = ({ data }) => {
       })
     // console.log(data);
     
-   console.log(data)
+  //  console.log(data)
   const handleDeleteCancel  = ()=>{
       setOpenDelete(false)
   }
 
-  console.log(data);
+  // console.log(data);
 
   const handleDelete = async()=>{
     try {

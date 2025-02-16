@@ -60,10 +60,12 @@ export const createProductController = async (request, response) => {
 
 export const getProductController = async (request, response) => {
     try {
-        let { page, limit, search } = request.body;
-
+        
+        let { page, limit, search    } = request.body;
+       
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
+        console.log(request.body);
 
         // Search query with regex (only if 3+ characters are entered)
         const query = search && search.length >= 3 
@@ -81,6 +83,8 @@ export const getProductController = async (request, response) => {
                 .populate('category'),
             ProductModel.countDocuments(query)
         ]);
+              console.log("this is data ",data);
+
 
         return response.json({
             message: "Product data",
@@ -102,6 +106,8 @@ export const getProductController = async (request, response) => {
 export const getProductByCategory = async(request,response)=>{
     try {
         const { id } = request.body 
+        console.log("i am in this");
+
         
         if(!id){
             return response.status(400).json({
@@ -129,69 +135,129 @@ export const getProductByCategory = async(request,response)=>{
         })
     }
 }
-export const getProductByCategoryName = async (request, response) => {
-    try {
-      let { page, limit, categoryName } = request.body;
+// export const getProductByCategoryName = async (request, response) => {
+//     try {
+//       let { page, limit, categoryName } = request.body;
+//        console.log("i am in this",categoryName);
+//       page =  1;
+//       limit =  1000;
   
-      page = parseInt(page) || 1;
-      limit = parseInt(limit) || 10;
+//       let query = {};
   
-      let query = {};
+//       // Check if categoryName is provided and if it's at least 3 characters long
+//       if (categoryName && categoryName.length >= 3) {
+//         // Attempt to find the category by its name (case-insensitive search)
+//         const category = await CategoryModel.findOne({
+//           name: { $regex: categoryName, $options: "i" } // Case-insensitive search
+//         });
   
-      // Check if categoryName is provided and if it's at least 3 characters long
-      if (categoryName && categoryName.length >= 3) {
-        // Attempt to find the category by its name (case-insensitive search)
-        const category = await CategoryModel.findOne({
-          name: { $regex: categoryName, $options: "i" } // Case-insensitive search
+//         // If category is found, filter products by categoryId
+//         if (category) {
+//           const categoryId = category._id;
+//           query.category = categoryId;  // Add the category ID to the query
+//         } else {
+//           // If no category found, return empty data (no products for this category)
+//           return response.json({
+//             message: "No products found for this category.",
+//             error: false,
+//             success: true,
+//             totalCount: 0,
+//             totalNoPage: 0,
+//             data: []
+//           });
+//         }
+//       }
+  
+//       const skip = (page - 1) * limit;
+  
+//       // Fetch products based on category query
+//       const [data, totalCount] = await Promise.all([
+//         ProductModel.find(query)
+//           .sort({ createdAt: -1 })
+//           .skip(skip)
+//           .limit(limit)
+//           .populate('category'),
+//         ProductModel.countDocuments(query)
+//       ]);
+//       console.log("this is data",data)
+//       return response.json({
+//         message: "Product data fetched by category name.",
+//         error: false,
+//         success: true,
+//         totalCount,
+//         totalNoPage: Math.ceil(totalCount / limit),
+//         data
+//       });
+//     } catch (error) {
+//       return response.status(500).json({
+//         message: error.message || error,
+//         error: true,
+//         success: false
+//       });
+//     }
+//   };
+  
+  export const getProductByCategoryName = async (request, response) => {
+  try {
+    let { page, limit, categoryName } = request.body;
+
+    console.log("I am in this", categoryName);
+    page = 1;
+    limit = 1000;
+
+    let query = {};
+    
+
+    if (categoryName && categoryName.length >= 3) {
+      // Find all matching categories
+      const categories = await CategoryModel.find({
+        name: { $regex: categoryName, $options: "i" }
+      });
+
+      if (categories.length > 0) {
+        const categoryIds = categories.map(category => category._id);
+        query.category = { $in: categoryIds };
+      } else {
+        return response.json({
+          message: "No products found for this category.",
+          error: false,
+          success: true,
+          totalCount: 0,
+          totalNoPage: 0,
+          data: []
         });
-  
-        // If category is found, filter products by categoryId
-        if (category) {
-          const categoryId = category._id;
-          query.category = categoryId;  // Add the category ID to the query
-        } else {
-          // If no category found, return empty data (no products for this category)
-          return response.json({
-            message: "No products found for this category.",
-            error: false,
-            success: true,
-            totalCount: 0,
-            totalNoPage: 0,
-            data: []
-          });
-        }
       }
-  
-      const skip = (page - 1) * limit;
-  
-      // Fetch products based on category query
-      const [data, totalCount] = await Promise.all([
-        ProductModel.find(query)
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit)
-          .populate('category'),
-        ProductModel.countDocuments(query)
-      ]);
-  
-      return response.json({
-        message: "Product data fetched by category name.",
-        error: false,
-        success: true,
-        totalCount,
-        totalNoPage: Math.ceil(totalCount / limit),
-        data
-      });
-    } catch (error) {
-      return response.status(500).json({
-        message: error.message || error,
-        error: true,
-        success: false
-      });
     }
-  };
-  
-  
+
+    const skip = (page - 1) * limit;
+
+    const [data, totalCount] = await Promise.all([
+      ProductModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('category'),
+      ProductModel.countDocuments(query)
+    ]);
+
+    console.log("This is data", data);
+    return response.json({
+      message: "Product data fetched by category name.",
+      error: false,
+      success: true,
+      totalCount,
+      totalNoPage: Math.ceil(totalCount / limit),
+      data
+    });
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false
+    });
+  }
+};
+
 
 export const getProductDetails = async(request,response)=>{
     try {

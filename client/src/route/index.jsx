@@ -14,7 +14,9 @@ import MyOrders from "../pages/MyOrders";
 import Address from "../pages/Address";
 import CategoryPage from "../pages/CategoryPage";
 import ProductAdmin from "../pages/ProductAdmin";
+import ProductAdmin1 from "../pages/ProductAdmin1";
 import AdminPermision from "../layouts/AdminPermision";
+import ProductTable from "../components/ProductTable";
 import ProductListPage from "../pages/ProductListPage";
 import ProductDisplayPage from "../pages/ProductDisplayPage";
 import CartMobile from "../pages/CartMobile";
@@ -113,8 +115,20 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "product",
-                        element: <ProductAdmin />
+                        element: <ProductAdmin1 />
                     },
+                    {
+                        path: "productlist",
+                        element: <ProductAdmin/>
+
+
+                    },
+                    // this is for product table view 
+                    {
+                        path: "ProductTable",
+                        element: <ProductTable/>
+                    },
+                    
                     {
                         path: "add-admin",
                         element: <AddAdmin />
