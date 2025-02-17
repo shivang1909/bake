@@ -11,9 +11,13 @@ import image2 from '../assets/Best_Prices_Offers.png'
 import image3 from '../assets/Wide_Assortment.png'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
 import AddToCartButton from '../components/AddToCartButton'
+import { useSelector } from 'react-redux'
 
 const ProductDisplayPage = () => {
   const params = useParams()
+   const cartdata = useSelector(state => state.user.shopping_cart)
+   
+
   let productId = params?.product?.split("-")?.slice(-1)[0]
   const [data,setData] = useState({
     name : "",  
@@ -21,10 +25,40 @@ const ProductDisplayPage = () => {
     weightVariants: [],
   })
   const [image,setImage] = useState(0)
-  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(0);
   const [loading,setLoading] = useState(false)
   const imageContainer = useRef()
   const [categoryName, setCategoryName] = useState("");
+  const [cart, setCart] = useState([]);
+  
+  const fetchProductDetails = async()=>{
+    try {
+      const response = await Axios({
+        ...SummaryApi.getProductDetails,
+        data : {
+          productId : productId 
+        }
+      })
+      const { data: responseData } = response;
+      if (responseData.success) {
+          console.log(responseData)
+          setData(responseData.data);
+          if (responseData.data.weightVariants.length > 0) {
+            setSelectedVariant(0);
+          }
+        }
+    } catch (error) {
+      console.log(error)
+      AxiosToastError(error)
+    }finally{
+      setLoading(false)
+    }
+  }
+useEffect(()=>{
+  console.log("hello")
+  fetchProductDetails();
+
+},[])
 
 const fetchCategoryName = async (categoryId) => {
   try {
@@ -39,43 +73,33 @@ const fetchCategoryName = async (categoryId) => {
     console.error("Error fetching category name:", error);
   }
 };
- useEffect(() => {
-    // Ensure that category exists in data before calling fetchCategoryName
-    if (data.category) {
-      console.log("Category ID:", data.category);
-      fetchCategoryName(data.category); // Fetch category name only if category ID exists
-    }
-  }, [data.category]); // Run effect only when data.category changes
 
+  // Add Cart Item function
+const addCartItem = () => {
+  const cartItem = {
+    productId: data._id,
+    variant: [{ weightIndex: selectedVariant, quantity: 1 }],
+  };
 
-  const fetchProductDetails = async()=>{
-    try {
-        const response = await Axios({
-          ...SummaryApi.getProductDetails,
-          data : {
-            productId : productId 
-          }
-        })
+  const product = cartdata.filter(item => item.productId === data._id);
 
-        const { data: responseData } = response;
-        if (responseData.success) {
-          setData(responseData.data);
-          if (responseData.data.weightVariants.length > 0) {
-            setSelectedVariant(responseData.data.weightVariants[0]);
-          }
-        }
-    } catch (error) {
-      AxiosToastError(error)
-    }finally{
-      setLoading(false)
-    }
+  if(!product)
+  {
+    //push this cartitem
   }
+  else if( selectedVariant  < product.variant[0].weightIndex)
+  {
+    //update quantity of selectedVarient
+  }
+  else{
+    //push varient to the cartdata state
+  }
+  console.log(cartdata); // Log the updated cart
+};
 
-  useEffect(()=>{
-    fetchProductDetails()
-  },[params])
-  const handleVariantChange = (variant) => {
-    setSelectedVariant(variant);
+
+  const handleVariantChange = (index) => {
+    setSelectedVariant(index);
   };
   
   const handleScrollRight = ()=>{
@@ -161,26 +185,23 @@ const fetchCategoryName = async (categoryId) => {
       <div className="my-4">
         <p className="font-semibold">Available Variants</p>
         <div className="flex gap-2">
-          {data.weightVariants?.map((variant) => (
+          {data.weightVariants?.map((variant,index) => (
             <button
               key={variant._id}
               className={`px-4 py-2 border rounded ${
-                selectedVariant?._id === variant._id ? "bg-green-500 text-white" : "bg-white"
+                selectedVariant === index ? "bg-green-500 text-white" : "bg-white"
               }`}
-              onClick={() => handleVariantChange(variant)}
+              onClick={() => handleVariantChange(index)}
             >
               {variant.weight}
             </button>
           ))}
         </div>
       </div>
-
       {/* Add to Cart Button */}
-      {selectedVariant?.qty > 0 ? (
+      {data.weightVariants[selectedVariant]&&data.weightVariants[selectedVariant].qty> 0 ? (
         <div className="my-4">
-          <AddToCartButton data={{ ...data,selectedVariant}} />
-          {console.log(data)}
-          
+         <button onClick={addCartItem}  className='bg-green-500'>Add</button>
         </div>
       ) : (
         <p className="text-lg text-red-500 my-2">Out of Stock</p>
@@ -195,8 +216,6 @@ const fetchCategoryName = async (categoryId) => {
                 </div>
                 <div>
                     <p className='font-semibold'>Category</p>
-                    {console.log("categoryName",categoryName )
-                    }
                     <p className='text-base'>{categoryName  || "Loading..."}</p>
                 </div>
                 {
@@ -210,7 +229,6 @@ const fetchCategoryName = async (categoryId) => {
                   })
                 }
             </div>
-          
         </div>
     </section>
   )

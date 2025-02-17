@@ -1,5 +1,23 @@
 import mongoose from "mongoose";
 
+const variantSchema = new mongoose.Schema(
+  {
+    weight: {
+      type: String, // e.g., "250g", "500g"
+      required: true,
+    },
+    price: {
+      type: Number, // Price of the selected variant
+      required: true,
+    },
+    cartQty: {
+      type: Number, // Quantity of the selected variant in the cart
+      default: 1,
+    },
+  },
+  { _id: false } // Prevents Mongoose from adding an automatic _id field for each variant
+);
+
 const userSchema = new mongoose.Schema({
     name : {
         type : String,
@@ -45,12 +63,19 @@ const userSchema = new mongoose.Schema({
             ref : 'address'
         }
     ],
-    shopping_cart : [
-        {
-            type : mongoose.Schema.ObjectId,
-            ref : 'cartProduct'
-        }
-    ],
+    shopping_cart : {
+            products: [
+                  {
+                    productId: {
+                      type: mongoose.Schema.ObjectId,
+                      ref: 'product',
+                      required: true,
+                    },
+                    variants: [variantSchema], // Array of weight variants for this product
+                  }
+                ],
+                default: {}
+        },
     orderHistory : [
         {
             type : mongoose.Schema.ObjectId,

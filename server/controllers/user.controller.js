@@ -11,6 +11,24 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import AdminModel from '../models/Admin.model.js'
 
+export async function updateCartItem(request,response) {
+    try {
+        console.log(request.body)
+        const data =request.body.cart;
+        // console.log(data);
+        const userid = request.userId;
+       const updateddata =  await UserModel.updateOne(
+            { _id: userid }, // Filter condition to find the note by its ID
+            { $set: { shopping_cart: data } }, // Update only the shoppingCart field with the updated object
+          );
+          
+          console.log(updateddata)
+    } catch (error) {
+        console.log(error)
+        
+    }
+}
+
 export async function registerUserController(request,response){
     try {
         const { name, email , password } = request.body

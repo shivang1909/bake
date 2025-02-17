@@ -58,6 +58,10 @@ const SummaryApi = {
         url : '/api/user/update-user',
         method : 'put'
     },
+    updateCartDetails : {
+        url : '/api/user/update-cart',
+        method : 'put'
+    },
     addCategory : {
         url : '/api/category/add-category',
         method : 'post'
@@ -120,22 +124,22 @@ const SummaryApi = {
         url : '/api/product/search-product-bycategory-search',
         method : 'post'
     }, // for product seach by name in productList.jsx
-    addTocart : {
-        url : "/api/cart/create",
-        method : 'post'
-    },
-    getCartItem : {
-        url : '/api/cart/get',
-        method : 'get'
-    },
-    updateCartItemQty : {
-        url : '/api/cart/update-qty',
-        method : 'put'
-    },
-    deleteCartItem : {
-        url : '/api/cart/delete-cart-item',
-        method : 'delete'
-    },
+    // addTocart : {
+    //     url : "/api/cart/create",
+    //     method : 'post'
+    // },
+    // getCartItem : {
+    //     url : '/api/cart/get',
+    //     method : 'get'
+    // },
+    // updateCartItemQty : {
+    //     url : '/api/cart/update-qty',
+    //     method : 'put'
+    // },
+    // deleteCartItem : {
+    //     url : '/api/cart/delete-cart-item',
+    //     method : 'delete'
+    // },
     createAddress : {
         url : '/api/address/create',
         method : 'post'
