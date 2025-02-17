@@ -1,0 +1,114 @@
+[{
+  "_id": {
+    "$oid": "6794a5f4d750b097a7c65f6f"
+  },
+  "name": "Utsav",
+  "email": "shahutsav352003@gmail.com",
+  "password": "$2a$10$ErC1rA3vQUsnJnM5jIaTkO.y13ZhIQkLMOoqEuUjT5cdq9hukhHFS",
+  "role": "Admin",
+  "isPasswordSet": true,
+  "createdAt": {
+    "$date": "2025-01-25T08:51:00.521Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-14T05:56:13.926Z"
+  },
+  "__v": 0,
+  "avatar": "http://127.0.0.1:5000/uploads/a1.jfif",
+  "mobile": 8866066261
+},
+{
+  "_id": {
+    "$oid": "679c8963c8c7d0ca48c2434f"
+  },
+  "name": "Shivang shah",
+  "email": "23mca179@charusat.edu.in",
+  "mobile": 9879654321,
+  "avatar": "",
+  "role": "Admin",
+  "isPasswordSet": true,
+  "createdAt": {
+    "$date": "2025-01-31T08:27:15.353Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-13T10:39:08.826Z"
+  },
+  "__v": 0,
+  "password": "$2a$10$E3OzeEDyrPD78YcZlubzfehc.1jporaURuywv/x9HvlMjA/pCioi6"
+},
+{
+  "_id": {
+    "$oid": "679c930bc8c7d0ca48c244a0"
+  },
+  "name": "BHARATBHAI BANSILAL SHAH",
+  "email": "inventory@gmail.com",
+  "mobile": 9879063697,
+  "avatar": "",
+  "role": "Inventory Manager",
+  "isPasswordSet": "true",
+  "createdAt": {
+    "$date": "2025-01-31T09:08:27.899Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-07T09:51:05.390Z"
+  },
+  "__v": 0,
+  "password": "$2a$10$ErC1rA3vQUsnJnM5jIaTkO.y13ZhIQkLMOoqEuUjT5cdq9hukhHFS"
+},
+{
+  "_id": {
+    "$oid": "67a5a21dd659861779de9ad6"
+  },
+  "name": "Delivery001",
+  "email": "delivery@gmail.com",
+  "mobile": 9879063697,
+  "avatar": "",
+  "role": "Delivery Partner",
+  "isPasswordSet": true,
+  "createdAt": {
+    "$date": "2025-02-07T06:03:09.888Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-14T04:31:15.636Z"
+  },
+  "__v": 0,
+  "password": "$2a$10$RslFzQ4AGVh.apKJJrAkhO.l.IhHy6G6VdyEvn8VBZ19fzGVBw2wC"
+},
+{
+  "_id": {
+    "$oid": "67a5c5bf92ed0824812bd537"
+  },
+  "name": "Delivery002",
+  "email": "23mca181@charusat.edu.in",
+  "mobile": 9879063697,
+  "avatar": "http://127.0.0.1:5000/uploads/a1.jfif",
+  "role": "Delivery Partner",
+  "isPasswordSet": true,
+  "createdAt": {
+    "$date": "2025-02-07T08:35:11.503Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-14T04:31:48.513Z"
+  },
+  "__v": 0,
+  "password": "$2a$10$q0e39/N83GY1Ldp4AiuwEOniDfvRlUfnJueIJcGUQLvpJOYpSohau"
+},
+{
+  "_id": {
+    "$oid": "67ab34e461f33395a23da0ee"
+  },
+  "name": "trio",
+  "email": "techtriosphere@gmail.com",
+  "mobile": 8866066261,
+  "avatar": "",
+  "role": "Inventory Manager",
+  "isPasswordSet": true,
+  "createdAt": {
+    "$date": "2025-02-11T11:30:44.468Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-12T08:49:51.730Z"
+  },
+  "__v": 0,
+  "password": "$2a$10$k0LWmkdwKNcevwXo00JUxu/Thm/lLdeaon4EDNFd2.X8f27qrb6Gu"
+}]

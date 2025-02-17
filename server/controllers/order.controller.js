@@ -218,11 +218,13 @@
 //     }
 // }
 
-
+    
 import Stripe from "../config/stripe.js";
 import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
+
+import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
 
 // ssehandler function 
@@ -314,9 +316,6 @@ export async function assignDeliveryPartnerController(request, response) {
         console.log(deliveryPartnerId);
         // console.log("this is is the order id",orderid);
          const preid =  await GetOlddeliverypartner(orderId);
-            
-
-        
         // Validate request
         if (!orderId || !deliveryPartnerId) {
             console.log(orderId);
@@ -330,7 +329,7 @@ export async function assignDeliveryPartnerController(request, response) {
         // Update order with assigned delivery partner
         const updatedOrder = await OrderModel.findOneAndUpdate(
             { orderId },
-            { deliveryPartnerId, orderStatus: "Assigned" },
+            { deliveryPartnerId, orderStatus: "Assigned" ,orderAssignedDatetime: new Date()},
             { new: true }
         );
 
@@ -359,6 +358,95 @@ export async function assignDeliveryPartnerController(request, response) {
         console.log(error);
         return response.status(500).json({
             message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+/** Assign a Delivery Partner to Multiple Orders */
+export async function assignBulkDeliveryPartnerController(request, response) {
+    try {
+        const { orderIds, partnerId } = request.body;
+        
+        // Validate request
+        if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0 || !partnerId) {
+            return response.status(400).json({
+                message: "Order IDs array and Partner ID are required",
+                error: true,
+                success: false
+            });
+        }
+
+        // Store pre-update delivery partner IDs for notifications
+        const preUpdateInfo = await Promise.all(
+            orderIds.map(async (orderId) => {
+                const oldPartner = await GetOlddeliverypartner(orderId);
+                return { orderId, oldPartnerId: oldPartner };
+            })
+        );
+
+        // Update all orders with the assigned delivery partner
+        const bulkUpdatePromises = orderIds.map(orderId => 
+            OrderModel.findOneAndUpdate(
+                { orderId },
+                { 
+                    deliveryPartnerId: partnerId, 
+                    orderStatus: "Assigned",
+                    orderAssignedDatetime: new Date()
+                },
+                { new: true }
+            )
+        );
+
+        const updatedOrders = await Promise.all(bulkUpdatePromises);
+
+        // Filter out any null results (orders not found)
+        const successfulUpdates = updatedOrders.filter(order => order !== null);
+        const failedOrderIds = orderIds.filter(orderId => 
+            !successfulUpdates.find(order => order.orderId === orderId)
+        );
+
+        // Send notifications for each successfully updated order
+        preUpdateInfo.forEach(({ orderId, oldPartnerId }) => {
+            const updatedOrder = successfulUpdates.find(order => order.orderId === orderId);
+            if (updatedOrder) {
+                notifyClients(
+                    oldPartnerId,
+                    {
+                        updatedOrder
+                    },
+                    false
+                );
+            }
+        });
+
+        // Prepare response
+        if (successfulUpdates.length === 0) {
+            return response.status(404).json({
+                message: "No orders were found or updated",
+                error: true,
+                success: false
+            });
+        }
+
+        return response.json({
+            message: `Successfully updated ${successfulUpdates.length} orders`,
+            error: false,
+            success: true,
+            data: {
+                updatedOrders: successfulUpdates,
+                failedOrderIds: failedOrderIds,
+                totalProcessed: orderIds.length,
+                successfulUpdates: successfulUpdates.length,
+                failedUpdates: failedOrderIds.length
+            }
+        });
+
+    } catch (error) {
+        console.error("Bulk assignment error:", error);
+        return response.status(500).json({
+            message: error.message || "Internal server error during bulk assignment",
             error: true,
             success: false
         });
@@ -410,81 +498,216 @@ export async function CashOnDeliveryOrderController(request, response) {
 }
 
 
-// import OrderModel from "../models/OrderModel.js"; // Adjust the import based on your project structure
-
+// update order status to Assigned ---> Out For delivery ---> Deliverd 
+// update payment status also Pending ---> Paid
 export async function updateOrderStatusController(request, response) {
-  try {
-    const { orderId, status } = request.body;
-    if (!orderId || !status) {
-      return response.status(400).json({
-        message: "Order ID and new status are required",
+    try {
+      const { orderId, status, paymentStatus } = request.body;
+        console.log(paymentStatus);
+        
+      // Validate input data
+      if (!orderId || !status) {
+        return response.status(400).json({
+          message: "Order ID and new status are required",
+          error: true,
+          success: false,
+        });
+      }
+  
+      // Fetch the order by orderId
+      const order = await OrderModel.findOne({ orderId });
+      if (!order) {
+        return response.status(404).json({
+          message: "Order not found",
+          error: true,
+          success: false,
+        });
+      }
+  
+     // If paymentStatus is "Paid," update it
+     if (paymentStatus === "Paid") {
+        order.payment_status = "Paid";
+        // Save the updated order
+        await order.save();
+      }
+
+      // If the status is being changed to "Delivered", check the payment status
+      if (status === "Delivered") {
+        if (order.payment_status === "Pending") {
+          // If payment is pending, open modal for payment
+          return response.status(400).json({
+            message: "Payment is pending. Please update the payment status before delivering the order.",
+            error: true,
+            success: false,
+            paymentRequired: true, // Indicating the frontend should open a payment modal
+          });
+        }
+  
+        // If payment is already received, update the order status
+        if (order.payment_status === "Paid") {            
+          // Update order status to delivered
+          const updateData = { orderStatus: "Delivered" };
+          
+          // Set the orderDeliveredDatetime if not already set
+          if (!order.orderDeliveredDatetime) {
+            updateData.orderDeliveredDatetime = new Date();
+          }
+          const updatedOrder = await OrderModel.findOneAndUpdate(
+            { orderId },
+            updateData,
+            { new: true }
+          );
+  
+          if (!updatedOrder) {            
+            return response.status(404).json({
+              message: "Failed to update the order status",
+              error: true,
+              success: false,
+            });
+          }
+  
+          // Notify clients that the order status has been updated
+          const isadmin = true;  // Assuming the request is from an admin
+          notifyClients("", updatedOrder, isadmin);
+  
+          return response.json({
+            message: "Order status updated to 'Delivered' successfully",
+            error: false,
+            success: true,
+            data: updatedOrder,
+          });
+        }
+      }
+  
+      // If the status is not "Delivered", update the order status normally
+      const updateData = { orderStatus: status };
+  
+      const updatedOrder = await OrderModel.findOneAndUpdate(
+        { orderId },
+        updateData,
+        { new: true }
+      );
+  
+      if (!updatedOrder) {
+        return response.status(404).json({
+          message: "Order not found",
+          error: true,
+          success: false,
+        });
+      }
+  
+      notifyClients("", updatedOrder, true);
+  
+      return response.json({
+        message: "Order status updated successfully",
+        error: false,
+        success: true,
+        data: updatedOrder,
+      });
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      return response.status(500).json({
+        message: error.message || "Internal Server Error",
         error: true,
         success: false,
       });
     }
-    // Update order status in the database
-    const updatedOrder = await OrderModel.findOneAndUpdate(
-      { orderId },
-      { orderStatus: status },
-      { new: true } // Returns the updated document
-    );
-    const isadmin = true;
-    notifyClients("",updatedOrder,isadmin);
+  }
+  
 
+// ==============Delivery status == ""Assigned" || "Out for Delivery"  ========================
+/** Fetch Orders Assigned to a Specific Delivery Partner  USED IN MY DELIVERIES PAGE TO DISPLAY NEWLY ASSIGNED ORDER*/
+export async function notDeliverdOrderController(request, response) {
+    try {    
+    const deliveryPartnerId = request.userId; // Extract delivery partner's ID from auth middleware
+    console.log(deliveryPartnerId);
+    
+    // Fetch delivered orders assigned to the delivery partner
+    const orders = await OrderModel.find({
+        deliveryPartnerId,
+        orderStatus: { $in: ["Assigned", "Out for Delivery"] } // Correct filter condition
+      })
+      .sort({ createdAt: -1 })
+      .populate('delivery_address');
+      
 
-    if (!updatedOrder) {
-      return response.status(404).json({
-        message: "Order not found",
-        error: true,
-        success: false,
-      });
+    if (!orders.length) {
+        return response.status(200).json({
+            message: "No orders found for this delivery partner",
+            error: true,
+            success: true
+        });
     }
 
     return response.json({
-      message: "Order status updated successfully",
-      error: false,
-      success: true,
-      data: updatedOrder,
+        message: "Orders fetched successfully Assigned, Out for Delivery",
+        error: false,
+        success: true,
+        data: orders
     });
-  } catch (error) {
-    console.error("Error updating order status:", error);
+
+} catch (error) {
+    console.log("catch",error);
     return response.status(500).json({
-      message: error.message || "Internal Server Error",
-      error: true,
-      success: false,
+        message: error.message || error,
+        error: true,
+        success: false
     });
-  }
+}
 }
 
+// Delivery History page for admin and delivery partner dashboard 
+export async function getOrdersForDeliveryPartnerHistory(request, response) {
+    try {    
+        const userId = request.userId; // Extract userId from the request (assuming it's added by auth middleware)
 
-/** Fetch Orders Assigned to a Specific Delivery Partner */
-export async function getOrdersForDeliveryPartnerController(request, response) {
-        try {    
-        const deliveryPartnerId = request.userId; // Extract delivery partner's ID from auth middleware
-        console.log(deliveryPartnerId);
-        
-        // Fetch orders assigned to the delivery partner
-        const orders = await OrderModel.find({ deliveryPartnerId })
-            .sort({ createdAt: -1 })
-            .populate('delivery_address');
+        // Fetch the user's role from the AdminModel based on userId
+        const user = await AdminModel.findById(userId);
 
-        if (!orders.length) {
+        if (!user) {
             return response.status(404).json({
-                message: "No orders found for this delivery partner",
+                message: "User not found",
                 error: true,
                 success: false
             });
         }
 
+        // Check user role (admin or delivery partner)
+        const { role } = user;
+
+        let filterConditions = {
+            orderStatus: "Delivered", // Filter for "Delivered" status
+        };
+
+        // If the user is a Delivery Partner, filter by deliveryPartnerId
+        if (role === "Delivery Partner") {
+            filterConditions.deliveryPartnerId = userId; // Only fetch orders for the specific delivery partner
+        }
+
+        // Fetch the orders based on the conditions
+        const orders = await OrderModel.find(filterConditions)
+            .sort({ createdAt: -1 })
+            .populate('delivery_address');
+  
+        if (!orders.length) {
+            return response.status(200).json({
+                message: "No delivered orders found for the selected filters",
+                error: true,
+                success: true,
+                data: [] // Ensures the frontend can safely access response.data.data
+            });
+            
+        }
+
         return response.json({
-            message: "Orders fetched successfully",
+            message: "Orders fetched successfully for order history",
             error: false,
             success: true,
             data: orders
         });
 
     } catch (error) {
-        console.log("catch",error);
+        console.log("catch", error);
         return response.status(500).json({
             message: error.message || error,
             error: true,
@@ -492,6 +715,7 @@ export async function getOrdersForDeliveryPartnerController(request, response) {
         });
     }
 }
+
 
 export const pricewithDiscount = (price, dis = 1) => {
     const discountAmount = Math.ceil((Number(price) * Number(dis)) / 100);
@@ -577,12 +801,12 @@ export async function webhookStripe(request, response) {
     response.json({ received: true });
 }
 
-/** Fetch Order Details */
+// Admin dashboard Fetch data in ORDERLIST page to assign delivery partner
 export async function getOrderDetailsController(request, response) {
     try {
-        // console.log("Fetching orders...");
-        const orderList = await OrderModel.find()
-            .sort({ createdAt: -1 })
+        // Fetch orders where orderStatus is not "Delivered"
+        const orderList = await OrderModel.find({ orderStatus: { $ne: "Delivered" } })
+            .sort({ createdAt: -1 }) // Sort by createdAt in descending order
             .populate('delivery_address');
 
         if (!orderList.length) {
@@ -601,7 +825,6 @@ export async function getOrderDetailsController(request, response) {
         });
 
     } catch (error) {
-        // console.error("Error fetching orders:", error);
         return response.status(500).json({
             message: error.message || error,
             error: true,
@@ -609,3 +832,4 @@ export async function getOrderDetailsController(request, response) {
         });
     }
 }
+

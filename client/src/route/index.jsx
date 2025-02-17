@@ -27,7 +27,7 @@ import AdminLogin from "../pages/AdminLogin";
 import AdminListPage from "../pages/AdminListPage";
 import OrderListPage from "../pages/OrderListPage";
 import DeliveriesPage from "../pages/DeliveriesPage";
-
+import OrderHistory from "../components/OrderHistory"
 const router = createBrowserRouter([
     {
         path: "/",
@@ -126,6 +126,10 @@ const router = createBrowserRouter([
                     {
                         path: "order-list",
                         element: <OrderListPage />
+                    },
+                    {
+                        path: "order-history",
+                        element: <OrderHistory />
                     },
                     {
                         path: "my-deliveries",

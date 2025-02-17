@@ -4,7 +4,7 @@ import generatedAccessToken from '../utils/generatedAccessToken.js'
 import genertedRefreshToken from '../utils/generatedRefreshToken.js'
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import AdminModel from '../models/Admin.model.js';
+import AdminModel from '../models/admin.model.js';
 
 //login controller
 export async function loginController(request,response){

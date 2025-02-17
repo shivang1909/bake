@@ -20,6 +20,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
   const usedispatch = useDispatch();
   
   const allProduct = useSelector(state => state.product.Allproduct);
+  const allCategory = useSelector(state => state.product.allCategory)
   
 
   const [selectedCategory, setSelectedCategory] = useState(false);
@@ -29,7 +30,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
     name: isEdit ? updatedata.name : "",
     coverimage: isEdit ? updatedata.coverimage : null,
     image: isEdit ? updatedata.image : [],
-    category: isEdit ? updatedata.category : 0,
+    category: isEdit ? updatedata.category : allCategory[0]._id,
     discount: isEdit ? updatedata.discount : "",
     description: isEdit ? updatedata.description : "",
     more_details: isEdit ? updatedata.more_details || {} : {},
@@ -45,7 +46,6 @@ const blobimages = useRef([]); // Stor
   const [coverimaepreview, setCoverImagepreview] = useState(data.coverimage)
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
-  const allCategory = useSelector(state => state.product.allCategory)
   const [openAddField, setOpenAddField] = useState(false)
   const [fieldName, setFieldName] = useState("")
   

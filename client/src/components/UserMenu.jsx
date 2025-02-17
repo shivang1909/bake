@@ -104,7 +104,14 @@ const UserMenu = ({ close }) => {
               to="/admin/dashboard/order-list"
               className="px-2 hover:bg-orange-200 py-1"
             >
-              All Order
+              New Order
+            </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/order-history"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              Order History
             </Link>
           </>
         )}

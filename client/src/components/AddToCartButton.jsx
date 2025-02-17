@@ -26,7 +26,9 @@ const AddToCartButton = ({ data }) => {
             const response = await Axios({
                 ...SummaryApi.addTocart,
                 data: {
-                    productId: data?._id
+                    productId: data?._id,
+                    variantId: data?.selectedVariant?._id,  // Ensure selected variant is included
+                    quantity: 1
                 }
             })
 
@@ -45,16 +47,27 @@ const AddToCartButton = ({ data }) => {
         }
     }
 
-    //checking this item in cart or not
-    useEffect(() => {
-        const checkingitem = cartItem.some(item => item.productId._id === data._id)
-        setIsAvailableCart(checkingitem)
+    // //checking this item in cart or not
+    // useEffect(() => {
+    //     const checkingitem = cartItem.some(item => item.productId._id === data._id)
+    //     setIsAvailableCart(checkingitem)
 
-        const product = cartItem.find(item => item.productId._id === data._id)
-        setQty(product?.quantity)
-        setCartItemsDetails(product)
-    }, [data, cartItem])
+    //     const product = cartItem.find(item => item.productId._id === data._id)
+    //     setQty(product?.quantity)
+    //     setCartItemsDetails(product)
+    // }, [data, cartItem])
 
+     // Check if the product with the same variant is in the cart
+     useEffect(() => {
+        const productWithVariant = cartItem.find(item => 
+            item.productId._id === data._id && 
+            item.variantId?._id === data?.selectedVariant?._id
+        );
+
+        setIsAvailableCart(!!productWithVariant);
+        setQty(productWithVariant?.quantity || 0);
+        setCartItemsDetails(productWithVariant);
+    }, [data, cartItem]);
 
     const increaseQty = async(e) => {
         e.preventDefault()
@@ -85,21 +98,30 @@ const AddToCartButton = ({ data }) => {
             {
                 isAvailableCart ? (
                     <div className='flex w-full h-full'>
-                        <button onClick={decreaseQty} className='bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center'><FaMinus /></button>
+                        <button 
+                            onClick={decreaseQty} 
+                            className='bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center'>
+                            <FaMinus />
+                        </button>
 
                         <p className='flex-1 w-full font-semibold px-1 flex items-center justify-center'>{qty}</p>
 
-                        <button onClick={increaseQty} className='bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center'><FaPlus /></button>
+                        <button 
+                            onClick={increaseQty} 
+                            className='bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center'>
+                            <FaPlus />
+                        </button>
                     </div>
                 ) : (
-                    <button onClick={handleADDTocart} className='bg-green-600 hover:bg-green-700 text-white px-2 lg:px-4 py-1 rounded'>
+                    <button 
+                        onClick={handleADDTocart} 
+                        className='bg-green-600 hover:bg-green-700 text-white px-2 lg:px-4 py-1 rounded'>
                         {loading ? <Loading /> : "Add"}
                     </button>
                 )
             }
-
         </div>
-    )
-}
+    );
+};
 
 export default AddToCartButton

@@ -15,6 +15,7 @@
       "subTotalAmt": 300,
       "totalAmt": 330,
       "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123456.pdf",
+      "orderStatus": "Not Assigned",
       "createdAt": { "$date": "2025-02-07T12:00:00.000Z" },
       "updatedAt": { "$date": "2025-02-07T12:00:00.000Z" },
       "__v": 0
@@ -35,9 +36,116 @@
       "subTotalAmt": 500,
       "totalAmt": 550,
       "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123457.pdf",
+      "orderStatus": "Not Assigned",
       "createdAt": { "$date": "2025-02-07T12:05:00.000Z" },
       "updatedAt": { "$date": "2025-02-07T12:05:00.000Z" },
       "__v": 0
-    }
+    },   
+    {
+        "userId": { "$oid": "67a5a123e17deaea5bbc41a1" },
+        "orderId": "ORD123458",
+        "productId": { "$oid": "67a5a456e17deaea5bbc41b4" },
+        "product_details": {
+          "name": "Mysore Pak",
+          "image": [
+            "http://127.0.0.1:5000/uploads/mysorepak.jpg"
+          ]
+        },
+        "paymentId": "PAY123458",
+        "payment_status": "Paid",
+        "delivery_address": { "$oid": "67a5a789e17deaea5bbc41c5" },
+        "subTotalAmt": 200,
+        "totalAmt": 220,
+        "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123458.pdf",
+        "orderStatus": "Not Assigned",
+        "createdAt": { "$date": "2025-02-07T12:10:00.000Z" },
+        "updatedAt": { "$date": "2025-02-07T12:10:00.000Z" },
+        "__v": 0
+      },
+      {
+        "userId": { "$oid": "67a5a223e17deaea5bbc41a2" },
+        "orderId": "ORD123459",
+        "productId": { "$oid": "67a5a556e17deaea5bbc41b5" },
+        "product_details": {
+          "name": "Laddu",
+          "image": [
+            "http://127.0.0.1:5000/uploads/laddu.jpg"
+          ]
+        },
+        "paymentId": "PAY123459",
+        "payment_status": "Paid",
+        "delivery_address": { "$oid": "67a5a889e17deaea5bbc41c6" },
+        "subTotalAmt": 400,
+        "totalAmt": 440,
+        "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123459.pdf",
+        "orderStatus": "Not Assigned",
+        "createdAt": { "$date": "2025-02-07T12:15:00.000Z" },
+        "updatedAt": { "$date": "2025-02-07T12:15:00.000Z" },
+        "__v": 0
+      },
+      {
+        "userId": { "$oid": "67a5a123e17deaea5bbc41a3" },
+        "orderId": "ORD123460",
+        "productId": { "$oid": "67a5a556e17deaea5bbc41b6" },
+        "product_details": {
+          "name": "Kaju Roll",
+          "image": [
+            "http://127.0.0.1:5000/uploads/kajuroll.jpg"
+          ]
+        },
+        "paymentId": "PAY123460",
+        "payment_status": "Pending",
+        "delivery_address": { "$oid": "67a5a789e17deaea5bbc41c7" },
+        "subTotalAmt": 500,
+        "totalAmt": 550,
+        "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123460.pdf",
+        "orderStatus": "Not Assigned",
+        "createdAt": { "$date": "2025-02-07T12:20:00.000Z" },
+        "updatedAt": { "$date": "2025-02-07T12:20:00.000Z" },
+        "__v": 0
+      },
+      {
+        "userId": { "$oid": "67a5a223e17deaea5bbc41a4" },
+        "orderId": "ORD123461",
+        "productId": { "$oid": "67a5a556e17deaea5bbc41b7" },
+        "product_details": {
+          "name": "Peda",
+          "image": [
+            "http://127.0.0.1:5000/uploads/peda.jpg"
+          ]
+        },
+        "paymentId": "PAY123461",
+        "payment_status": "Paid",
+        "delivery_address": { "$oid": "67a5a889e17deaea5bbc41c8" },
+        "subTotalAmt": 250,
+        "totalAmt": 275,
+        "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123461.pdf",
+        "orderStatus": "Not Assigned",
+        "createdAt": { "$date": "2025-02-07T12:25:00.000Z" },
+        "updatedAt": { "$date": "2025-02-07T12:25:00.000Z" },
+        "__v": 0
+      },
+      {
+        "userId": { "$oid": "67a5a123e17deaea5bbc41a5" },
+        "orderId": "ORD123462",
+        "productId": { "$oid": "67a5a556e17deaea5bbc41b8" },
+        "product_details": {
+          "name": "Chikki",
+          "image": [
+            "http://127.0.0.1:5000/uploads/chikki.jpg"
+          ]
+        },
+        "paymentId": "PAY123462",
+        "payment_status": "Pending",
+        "delivery_address": { "$oid": "67a5a789e17deaea5bbc41c9" },
+        "subTotalAmt": 600,
+        "totalAmt": 660,
+        "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123462.pdf",
+        "orderStatus": "Not Assigned",
+        "createdAt": { "$date": "2025-02-07T12:30:00.000Z" },
+        "updatedAt": { "$date": "2025-02-07T12:30:00.000Z" },
+        "__v": 0
+      }
+
   ]
   

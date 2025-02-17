@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema(
             default: {},
         },
         weightVariants: [weightVariantSchema], // Array of weight variants
-        publish: {
+        publish: { 
             type: Boolean,
             default: true,
         },

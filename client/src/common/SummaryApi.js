@@ -171,10 +171,15 @@ const SummaryApi = {
         url: "/api/order/assign-delivery-partner",
         method: "put"
     },
-    getOrdersForDeliveryPartner: {  // 🆕 Delivery Partner fetches assigned orders
-        url: "/api/order/delivery-partner-orders",
+   
+    getDeliveredOrder:{
+         url: "/api/order/delivery-partner-orders-history",
         method: "get"
     },
+    getNotDeliveredOrder:{
+        url: "/api/order/delivery-partner-not-deliverd",
+       method: "get"
+   },
     updateOrderStatus: {  // 🆕 Admin assigns a delivery partner
         url: "/api/order/update-order-status",
         method: "put"
