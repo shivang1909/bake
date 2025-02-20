@@ -111,7 +111,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { valideURLConvert } from '../utils/valideURLConvert'
-import AddToCartButton from './AddToCartButton'
+
 
 const CardProduct = ({ data }) => {
     const url = `/product/${valideURLConvert(data.name)}-${data._id}`
@@ -121,7 +121,7 @@ const CardProduct = ({ data }) => {
     const firstVariant = data?.weightVariants?.[0];
     const Productprice = firstVariant?.price;
     const ProductQty = firstVariant?.qty;
-    const discount = data?.discount;
+    const discount = firstVariant?.discount;
 
     // Function to apply discount to the price
     const priceWithDiscount = (price, discount) => {
@@ -162,15 +162,22 @@ const CardProduct = ({ data }) => {
 
             {/* Product price with and without discount */}
             <div className='px-2 lg:px-0 flex items-center justify-between gap-1 lg:gap-3 text-sm lg:text-base'>
-                <div className="font-semibold">
+            {discount === 0 ? (
+                    <>
                     {Productprice && (
-                        <div className="text-gray-500 line-through">Original: {Productprice} ₹</div>
-                    )}
-                    {discountedPrice && (
+                        <div >Price: {Productprice} ₹</div>
+                        )}
+                    </>
+                    ) : (
+                    <>
+                        {discountedPrice && (
                         <div>Discounted: {discountedPrice} ₹</div>
+                        )}
+                        {Productprice && (
+                        <div className="text-gray-500 line-through">Original: {Productprice} ₹</div>
+                        )}
+                    </>
                     )}
-                </div>
-
                 {/* Add to Cart Button */}
                 <div>
                     {ProductQty === 0 ? (

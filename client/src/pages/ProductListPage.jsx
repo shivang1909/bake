@@ -23,7 +23,7 @@ const ProductListPage = () => {
       const response = await Axios({
         ...SummaryApi.getProductByCategory,
         data: {
-          categoryId: categoryId,
+          id: categoryId,
    
           page: page,
           limit: 8,

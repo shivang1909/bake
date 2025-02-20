@@ -65,8 +65,8 @@ const Home = () => {
         }
       </div>
 
-      {/* Display category products */}
-      {/* {
+      {/*Display category products */}
+       {
         categoryData?.map((c, index) => {
           return(
             <CategoryWiseProductDisplay 
@@ -76,7 +76,7 @@ const Home = () => {
             />
           )
         })
-      } */}
+      }
    </section>
   )
 }

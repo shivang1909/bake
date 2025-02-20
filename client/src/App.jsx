@@ -9,6 +9,7 @@ import { setUserDetails } from './store/userSlice';
 import { setAllCategory,setLoadingCategory } from './store/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import Axios from './utils/Axios';
+import { setDataLoading } from './store/loadingSlice';
 
 import SummaryApi from './common/SummaryApi';
 import { handleAddItemCart } from './store/cartProduct'
@@ -40,7 +41,7 @@ const fetchUser = async () => {
   try{
     const userData = await fetchUserDetails();
     dispatch(setUserDetails(userData.data));
-
+    dispatch(setDataLoading(true))
     if (userData === "Provide  token") {
         console.log(location.pathname);
   

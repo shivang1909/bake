@@ -1,3 +1,4 @@
+
 export const baseURL = import.meta.env.VITE_API_URL
 
 const SummaryApi = {
@@ -61,6 +62,10 @@ const SummaryApi = {
     updateCartDetails : {
         url : '/api/user/update-cart',
         method : 'put'
+    },
+    usercartdetails:{
+        url : '/api/user/getuser-cart',
+        method : 'get'
     },
     addCategory : {
         url : '/api/category/add-category',

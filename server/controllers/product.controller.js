@@ -12,7 +12,7 @@ export const createProductController = async (request, response) => {
         let {
             name,
             category,
-            discount,
+            // discount,
             description,
             weightVariants, // Added weightVariants here
             sku_code,
@@ -27,13 +27,15 @@ export const createProductController = async (request, response) => {
             image[index] = imagefullpath + `/` + `uploads/` + request.files.image[index].filename;
         }
 
+        // console.log(category);
+
         // Create a new product with the provided data, including weightVariants
         const product = new ProductModel({
             name,
             coverimage,
             image,
             category,
-            discount,
+            // discount,
             description,
             more_details,
             weightVariants: JSON.parse(weightVariants) || [], // Handling weightVariants as an array
@@ -232,7 +234,7 @@ export const updateProductDetails = async (request, response) => {
         const data = {
             name: request.body.name,
             category: request.body.category,
-            discount: request.body.discount,
+            // discount: request.body.discount,
             description: request.body.description,
             more_details: JSON.parse(request.body.more_details),
             weightVariants: JSON.parse(request.body.weightVariants) || [], // Handling weightVariants as an array

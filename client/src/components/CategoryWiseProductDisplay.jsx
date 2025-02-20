@@ -6,6 +6,8 @@ import SummaryApi from '../common/SummaryApi'
 import CardLoading from './CardLoading'
 import CardProduct from './CardProduct'
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+import { valideURLConvert } from '../utils/valideURLConvert';
+
 
 const CategoryWiseProductDisplay = ({ id, name }) => {
     const [data, setData] = useState([])

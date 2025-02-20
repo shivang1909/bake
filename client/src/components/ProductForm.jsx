@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import { setAllProduct } from '../store/productSlice';
 import CategorySelect from './CategorySelect';
 
+
 const ProductForm = ({close, isEdit = false, updatedata}) => {
   console.log(updatedata);
   
@@ -31,10 +32,10 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
     coverimage: isEdit ? updatedata.coverimage : null,
     image: isEdit ? updatedata.image : [],
     category: isEdit ? updatedata.category : allCategory[0]._id,
-    discount: isEdit ? updatedata.discount : "",
+    // discount: isEdit ? updatedata.discount : "",
     description: isEdit ? updatedata.description : "",
     more_details: isEdit ? updatedata.more_details || {} : {},
-    weightVariants: isEdit ? updatedata.weightVariants : [],
+    weightVariants: isEdit ? updatedata.weightVariants : [{ weight: '', price: '', qty: '', discount:''}],
     sku_code: isEdit ? updatedata.sku_code : "",
     checkcategory: false,
   });
@@ -53,8 +54,16 @@ const blobimages = useRef([]); // Stor
   const file1 = useRef(null)
 
  // Handle adding weight variants (weight, price, qty)
- const handleAddWeightVariant = () => {
-  const newWeightVariant = { weight: '', price: '', qty: '' };
+//  const handleAddWeightVariant = () => {
+//   const newWeightVariant = { weight: '', price: '', qty: '' };
+//   setData((prev) => ({
+//     ...prev,
+//     weightVariants: [...prev.weightVariants, newWeightVariant]
+//   }));
+// };
+// Handle adding weight variants (weight, price, qty, discount)
+const handleAddWeightVariant = () => {
+  const newWeightVariant = { weight: '', price: '', qty: '', discount: 0 }; // Added discount with default value 0
   setData((prev) => ({
     ...prev,
     weightVariants: [...prev.weightVariants, newWeightVariant]
@@ -62,15 +71,31 @@ const blobimages = useRef([]); // Stor
 };
 
  // Handle change in weight variant fields
- const handleWeightVariantChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedWeightVariants = [...data.weightVariants];
-    updatedWeightVariants[index][name] = value;
-    setData((prev) => ({
-      ...prev,
-      weightVariants: updatedWeightVariants
-    }));
-  };
+//  const handleWeightVariantChange = (index, e) => {
+//     const { name, value } = e.target;
+//     const updatedWeightVariants = [...data.weightVariants];
+//     updatedWeightVariants[index][name] = value;
+//     setData((prev) => ({
+//       ...prev,
+//       weightVariants: updatedWeightVariants
+//     }));
+//   };
+
+const handleWeightVariantChange = (index, e) => {
+  const { name, value } = e.target;
+
+  // Create a deep copy of the weight variants array
+  const updatedWeightVariants = data.weightVariants.map((variant, i) =>
+    i === index ? { ...variant, [name]: value } : variant
+  );
+
+  // Update the state with the modified array
+  setData((prev) => ({
+    ...prev,
+    weightVariants: updatedWeightVariants,
+  }));
+};
+
   const addUpload = (e) =>{
     console.log("handleUploadImage")
     const files =  file1.current.files;
@@ -249,7 +274,7 @@ const handleEditProduct = async (e) => {
   }
 
   formData.append("coverimage", data.coverimage);
-  formData.append("discount", data.discount);
+  // formData.append("discount", data.discount);
   formData.append("description", data.description);
   formData.append("more_details", JSON.stringify(data.more_details));
   formData.append("weightVariants", JSON.stringify(data.weightVariants));
@@ -302,7 +327,7 @@ const updatedproducts = allProduct.map((product) =>
         name: "",
         image: [],
         category: null,
-        discount: "",
+        // discount: "",
         description: "",
         more_details: {},
         weightVariants: [],
@@ -336,7 +361,7 @@ const updatedproducts = allProduct.map((product) =>
     formdata.append("unit", data.unit)
     formdata.append("stock", data.stock)
     formdata.append("price", data.price)
-    formdata.append("discount", data.discount)
+    // formdata.append("discount", data.discount)
     formdata.append("description", data.description)
     const md = JSON.stringify(data.more_details);
     formdata.append("coverimage", data.coverimage)
@@ -382,7 +407,7 @@ const updatedproducts = allProduct.map((product) =>
           image: [],
           category: 0,
           coverimage: null,
-          discount: "",
+          // discount: "",
           description: "",
           more_details: {},
           weightVariants: [] ,// Reset weightVariants
@@ -564,7 +589,7 @@ const updatedproducts = allProduct.map((product) =>
 </div>
 
 {/* ========================= */}
-   <div>
+        <div>
             <p className='font-medium'>Weight Variants</p>
             {data.weightVariants.map((variant, index) => (
               <div key={index} className='flex gap-4 mb-2'>
@@ -603,39 +628,48 @@ const updatedproducts = allProduct.map((product) =>
                     className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded w-full'
                   />
                 </div>
+                {/* Discount Field */}
+                 <div className='flex-1'>
+                  <input
+                    type='number'
+                    name='discount'
+                    placeholder='Discount'
+                    value={variant.discount} // Ensures default value of 0 is displayed
+                    onChange={(e) => handleWeightVariantChange(index, e)}
+                    className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded w-full'
+                  />
+                </div>
 
                 {/* Remove Button */}
                 <button
-                  type="button"
-                  onClick={() => {
-                    const updatedVariants = data.weightVariants.filter((_, i) => i !== index);
-                    setData((prev) => ({ ...prev, weightVariants: updatedVariants }));
-                  }}
-                  className='text-red-600 mt-2'
-                >
-                  Remove
-                </button>
+                type="button"
+                onClick={() => {
+                  if (data.weightVariants.length <= 1) {
+                    // Call AxiosToastError with a custom error message
+                    AxiosToastError({
+                      response: {
+                        data: {
+                          message: "Cannot remove the last weight variant." // Custom error message
+                        }
+                      }
+                    });
+                    return; // Prevent removal if there's only one row
+                  }
+                  // If there are multiple rows, allow removal
+                  const updatedVariants = data.weightVariants.filter((_, i) => i !== index);
+                  setData((prev) => ({ ...prev, weightVariants: updatedVariants }));
+                }}
+                className="text-red-600 mt-2"
+              >
+                Remove
+              </button>
+
               </div>
             ))}
             <button type="button" onClick={handleAddWeightVariant} className='bg-primary-100 hover:bg-primary-200 py-1 rounded'>
               Add Weight Variant
             </button>
           </div>
-
-            {/* Discount Section */}
-            <div className='grid gap-1'>
-              <label htmlFor='discount' className='font-medium'>Discount</label>
-              <input
-                id='discount'
-                type='number'
-                placeholder='Enter product discount'
-                name='discount'
-                value={data.discount}
-                onChange={handleChange}
-                required
-                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
-              />
-            </div>
   
             {/* Add More Fields Section */}
             {Object?.keys(data?.more_details)?.map((k, index) => (

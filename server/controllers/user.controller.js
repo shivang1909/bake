@@ -10,24 +10,110 @@ import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import AdminModel from '../models/Admin.model.js'
+import mongoose from  'mongoose'; // Ensure mongoose is imported
 
-export async function updateCartItem(request,response) {
-    try {
-        console.log(request.body)
-        const data =request.body.cart;
-        // console.log(data);
-        const userid = request.userId;
-       const updateddata =  await UserModel.updateOne(
-            { _id: userid }, // Filter condition to find the note by its ID
-            { $set: { shopping_cart: data } }, // Update only the shoppingCart field with the updated object
-          );
-          
-          console.log(updateddata)
-    } catch (error) {
-        console.log(error)
+export async function fetchCartProductData(request, response)
+{
+    try{
+        const userId = request.user.id;
         
+    }catch(error){
+
     }
 }
+export async function updateCartItem(request, response) {
+    try {
+
+      console.log("Controller called");
+
+      let cartData = request.body.cart;
+
+      const convertedCartData = cartData.map((item) => ({
+        ...item,
+        productId: new mongoose.Types.ObjectId(item.productId)
+      }));
+      const userId = request.userId; // Assuming userId is available from authentication
+
+      if (!userId) {
+        return response.status(404).json({ message: "User not found" });
+      }
+
+      // Update the user's cart in the database
+      const updatedData = await UserModel.updateOne(
+        { _id: userId }, // Find user by userId
+        { $set: { shopping_cart: convertedCartData } }
+      );
+
+      console.log("Cart updated successfully", updatedData);
+      return response.status(200).json({ message: "Cart updated successfully" });
+    } catch (error) {
+      console.error("Server error while updating cart:", error);
+      return response.status(500).json({ message: "Server error while updating cart", error });
+    }
+}
+
+export async function getUserCartDetails(request,response) {
+    const userId = request.userId;
+  try {
+    const cartDetails = await UserModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(userId) } // Filter by user ID
+      },
+      { $unwind: "$shopping_cart" },  
+      {
+        $lookup: {
+          from: "products",
+          localField: "shopping_cart.productId",  
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      {
+        $addFields: {
+          product: { $arrayElemAt: ["$product", 0] }  // Extract the first matched document
+        }
+      },
+      {
+        $addFields: {
+          variantPrices: {
+            $map: {
+              input: "$shopping_cart.variants",
+              as: "variant",
+              in: {
+                price: { $arrayElemAt: ["$product.weightVariants.price", "$$variant.weight"] }, 
+                weight: { $arrayElemAt: ["$product.weightVariants.weight", "$$variant.weight"] },
+                discount: { $arrayElemAt: ["$product.weightVariants.discount", "$$variant.weight"] },
+                quantity: "$$variant.cartQty"
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: "$product._id",
+        //   discount: "$product.discount",
+          itemname: "$product.name",
+          coverimage: "$product.coverimage",
+          variantPrices: 1
+        }
+      }
+    ]);
+    console.log(cartDetails);
+    
+    return response.json({
+        message : "Fetched cart data",
+        error : false,
+        success : true,
+        data : cartDetails
+    })
+  } catch (error) {
+    console.error("Error fetching user cart details:", error);
+    throw error;
+  }
+};
+  
 
 export async function registerUserController(request,response){
     try {

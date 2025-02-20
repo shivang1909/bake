@@ -5,25 +5,75 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
 import useMobile from "../hooks/useMobile";
 import { BsCart4 } from "react-icons/bs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
 import UserMenu from "./UserMenu";
 import { DisplayPriceInRupees } from "../utils/DisplayPriceInRupees";
 import { useGlobalContext } from "../provider/GlobalProvider";
 import DisplayCartItem from "./DisplayCartItem";
+import {setIsCartOpen} from "../store/loadingSlice"
+import SummaryApi from "../common/SummaryApi";
+import Axios from "../utils/Axios";
+
 
 const Header = () => {
+  const dispatch = useDispatch();
   const [isMobile] = useMobile();
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
   const navigate = useNavigate();
   const user = useSelector((state) => state?.user);
   const [openUserMenu, setOpenUserMenu] = useState(false);
-  const cartItem = useSelector((state) => state.cartItem.cart);
+  // const cartItem = useSelector((state) => state.cartItem.cart);
   // const [totalPrice,setTotalPrice] = useState(0)
   // const [totalQty,setTotalQty] = useState(0)
-  const { totalPrice, totalQty } = useGlobalContext();
-  const [openCartSection, setOpenCartSection] = useState(false);
+  // const { totalPrice, totalQty } = useGlobalContext();
+  // const [openCartSection, setOpenCartSection] = useState(false);
+  const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
+
+  const [totalQty, setTotalQty] = useState(0);
+
+    const [cartItems, setCartItem] = useState([]);
+  
+ // Fetch Cart Details
+ useEffect(() => {
+  const fetchCartDetails = async () => {
+    try {
+      const response = await Axios({
+        ...SummaryApi.usercartdetails,
+      });
+      const { data: responseData } = response;
+      if (responseData.success) {
+        console.log(responseData);
+
+        setCartItem(responseData.data);
+
+        //calculate
+
+        let finalTotal = 0;
+        let quantity = 0;
+        for (let i = 0; i < responseData.data.length; i++) {
+          for (
+            let j = 0;
+            j < responseData.data[i].variantPrices.length;
+            j++
+          ) {
+            quantity =
+              quantity + responseData.data[i].variantPrices[j].quantity;
+            }
+          }
+          setTotalQty(quantity);
+          console.log(finalTotal);
+      }
+    } catch (error) {
+      console.error("Error fetching cart details:", error);
+    }
+  };
+  fetchCartDetails();
+}, []);
+
+
+
 
   const redirectToLoginPage = () => {
     navigate("/login");
@@ -141,7 +191,7 @@ const Header = () => {
               /** Show "My Cart" only if the logged-in user has the role "User" */
               user?._id && user.role === "USER" && (
                 <button
-                  onClick={() => setOpenCartSection(true)}
+                  onClick={() => dispatch(setIsCartOpen(true))}
                   className="flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white"
                 >
                   {/** Add to cart icon */}
@@ -149,10 +199,9 @@ const Header = () => {
                     <BsCart4 size={26} />
                   </div>
                   <div className="font-semibold text-sm">
-                    {cartItem[0] ? (
+                    {cartItems[0] ? (
                       <div>
                         <p>{totalQty} Items</p>
-                        <p>{DisplayPriceInRupees(totalPrice)}</p>
                       </div>
                     ) : (
                       <p>My Cart</p>
@@ -171,8 +220,8 @@ const Header = () => {
         <Search />
       </div>
 
-      {openCartSection && (
-        <DisplayCartItem close={() => setOpenCartSection(false)} />
+      {isCartOpen && (
+        <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
       )}
     </header>
   );

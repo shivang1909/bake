@@ -455,9 +455,13 @@ export async function assignBulkDeliveryPartnerController(request, response) {
 /** Place a Cash on Delivery Order */
 export async function CashOnDeliveryOrderController(request, response) {
     try {
+
         const userId = request.userId; // auth middleware 
         const { list_items, totalAmt, addressId, subTotalAmt } = request.body;
-
+        console.log("-====-=-===-=-==-=-");
+        
+            console.log(request.body);
+            
         const payload = list_items.map(el => ({
             userId: userId,
             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
@@ -478,7 +482,7 @@ export async function CashOnDeliveryOrderController(request, response) {
         const generatedOrder = await OrderModel.insertMany(payload);
 
         // Remove items from cart after placing order
-        await CartProductModel.deleteMany({ userId: userId });
+        // await CartProductModel.deleteMany({ userId: userId });
         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
 
         return response.json({

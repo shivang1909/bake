@@ -10,15 +10,23 @@ import image1 from '../assets/minute_delivery.png'
 import image2 from '../assets/Best_Prices_Offers.png'
 import image3 from '../assets/Wide_Assortment.png'
 import { pricewithDiscount } from '../utils/PriceWithDiscount'
-import AddToCartButton from '../components/AddToCartButton'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import {updatedShoppingCart} from '../store/userSlice'
+import { setDataLoading } from '../store/loadingSlice'
+import DisplayCartItem from '../components/DisplayCartItem'
+
+import {setIsCartOpen} from "../store/loadingSlice"
+
 
 const ProductDisplayPage = () => {
   const params = useParams()
    const cartdata = useSelector(state => state.user.shopping_cart)
-   
-
+   const loadingValue = useSelector(state => state.loading.loadingValue)
+  // const [cartdata, setCartdata] = useState([]);  // Define the state
   let productId = params?.product?.split("-")?.slice(-1)[0]
+  const dispatch= useDispatch()
+  console.log(cartdata);
+  const user = useSelector((state) => state.user);
   const [data,setData] = useState({
     name : "",  
     image : [],
@@ -28,8 +36,8 @@ const ProductDisplayPage = () => {
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [loading,setLoading] = useState(false)
   const imageContainer = useRef()
+  const [isAdded , setCart] = useState(false); 
   const [categoryName, setCategoryName] = useState("");
-  const [cart, setCart] = useState([]);
   
   const fetchProductDetails = async()=>{
     try {
@@ -43,9 +51,7 @@ const ProductDisplayPage = () => {
       if (responseData.success) {
           console.log(responseData)
           setData(responseData.data);
-          if (responseData.data.weightVariants.length > 0) {
-            setSelectedVariant(0);
-          }
+ 
         }
     } catch (error) {
       console.log(error)
@@ -54,11 +60,40 @@ const ProductDisplayPage = () => {
       setLoading(false)
     }
   }
+  const compareCart = (index) =>{
+    console.log("this is data",cartdata)
+    const productIndex = cartdata.findIndex(item => item.productId === productId);
+    if(productIndex >= 0)
+    {
+      console.log(productIndex);
+      cartdata[productIndex].variants.map(
+        (variant) => {
+          console.log(selectedVariant)
+          if(variant.weight === index)
+            {
+            console.log(isAdded)
+            setCart(true)
+            return
+          }
+        }
+      );
+    }
+  }
 useEffect(()=>{
-  console.log("hello")
-  fetchProductDetails();
+  fetchProductDetails(); 
+  if (data.category) {
+    fetchCategoryName(data.category); // Fetch category name only if category ID exists
+  }
+},[data.category])
 
-},[])
+useEffect(()=>{
+  if (user._id != undefined) {
+    setCart(false)
+    compareCart(selectedVariant);
+  }
+},[loadingValue,selectedVariant])
+
+
 
 const fetchCategoryName = async (categoryId) => {
   try {
@@ -74,31 +109,65 @@ const fetchCategoryName = async (categoryId) => {
   }
 };
 
-  // Add Cart Item function
-const addCartItem = () => {
-  const cartItem = {
-    productId: data._id,
-    variant: [{ weightIndex: selectedVariant, quantity: 1 }],
+const addCartItem = async () => {
+  if (user._id === undefined) {
+    AxiosToastError({
+      response: {
+        data: {
+          message: "Please Login To Add Item in Cart" // Custom error message
+        }
+      }
+    });
+    return;
+    // AxiosToastError(error)
+  }
+  let newVariant = {
+    weight: selectedVariant, // The selected weight or variant
+    cartQty: 1,
   };
 
-  const product = cartdata.filter(item => item.productId === data._id);
+  console.log(cartdata)
+  // Find the product in the cart
+  const productIndex = cartdata.findIndex(item => item.productId === productId);
+  console.log(productIndex)
+  let updatedCartData;
 
-  if(!product)
-  {
-    //push this cartitem
+  if (productIndex === -1) {
+    // Product does not exist, add it as a new entry with the selected variant
+    const newProduct = {
+      productId: data?._id,
+      variants: [newVariant],
+    };
+    updatedCartData = [...cartdata, newProduct];
+    setCart(true)
+    console.log("new product",updatedCartData);
+  } else {
+    let existingProduct = {...cartdata[productIndex]};
+    
+      existingProduct.variants= [...existingProduct.variants, newVariant];
+      setCart(true)
+    updatedCartData = [...cartdata];
+    updatedCartData[productIndex] = existingProduct;
   }
-  else if( selectedVariant  < product.variant[0].weightIndex)
-  {
-    //update quantity of selectedVarient
+    dispatch(
+      updatedShoppingCart(updatedCartData)
+    );
+  try {
+    // Make API call to update the cart in the database
+    const response = await Axios({
+      ...SummaryApi.updateCartDetails,
+      data: { cart: updatedCartData }, // Send the entire updated cart
+    });
+    console.log("Cart updated in the database:", response.data);
+  } catch (error) {
+    console.error("Error updating cart in the database:", error);
   }
-  else{
-    //push varient to the cartdata state
-  }
-  console.log(cartdata); // Log the updated cart
 };
 
 
   const handleVariantChange = (index) => {
+    console.log(index);
+    
     setSelectedVariant(index);
   };
   
@@ -108,8 +177,12 @@ const addCartItem = () => {
   const handleScrollLeft = ()=>{
     imageContainer.current.scrollLeft -= 100
   }
+  const  handleCartOpen =()=>{
+    dispatch(setIsCartOpen(true))
+  }
   console.log("product data",data)
   return (
+    {loadingValue} &&
     <section className='container mx-auto p-4 grid lg:grid-cols-2 '>
         <div className=''>
             <div className='bg-white lg:min-h-[65vh] lg:max-h-[65vh] rounded min-h-56 max-h-56 h-full w-full'>
@@ -164,17 +237,19 @@ const addCartItem = () => {
         {/* Product Pricing */}
         <div>
           <p>Price</p>
+          {console.log(data)}
+          
           <div className="flex items-center gap-2 lg:gap-4">
             <div className="border border-green-600 px-4 py-2 rounded bg-green-50 w-fit">
               <p className="font-semibold text-lg lg:text-xl">
-                {DisplayPriceInRupees(pricewithDiscount(selectedVariant?.price || 0, data.discount))}
+                {DisplayPriceInRupees(pricewithDiscount(data.weightVariants[selectedVariant]?.price || 0, data.weightVariants[selectedVariant]?.discount))}
               </p>
             </div>
-            {data.discount > 0 && (
+            {data.weightVariants[selectedVariant]?.discount > 0 && (
               <>
-                <p className="line-through">{DisplayPriceInRupees(selectedVariant?.price || 0)}</p>
+                <p className="line-through">{DisplayPriceInRupees(data.weightVariants[selectedVariant]?.price || 0)}</p>
                 <p className="font-bold text-green-600 lg:text-2xl">
-                  {data.discount}% <span className="text-base text-neutral-500">Discount</span>
+                  {data.weightVariants[selectedVariant]?.discount}% <span className="text-base text-neutral-500">Discount</span>
                 </p>
               </>
             )}
@@ -201,12 +276,18 @@ const addCartItem = () => {
       {/* Add to Cart Button */}
       {data.weightVariants[selectedVariant]&&data.weightVariants[selectedVariant].qty> 0 ? (
         <div className="my-4">
-         <button onClick={addCartItem}  className='bg-green-500'>Add</button>
+          {isAdded?(
+              // <DisplayCartItem  />
+            <button  className='bg-orange-500' onClick={handleCartOpen} >Go To Cart</button>
+          ):(
+            <button onClick={addCartItem}  className='bg-green-500'>Add </button>
+          )}
         </div>
       ) : (
         <p className="text-lg text-red-500 my-2">Out of Stock</p>
       )}
-    
+
+
 
             {/****only mobile */}
             <div className='my-4 grid gap-3 '>
