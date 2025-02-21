@@ -92,7 +92,6 @@ export async function getUserCartDetails(request,response) {
       {
         $project: {
           _id: 0,
-          productId: "$product._id",
         //   discount: "$product.discount",
           itemname: "$product.name",
           coverimage: "$product.coverimage",

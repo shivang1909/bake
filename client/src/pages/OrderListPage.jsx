@@ -307,8 +307,7 @@ const OrderListPage = () => {
     }
   
     // Handle incoming messages from the EventSource
-    // Handle incoming messages from the EventSource
-eventSource.onmessage = (event) => {
+  eventSource.onmessage = (event) => {
   console.log("i am inside on message event");
   var data = JSON.parse(event.data);
   console.log(data);

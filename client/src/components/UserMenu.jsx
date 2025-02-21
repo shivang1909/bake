@@ -244,13 +244,22 @@ const UserMenu = ({ close }) => {
           My Profile 
         </Link>
         {isUser(user.role) && (
-        <Link
-          onClick={handleClose}
-          to="/dashboard/address"
-          className="px-2 hover:bg-orange-200 py-1"
-        >
-          Address
-        </Link> 
+          <>
+            <Link
+              onClick={handleClose}
+              to="/dashboard/myorders"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              My Order
+            </Link> 
+            <Link
+              onClick={handleClose}
+              to="/dashboard/address"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              Address
+            </Link> 
+          </>
         )}
         <button
           onClick={handleLogout}

@@ -12,7 +12,6 @@ import { loadStripe } from '@stripe/stripe-js'
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 
 const CheckoutPage = () => {
-  
   const [openAddress, setOpenAddress] = useState(false)
   const addressList = useSelector(state => state.addresses.addressList)
   const [selectAddress, setSelectAddress] = useState(0)
@@ -27,8 +26,6 @@ const CheckoutPage = () => {
             data : {
               list_items : cartItems,
               addressId : addressList[selectAddress]?._id,
-              subTotalAmt : finalTotal-discountedPrice,
-              totalAmt :  finalTotal-discountedPrice,
             }
           })
 
@@ -36,12 +33,6 @@ const CheckoutPage = () => {
 
           if(responseData.success){
               toast.success(responseData.message)
-              if(fetchCartItem){
-                fetchCartItem()
-              }
-              if(fetchOrder){
-                fetchOrder()
-              }
               navigate('/success',{
                 state : {
                   text : "Order"
@@ -139,10 +130,12 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
       }
     };
     fetchCartDetails();
+
   }, []);
 
   return (
     <section className='bg-blue-50'>
+      {console.log(cartItems)}
       <div className='container mx-auto p-4 flex flex-col lg:flex-row w-full gap-5 justify-between'>
         <div className='w-full'>
           {/***address***/}

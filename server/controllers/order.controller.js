@@ -254,9 +254,6 @@ export function sseHandler(req, res) {
 
     console.log("admin calls this page ")
     const newClient = { id: req.userId, res };
-
-    
-
     clients.push(newClient);
 
     console.log(`Client connected: ${newClient.id}`);
@@ -457,29 +454,27 @@ export async function CashOnDeliveryOrderController(request, response) {
     try {
 
         const userId = request.userId; // auth middleware 
-        const { list_items, totalAmt, addressId, subTotalAmt } = request.body;
+        const { list_items, addressId } = request.body;
         console.log("-====-=-===-=-==-=-");
         
-            console.log(request.body);
+        console.log(request.body);    
             
-        const payload = list_items.map(el => ({
+
+        console.log("Helooooooooooooooooooooo");
+        const payload = {
             userId: userId,
             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-            productId: el.productId._id,
-            product_details: {
-                name: el.productId.name,
-                image: el.productId.image
-            },
-            paymentId: "",
+            products:list_items,
+            paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
             payment_status: "CASH ON DELIVERY",
             delivery_address: addressId,
-            subTotalAmt: subTotalAmt,
-            totalAmt: totalAmt,
             deliveryPartnerId: null, // No delivery partner assigned initially
-            orderStatus: "Pending",  // Default status
-        }));
+            orderStatus: "Not Assigned",  // Default status
+        }
 
-        const generatedOrder = await OrderModel.insertMany(payload);
+        console.log(payload);
+        
+        const generatedOrder = await OrderModel.create(payload);
 
         // Remove items from cart after placing order
         // await CartProductModel.deleteMany({ userId: userId });
