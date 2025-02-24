@@ -16,10 +16,12 @@ import { setDataLoading } from '../store/loadingSlice'
 import DisplayCartItem from '../components/DisplayCartItem'
 
 import {setIsCartOpen} from "../store/loadingSlice"
+import { useGlobalContext } from '../provider/GlobalProvider'
 
 
 const ProductDisplayPage = () => {
   const params = useParams()
+  const {totalQty,setTotalQty} = useGlobalContext()
    const cartdata = useSelector(state => state.user.shopping_cart)
    const loadingValue = useSelector(state => state.loading.loadingValue)
   // const [cartdata, setCartdata] = useState([]);  // Define the state
@@ -162,7 +164,8 @@ const addCartItem = async () => {
       ...SummaryApi.updateCartDetails,
       data: { cart: updatedCartData }, // Send the entire updated cart
     });
-    console.log("Cart updated in the database:", response.data);
+     setTotalQty(totalQty + 1) 
+        console.log("Cart updated in the database:", response.data);
   } catch (error) {
     console.error("Error updating cart in the database:", error);
   }

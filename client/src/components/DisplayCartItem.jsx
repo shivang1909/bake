@@ -15,12 +15,9 @@ import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 
-const DisplayCartItem = ({ close ,cartItems,setCartItem }) => {
+const DisplayCartItem = ({ close }) => {
   const dispatch = useDispatch();
-
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [notDiscountTotalPrice, setNotDiscountTotalPrice] = useState(0);
-  const [totalQty, setTotalQty] = useState(0);
+  const {cartItems,setCartItem, totalPrice,totalQty, notDiscountTotalPrice,setTotalPrice,setTotalQty,setNotDiscountTotalPrice} = useGlobalContext()
   const cartdata = useSelector((state) => state.user.shopping_cart);
   console.log(cartdata)
   const user = useSelector((state) => state.user);
@@ -146,39 +143,11 @@ const DisplayCartItem = ({ close ,cartItems,setCartItem }) => {
       console.error("Error updating cart in the database:", error);
     }
   }
-
     updateQuantity();
-
-  
+    
   },[cartdata])
 
-
-
-  // Fetch Cart Details
-  // useEffect(() => {
-  //   const fetchCartDetails = async () => {
-  //     try {
-  //       const response = await Axios({
-  //         ...SummaryApi.usercartdetails,
-  //       });
-  //       const { data: responseData } = response;
-  //       if (responseData.success) {
-  //         console.log(responseData.data);
-
-  //         setCartItem(responseData.data);
-          
-  //         calculateTotalPriceandQty(responseData);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching cart details:", error);
-  //     }
-  //   };
-  //   fetchCartDetails();
-  // }, []);
-  
   const navigate = useNavigate();
-  
-  
   const redirectToCheckoutPage = () => {
     if (user?._id) {
       navigate("/dashboard/checkout");

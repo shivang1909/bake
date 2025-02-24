@@ -17,27 +17,10 @@ import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
 function App() {
-    const [cartItems, setCartItem] = useState([]);
   
   const dispatch = useDispatch()
   const location = useLocation()
   const navigate = useNavigate()  
-
- 
-// const fetchUser = async () => {
-//    const userData = await fetchUserDetails();
-//    console.log(userData);
-//    if (!userData) {
-//      navigate("/login");
-//    } else {
-//      dispatch(setUserDetails(userData.data));  // Update Redux state
-//      if (userData.data.role === 'admin') {
-//        navigate("/admin/dashboard");  // Redirect to admin dashboard
-//      } else {
-//        navigate("/");  // Redirect to home or other route for non-admins
-//      }
-//    }
-// };
 
 
 const fetchUser = async () => {
@@ -80,14 +63,9 @@ const fetchUser = async () => {
       dispatch(setLoadingCategory(false))
     }
   }
-
-
-  
-
   useEffect(()=>{
     fetchUser()
     fetchCategory()
-    fetchCartDetails();
 
     // fetchCartItem()
   },[])

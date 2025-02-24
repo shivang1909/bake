@@ -14,11 +14,12 @@ export const GlobalContext = createContext(null)
 export const useGlobalContext = ()=> useContext(GlobalContext)
 
 const GlobalProvider = ({children}) => {
-     const dispatch = useDispatch()
-     const [totalPrice,setTotalPrice] = useState(0)
-     const [notDiscountTotalPrice,setNotDiscountTotalPrice] = useState(0)
+    const dispatch = useDispatch()
+    const [totalPrice,setTotalPrice] = useState(0)
+    const [notDiscountTotalPrice,setNotDiscountTotalPrice] = useState(0)
     const [totalQty,setTotalQty] = useState(0)
-   const [cartItem,setCartItem]= useState()
+    const [cartItems, setCartItem] = useState([]);
+
     const user = useSelector(state => state?.user)
     const fetchCartDetails = async () => {
       try {
@@ -31,17 +32,30 @@ const GlobalProvider = ({children}) => {
     
           setCartItem(responseData.data);
           
-          // calculateTotalPriceandQty(responseData);
+          calculateTotalPriceandQty(responseData);
         }
       } catch (error) {
         console.error("Error fetching cart details:", error);
       }
     };
+    const calculateTotalPriceandQty= (responseData) =>{
+      let finalTotal = 0;
+      let quantity = 0;
+      let discountedPrice=0;
+      for (let i = 0; i < responseData.data.length; i++) {
+        let eachDiscount =0;
+        for (let j = 0;j < responseData.data[i].variantPrices.length;j++) {
+          finalTotal = finalTotal + (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity);
+          quantity = quantity + responseData.data[i].variantPrices[j].quantity;
+          eachDiscount= (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity) * (responseData.data[i].variantPrices[j].discount / 100)
+          discountedPrice = discountedPrice + eachDiscount        
+        }
+      }
+      setNotDiscountTotalPrice(finalTotal);
+      setTotalQty(quantity);  
+      setTotalPrice(finalTotal- discountedPrice);
+    } 
 
-    useEffect(()=>{
-       fetchCartDetails();
-
-    })
 
     const handleLogoutOut = ()=>{
         localStorage.clear()
@@ -78,7 +92,6 @@ const GlobalProvider = ({children}) => {
     }
 
     useEffect(()=>{
-      
       handleLogoutOut()
       fetchAddress()
       fetchOrder()
@@ -86,11 +99,16 @@ const GlobalProvider = ({children}) => {
     
     return(
         <GlobalContext.Provider value={{
-        
-            fetchAddress,
+          fetchCartDetails,
+            setCartItem,
+            cartItems,
+            setTotalPrice,
+            setTotalQty,
+            setNotDiscountTotalPrice,
             totalPrice,
             totalQty,
             notDiscountTotalPrice,
+            fetchAddress,
             fetchOrder
         }}>
             {children}

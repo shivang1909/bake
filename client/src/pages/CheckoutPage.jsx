@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useGlobalContext } from '../provider/GlobalProvider'
 import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees'
 import AddAddress from '../components/AddAddress'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import AxiosToastError from '../utils/AxiosToastError'
 import Axios from '../utils/Axios'
 import SummaryApi from '../common/SummaryApi'
@@ -10,29 +10,34 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
+import {updatedShoppingCart} from '../store/userSlice'
 
 const CheckoutPage = () => {
   const [openAddress, setOpenAddress] = useState(false)
   const addressList = useSelector(state => state.addresses.addressList)
+  const dispatch =useDispatch()
   const [selectAddress, setSelectAddress] = useState(0)
   // const cartItemsList = useSelector(state => state.cartItem.cart)
   const navigate = useNavigate()
-  const [cartItems, setCartItem] = useState([]);
+  const {setTotalQty,setCartItem} = useGlobalContext()
+  const [checkoutItems, setcheckoutItems] = useState([]);
 
   const handleCashOnDelivery = async() => {
       try {
           const response = await Axios({
             ...SummaryApi.CashOnDeliveryOrder,
             data : {
-              list_items : cartItems,
+              list_items : checkoutItems,
               addressId : addressList[selectAddress]?._id,
             }
           })
-
           const { data : responseData } = response
 
           if(responseData.success){
               toast.success(responseData.message)
+              setCartItem([])
+              dispatch (updatedShoppingCart([]))
+              setTotalQty(0)
               navigate('/success',{
                 state : {
                   text : "Order"
@@ -41,7 +46,6 @@ const CheckoutPage = () => {
           }
       } catch (error) {
         console.log(error);
-        
         AxiosToastError(error)
       }
   }
@@ -76,35 +80,19 @@ const CheckoutPage = () => {
         AxiosToastError(error)
     }
   }
-  // let finalTotal = 0;
-  // let quantity = 0;
-  // let discountedPrice=0;
-  // const calculateTotalPriceandQty= (responseData) =>{
-  //   for (let i = 0; i < responseData.data.length; i++) {
-  //     let eachDiscount =0;
-  //     for (let j = 0;j < responseData.data[i].variantPrices.length;j++) {
-  //       finalTotal = finalTotal + (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity);
-  //       quantity = quantity + responseData.data[i].variantPrices[j].quantity;
-  //       eachDiscount= (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity) * (responseData.data[i].variantPrices[j].discount / 100)
-  //       console.log(eachDiscount);
-        
-  //       discountedPrice = discountedPrice + eachDiscount        
-  //     }
-  //   }
 
-  // } 
   
 const { finalTotal, quantity, discountedPrice } = useMemo(() => {
     let finalTotal = 0;
     let quantity = 0;
     let discountedPrice = 0;
 
-        for (let i = 0; i < cartItems.length; i++) {
+        for (let i = 0; i < checkoutItems.length; i++) {
           let eachDiscount =0;
-          for (let j = 0;j < cartItems[i].variantPrices.length;j++) {
-            finalTotal = finalTotal + (cartItems[i].variantPrices[j].price * cartItems[i].variantPrices[j].quantity);
-            quantity = quantity + cartItems[i].variantPrices[j].quantity;
-            eachDiscount= (cartItems[i].variantPrices[j].price * cartItems[i].variantPrices[j].quantity) * (cartItems[i].variantPrices[j].discount / 100)
+          for (let j = 0;j < checkoutItems[i].variantPrices.length;j++) {
+            finalTotal = finalTotal + (checkoutItems[i].variantPrices[j].price * checkoutItems[i].variantPrices[j].quantity);
+            quantity = quantity + checkoutItems[i].variantPrices[j].quantity;
+            eachDiscount= (checkoutItems[i].variantPrices[j].price * checkoutItems[i].variantPrices[j].quantity) * (checkoutItems[i].variantPrices[j].discount / 100)
             console.log(eachDiscount);
             
             discountedPrice = discountedPrice + eachDiscount        
@@ -112,7 +100,7 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
         }
 
     return { finalTotal, quantity, discountedPrice };
-  }, [cartItems]);
+  }, [checkoutItems]);
 
   useEffect(() => {
     const fetchCartDetails = async () => {
@@ -123,7 +111,7 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
         const { data: responseData } = response;
         if (responseData.success) {
 
-          setCartItem(responseData.data);
+          setcheckoutItems(responseData.data);
         }
       } catch (error) {
         console.error("Error fetching cart details:", error);
@@ -135,7 +123,7 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
 
   return (
     <section className='bg-blue-50'>
-      {console.log(cartItems)}
+      {console.log(checkoutItems)}
       <div className='container mx-auto p-4 flex flex-col lg:flex-row w-full gap-5 justify-between'>
         <div className='w-full'>
           {/***address***/}
@@ -255,7 +243,7 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
 
         <div className='w-full max-w-md bg-white py-4 px-2'>
           {/**summary**/}
-          {cartItems.length > 0 ? (
+          {checkoutItems.length > 0 ? (
                       <>
                         <div className="flex items-center justify-between px-4 py-2 bg-blue-100 text-blue-500 rounded-full">
                           <p>Your total savings</p>
@@ -264,7 +252,7 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-4 grid gap-5 overflow-auto">
-                          {cartItems.map((item, productIndex) =>
+                          {checkoutItems.map((item, productIndex) =>
                             item.variantPrices.map((variant, index) => (
                               <div
                               key={`${item.productId}_product_${index}`}

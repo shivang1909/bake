@@ -455,12 +455,7 @@ export async function CashOnDeliveryOrderController(request, response) {
 
         const userId = request.userId; // auth middleware 
         const { list_items, addressId } = request.body;
-        console.log("-====-=-===-=-==-=-");
-        
-        console.log(request.body);    
-            
 
-        console.log("Helooooooooooooooooooooo");
         const payload = {
             userId: userId,
             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
@@ -478,7 +473,7 @@ export async function CashOnDeliveryOrderController(request, response) {
 
         // Remove items from cart after placing order
         // await CartProductModel.deleteMany({ userId: userId });
-        await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+        // await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
 
         return response.json({
             message: "Order placed successfully",
