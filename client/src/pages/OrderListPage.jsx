@@ -296,6 +296,8 @@ const OrderListPage = () => {
   const [selectedPartnerFilter, setSelectedPartnerFilter] = useState(""); // State for the filter
   const [orderStatusFilter, setOrderStatusFilter] = useState(""); // State for Order Status filter
   const [paymentStatusFilter, setPaymentStatusFilter] = useState(""); // State for Payment Status filter
+
+
   useEffect(() => {
     let eventSource;
   
@@ -632,9 +634,8 @@ const OrderListPage = () => {
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
-          <thead>
+          {/* <thead>
             <tr className="bg-gray-200">
-              {/* Conditionally render the entire select column */}
               {!filteredOrders.every(order => order.orderStatus === "Delivered" || order.orderStatus === "Out for Delivery") && (
                 <th className="border p-2">
                   <input
@@ -659,7 +660,6 @@ const OrderListPage = () => {
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order) => (
                 <tr key={order.orderId} className="text-center">
-                  {/* Conditionally render the checkbox cell */}
                   {!filteredOrders.every(order => order.orderStatus === "Delivered" || order.orderStatus === "Out for Delivery") && (
                     <td className="border p-2">
                       {order.orderStatus !== "Delivered" && order.orderStatus !== "Out for Delivery" && (
@@ -671,8 +671,9 @@ const OrderListPage = () => {
                       )}
                     </td>
                   )}
+                  {console.log(order)}
                   <td className="border p-2">{order.orderId}</td>
-                  <td className="border p-2">{order.product_details.name}</td>
+                  <td className="border p-2">{order.products.name}</td>
                   <td className="border p-2">{order.payment_status || "Pending"}</td>
                   <td className="border p-2">₹{order.totalAmt.toFixed(2)}</td>
                   <td className="border p-2">{order.delivery_address || "Not Available"}</td>
@@ -760,7 +761,159 @@ const OrderListPage = () => {
                 </td>
               </tr>
             )}
-          </tbody>
+          </tbody> */}
+          <thead>
+  <tr className="bg-gray-200">
+    {!filteredOrders.every(order => order.orderStatus === "Delivered" || order.orderStatus === "Out for Delivery") && (
+      <th className="border p-2">
+        <input
+          type="checkbox"
+          onChange={handleSelectAll}
+          checked={Object.values(selectedOrders).length > 0 && Object.values(selectedOrders).every(Boolean)}
+        />
+      </th>
+    )}
+    <th className="border p-2">Order ID</th>
+    <th className="border p-2">Products</th>
+    <th className="border p-2">Payment Status</th>
+    <th className="border p-2">Total Amount</th>
+    <th className="border p-2">Delivery Address</th>
+    <th className="border p-2">Invoice</th>
+    <th className="border p-2">Order Status</th>
+    <th className="border p-2">Assigned Date</th>
+    <th className="border p-2">Assign Delivery Partner</th>
+  </tr>
+</thead>
+<tbody>
+  {filteredOrders.length > 0 ? (
+    filteredOrders.map((order) => (
+      <tr key={order.orderId} className="text-center">
+        {!filteredOrders.every(order => order.orderStatus === "Delivered" || order.orderStatus === "Out for Delivery") && (
+          <td className="border p-2">
+            {order.orderStatus !== "Delivered" && order.orderStatus !== "Out for Delivery" && (
+              <input
+                type="checkbox"
+                checked={selectedOrders[order.orderId] || false}
+                onChange={() => handleSelectOrder(order.orderId)}
+              />
+            )}
+          </td>
+        )}
+
+        <td className="border p-2">{order.orderId}</td>
+
+        {/* Products Column */}
+        <td className="border p-2">
+          {order.products.map((product, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <img src={product.coverimage} alt={product.itemname} className="w-12 h-12 rounded" />
+              <p>{product.itemname}</p>
+            </div>
+          ))}
+        </td>
+
+        <td className="border p-2">{order.payment_status || "Pending"}</td>
+        <td className="border p-2">₹{order.finalOrderTotal || "N/A"}</td>
+
+        {/* Delivery Address Column */}
+        <td className="border p-2">
+          {order.delivery_address ? (
+            <>
+              {order.delivery_address.address_line}, {order.delivery_address.city}, {order.delivery_address.state}, {order.delivery_address.pincode}
+            </>
+          ) : (
+            "Not Available"
+          )}
+        </td>
+
+        <td className="border p-2">
+          {order.invoice_receipt ? (
+            <a 
+              href={order.invoice_receipt} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-500 hover:text-blue-700"
+            >
+              View
+            </a>
+          ) : (
+            "Not Available"
+          )}
+        </td>
+
+        <td className="border p-2">{order.orderStatus || "Not Available"}</td>
+        <td className="border p-2">
+          {order.orderAssignedDatetime ? new Date(order.orderAssignedDatetime).toLocaleDateString('en-GB') : "Not Available"}
+        </td>
+
+        {/* Assign Delivery Partner */}
+        <td className="border p-2">
+          <div className="flex items-center justify-center gap-2">
+            {order.orderStatus === "Delivered" ? (
+              <span className="text-green-600 font-bold">Order Completed</span>
+            ) : order.orderStatus === "Out for Delivery" ? (
+              <input 
+                type="text" 
+                value={deliveryPartners.find(dp => dp._id === order.deliveryPartnerId)?.name || "Not Assigned"}
+                disabled
+                className="border rounded p-1 bg-gray-100 text-center"
+              />
+            ) : (
+              <>
+                <select
+                  className={`border rounded p-1 ${
+                    assignedPartners[order.orderId]?.isDisabled ? 'bg-gray-100' : 'bg-white'
+                  }`}
+                  value={assignedPartners[order.orderId]?.partnerId || (order.orderStatus === "Assigned" ? order.deliveryPartnerId : "")}
+                  onChange={(e) => handleAssignPartner(order.orderId, e.target.value)}
+                  disabled={assignedPartners[order.orderId]?.isDisabled || order.orderStatus === "Completed"}
+                >
+                  <option value="">Select Partner</option>
+                  {deliveryPartners.map((partner) => (
+                    <option key={partner._id} value={partner._id}>
+                      {partner.name}
+                    </option>
+                  ))}
+                </select>
+
+                {assignedPartners[order.orderId]?.isDisabled && 
+                 order.orderStatus !== "Completed" && 
+                 order.orderStatus !== "Out for Delivery" && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition-colors"
+                    onClick={() => handleEditPartner(order.orderId)}
+                  >
+                    Edit
+                  </button>
+                )}
+
+                {assignedPartners[order.orderId]?.partnerId && 
+                 assignedPartners[order.orderId]?.partnerId !== "" && 
+                 !assignedPartners[order.orderId]?.isDisabled && 
+                 order.orderStatus !== "Completed" && 
+                 order.orderStatus !== "Out for Delivery" && (
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors"
+                    onClick={() => handleCancelEdit(order.orderId)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="9" className="border p-2 text-center">
+        No orders found
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
     </div>

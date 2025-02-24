@@ -264,6 +264,7 @@ const OrderHistory = () => {
             {filteredOrders.length > 0 ? (
               filteredOrders.map((order) => (
                 <tr key={order.orderId} className="text-center">
+                  {console.log(order)}
                   <td className="border p-2">{order.orderId}</td>
                   <td className="border p-2">{order.product_details.name}</td>
                   <td className="border p-2">{order.payment_status || "Pending"}</td>

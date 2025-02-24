@@ -24,11 +24,13 @@ const CheckoutPage = () => {
 
   const handleCashOnDelivery = async() => {
       try {
+
           const response = await Axios({
             ...SummaryApi.CashOnDeliveryOrder,
             data : {
               list_items : checkoutItems,
               addressId : addressList[selectAddress]?._id,
+              total: finalTotal-discountedPrice
             }
           })
           const { data : responseData } = response
@@ -110,7 +112,6 @@ const { finalTotal, quantity, discountedPrice } = useMemo(() => {
         });
         const { data: responseData } = response;
         if (responseData.success) {
-
           setcheckoutItems(responseData.data);
         }
       } catch (error) {

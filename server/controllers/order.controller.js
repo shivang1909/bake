@@ -454,7 +454,9 @@ export async function CashOnDeliveryOrderController(request, response) {
     try {
 
         const userId = request.userId; // auth middleware 
-        const { list_items, addressId } = request.body;
+        const { list_items, addressId,total } = request.body;
+        console.log("Total : ",request.body.total);
+        
 
         const payload = {
             userId: userId,
@@ -462,6 +464,7 @@ export async function CashOnDeliveryOrderController(request, response) {
             products:list_items,
             paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
             payment_status: "CASH ON DELIVERY",
+            finalOrderTotal: total,
             delivery_address: addressId,
             deliveryPartnerId: null, // No delivery partner assigned initially
             orderStatus: "Not Assigned",  // Default status
@@ -494,120 +497,197 @@ export async function CashOnDeliveryOrderController(request, response) {
 
 // update order status to Assigned ---> Out For delivery ---> Deliverd 
 // update payment status also Pending ---> Paid
-export async function updateOrderStatusController(request, response) {
-    try {
-      const { orderId, status, paymentStatus } = request.body;
-        console.log(paymentStatus);
+// export async function updateOrderStatusController(request, response) {
+//     try {
+//       const { orderId, status, paymentStatus } = request.body;
+//         console.log(paymentStatus);
         
-      // Validate input data
-      if (!orderId || !status) {
-        return response.status(400).json({
-          message: "Order ID and new status are required",
-          error: true,
-          success: false,
-        });
-      }
+//       // Validate input data
+//       if (!orderId || !status) {
+//         return response.status(400).json({
+//           message: "Order ID and new status are required",
+//           error: true,
+//           success: false,
+//         });
+//       }
   
-      // Fetch the order by orderId
-      const order = await OrderModel.findOne({ orderId });
-      if (!order) {
-        return response.status(404).json({
-          message: "Order not found",
-          error: true,
-          success: false,
-        });
-      }
+//       // Fetch the order by orderId
+//       const order = await OrderModel.findOne({ orderId });
+//       if (!order) {
+//         return response.status(404).json({
+//           message: "Order not found",
+//           error: true,
+//           success: false,
+//         });
+//       }
   
-     // If paymentStatus is "Paid," update it
-     if (paymentStatus === "Paid") {
-        order.payment_status = "Paid";
-        // Save the updated order
-        await order.save();
-      }
+//      // If paymentStatus is "Paid," update it
+//      if (paymentStatus === "Paid") {
+//         order.payment_status = "Paid";
+//         // Save the updated order
+//         await order.save();
+//       }
 
-      // If the status is being changed to "Delivered", check the payment status
-      if (status === "Delivered") {
-        if (order.payment_status === "Pending") {
-          // If payment is pending, open modal for payment
-          return response.status(400).json({
-            message: "Payment is pending. Please update the payment status before delivering the order.",
-            error: true,
-            success: false,
-            paymentRequired: true, // Indicating the frontend should open a payment modal
-          });
-        }
+//       // If the status is being changed to "Delivered", check the payment status
+//       if (status === "Delivered") {
+//         if (order.payment_status === "Pending") {
+//           // If payment is pending, open modal for payment
+//           return response.status(400).json({
+//             message: "Payment is pending. Please update the payment status before delivering the order.",
+//             error: true,
+//             success: false,
+//             paymentRequired: true, // Indicating the frontend should open a payment modal
+//           });
+//         }
   
-        // If payment is already received, update the order status
-        if (order.payment_status === "Paid") {            
-          // Update order status to delivered
-          const updateData = { orderStatus: "Delivered" };
+//         // If payment is already received, update the order status
+//         if (order.payment_status === "Paid") {            
+//           // Update order status to delivered
+//           const updateData = { orderStatus: "Delivered" };
           
-          // Set the orderDeliveredDatetime if not already set
-          if (!order.orderDeliveredDatetime) {
-            updateData.orderDeliveredDatetime = new Date();
-          }
-          const updatedOrder = await OrderModel.findOneAndUpdate(
-            { orderId },
-            updateData,
-            { new: true }
-          );
+//           // Set the orderDeliveredDatetime if not already set
+//           if (!order.orderDeliveredDatetime) {
+//             updateData.orderDeliveredDatetime = new Date();
+//           }
+//           const updatedOrder = await OrderModel.findOneAndUpdate(
+//             { orderId },
+//             updateData,
+//             { new: true }
+//           );
   
-          if (!updatedOrder) {            
+//           if (!updatedOrder) {            
+//             return response.status(404).json({
+//               message: "Failed to update the order status",
+//               error: true,
+//               success: false,
+//             });
+//           }
+  
+//           // Notify clients that the order status has been updated
+//           const isadmin = true;  // Assuming the request is from an admin
+//           notifyClients("", updatedOrder, isadmin);
+  
+//           return response.json({
+//             message: "Order status updated to 'Delivered' successfully",
+//             error: false,
+//             success: true,
+//             data: updatedOrder,
+//           });
+//         }
+//       }
+  
+//       // If the status is not "Delivered", update the order status normally
+//       const updateData = { orderStatus: status };
+  
+//       const updatedOrder = await OrderModel.findOneAndUpdate(
+//         { orderId },
+//         updateData,
+//         { new: true }
+//       );
+  
+//       if (!updatedOrder) {
+//         return response.status(404).json({
+//           message: "Order not found",
+//           error: true,
+//           success: false,
+//         });
+//       }
+  
+//       notifyClients("", updatedOrder, true);
+  
+//       return response.json({
+//         message: "Order status updated successfully",
+//         error: false,
+//         success: true,
+//         data: updatedOrder,
+//       });
+//     } catch (error) {
+//       console.error("Error updating order status:", error);
+//       return response.status(500).json({
+//         message: error.message || "Internal Server Error",
+//         error: true,
+//         success: false,
+//       });
+//     }
+//   }
+  
+
+export const updateOrderStatusController = async (request, response) => {
+    try {
+        const { orderId, status, isPaymentDone } = request.body;
+
+        console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
+
+        // Fetch order from database
+        let order = await OrderModel.findOne({ orderId });
+
+        if (!order) {
+            console.log("❌ Order not found.");
             return response.status(404).json({
-              message: "Failed to update the order status",
-              error: true,
-              success: false,
+                message: "Order not found",
+                error: true,
+                success: false,
             });
-          }
-  
-          // Notify clients that the order status has been updated
-          const isadmin = true;  // Assuming the request is from an admin
-          notifyClients("", updatedOrder, isadmin);
-  
-          return response.json({
-            message: "Order status updated to 'Delivered' successfully",
+        }
+
+        // ✅ Update payment status before checking order status
+        if (isPaymentDone === true && !order.isPaymentDone) {
+            console.log("💰 Updating payment status for order...");
+            order.isPaymentDone = true;
+            await order.save();
+            console.log("✅ Payment status updated successfully.");
+        }
+
+        // ✅ Now check if order can be marked as Delivered
+        if (status === "Delivered") {
+            console.log("🚚 Attempting to deliver order... Checking payment status.");
+
+            if (!order.isPaymentDone) {
+                console.log("❌ Payment pending. Cannot mark order as Delivered.");
+                return response.status(400).json({
+                    message: "Payment is pending. Please update the payment status before delivering the order.",
+                    error: true,
+                    success: false,
+                    paymentModalRequired: true,
+                });
+            }
+
+            console.log("✅ Payment is done. Proceeding to mark order as Delivered.");
+            order.orderStatus = "Delivered";
+            order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
+            await order.save();
+
+            console.log("✅ Order successfully marked as Delivered:", order);
+            return response.json({
+                message: "Order status updated to 'Delivered' successfully",
+                error: false,
+                success: true,
+                data: order,
+            });
+        }
+
+        // ✅ Handle other status updates if necessary
+        order.orderStatus = status;
+        await order.save();
+        console.log("✅ Order status updated successfully:", order);
+
+        return response.json({
+            message: "Order status updated successfully",
             error: false,
             success: true,
-            data: updatedOrder,
-          });
-        }
-      }
-  
-      // If the status is not "Delivered", update the order status normally
-      const updateData = { orderStatus: status };
-  
-      const updatedOrder = await OrderModel.findOneAndUpdate(
-        { orderId },
-        updateData,
-        { new: true }
-      );
-  
-      if (!updatedOrder) {
-        return response.status(404).json({
-          message: "Order not found",
-          error: true,
-          success: false,
+            data: order,
         });
-      }
-  
-      notifyClients("", updatedOrder, true);
-  
-      return response.json({
-        message: "Order status updated successfully",
-        error: false,
-        success: true,
-        data: updatedOrder,
-      });
     } catch (error) {
-      console.error("Error updating order status:", error);
-      return response.status(500).json({
-        message: error.message || "Internal Server Error",
-        error: true,
-        success: false,
-      });
+        console.error("❌ Error updating order status:", error);
+        return response.status(500).json({
+            message: "Internal server error",
+            error: true,
+            success: false,
+        });
     }
-  }
-  
+};
+
+
 
 // ==============Delivery status == ""Assigned" || "Out for Delivery"  ========================
 /** Fetch Orders Assigned to a Specific Delivery Partner  USED IN MY DELIVERIES PAGE TO DISPLAY NEWLY ASSIGNED ORDER*/
