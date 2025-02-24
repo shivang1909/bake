@@ -18,6 +18,7 @@ import Axios from "../utils/Axios";
 
 const Header = () => {
   const dispatch = useDispatch();
+  
   const [isMobile] = useMobile();
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
@@ -31,46 +32,66 @@ const Header = () => {
   // const [openCartSection, setOpenCartSection] = useState(false);
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
 
-  const [totalQty, setTotalQty] = useState(0);
 
     const [cartItems, setCartItem] = useState([]);
-  
- // Fetch Cart Details
- useEffect(() => {
-  const fetchCartDetails = async () => {
-    try {
-      const response = await Axios({
-        ...SummaryApi.usercartdetails,
-      });
-      const { data: responseData } = response;
-      if (responseData.success) {
-        console.log(responseData);
+    console.log()
+  // Fetch Cart Details
+  useEffect(() => {
+    const fetchCartDetails = async () => {
+      try {
+        const response = await Axios({
+          ...SummaryApi.usercartdetails,
+        });
+        const { data: responseData } = response;
+        if (responseData.success) {
+          console.log(responseData.data);
 
-        setCartItem(responseData.data);
-
-        //calculate
-
-        let finalTotal = 0;
-        let quantity = 0;
-        for (let i = 0; i < responseData.data.length; i++) {
-          for (
-            let j = 0;
-            j < responseData.data[i].variantPrices.length;
-            j++
-          ) {
-            quantity =
-              quantity + responseData.data[i].variantPrices[j].quantity;
-            }
-          }
-          setTotalQty(quantity);
-          console.log(finalTotal);
+          setCartItem(responseData.data);
+          
+          // calculateTotalPriceandQty(responseData);
+        }
+      } catch (error) {
+        console.error("Error fetching cart details:", error);
       }
-    } catch (error) {
-      console.error("Error fetching cart details:", error);
-    }
-  };
-  fetchCartDetails();
-}, []);
+    };
+    fetchCartDetails();
+  }, [isCartOpen]);
+ // Fetch Cart Details
+//  useEffect(() => {
+//   const fetchCartDetails = async () => {
+//     try {
+//       const response = await Axios({
+//         ...SummaryApi.usercartdetails,
+//       });
+//       const { data: responseData } = response;
+//       if (responseData.success) {
+//         console.log(responseData);
+
+//         setCartItem(responseData.data);
+
+//         //calculate
+
+//         let finalTotal = 0;
+//         let quantity = 0;
+//         for (let i = 0; i < responseData.data.length; i++) {
+//           for (
+//             let j = 0;
+//             j < responseData.data[i].variantPrices.length;
+//             j++
+//           ) {
+//             quantity =
+//               quantity + responseData.data[i].variantPrices[j].quantity;
+//             }
+//           }
+//           setTotalQty(quantity);
+//           console.log(finalTotal);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching cart details:", error);
+//     }
+//   };
+//   fetchCartDetails();
+// }, []);
 
 
 
@@ -201,7 +222,7 @@ const Header = () => {
                   <div className="font-semibold text-sm">
                     {cartItems[0] ? (
                       <div>
-                        <p>{totalQty} Items</p>
+                        <p>{user.shopping_cart.length} Items</p>
                       </div>
                     ) : (
                       <p>My Cart</p>
@@ -221,7 +242,7 @@ const Header = () => {
       </div>
 
       {isCartOpen && (
-        <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
+        <DisplayCartItem cartItems={cartItems} setCartItem={setCartItem} close={() => dispatch(setIsCartOpen(false))} />
       )}
     </header>
   );

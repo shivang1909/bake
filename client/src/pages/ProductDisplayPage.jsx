@@ -87,11 +87,15 @@ useEffect(()=>{
 },[data.category])
 
 useEffect(()=>{
-  if (user._id != undefined) {
+  console.log(user.shopping_cart);
+
+  if (user._id != undefined ) {
+    console.log("inside if ");
+
     setCart(false)
     compareCart(selectedVariant);
   }
-},[loadingValue,selectedVariant])
+},[loadingValue,selectedVariant,cartdata])
 
 
 

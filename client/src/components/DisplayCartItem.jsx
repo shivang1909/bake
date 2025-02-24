@@ -15,14 +15,14 @@ import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 
-const DisplayCartItem = ({ close }) => {
-  const [cartItems, setCartItem] = useState([]);
+const DisplayCartItem = ({ close ,cartItems,setCartItem }) => {
   const dispatch = useDispatch();
 
   const [totalPrice, setTotalPrice] = useState(0);
   const [notDiscountTotalPrice, setNotDiscountTotalPrice] = useState(0);
   const [totalQty, setTotalQty] = useState(0);
   const cartdata = useSelector((state) => state.user.shopping_cart);
+  console.log(cartdata)
   const user = useSelector((state) => state.user);
   console.log(user);
   // console.log();
@@ -146,53 +146,39 @@ const DisplayCartItem = ({ close }) => {
       console.error("Error updating cart in the database:", error);
     }
   }
-  updateQuantity();
+
+    updateQuantity();
+
+  
   },[cartdata])
 
 
-  const calculateTotalPriceandQty= (responseData) =>{
-    let finalTotal = 0;
-    let quantity = 0;
-    let discountedPrice=0;
-    for (let i = 0; i < responseData.data.length; i++) {
-      let eachDiscount =0;
-      for (let j = 0;j < responseData.data[i].variantPrices.length;j++) {
-        finalTotal = finalTotal + (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity);
-        quantity = quantity + responseData.data[i].variantPrices[j].quantity;
-        eachDiscount= (responseData.data[i].variantPrices[j].price * responseData.data[i].variantPrices[j].quantity) * (responseData.data[i].variantPrices[j].discount / 100)
-        console.log(eachDiscount);
-        
-        discountedPrice = discountedPrice + eachDiscount        
-      }
-    }
-    setNotDiscountTotalPrice(finalTotal);
-    setTotalQty(quantity);
-    // console.log(discountedPrice);
 
-    setTotalPrice(finalTotal- discountedPrice);
-  } 
   // Fetch Cart Details
-  useEffect(() => {
-    const fetchCartDetails = async () => {
-      try {
-        const response = await Axios({
-          ...SummaryApi.usercartdetails,
-        });
-        const { data: responseData } = response;
-        if (responseData.success) {
+  // useEffect(() => {
+  //   const fetchCartDetails = async () => {
+  //     try {
+  //       const response = await Axios({
+  //         ...SummaryApi.usercartdetails,
+  //       });
+  //       const { data: responseData } = response;
+  //       if (responseData.success) {
+  //         console.log(responseData.data);
 
-          setCartItem(responseData.data);
-          calculateTotalPriceandQty(responseData);
-        }
-      } catch (error) {
-        console.error("Error fetching cart details:", error);
-      }
-    };
-    fetchCartDetails();
-  }, []);
-
+  //         setCartItem(responseData.data);
+          
+  //         calculateTotalPriceandQty(responseData);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching cart details:", error);
+  //     }
+  //   };
+  //   fetchCartDetails();
+  // }, []);
+  
   const navigate = useNavigate();
-
+  
+  
   const redirectToCheckoutPage = () => {
     if (user?._id) {
       navigate("/dashboard/checkout");
@@ -217,8 +203,9 @@ const DisplayCartItem = ({ close }) => {
         </div>
 
         <div className="min-h-[75vh] lg:min-h-[80vh] h-full max-h-[calc(100vh-150px)] bg-blue-50 p-2 flex flex-col gap-4">
-          {cartItems.length > 0 ? (
+          {Array.isArray(cartItems) && cartItems?.length > 0 ? (
             <>
+            
               <div className="flex items-center justify-between px-4 py-2 bg-blue-100 text-blue-500 rounded-full">
                 <p>Your total savings</p>
                 <p>

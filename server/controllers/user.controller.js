@@ -33,10 +33,10 @@ export async function updateCartItem(request, response) {
         productId: new mongoose.Types.ObjectId(item.productId)
       }));
       const userId = request.userId; // Assuming userId is available from authentication
-
       if (!userId) {
-        return response.status(404).json({ message: "User not found" });
-      }
+          return response.status(404).json({ message: "User not found" });
+        }
+        console.log(`converted data ${JSON.stringify(convertedCartData)}`);
 
       // Update the user's cart in the database
       const updatedData = await UserModel.updateOne(
@@ -54,7 +54,13 @@ export async function updateCartItem(request, response) {
 
 export async function getUserCartDetails(request,response) {
     const userId = request.userId;
-  try {
+       
+        try {
+    //   const user = await UserModel.findById(userId,{shopping_cart: 1,_id:0})
+    // if(user.shopping_cart.length>0)
+    
+
+    
     const cartDetails = await UserModel.aggregate([
       {
         $match: { _id: new mongoose.Types.ObjectId(userId) } // Filter by user ID
@@ -99,7 +105,9 @@ export async function getUserCartDetails(request,response) {
         }
       }
     ]);
+
     console.log(cartDetails);
+
     
     return response.json({
         message : "Fetched cart data",
@@ -107,6 +115,9 @@ export async function getUserCartDetails(request,response) {
         success : true,
         data : cartDetails
     })
+
+
+
   } catch (error) {
     console.error("Error fetching user cart details:", error);
     throw error;

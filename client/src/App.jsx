@@ -17,6 +17,8 @@ import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
 function App() {
+    const [cartItems, setCartItem] = useState([]);
+  
   const dispatch = useDispatch()
   const location = useLocation()
   const navigate = useNavigate()  
@@ -36,6 +38,7 @@ function App() {
 //      }
 //    }
 // };
+
 
 const fetchUser = async () => {
   try{
@@ -84,6 +87,8 @@ const fetchUser = async () => {
   useEffect(()=>{
     fetchUser()
     fetchCategory()
+    fetchCartDetails();
+
     // fetchCartItem()
   },[])
 

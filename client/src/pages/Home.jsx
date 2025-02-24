@@ -4,11 +4,14 @@ import bannerMobile from '../assets/banner-mobile.jpg'
 import { useSelector } from 'react-redux'
 import { valideURLConvert } from '../utils/valideURLConvert'
 import { Link, useNavigate } from 'react-router-dom'
+
 import CategoryWiseProductDisplay from '../components/CategoryWiseProductDisplay'
 
 const Home = () => {
   const loadingCategory = useSelector(state => state.product.loadingCategory)
   const categoryData = useSelector(state => state.product.allCategory)
+  const user = useSelector(state => state.user)
+ console.log(user)
   const navigate = useNavigate()
 
   // Updated to remove subcategory logic
