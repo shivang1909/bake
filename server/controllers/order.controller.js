@@ -476,7 +476,7 @@ export async function CashOnDeliveryOrderController(request, response) {
 
         // Remove items from cart after placing order
         // await CartProductModel.deleteMany({ userId: userId });
-        // await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+        await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
 
         return response.json({
             message: "Order placed successfully",
@@ -883,16 +883,8 @@ export async function getOrderDetailsController(request, response) {
             .sort({ createdAt: -1 }) // Sort by createdAt in descending order
             .populate('delivery_address');
 
-        if (!orderList.length) {
-            return response.status(404).json({
-                message: 'No orders found.',
-                error: true,
-                success: false,
-            });
-        }
-
-        return response.json({
-            message: 'Order list fetched successfully',
+        return response.status(200).json({
+            message: orderList.length ? 'Order list fetched successfully' : 'No orders found.',
             data: orderList,
             error: false,
             success: true,

@@ -246,52 +246,76 @@ const OrderHistory = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Order ID</th>
-              <th className="border p-2">Product</th>
-              <th className="border p-2">Payment Status</th>
-              <th className="border p-2">Total Amount</th>
-              <th className="border p-2">Delivery Address</th>
-              <th className="border p-2">Order Status</th>
-              <th className="border p-2">Delivery Partner Name</th>
-              <th className="border p-2">Assigned Date</th>
-              <th className="border p-2">Completion Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
-                <tr key={order.orderId} className="text-center">
-                  {console.log(order)}
-                  <td className="border p-2">{order.orderId}</td>
-                  <td className="border p-2">{order.product_details.name}</td>
-                  <td className="border p-2">{order.payment_status || "Pending"}</td>
-                  <td className="border p-2">₹{order.totalAmt.toFixed(2)}</td>
-                  <td className="border p-2">{order.delivery_address || "Not Available"}</td>
-                  <td className="border p-2">{order.orderStatus || "Not Available"}</td>
-                  <td className="border p-2">
-                    {getDeliveryPartnerName(order.deliveryPartnerId)}
-                  </td>
-                  <td className="border p-2">
-                    {new Date(order.orderAssignedDatetime).toLocaleDateString('en-GB')}
-                  </td>
-                  <td className="border p-2">
-                    {new Date(order.orderDeliveredDatetime).toLocaleDateString('en-GB')}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="9" className="border p-2 text-center">
-                  No order history
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+  <table className="w-full border-collapse border border-gray-300">
+    <thead>
+      <tr className="bg-gray-200">
+        <th className="border p-2">Order ID</th>
+        <th className="border p-2">Product(s)</th>
+        <th className="border p-2">Payment Status</th>
+        <th className="border p-2">Total Amount</th>
+        <th className="border p-2">Delivery Address</th>
+        <th className="border p-2">Order Status</th>
+        <th className="border p-2">Delivery Partner</th>
+        <th className="border p-2">Assigned Date</th>
+        <th className="border p-2">Completion Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredOrders.length > 0 ? (
+        filteredOrders.map((order) => (
+          <tr key={order.orderId} className="text-center">
+            {console.log(order)}
+            <td className="border p-2">{order.orderId}</td>
+            
+           {/* Products Column */}
+        <td className="border p-2">
+          {order.products.map((product, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <img src={product.coverimage} alt={product.itemname} className="w-12 h-12 rounded" />
+              <p>{product.itemname}</p>
+            </div>
+          ))}
+        </td>
+
+            <td className="border p-2">{order.payment_status || "Pending"}</td>
+            <td className="border p-2">₹{order.finalOrderTotal.toFixed(2)}</td>
+
+            {/* Handling delivery address correctly */}
+            <td className="border p-2">
+              {order.delivery_address
+                ? `${order.delivery_address.address_line}, ${order.delivery_address.city}, ${order.delivery_address.state}, ${order.delivery_address.pincode}`
+                : "Not Available"}
+            </td>
+
+            <td className="border p-2">{order.orderStatus || "Not Available"}</td>
+
+            {/* Fetching Delivery Partner Name */}
+            <td className="border p-2">{getDeliveryPartnerName(order.deliveryPartnerId)}</td>
+
+            <td className="border p-2">
+              {order.orderAssignedDatetime
+                ? new Date(order.orderAssignedDatetime).toLocaleDateString('en-GB')
+                : "Not Assigned"}
+            </td>
+
+            <td className="border p-2">
+              {order.orderDeliveredDatetime
+                ? new Date(order.orderDeliveredDatetime).toLocaleDateString('en-GB')
+                : "Not Delivered"}
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan="9" className="border p-2 text-center">
+            No order history
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
     </div>
   );
 };
