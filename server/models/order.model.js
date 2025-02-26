@@ -4,7 +4,9 @@ const variantSchema = new mongoose.Schema({
   weight: { type: String, required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true }, // Price with GST
-  discount: { type: Number, required: true } // Discount in percentage
+  discount: { type: Number, required: true }, // Discount in percentage
+  isGiftWrap : { type: Boolean, default: false }, // Gift packing charges
+  giftNote: {type: String, default: null}
 },{_id:false});
 
 const productSchema = new mongoose.Schema({

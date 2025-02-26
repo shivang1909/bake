@@ -99,6 +99,8 @@ export async function getUserCartDetails(request,response) {
         $project: {
           _id: 0,
         //   discount: "$product.discount",
+        productId: "$product._id",  // Include product ID in the response
+
           itemname: "$product.name",
           coverimage: "$product.coverimage",
           variantPrices: 1
