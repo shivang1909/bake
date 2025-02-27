@@ -113,6 +113,13 @@ const UserMenu = ({ close }) => {
             >
               Order History
             </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/admin-cod-status"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              COD Status
+            </Link>
           </>
         )}
 
@@ -209,6 +216,13 @@ const UserMenu = ({ close }) => {
               className="px-2 hover:bg-orange-200 py-1"
             >
               Delivery History
+            </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/delivery-cod-status"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              COD STATUS
             </Link>
             <Link
               onClick={handleClose}

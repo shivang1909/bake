@@ -628,9 +628,6 @@ const OrderListPage = () => {
               </select>
             </div>
         </div>
-      {error && (
-        <div className="mb-4 text-red-500">{error}</div>
-      )}
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">

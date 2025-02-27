@@ -24,13 +24,14 @@ const orderSchema = new mongoose.Schema({
     required: true, 
     enum: ['CASH ON DELIVERY', 'ONLINE PAYMENT'] 
   },
+  cod_status: { type: String, enum: ['NOT COMPLETED','PENDING', 'COMPLETED'], default: 'NOT COMPLETED' },
   isPaymentDone : {type : Boolean,default : false },
   delivery_address: { type: mongoose.Schema.Types.ObjectId, required: true,ref:'address' },
   promo_code: { type: String, default: null },
   delivery_charges: { type: Number, default: 0 },
   special_Gift_packing: { type: Number, default: 0 },
   invoice_receipt: { type: String, required: false },
-  deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'admin', default: null },
+  deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', default: null },
   finalOrderTotal :{type: Number},
   orderStatus: { 
     type: String, 

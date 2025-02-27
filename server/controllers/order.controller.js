@@ -310,7 +310,6 @@ export async function assignDeliveryPartnerController(request, response) {
         // const { orderId, deliveryPartnerId } = request.body;
         const orderId =request.body.orderId;
         const deliveryPartnerId = request.body.partnerId;
-        console.log(deliveryPartnerId);
         // console.log("this is is the order id",orderid);
          const preid =  await GetOlddeliverypartner(orderId);
         // Validate request
@@ -454,9 +453,7 @@ export async function CashOnDeliveryOrderController(request, response) {
     try {
 
         const userId = request.userId; // auth middleware 
-        const { list_items, addressId,total } = request.body;
-        console.log("Total : ",request.body.total);
-        
+        const { list_items, addressId,total } = request.body;        
 
         const payload = {
             userId: userId,
@@ -469,8 +466,6 @@ export async function CashOnDeliveryOrderController(request, response) {
             deliveryPartnerId: null, // No delivery partner assigned initially
             orderStatus: "Not Assigned",  // Default status
         }
-
-        console.log(payload);
         
         const generatedOrder = await OrderModel.create(payload);
 
@@ -612,6 +607,82 @@ export async function CashOnDeliveryOrderController(request, response) {
 //   }
   
 
+// export const updateOrderStatusController = async (request, response) => {
+//     try {
+//         const { orderId, status, isPaymentDone } = request.body;
+
+//         console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
+
+//         // Fetch order from database
+//         let order = await OrderModel.findOne({ orderId });
+
+//         if (!order) {
+//             console.log("❌ Order not found.");
+//             return response.status(404).json({
+//                 message: "Order not found",
+//                 error: true,
+//                 success: false,
+//             });
+//         }
+
+//         // ✅ Update payment status before checking order status
+//         if (isPaymentDone === true && !order.isPaymentDone) {
+//             console.log("💰 Updating payment status for order...");
+//             order.isPaymentDone = true;
+//             await order.save();
+//             console.log("✅ Payment status updated successfully.");
+//         }
+
+//         // ✅ Now check if order can be marked as Delivered
+//         if (status === "Delivered") {
+//             console.log("🚚 Attempting to deliver order... Checking payment status.");
+
+//             if (!order.isPaymentDone) {
+//                 console.log("❌ Payment pending. Cannot mark order as Delivered.");
+//                 return response.status(400).json({
+//                     message: "Payment is pending. Please update the payment status before delivering the order.",
+//                     error: true,
+//                     success: false,
+//                     paymentModalRequired: true,
+//                 });
+//             }
+
+//             console.log("✅ Payment is done. Proceeding to mark order as Delivered.");
+//             order.orderStatus = "Delivered";
+//             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
+//             await order.save();
+
+//             console.log("✅ Order successfully marked as Delivered:", order);
+//             return response.json({
+//                 message: "Order status updated to 'Delivered' successfully",
+//                 error: false,
+//                 success: true,
+//                 data: order,
+//             });
+//         }
+
+//         // ✅ Handle other status updates if necessary
+//         order.orderStatus = status;
+//         await order.save();
+//         console.log("✅ Order status updated successfully:", order);
+
+//         return response.json({
+//             message: "Order status updated successfully",
+//             error: false,
+//             success: true,
+//             data: order,
+//         });
+//     } catch (error) {
+//         console.error("❌ Error updating order status:", error);
+//         return response.status(500).json({
+//             message: "Internal server error",
+//             error: true,
+//             success: false,
+//         });
+//     }
+// };
+
+
 export const updateOrderStatusController = async (request, response) => {
     try {
         const { orderId, status, isPaymentDone } = request.body;
@@ -657,6 +728,31 @@ export const updateOrderStatusController = async (request, response) => {
             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
             await order.save();
 
+            // ✅ Update the Delivery Partner's paymentReceived field based on deliveryPartnerId
+            if (order.deliveryPartnerId) {
+                console.log(`🔄 Fetching Delivery Partner: ${order.deliveryPartnerId}`);
+
+                const deliveryPartner = await AdminModel.findOne({ 
+                    _id: order.deliveryPartnerId, 
+                    role: "Delivery Partner" 
+                });
+
+                if (deliveryPartner) {
+                    console.log(`✅ Updating payment received for Delivery Partner: ${deliveryPartner._id}`);
+
+                    await AdminModel.updateOne(
+                        { _id: deliveryPartner._id },
+                        { $inc: { paymentReceived: order.finalOrderTotal } }
+                    );
+
+                    console.log(`✅ Payment received updated for Delivery Partner: ${deliveryPartner._id}`);
+                } else {
+                    console.log("❌ Delivery Partner not found in AdminModel.");
+                }
+            } else {
+                console.log("❌ No delivery partner assigned for this order.");
+            }
+
             console.log("✅ Order successfully marked as Delivered:", order);
             return response.json({
                 message: "Order status updated to 'Delivered' successfully",
@@ -686,6 +782,258 @@ export const updateOrderStatusController = async (request, response) => {
         });
     }
 };
+
+export const updateCODStatusController = async (request, response) => {
+    try {
+        const deliveryPartnerId = request.userId;
+        
+        await OrderModel.updateMany(
+            { deliveryPartnerId, cod_status: "NOT COMPLETED" ,orderStatus: "Delivered" },
+            { $set: { cod_status: "PENDING" } }
+        );
+
+        return response.status(200).json({
+            message: "COD status updated, payment reset, and added to pendingFromAdmin", 
+            success: true       
+        });
+
+    } catch (error) {
+        console.error("Error updating COD status:", error);
+        return response.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+
+export const updateAdminCODStatusController = async (request, response) => {
+    try {
+
+        const userID = request.userId;
+        const { filterPartner } = request.body; // filterPartner is an ObjectId (string)
+
+        console.log("Filter Partner ID:", filterPartner);
+
+        // Ensure filterPartner is a valid ObjectId
+        if (!filterPartner) {
+            await OrderModel.updateMany(
+                { cod_status: "PENDING", orderStatus: "Delivered" },
+                { $set: { cod_status: "COMPLETED" } }
+            );
+            return response.status(200).json({ message: "All data updated in Delivery partne",success: true });
+        }
+
+        // Convert filterPartner to ObjectId (if it's a string)
+        const partnerObjectId = new mongoose.Types.ObjectId(filterPartner);
+
+        // Update all orders assigned to this delivery partner where COD is pending
+        await OrderModel.updateMany(
+            { deliveryPartnerId: partnerObjectId, cod_status: "PENDING" },
+            { $set: { cod_status: "COMPLETED" } }
+        );
+
+
+        return response.status(200).json({
+            message: "COD status updated successfully",
+            success: true,
+        });
+
+    } catch (error) {
+        console.error("Error updating COD status:", error);
+        return response.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+
+export async function getCODOrdersHistory(request, response) {
+    try {    
+        let filterConditions = {
+            cod_status: { $ne: "COMPLETED" }, // COD status should NOT be "COMPLETED"
+            orderStatus: "Delivered" // Order status should be "Delivered"
+        }; 
+
+        // // If the user is a Delivery Partner, filter by deliveryPartnerId
+        // if (role === "Delivery Partner") {
+        //     filterConditions.deliveryPartnerId = userId; // Only fetch orders for the specific delivery partner
+        // }
+
+        // Fetch the orders based on the conditions
+        const orders = await OrderModel.find(filterConditions)
+            .sort({ createdAt: -1 })
+            .populate('delivery_address')
+            .populate({
+                path: 'deliveryPartnerId', // Assuming this field refers to AdminModel
+                select: 'name' // Fetch only the name field
+            });
+  
+
+        return response.json({
+            message: "Orders fetched successfully for order history",
+            error: false,
+            success: true,
+            data: orders
+        });
+
+    } catch (error) {
+        console.log("catch", error);
+        return response.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+// export async function getPaymentReceivedData(req, res) {
+//     try {
+//         const deliveryPartnerId = req.userId; // Get the logged-in user's ID from auth middleware
+
+//         // Fetch the delivery partner details from AdminModel
+//         const deliveryPartner = await AdminModel.findById(deliveryPartnerId);
+
+//         if (!deliveryPartner || deliveryPartner.role !== "Delivery Partner") {
+//             return res.status(404).json({ success: false, message: "Delivery partner not found" });
+//         }
+
+//         // Return the payment received
+//         res.json({
+//             success: true,
+//             paymentReceived: deliveryPartner.paymentReceived,
+//             pendingfromAdmin:deliveryPartner.pendingfromAdmin
+//         });
+
+//     } catch (error) {
+//         console.error("Error fetching payment received:", error);
+//         res.status(500).json({ success: false, message: "Server error" });
+//     }
+// }
+
+export async function getPaymentReceivedData(req, res) {
+    try {
+        const userId = req.userId; // Get the logged-in user's ID from auth middleware
+
+        // Fetch user details
+        const user = await AdminModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        if (user.role === "Admin") {
+            // If admin, fetch payment details for all delivery partners
+            const allPartners = await AdminModel.find({ role: "Delivery Partner" });
+
+            const paymentSummary = allPartners.map(partner => ({
+                name: partner.name,
+                paymentReceived: partner.paymentReceived,
+                pendingfromAdmin: partner.pendingfromAdmin
+            }));
+
+            return res.json({ success: true, data: paymentSummary });
+        } else if (user.role === "Delivery Partner") {
+            // If delivery partner, fetch only their data
+            return res.json({
+                success: true,
+                paymentReceived: user.paymentReceived,
+                pendingfromAdmin: user.pendingfromAdmin
+            });
+        } else {
+            return res.status(403).json({ success: false, message: "Unauthorized access" });
+        }
+
+    } catch (error) {
+        console.error("Error fetching payment received:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
+
+// export const updateOrderStatusController = async (request, response) => {
+//     try {
+//         const { orderId, status, isPaymentDone } = request.body;
+
+//         console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
+
+//         // Fetch order from database
+//         let order = await OrderModel.findOne({ orderId });
+
+//         if (!order) {
+//             console.log("❌ Order not found.");
+//             return response.status(404).json({
+//                 message: "Order not found",
+//                 error: true,
+//                 success: false,
+//             });
+//         }
+
+//         // ✅ Update payment status before checking order status
+//         if (isPaymentDone === true && !order.isPaymentDone) {
+//             console.log("💰 Updating payment status for order...");
+//             order.isPaymentDone = true;
+//             await order.save();
+//             console.log("✅ Payment status updated successfully.");
+//         }
+
+//         // ✅ Now check if order can be marked as Delivered
+//         if (status === "Delivered") {
+//             console.log("🚚 Attempting to deliver order... Checking payment status.");
+
+//             if (!order.isPaymentDone) {
+//                 console.log("❌ Payment pending. Cannot mark order as Delivered.");
+//                 return response.status(400).json({
+//                     message: "Payment is pending. Please update the payment status before delivering the order.",
+//                     error: true,
+//                     success: false,
+//                     paymentModalRequired: true,
+//                 });
+//             }
+
+//             console.log("✅ Payment is done. Proceeding to mark order as Delivered.");
+//             order.orderStatus = "Delivered";
+//             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
+//             await order.save();
+
+//             // ✅ Update the Delivery Partner's paymentReceived field
+//             if (order.assignedTo) {
+//                 console.log(`🔄 Updating payment received for Delivery Partner: ${order.assignedTo}`);
+
+//                 await AdminModel.updateOne(
+//                     { _id: order.assignedTo, role: "Delivery Partner" },
+//                     { $inc: { paymentReceived: order.finalOrderTotal } }
+//                 );
+
+//                 console.log(`✅ Payment received updated for Delivery Partner: ${order.assignedTo}`);
+//             } else {
+//                 console.log("❌ No assigned delivery partner found.");
+//             }
+
+//             console.log("✅ Order successfully marked as Delivered:", order);
+//             return response.json({
+//                 message: "Order status updated to 'Delivered' successfully",
+//                 error: false,
+//                 success: true,
+//                 data: order,
+//             });
+//         }
+
+//         // ✅ Handle other status updates if necessary
+//         order.orderStatus = status;
+//         await order.save();
+//         console.log("✅ Order status updated successfully:", order);
+
+//         return response.json({
+//             message: "Order status updated successfully",
+//             error: false,
+//             success: true,
+//             data: order,
+//         });
+//     } catch (error) {
+//         console.error("❌ Error updating order status:", error);
+//         return response.status(500).json({
+//             message: "Internal server error",
+//             error: true,
+//             success: false,
+//         });
+//     }
+// };
 
 
 
@@ -761,7 +1109,11 @@ export async function getOrdersForDeliveryPartnerHistory(request, response) {
         // Fetch the orders based on the conditions
         const orders = await OrderModel.find(filterConditions)
             .sort({ createdAt: -1 })
-            .populate('delivery_address');
+            .populate('delivery_address')
+            .populate({
+                path: 'deliveryPartnerId', // Assuming this field refers to AdminModel
+                select: 'name' // Fetch only the name field
+            });
   
         if (!orders.length) {
             return response.status(200).json({
@@ -899,3 +1251,21 @@ export async function getOrderDetailsController(request, response) {
     }
 }
 
+
+export async function getUserDeliverdOrderController(req, res) {
+    try {
+        const userId = req.userId; // Assuming user ID is extracted from the auth middleware
+
+        // Fetch delivered orders for the specific user
+        const deliveredOrders = await OrderModel.find({ userId: userId });
+        
+        if (deliveredOrders.length === 0) {
+            return res.status(404).json({ message: "No delivered orders found." });
+        }
+
+        res.status(200).json(deliveredOrders);
+    } catch (error) {
+        console.error("Error fetching delivered orders:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}

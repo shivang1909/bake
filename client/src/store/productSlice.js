@@ -18,8 +18,6 @@
                 state.loadingCategory = action.payload
             },
             setAllProduct : (state,action)=>{
-
-                
                 state.Allproduct = [...action.payload]
                 // console.log("calling",state.Allproduct);
             }

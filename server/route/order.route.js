@@ -23,7 +23,12 @@ import {
     updateOrderStatusController,
     assignBulkDeliveryPartnerController,
     getOrdersForDeliveryPartnerHistory,
-    notDeliverdOrderController
+    notDeliverdOrderController,
+    getUserDeliverdOrderController,
+    getPaymentReceivedData,
+    updateCODStatusController,
+    updateAdminCODStatusController,
+    getCODOrdersHistory
 } from '../controllers/order.controller.js';
 
 const orderRouter = Router();
@@ -31,6 +36,9 @@ const orderRouter = Router();
 orderRouter.post("/cash-on-delivery", auth, CashOnDeliveryOrderController);
 orderRouter.post('/checkout', auth, paymentController);
 orderRouter.post('/webhook', webhookStripe);
+
+// All Deliverd Order List in User side 
+orderRouter.get("/my-order-list",auth, getUserDeliverdOrderController);
 
 //All order list in Admin side
 orderRouter.get("/order-list", getOrderDetailsController);
@@ -44,9 +52,19 @@ orderRouter.put("/bulk-assign-delivery-partner", auth, assignBulkDeliveryPartner
 // udate order status assigned --> delivered
 orderRouter.put("/update-order-status", auth, updateOrderStatusController);
 
+orderRouter.put("/update-cod-status", auth, updateCODStatusController);
+//cod status update by admin
+orderRouter.put("/update-admin-cod-status", auth, updateAdminCODStatusController);
+
+// COD order history
+orderRouter.get("/cod-order-history", auth, getCODOrdersHistory);
 
 // delivery patner history
 orderRouter.get("/delivery-partner-orders-history", auth, getOrdersForDeliveryPartnerHistory);
+
+// to get data of payment received by delivery partner 
+orderRouter.get("/delivery-partner-payment-received", auth, getPaymentReceivedData);
+
 
 // delivery partner assign or out for delivery My deliveries page
 orderRouter.get("/delivery-partner-not-deliverd", auth, notDeliverdOrderController);

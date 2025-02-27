@@ -165,14 +165,16 @@ const MyDeliveries = ({ filterDelivered }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentOrderId, setPaymentOrderId] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState("CASH ON DELIVERY");
-  
+  // const [paymentReceived, setPaymentReceived] = useState(0);
+
   // filter
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedCODStatus, setCODSelectedStatus] = useState("");
+
+  
   const [selectedDate, setSelectedDate] = useState("");
-
-
+  
   const statusOptions = ["Assigned", "Out for Delivery", "Delivered"];
-
 
   useEffect(() => {
     const eventSource = new EventSource("http://localhost:5000/events", {
@@ -181,8 +183,6 @@ const MyDeliveries = ({ filterDelivered }) => {
     eventSource.onmessage = (event) => {
       var data = JSON.parse(event.data);
       if (data.isPreviousDeliveryPartner) {
-        console.log("inside if ", data);
-
         // If the user is the previous delivery partner, remove the order
         setOrders((prevOrders) => {
           return prevOrders.filter((order) => order.orderId !== data.orderId);
@@ -236,62 +236,6 @@ const MyDeliveries = ({ filterDelivered }) => {
     };
   }, [filterDelivered]); // ✅ Dependency added
   
-  // const handleStatusUpdate = async (orderId, newStatus) => {
-  //   try {
-  //     setLoading(true);
-
-  //     const response = await Axios({
-  //       ...SummaryApi.updateOrderStatus,
-  //       data: { orderId, status: newStatus },
-  //     });
-
-  //     if (response.data.success) {
-        
-  //       if (response.data.paymentRequired) {
-  //         console.log(response.data.paymentRequired);
-          
-  //         // If payment is required, open the payment modal
-  //         openPaymentModal(orderId);
-  //       } else {
-  //         console.log("Order status updated successfully:", response.data);
-
-  //         // ✅ Update the local state immediately
-  //         setOrders((prevOrders) =>
-  //           prevOrders.map((order) =>
-  //             order.orderId === orderId
-  //               ? { ...order, orderStatus: newStatus } // Update status in UI
-  //               : order
-  //           ).filter((order) => order.orderStatus !== "Delivered")
-  //         );
-
-  //         setError(null);
-  //       }
-  //     } else {
-  //       console.error("Failed to update order status:", response.data.message);
-  //       setError(response.data.message);
-  //     }
-  //   } catch (error) {
-  //     // Log the full error for debugging
-  //     console.error("Error updating order status:", error.response?.data || error.message);
-      
-  //     const errorData = error.response?.data;
-    
-  //     // Check if payment is required and trigger payment modal
-  //     if (errorData?.paymentRequired) {
-  //       setError(errorData.message); // Display the error message to the user
-  //       openPaymentModal(orderId);   // Trigger payment modal for further action
-  //     } else if (errorData?.message) {
-  //       setError(errorData.message); // Show any other server error messages
-  //     } else {
-  //       setError("Error updating delivery status"); // Fallback error message
-  //     }
-  //   }
-  //    finally {
-  //     setLoading(false);
-  //   }
-  // };
-  
-  // Function to open payment modal
  
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
@@ -347,42 +291,7 @@ const MyDeliveries = ({ filterDelivered }) => {
     setPaymentOrderId(orderId);
     setShowPaymentModal(true);
   };
-  
-  // Function to handle payment status update in the modal
-  // const handlePaymentStatusUpdate = async (orderId, paymentStatus) => {
-  //   try {
-  //     setLoading(true);
-  //     console.log(paymentStatus);
-      
-  //     const response = await Axios({
-  //       ...SummaryApi.updateOrderStatus,
-  //       data: { orderId, status: "Delivered", paymentStatus: paymentStatus },
-  //     });
 
-  //     if (response.data.success) {
-  //       // After payment is updated, update the order status to "Delivered"
-  //       setOrders((prevOrders) =>
-  //         prevOrders.map((order) =>
-  //           order.orderId === orderId
-  //             ? { ...order, orderStatus: "Delivered", payment_status: paymentStatus }
-  //             : order
-  //         )
-  //       );
-
-  //       // Close the payment modal after updating
-  //       setShowPaymentModal(false);
-  //       setError(null);
-  //     } else {
-  //       console.error("Failed to update payment status:", response.data.message);
-  //       setError(response.data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating payment status:", error);
-  //     setError("Error updating payment status");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handlePaymentStatusUpdate = async (orderId) => {
     try {
       setLoading(true);
@@ -402,7 +311,6 @@ const MyDeliveries = ({ filterDelivered }) => {
               : order
           )
         );
-
         setShowPaymentModal(false);
         setError(null);
       } else {
@@ -422,27 +330,66 @@ const handleStatusFilterChange = (e) => {
   setSelectedStatus(e.target.value);
 };
 
+const handleCODStatusFilterChange = (e) => {
+  setCODSelectedStatus(e.target.value);
+};
+
 const handleDateFilterChange = (e) => {
   setSelectedDate(e.target.value);
 };
+// Fetch Payment Received
+// useEffect(() => {
+//   const fetchPaymentReceived = async () => {
+//     try {
+//       const response = await Axios({ ...SummaryApi.getPaymentReceived });
+//       if (response.data.success) {
+//         setPaymentReceived(response.data.paymentReceived);
+//         // console.log("Payment received:", response.data.paymentReceived);
+        
+//       }
+//     } catch (error) {
+//       console.error("Error fetching payment received:", error);
+//     }
+//   };
+
+//   fetchPaymentReceived();
+// }, []);
 
 // Filter orders based on selected status or date
-const filteredOrders = orders.filter((order) => {
+const filteredOrders = orders.filter ((order) => {
   if (!filterDelivered) {
     return selectedStatus ? order.orderStatus === selectedStatus : true;
   } else {
-    return selectedDate
-      ? new Date(order.orderDeliveredDatetime).toLocaleDateString("en-GB") ===
-          new Date(selectedDate).toLocaleDateString("en-GB")
-      : true;
-  }
+    if(selectedDate)
+    {
+      if ( new Date(order.orderDeliveredDatetime).toLocaleDateString("en-GB") === new Date(selectedDate).toLocaleDateString("en-GB"))
+      {
+        if(selectedCODStatus)
+        {
+          return order.cod_status === selectedCODStatus?true:false;
+        }
+        else
+        {
+          return true;
+        }
+      }
+    }
+    else if(selectedCODStatus)
+    {
+        return order.cod_status === selectedCODStatus?true:false;
+    }
+    else
+    {
+      return true;
+    }
+}
 });
+
 return (
   <div className="p-6">
     <h2 className="text-xl font-bold mb-4">
       {filterDelivered ? "Delivery History" : "My Deliveries"}
     </h2>
-
     {/* Filters */}
     {!filterDelivered && (
       <div className="mb-4">
@@ -464,106 +411,51 @@ return (
 
     {filterDelivered && (
       <div className="mb-4">
-        <label htmlFor="dateFilter" className="mr-2 font-medium">
-          Filter by Date:
-        </label>
-        <input
-          id="dateFilter"
-          type="date"
-          value={selectedDate}
-          onChange={handleDateFilterChange}
-          className="border p-2 rounded"
-        />
+        {/* Display Payment Received */}
+        {/* <div className="mb-4">
+          <h3 className="text-lg font-semibold">Total Payment Received: ₹{paymentReceived}</h3>
+          {paymentReceived > 0 && (
+            <button 
+              className="mt-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition"
+            >
+              Submit Payment to Admin
+            </button>
+          )}
+        </div> */}
+
+          <div>
+            <label htmlFor="dateFilter" className="mr-2 font-medium">
+              Filter by Date:
+            </label>
+            <input
+              id="dateFilter"
+              type="date"
+              value={selectedDate}
+              onChange={handleDateFilterChange}
+              className="border p-2 rounded"
+            />
+          </div>
+        <div className="mb-4">
+          <label htmlFor="statusFilter" className="mr-2 font-medium">
+            Filter by COD Status:
+          </label>
+          <select
+            id="statusFilter"
+            value={selectedCODStatus}
+            onChange={handleCODStatusFilterChange}
+            className="border p-2 rounded"
+          >
+            <option value="">All</option>
+            <option value="NOT COMPLETED">NOT COMPLETED</option>
+            <option value="PENDING">PENDING</option>
+            <option value="COMPLETED">COMPLETED</option>
+          </select>
+        </div>
       </div>
+      
     )}
 
     <div className="overflow-x-auto">
-      {/* <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Order ID</th>
-            <th className="border p-2">Product</th>
-            <th className="border p-2">Payment Status</th>
-            <th className="border p-2">Total Amount</th>
-            <th className="border p-2">Delivery Address</th>
-            <th className="border p-2">Delivery Status</th>
-            {filterDelivered ? (
-              <>
-                <th className="border p-2">Order Assigned Date</th>
-                <th className="border p-2">Completion Date</th>
-              </>
-            ) : (
-              <th className="border p-2">Order Assigned Date</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredOrders.length > 0 ? (
-            filteredOrders.map((order) => (
-              <tr key={order._id} className="text-center">
-                {console.log(order)}
-                <td className="border p-2">{order.orderId}</td>
-                <td className="border p-2">{order.product_details.name}</td>
-                <td className="border p-2">
-                  {order.payment_status || "Pending"}
-                </td>
-                <td className="border p-2">₹{order.totalAmt.toFixed(2)}</td>
-                <td className="border p-2">
-                  {order.delivery_address || "Not Available"}
-                </td>
-                <td className="border p-2">
-                  <div className="flex items-center justify-center gap-2">
-                    <select
-                      className={`border rounded p-2 ${
-                        order.orderStatus === "Delivered"
-                          ? "bg-green-50"
-                          : "bg-white"
-                      }`}
-                      value={order.orderStatus}
-                      onChange={(e) => {
-                        handleStatusUpdate(order.orderId, e.target.value);
-                      }}
-                      disabled={order.orderStatus === "Delivered"}
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </td>
-                {filterDelivered ? (
-                  <>
-                    <td className="border p-2">
-                      {new Date(
-                        order.orderAssignedDatetime
-                      ).toLocaleDateString("en-GB")}
-                    </td>
-                    <td className="border p-2">
-                      {new Date(
-                        order.orderDeliveredDatetime
-                      ).toLocaleDateString("en-GB")}
-                    </td>
-                  </>
-                ) : (
-                  <td className="border p-2">
-                    {new Date(
-                      order.orderAssignedDatetime
-                    ).toLocaleDateString("en-GB")}
-                  </td>
-                )}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7" className="border p-2 text-center">
-                No assigned deliveries
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table> */}
       <table className="w-full border-collapse border border-gray-300">
   <thead>
     <tr className="bg-gray-200">
@@ -577,6 +469,7 @@ return (
         <>
           <th className="border p-2">Order Assigned Date</th>
           <th className="border p-2">Completion Date</th>
+          <th className="border p-2">COD Status</th>
         </>
       ) : (
         <th className="border p-2">Order Assigned Date</th>
@@ -643,6 +536,8 @@ return (
                   ? new Date(order.orderDeliveredDatetime).toLocaleDateString("en-GB")
                   : "-"}
               </td>
+              <td className="border p-2">{order.cod_status}</td>
+
             </>
           ) : (
             <td className="border p-2">

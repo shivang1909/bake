@@ -156,21 +156,24 @@ const OrderHistory = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+    // const [paymentReceived, setPaymentReceived] = useState(0);
+    // const [pendingfromAdmin, setpendingfromAdmin] = useState(0);
+  
   // State for filters
   const [filterDate, setFilterDate] = useState('');
   const [filterPartner, setFilterPartner] = useState('');
 
+
   useEffect(() => {
+
     const fetchOrders = async () => {
       try {
         const response = await Axios(SummaryApi.getDeliveredOrder);
         if (response.data.success) {
-          let filteredOrders = response.data.data.filter(order => 
-            order.orderStatus === "Delivered" || order.orderStatus === "Cancelled"
-          );
-           filteredOrders = filteredOrders.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-          setOrders(filteredOrders);
+         
+            console.log(response.data.data);
+            
+          setOrders(response.data.data);
         }
       } catch (err) {
         setError('Error fetching orders');
@@ -178,25 +181,21 @@ const OrderHistory = () => {
         setLoading(false);
       }
     };
-
+    
     const fetchDeliveryPartners = async () => {
-      try {
-        const response = await getUsers();
-        const partners = response.filter(user => user.role === "Delivery Partner");
-        setDeliveryPartners(partners);
-      } catch (err) {
-        setError('Error fetching delivery partners');
-      }
-    };
-
+          try {
+            const response = await getUsers();
+            const partners = response.filter(user => user.role === "Delivery Partner");
+            setDeliveryPartners(partners);
+          } catch (err) {
+            setError('Error fetching delivery partners');
+          }
+        };
+    
+        fetchDeliveryPartners();
     fetchOrders();
-    fetchDeliveryPartners();
   }, []);
 
-  const getDeliveryPartnerName = (partnerId) => {
-    const partner = deliveryPartners.find(dp => dp._id === partnerId);
-    return partner ? `${partner.name}` : "Not Assigned";
-  };
 
   // Filtered orders
   const filteredOrders = orders.filter(order => {
@@ -206,6 +205,8 @@ const OrderHistory = () => {
       : true;
     return isPartnerMatch && isDateMatch;
   });
+
+
 
   if (loading) {
     return <div className="p-6 text-center">Loading orders...</div>;
@@ -218,6 +219,7 @@ const OrderHistory = () => {
       {error && (
         <div className="mb-4 text-red-500">{error}</div>
       )}
+  
 
       {/* Filters Section */}
       <div className="mb-4 flex gap-4">
@@ -258,6 +260,7 @@ const OrderHistory = () => {
         <th className="border p-2">Delivery Partner</th>
         <th className="border p-2">Assigned Date</th>
         <th className="border p-2">Completion Date</th>
+        <th className="border p-2">COD Status</th>
       </tr>
     </thead>
     <tbody>
@@ -290,7 +293,7 @@ const OrderHistory = () => {
             <td className="border p-2">{order.orderStatus || "Not Available"}</td>
 
             {/* Fetching Delivery Partner Name */}
-            <td className="border p-2">{getDeliveryPartnerName(order.deliveryPartnerId)}</td>
+            <td className="border p-2">{(order.deliveryPartnerId.name)}</td>
 
             <td className="border p-2">
               {order.orderAssignedDatetime
@@ -303,6 +306,8 @@ const OrderHistory = () => {
                 ? new Date(order.orderDeliveredDatetime).toLocaleDateString('en-GB')
                 : "Not Delivered"}
             </td>
+            <td className="border p-2">{order.cod_status}</td>
+
           </tr>
         ))
       ) : (

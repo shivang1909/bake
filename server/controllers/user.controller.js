@@ -9,7 +9,7 @@ import generatedOtp from '../utils/generatedOtp.js'
 import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
-import AdminModel from '../models/Admin.model.js'
+import AdminModel from '../models/admin.model.js'
 import mongoose from  'mongoose'; // Ensure mongoose is imported
 
 export async function fetchCartProductData(request, response)

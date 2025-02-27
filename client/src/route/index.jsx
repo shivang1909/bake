@@ -28,6 +28,8 @@ import AdminListPage from "../pages/AdminListPage";
 import OrderListPage from "../pages/OrderListPage";
 import DeliveriesPage from "../pages/DeliveriesPage";
 import OrderHistory from "../components/OrderHistory"
+import CodStatus from "../components/CodStatus";
+import AdminCodStatus from "../components/AdminCodStatus";
 const router = createBrowserRouter([
     {
         path: "/",
@@ -132,6 +134,10 @@ const router = createBrowserRouter([
                         element: <OrderHistory />
                     },
                     {
+                        path: "admin-cod-status",
+                        element: <AdminCodStatus />
+                    },
+                    {
                         path: "my-deliveries",
                         element: <DeliveriesPage filterDelivered={false} />
                     },
@@ -139,6 +145,11 @@ const router = createBrowserRouter([
                         path: "delivery-history",
                         element: <DeliveriesPage filterDelivered={true}/>
                     },
+                    {
+                        path: "delivery-cod-status",
+                        element: <CodStatus />
+                    },
+                    
                 ]
             },
             // {

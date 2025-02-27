@@ -91,8 +91,12 @@ export const addUser = async (req, res) => {
             return res.status(400).json({ message: 'Email already exists!' });
         }
 
-        // Create the new user
-        const newUser = await AdminModel.create({ name, email, mobile, role });
+             // Create user data object
+        let userData = { name, email, mobile, role };
+
+        
+        // Save new user
+        const newUser = await AdminModel.create(userData);
 
         // Initialize the email transporter
         const transporter = nodemailer.createTransport({

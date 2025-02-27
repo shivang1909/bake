@@ -1,4 +1,4 @@
-import AdminModel from "../models/Admin.model.js";
+import AdminModel from "../models/admin.model.js";
 
 export const admin = async (request, response, next) => {
     try {

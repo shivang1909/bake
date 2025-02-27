@@ -17,6 +17,7 @@ const adminSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Prevent model redefinition
-const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
+// const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
+const AdminModel = mongoose.model('Admin', adminSchema);
 
 export default AdminModel;

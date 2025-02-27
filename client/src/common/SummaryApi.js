@@ -174,7 +174,11 @@ const SummaryApi = {
         url: "/api/order/order-list",
         method: "get"
     },
-
+    getMyorderItems:{  // display deliverd order of any user 
+        url: "/api/order/my-order-list",
+        method: "get"
+    },
+    
     // =========== Delivery NEW APIs  ===================
     assignDeliveryPartner: {  // 🆕 Admin assigns a delivery partner
         url: "/api/order/assign-delivery-partner",
@@ -185,12 +189,28 @@ const SummaryApi = {
          url: "/api/order/delivery-partner-orders-history",
         method: "get"
     },
+    getCODOrder:{
+        url: "/api/order/cod-order-history",
+       method: "get"
+   },
+    getPaymentReceived: {       // 🆕 Total PaymentReceived from Delivery Partner Role
+        url: "/api/order/delivery-partner-payment-received",
+        method: "get"
+    },
     getNotDeliveredOrder:{
         url: "/api/order/delivery-partner-not-deliverd",
        method: "get"
    },
     updateOrderStatus: {  // 🆕 Admin assigns a delivery partner
         url: "/api/order/update-order-status",
+        method: "put"
+    },
+    updateCODStatus: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/update-cod-status",
+        method: "put"
+    },
+    updateAdminCODStatus: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/update-admin-cod-status",
         method: "put"
     },
 }
