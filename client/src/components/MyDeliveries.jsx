@@ -165,8 +165,7 @@ const MyDeliveries = ({ filterDelivered }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentOrderId, setPaymentOrderId] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState("CASH ON DELIVERY");
-  // const [paymentReceived, setPaymentReceived] = useState(0);
-
+  console.log(`this is filterDelivered ${filterDelivered}`);
   // filter
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedCODStatus, setCODSelectedStatus] = useState("");
@@ -175,42 +174,55 @@ const MyDeliveries = ({ filterDelivered }) => {
   const [selectedDate, setSelectedDate] = useState("");
   
   const statusOptions = ["Assigned", "Out for Delivery", "Delivered"];
-
+ 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:5000/events", {
-      withCredentials: true,
-    });
-    eventSource.onmessage = (event) => {
-      var data = JSON.parse(event.data);
-      if (data.isPreviousDeliveryPartner) {
-        // If the user is the previous delivery partner, remove the order
-        setOrders((prevOrders) => {
-          return prevOrders.filter((order) => order.orderId !== data.orderId);
-        });
-        console.log(
-          `Order ${data.orderId} removed because user is the previous delivery partner`
-        );
-      } else {
-        var data1 = data.updatedOrder;
-
-        setOrders((prevOrders) => {
-          // Check if the order already exists
-          const orderExists = prevOrders.some(
-            (order) => order.orderId === data1.orderId
+    let eventSource;
+  
+    if (!filterDelivered) {
+      console.log("inside if event source", filterDelivered);
+      eventSource = new EventSource("http://localhost:5000/events", {
+        withCredentials: true,
+      });
+      console.log("filterDelivered", filterDelivered);
+      console.log(eventSource);
+      eventSource.onmessage = (event) => {
+        var data = JSON.parse(event.data);
+        
+      
+  
+        if (data.isPreviousDeliveryPartner) {
+          console.log("inside if ", data);
+  
+          // If the user is the previous delivery partner, remove the order
+          setOrders((prevOrders) => {
+            return prevOrders.filter((order) => order.orderId !== data.orderId);
+          });
+          console.log(
+            `Order ${data.orderId} removed because user is the previous delivery partner`
           );
-
-          if (orderExists) {
-            // Update existing order
-            return prevOrders.map((order) =>
-              order.orderId === data1.orderId ? { ...order, ...data1 } : order
+        } else {
+          var data1 = data.updatedOrder;
+  
+          setOrders((prevOrders) => {
+            // Check if the order already exists
+            const orderExists = prevOrders.some(
+              (order) => order.orderId === data1.orderId
             );
-          } else {
-            // Add new order
-            return [...prevOrders, data1];
-          }
-        });
-      }
-    };
+  
+            if (orderExists) {
+              // Update existing order
+              return prevOrders.map((order) =>
+                order.orderId === data1.orderId ? { ...order, ...data1 } : order
+              );
+            } else {
+              // Add new order
+              return [...prevOrders, data1];
+            }
+          });
+        }
+      };
+    }
+  
     const fetchOrders = async () => {
       try {
         let response;
@@ -221,6 +233,7 @@ const MyDeliveries = ({ filterDelivered }) => {
         }
         const { data: responseData } = response;
         if (responseData.success) {
+          console.log(responseData.data);
           setOrders(responseData.data || []);
         } else {
           setError(responseData.message);
@@ -228,11 +241,15 @@ const MyDeliveries = ({ filterDelivered }) => {
       } catch (error) {
         console.error("Error fetching orders:", error);
         setError("Error fetching orders");
-      }
+      } 
     };
+  
     fetchOrders();
+  
     return () => {
-      eventSource.close();
+      if (eventSource) {
+        eventSource.close();
+      }
     };
   }, [filterDelivered]); // ✅ Dependency added
   
@@ -247,6 +264,7 @@ const MyDeliveries = ({ filterDelivered }) => {
       });
   
       if (response.data.success) {
+        console.log(response.data);
         if (response.data.paymentRequired) {
           console.log(response.data.paymentRequired);
           openPaymentModal(orderId); // ✅ Open modal if payment is required
@@ -304,13 +322,9 @@ const MyDeliveries = ({ filterDelivered }) => {
 
       if (response.data.success) {
         // ✅ Update UI state with isPaymentDone = true
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderId === orderId
-              ? { ...order, orderStatus: "Delivered", isPaymentDone: true }
-              : order
-          )
-        );
+        setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
+
+          console.log(orders)
         setShowPaymentModal(false);
         setError(null);
       } else {
@@ -498,11 +512,11 @@ return (
           <td className="border p-2">{order.payment_status || "Pending"}</td>
           <td className="border p-2">₹{order.finalOrderTotal || 0}</td>
           <td className="border p-2">
-            {/* {console.log(order.delivery_address)} */}
-            
-            {order.delivery_address
-              ? `${order.delivery_address.address_line}, ${order.delivery_address.city}, ${order.delivery_address.state} - ${order.delivery_address.pincode}`
-              : "Not Available"}
+            {  console.log(order.delivery_address)}
+            {order.delivery_address.address_line} ,
+            {order.delivery_address.city},
+            {order.delivery_address.state},
+            {order.delivery_address.pincode}
           </td>
           <td className="border p-2">
             <div className="flex items-center justify-center gap-2">

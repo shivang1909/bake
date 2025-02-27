@@ -327,8 +327,7 @@ export async function assignDeliveryPartnerController(request, response) {
             { orderId },
             { deliveryPartnerId, orderStatus: "Assigned" ,orderAssignedDatetime: new Date()},
             { new: true }
-        );
-
+        ).populate("delivery_address");
         if (!updatedOrder) {
             console.log("Order not found in DB with orderId:", orderId);
             return response.status(404).json({
@@ -453,7 +452,11 @@ export async function CashOnDeliveryOrderController(request, response) {
     try {
 
         const userId = request.userId; // auth middleware 
-        const { list_items, addressId,total } = request.body;        
+        const { list_items, addressId,total } = request.body;
+         console.log("=-=0=");
+         
+        console.log("this is gift note  : ",JSON.stringify(list_items));
+        
 
         const payload = {
             userId: userId,
@@ -559,14 +562,12 @@ export async function CashOnDeliveryOrderController(request, response) {
 //           }
   
 //           // Notify clients that the order status has been updated
-//           const isadmin = true;  // Assuming the request is from an admin
-//           notifyClients("", updatedOrder, isadmin);
-  
+
 //           return response.json({
-//             message: "Order status updated to 'Delivered' successfully",
-//             error: false,
-//             success: true,
-//             data: updatedOrder,
+    //             message: "Order status updated to 'Delivered' successfully",
+    //             error: false,
+    //             success: true,
+    //             data: updatedOrder,
 //           });
 //         }
 //       }
@@ -579,16 +580,16 @@ export async function CashOnDeliveryOrderController(request, response) {
 //         updateData,
 //         { new: true }
 //       );
-  
+
 //       if (!updatedOrder) {
-//         return response.status(404).json({
-//           message: "Order not found",
-//           error: true,
-//           success: false,
-//         });
-//       }
-  
-//       notifyClients("", updatedOrder, true);
+    //         return response.status(404).json({
+        //           message: "Order not found",
+        //           error: true,
+        //           success: false,
+        //         });
+        //       }
+        
+        //       notifyClients("", updatedOrder, true);
   
 //       return response.json({
 //         message: "Order status updated successfully",
@@ -599,8 +600,8 @@ export async function CashOnDeliveryOrderController(request, response) {
 //     } catch (error) {
 //       console.error("Error updating order status:", error);
 //       return response.status(500).json({
-//         message: error.message || "Internal Server Error",
-//         error: true,
+    //         message: error.message || "Internal Server Error",
+    //         error: true,
 //         success: false,
 //       });
 //     }
@@ -691,7 +692,7 @@ export const updateOrderStatusController = async (request, response) => {
 
         // Fetch order from database
         let order = await OrderModel.findOne({ orderId });
-
+        
         if (!order) {
             console.log("❌ Order not found.");
             return response.status(404).json({
@@ -700,7 +701,7 @@ export const updateOrderStatusController = async (request, response) => {
                 success: false,
             });
         }
-
+        
         // ✅ Update payment status before checking order status
         if (isPaymentDone === true && !order.isPaymentDone) {
             console.log("💰 Updating payment status for order...");
@@ -727,31 +728,8 @@ export const updateOrderStatusController = async (request, response) => {
             order.orderStatus = "Delivered";
             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
             await order.save();
-
-            // ✅ Update the Delivery Partner's paymentReceived field based on deliveryPartnerId
-            if (order.deliveryPartnerId) {
-                console.log(`🔄 Fetching Delivery Partner: ${order.deliveryPartnerId}`);
-
-                const deliveryPartner = await AdminModel.findOne({ 
-                    _id: order.deliveryPartnerId, 
-                    role: "Delivery Partner" 
-                });
-
-                if (deliveryPartner) {
-                    console.log(`✅ Updating payment received for Delivery Partner: ${deliveryPartner._id}`);
-
-                    await AdminModel.updateOne(
-                        { _id: deliveryPartner._id },
-                        { $inc: { paymentReceived: order.finalOrderTotal } }
-                    );
-
-                    console.log(`✅ Payment received updated for Delivery Partner: ${deliveryPartner._id}`);
-                } else {
-                    console.log("❌ Delivery Partner not found in AdminModel.");
-                }
-            } else {
-                console.log("❌ No delivery partner assigned for this order.");
-            }
+            const isadmin = true;  // Assuming the request is from an admin
+            notifyClients("", order, isadmin);
 
             console.log("✅ Order successfully marked as Delivered:", order);
             return response.json({
@@ -761,12 +739,13 @@ export const updateOrderStatusController = async (request, response) => {
                 data: order,
             });
         }
-
+        
         // ✅ Handle other status updates if necessary
         order.orderStatus = status;
         await order.save();
         console.log("✅ Order status updated successfully:", order);
-
+ const isadmin = true;  // Assuming the request is from an admin
+            notifyClients("", order, isadmin);
         return response.json({
             message: "Order status updated successfully",
             error: false,
