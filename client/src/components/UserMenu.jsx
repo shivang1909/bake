@@ -120,6 +120,13 @@ const UserMenu = ({ close }) => {
             >
               COD Status
             </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/admin-promo"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              Promo Code
+            </Link>
           </>
         )}
 

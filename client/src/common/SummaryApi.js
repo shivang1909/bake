@@ -213,6 +213,30 @@ const SummaryApi = {
         url: "/api/order/update-admin-cod-status",
         method: "put"
     },
+    //=========== Promocode API endpoints ===========
+  getAllPromocodes: {
+    url: "/api/promocode",
+    method: "GET",
+  },
+  getFilterdPromocodes: {
+    url: "/api/promocode/applicable",
+    method: "POST",
+  },
+  
+  createPromocode: {
+    url: "/api/promocode",
+    method: "POST",
+  },
+  
+  updatePromocode: {
+    url: "/api/promocode",
+    method: "PUT",
+  },
+  
+  deletePromocode: {
+    url: "/api/promocode",
+    method: "DELETE",
+  },
 }
 
 export default SummaryApi

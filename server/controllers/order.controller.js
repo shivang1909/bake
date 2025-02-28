@@ -223,9 +223,15 @@ import Stripe from "../config/stripe.js";
 import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
-
+import ProductModel from "../models/product.model.js";
 import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
+import PromocodeModel from "../models/promocode.model.js";
+import nodemailer from 'nodemailer';
+
+
+import { sendOrderDeliveredEmail } from "../utils/emailService.js";
+
 
 // ssehandler function 
 let clients = [];
@@ -447,50 +453,195 @@ export async function assignBulkDeliveryPartnerController(request, response) {
         });
     }
 }
+
+
+
+// ===============Working Code ==============================
+// /** Place a Cash on Delivery Order */
+// export async function CashOnDeliveryOrderController(request, response) {
+//     try {
+
+//         const userId = request.userId; // auth middleware 
+//         const { list_items, addressId,total } = request.body;
+//          console.log("=-=0=");
+         
+//         console.log("this is gift note  : ",JSON.stringify(list_items));
+        
+
+//         const payload = {
+//             userId: userId,
+//             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+//             products:list_items,
+//             paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
+//             payment_status: "CASH ON DELIVERY",
+//             finalOrderTotal: total,
+//             delivery_address: addressId,
+//             deliveryPartnerId: null, // No delivery partner assigned initially
+//             orderStatus: "Not Assigned",  // Default status
+//         }
+        
+//         const generatedOrder = await OrderModel.create(payload);
+
+//         // Remove items from cart after placing order
+//         // await CartProductModel.deleteMany({ userId: userId });
+//         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+
+//         return response.json({
+//             message: "Order placed successfully",
+//             error: false,
+//             success: true,
+//             data: generatedOrder
+//         });
+
+//     } catch (error) {
+//         return response.status(500).json({
+//             message: error.message || error,
+//             error: true,
+//             success: false
+//         });
+//     }
+// }
+
+
+// ====================prmociode added===========================
 /** Place a Cash on Delivery Order */
 export async function CashOnDeliveryOrderController(request, response) {
     try {
-
         const userId = request.userId; // auth middleware 
-        const { list_items, addressId,total } = request.body;
-         console.log("=-=0=");
-         
-        console.log("this is gift note  : ",JSON.stringify(list_items));
+        const { list_items, addressId, total, promocodeId, promocodeDiscount } = request.body;
         
-
+        console.log("this is gift note  : ", JSON.stringify(list_items));
+        
+        // Create the base order payload
         const payload = {
             userId: userId,
             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-            products:list_items,
+            products: list_items,
             paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
             payment_status: "CASH ON DELIVERY",
             finalOrderTotal: total,
             delivery_address: addressId,
             deliveryPartnerId: null, // No delivery partner assigned initially
             orderStatus: "Not Assigned",  // Default status
+        };
+        
+        // If promocode is provided, verify and apply it
+        if (promocodeId) {
+            try {
+                // Find the promocode in the database
+                const promocode = await PromocodeModel.findById(promocodeId);
+                 
+                // Add promocode to order payload
+                payload.promo_code = promocode.code;
+                
+                // Update promocode usage count
+                await PromocodeModel.findByIdAndUpdate(promocodeId, {
+                    $set: { users:userId  }
+                });
+                
+            } catch (promoError) {
+                console.error("Error applying promocode:", promoError);
+                // Continue order creation even if promocode application fails
+            }
+        }
+        // Reduce the stock of each product variant
+
+        for (const item of list_items) {
+            console.log("Current item:", item); // Debugging
+        
+            const { productId, variantPrices } = item || {};
+            
+            if (!productId) {
+                console.error("Missing productId:", item);
+                continue;
+            }
+        
+            if (!Array.isArray(variantPrices) || variantPrices.length === 0) {
+                console.error("variantPrices is missing or empty:", item);
+                continue;
+            }
+        
+            // Fetch the product from the database
+            const product = await ProductModel.findOne({ _id: productId });
+        
+            if (!product) {
+                console.error("Product not found for ID:", productId);
+                continue;
+            }
+        
+            for (const variant of variantPrices) {
+                const { weight, quantity } = variant;
+        
+                if (!weight) {
+                    console.error("Missing weight in variantPrices:", variantPrices);
+                    continue;
+                }
+        
+                if (quantity === undefined || isNaN(quantity)) {
+                    console.error("Invalid quantity:", quantity);
+                    continue;
+                }
+        
+                // Find the matching variant by weight
+                const matchedVariant = product.weightVariants.find(v => v.weight === weight);
+        
+                if (!matchedVariant) {
+                    console.error(`No variant found with weight ${weight} in product`, productId);
+                    continue;
+                }
+        
+                const variantId = matchedVariant._id; // Get the correct variant ID
+        
+                console.log("Updating stock for Product ID:", productId);
+                console.log("Variant ID:", variantId);
+                console.log("Quantity:", quantity);
+        
+                // Update stock for this variant
+                await ProductModel.updateOne(
+                    { _id: productId, "weightVariants._id": variantId },
+                    { $inc: { "weightVariants.$.qty": -quantity } } // Reduce stock
+                );
+            }
+        }
+               
+        // Calculate any gift packing charges
+        let giftPackingTotal = 0;
+        for (const item of list_items) {
+            for (const variant of item.variantPrices) {
+                if (variant.isGiftWrap) {
+                    // Assuming you have a fixed charge or calculation for gift wrapping
+                    // This should match the calculation in your frontend
+                    giftPackingTotal += variant.giftWrapCharge || 0;
+                }
+            }
         }
         
+        if (giftPackingTotal > 0) {
+            payload.special_Gift_packing = giftPackingTotal;
+        }
+        
+        // Create the order
         const generatedOrder = await OrderModel.create(payload);
-
+        
         // Remove items from cart after placing order
-        // await CartProductModel.deleteMany({ userId: userId });
         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
-
+        
         return response.json({
             message: "Order placed successfully",
             error: false,
             success: true,
             data: generatedOrder
         });
-
     } catch (error) {
+        console.error("Order creation error:", error);
         return response.status(500).json({
-            message: error.message || error,
+            message: error.message || "Error placing order",
             error: true,
             success: false
         });
     }
 }
+
 
 
 // update order status to Assigned ---> Out For delivery ---> Deliverd 
@@ -732,6 +883,14 @@ export const updateOrderStatusController = async (request, response) => {
             notifyClients("", order, isadmin);
 
             console.log("✅ Order successfully marked as Delivered:", order);
+
+            // ✅ Send Email Notification to Customer
+             // ✅ Send order delivered email to the customer
+            //  console.log("email",order);
+             
+            //  await sendOrderDeliveredEmail(order.customerEmail, order);
+            // await sendOrderDeliveredEmail(order);
+
             return response.json({
                 message: "Order status updated to 'Delivered' successfully",
                 error: false,

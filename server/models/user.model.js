@@ -72,12 +72,6 @@ const userSchema = new mongoose.Schema(
       },
     ],
     shopping_cart: [shoppingCartSchema], // Using the schema without _id
-    orderHistory: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "order",
-      },
-    ],
     forgot_password_otp: {
       type: String,
       default: null,

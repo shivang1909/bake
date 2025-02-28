@@ -16,6 +16,9 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 import adminrouter from './route/admin.route.js'
 import auth from './middleware/auth.js'
+import promocodeRouter from './route/promocode.route.js'
+
+
 
 const app = express()
 app.use(cors({
@@ -52,6 +55,8 @@ app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
 app.get('/events',auth, sseHandler);
 app.get('/eventsadmin',auth,admin, sseHandlerforadmin);
+
+app.use('/api/', promocodeRouter);
 connectDB().then(()=>{
     app.listen(PORT,()=>{
         console.log("Server is running",PORT)

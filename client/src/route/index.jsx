@@ -30,6 +30,9 @@ import DeliveriesPage from "../pages/DeliveriesPage";
 import OrderHistory from "../components/OrderHistory"
 import CodStatus from "../components/CodStatus";
 import AdminCodStatus from "../components/AdminCodStatus";
+import PromoCode from "../pages/PromocodePage";
+
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -149,7 +152,10 @@ const router = createBrowserRouter([
                         path: "delivery-cod-status",
                         element: <CodStatus />
                     },
-                    
+                    {
+                        path: "admin-promo",
+                        element: <PromoCode />
+                    },
                 ]
             },
             // {
