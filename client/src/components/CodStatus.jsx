@@ -40,10 +40,10 @@ const CodStatus = () => {
 
   const handleCODStatusChange = async () => {
     try {
-        const response = await Axios({ ...SummaryApi.updateCODStatus});
+        const response = await Axios({ ...SummaryApi.updateCODStatus, data: { totalFinalOrderTotal } });
 
         if (response.data.success) {
-          setTotalPendingFromAdmin(totalFinalOrderTotal);
+          setTotalPendingFromAdmin(totalFinalOrderTotal+totalPendingFromAdmin);
           setTotalFinalOrderTotal(0);
 
           console.log("before ", orders);

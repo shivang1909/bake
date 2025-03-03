@@ -227,6 +227,8 @@ import UserModel from "../models/user.model.js";
 import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
 let notificationsreceiver = []; 
+let adminreceiver;
+;
 export async function sseHandlerfornotifications(req, res) {
     try {
         // Set SSE headers
@@ -234,11 +236,18 @@ export async function sseHandlerfornotifications(req, res) {
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         console.log(`Client noti connected: ${req.userId}`);
-
-        // Add the client to the notifications receiver list
         const receiver = { id: req.userId, write: res.write.bind(res) };
+            if(req.role === "Admin")
+            {
+                adminreceiver=receiver;
+            }
+            else
+            {
+                console.log(`receiver id: ${receiver.id}`);
+                notificationsreceiver.push(receiver);
+            }
+        // Add the client to the notifications receiver list
         // notificationsreceiver.push(receiver);
-        notificationsreceiver.push(receiver);
         console.log(`This is the receiver: ${JSON.stringify(receiver)}`);
 
         // Send initial connection message
@@ -292,26 +301,57 @@ export function sseHandler(req, res) {
         console.log(`Client disconnected: ${newClient}`);
     });
 }
-function sendNotification({ 
+async function sendNotification({ 
     updatedOrder=null, 
-    oldDeliveryPartner = null,  // Optional
+    DeliveryPartner = null,  // Optional
     isAdmin = false, 
     data = {} 
     } = {})
 {
 console.log("Sending Notification. Data:", data);
+console.log(isAdmin);
+
 if (isAdmin) {
     // Notify Admin
-    const adminClient = notificationsreceiver.find(client => client.id === "6794a5f4d750b097a7c65f6f");
-    if (adminClient) {
-        console.log("this is data ",data);
-        console.log(adminClient.id);
+    console.log(`insdide `);
+    
+
+    if (adminreceiver) {
+
         // admin.res.write(`data: ${JSON.stringify(data)}\n\n`);
-        adminClient.write(`data: ${JSON.stringify({ message: "🔔 order delivered" })}\n\n`);
+        adminreceiver.write(`data: ${JSON.stringify(data)}\n\n`);
         
     }
     return;
 }
+
+    if(Array.isArray(DeliveryPartner)){
+        notificationsreceiver.forEach(async (client) => {
+            if(DeliveryPartner.some(partner => partner.toString() === client.id))
+            {
+                const dp = await AdminModel.findOneAndUpdate(
+                    { _id: client.id },  
+                    { $set: { paymentReceived: 0 } }
+                )
+                data.message=`Payment Approved of ${dp.paymentReceived} by admin`;
+                client.write(`data: ${JSON.stringify(data)}\n\n`);
+            }
+        });
+        return;
+
+    }
+    
+    notificationsreceiver.forEach(client => {
+         console.log('inside else',client.id);
+        if(DeliveryPartner === client.id)
+        {   
+            console.log('inside else',client.id);
+            client.write(`data: ${JSON.stringify(data)}\n\n`);
+            return;
+
+        }
+    });
+
 
 // notificationsReceiver.forEach(client => {
     //     console.log("Checking Client ID:", client.id);
@@ -799,7 +839,7 @@ export const updateOrderStatusController = async (request, response) => {
             const isadmin = true;  // Assuming the request is from an admin
             notifyClients("", order, isadmin);
             console.log('notification sent');
-            sendNotification({
+            await sendNotification({
                 isAdmin: true,
                 data: { message: `delivered` }
             });
@@ -838,8 +878,24 @@ export const updateOrderStatusController = async (request, response) => {
 export const updateCODStatusController = async (request, response) => {
     try {
         const deliveryPartnerId = request.userId;
+       const total = request.body.totalFinalOrderTotal
+       
+       const dp = await AdminModel.findOneAndUpdate(
+        { _id: deliveryPartnerId },
+        { $inc: { paymentReceived: total } },
+        { new: true } // ✅ Correct usage
+    );
+ 
+    
+       console.log(dp);
+
+        await sendNotification({
+            isAdmin: true,
+            data: { message: `Total ${dp.paymentReceived} submited by ${dp.name} ` }
+        });
         
-        await OrderModel.updateMany(
+       
+       await OrderModel.updateMany(
             { deliveryPartnerId, cod_status: "NOT COMPLETED" ,orderStatus: "Delivered" },
             { $set: { cod_status: "PENDING" } }
         );
@@ -862,14 +918,17 @@ export const updateAdminCODStatusController = async (request, response) => {
         const userID = request.userId;
         const { filterPartner } = request.body; // filterPartner is an ObjectId (string)
 
-        console.log("Filter Partner ID:", filterPartner);
-
         // Ensure filterPartner is a valid ObjectId
         if (!filterPartner) {
+            const uniqueDeliveryPartnerIds = await OrderModel.distinct("deliveryPartnerId", {
+                cod_status: "PENDING", // Filter to get only the updated orders
+                orderStatus: "Delivered"
+            });
             await OrderModel.updateMany(
                 { cod_status: "PENDING", orderStatus: "Delivered" },
                 { $set: { cod_status: "COMPLETED" } }
             );
+            await sendNotification({ DeliveryPartner: uniqueDeliveryPartnerIds });
             return response.status(200).json({ message: "All data updated in Delivery partne",success: true });
         }
 
@@ -881,7 +940,14 @@ export const updateAdminCODStatusController = async (request, response) => {
             { deliveryPartnerId: partnerObjectId, cod_status: "PENDING" },
             { $set: { cod_status: "COMPLETED" } }
         );
+        const deliveryPartner = await AdminModel.findById(filterPartner);
 
+        await sendNotification({DeliveryPartner: filterPartner, data: { message: `${deliveryPartner.paymentReceived} is approved by admin ` } });
+
+        await AdminModel.updateOne(
+            { _id: filterPartner },  
+            { $set: { paymentReceived: 0 } }
+        )
 
         return response.status(200).json({
             message: "COD status updated successfully",
@@ -896,16 +962,18 @@ export const updateAdminCODStatusController = async (request, response) => {
 
 
 export async function getCODOrdersHistory(request, response) {
-    try {    
+    try {  
+        
+        const user = await AdminModel.findOne({ _id: request.userId },{role:1,_id:0});
+
         let filterConditions = {
             cod_status: { $ne: "COMPLETED" }, // COD status should NOT be "COMPLETED"
             orderStatus: "Delivered" // Order status should be "Delivered"
         }; 
 
-        // // If the user is a Delivery Partner, filter by deliveryPartnerId
-        // if (role === "Delivery Partner") {
-        //     filterConditions.deliveryPartnerId = userId; // Only fetch orders for the specific delivery partner
-        // }
+        if (user.role === "Delivery Partner") {
+            filterConditions.deliveryPartnerId = request.userId; // Only fetch orders for the specific delivery partner
+        }
 
         // Fetch the orders based on the conditions
         const orders = await OrderModel.find(filterConditions)

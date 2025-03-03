@@ -14,7 +14,13 @@ const adminSchema = new mongoose.Schema({
     role: { type: String, required: true },
     password: { type: String }, // Optional for initial creation
     isPasswordSet: { type: Boolean, default: false }, // New field
-}, { timestamps: true });
+    
+
+},
+
+{     strict: false, 
+
+    timestamps: true });
 
 // Prevent model redefinition
 // const AdminModel = mongoose.models.Admin || mongoose.model('Admin', adminSchema);

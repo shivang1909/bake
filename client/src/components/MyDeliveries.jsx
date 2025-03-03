@@ -175,6 +175,84 @@ const MyDeliveries = ({ filterDelivered }) => {
   
   const statusOptions = ["Assigned", "Out for Delivery", "Delivered"];
  
+  // useEffect(() => {
+  //   let eventSource;
+  
+  //   if (!filterDelivered) {
+  //     console.log("inside if event source", filterDelivered);
+  //     eventSource = new EventSource("http://localhost:5000/events", {
+  //       withCredentials: true,
+  //     });
+  //     console.log("filterDelivered", filterDelivered);
+  //     console.log(eventSource);
+  //     eventSource.onmessage = (event) => {
+  //       var data = JSON.parse(event.data);
+        
+      
+  
+  //       if (data.isPreviousDeliveryPartner) {
+  //         console.log("inside if ", data);
+  
+  //         // If the user is the previous delivery partner, remove the order
+  //         setOrders((prevOrders) => {
+  //           return prevOrders.filter((order) => order.orderId !== data.orderId);
+  //         });
+  //         console.log(
+  //           `Order ${data.orderId} removed because user is the previous delivery partner`
+  //         );
+  //       } else {
+  //         var data1 = data.updatedOrder;
+  
+  //         setOrders((prevOrders) => {
+  //           // Check if the order already exists
+  //           const orderExists = prevOrders.some(
+  //             (order) => order.orderId === data1.orderId
+  //           );
+  
+  //           if (orderExists) {
+  //             // Update existing order
+  //             return prevOrders.map((order) =>
+  //               order.orderId === data1.orderId ? { ...order, ...data1 } : order
+  //             );
+  //           } else {
+  //             // Add new order
+  //             return [...prevOrders, data1];
+  //           }
+  //         });
+  //       }
+  //     };
+  //   }
+  
+  //   const fetchOrders = async () => {
+  //     try {
+  //       let response;
+  //       if (filterDelivered) {
+  //         response = await Axios({ ...SummaryApi.getDeliveredOrder });
+  //       } else {
+  //         response = await Axios({ ...SummaryApi.getNotDeliveredOrder });
+  //       }
+  //       const { data: responseData } = response;
+  //       if (responseData.success) {
+  //         console.log(responseData.data);
+  //         setOrders(responseData.data || []);
+  //       } else {
+  //         setError(responseData.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching orders:", error);
+  //       setError("Error fetching orders");
+  //     } 
+  //   };
+  
+  //   fetchOrders();
+  
+  //   return () => {
+  //     if (eventSource) {
+  //       eventSource.close();
+  //     }
+  //   };
+  // }, [filterDelivered]); // ✅ Dependency added
+  
   useEffect(() => {
     let eventSource;
   
