@@ -14,6 +14,7 @@ import DisplayCartItem from "./DisplayCartItem";
 import {setIsCartOpen} from "../store/loadingSlice"
 import SummaryApi from "../common/SummaryApi";
 import Axios from "../utils/Axios";
+import { IoNotificationsOutline } from "react-icons/io5";
 
 
 const Header = () => {
@@ -22,16 +23,59 @@ const Header = () => {
   const [isMobile] = useMobile();
   const location = useLocation();
   const isCheckOut = location.pathname === "/dashboard/checkout";
-  
+  const toggleNotification = () => {
+    setIsNotificationOpen((prev) => !prev);
+  };
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+   
+  ]);
   const isSearchPage = location.pathname === "/search";
   const navigate = useNavigate();
   const user = useSelector((state) => state?.user);
   const [openUserMenu, setOpenUserMenu] = useState(false);
 
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
+  useEffect(() => {
+    console.log("Header component mounted");
+  
+    let eventSource;
+    try {
+      eventSource = new EventSource("http://localhost:5000/notification", { withCredentials: true });
+      eventSource.onopen = (event) => {
+        console.log("EventSource opened", event); 
+      };
 
+      eventSource.onmessage = (event) => {
+        console.log("I am inside onmessage event of header");
+        var data = JSON.parse(event.data);
+        console.log("This is header ", data);
+        setNotifications((prev) => [...prev, data.message]);
+       
+      };
+  
+      eventSource.onerror = (error) => {
+        console.log("EventSource error:", error);
+        eventSource.close();
+      };
+  
+    } catch (error) {
+      console.error("EventSource failed", error);
+    }
+  
+    return () => {
+      console.log("Header component unmounted");
+      if (eventSource) {
+        eventSource.close();
+        console.log("EventSource closed in cleanup");
+      }
+    };
+  }, []);
+  
   // Fetch Cart Details
   useEffect(() => {
+   
+
     fetchCartDetails();
   }, [isCartOpen]);
  
@@ -108,6 +152,25 @@ const Header = () => {
             >
               <FaRegCircleUser size={26} />
             </button>
+            <div className="relative">
+              <button onClick={toggleNotification} className="relative text-neutral-600">
+                <IoNotificationsOutline size={26} />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{notifications.length}</span>
+                )}
+              </button>
+              {isNotificationOpen && (
+                <div className="absolute right-0 top-10 w-64 bg-white shadow-lg rounded-md p-3 max-h-48 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((notif, index) => (
+                      <p key={index} className="text-sm p-2 border-b last:border-none">{notif}</p>
+                    ))
+                  ) : (
+                    <p className="text-sm p-2">No new notifications</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/**Desktop**/}
             <div className="hidden lg:flex  items-center gap-10">

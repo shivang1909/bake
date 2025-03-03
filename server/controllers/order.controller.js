@@ -226,7 +226,39 @@ import UserModel from "../models/user.model.js";
 
 import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
+let notificationsreceiver = []; 
+export async function sseHandlerfornotifications(req, res) {
+    try {
+        // Set SSE headers
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        console.log(`Client noti connected: ${req.userId}`);
 
+        // Add the client to the notifications receiver list
+        const receiver = { id: req.userId, write: res.write.bind(res) };
+        // notificationsreceiver.push(receiver);
+        notificationsreceiver.push(receiver);
+        console.log(`This is the receiver: ${JSON.stringify(receiver)}`);
+
+        // Send initial connection message
+        console.log(`Client connected with userId: ${req.userId}`);
+        // Keep the connection alive
+        const keepAliveInterval = setInterval(() => {
+            res.write(':keep-alive\n\n');
+        }, 30000); // Every 30 seconds
+
+        // Handle client disconnect
+        req.on('close', () => {
+            console.log(`Client noti disconnected: ${req.userId}`);
+            notificationsreceiver = notificationsreceiver.filter(receiver => receiver.id !== req.userId);
+            clearInterval(keepAliveInterval); // Clear the keep-alive interval
+        });
+    } catch (error) {
+        console.error('Error in SSE handler:', error);
+        res.status(500).write(`data: ${JSON.stringify({ error: 'Internal server error' })}\n\n`);
+    }
+}
 // ssehandler function 
 let clients = [];
 let admin;
@@ -237,32 +269,66 @@ export function sseHandlerforadmin(req, res) {
 
     console.log("admin calls this page ")
 
-     admin =  { id: req.userId, res };
-     console.log(admin.id);
+    admin =  { id: req.userId, res };
+    console.log(admin.id);
      
-    // Remove client when disconnected
-    req.on('close', () => {
-     
-        console.log(`Client disconnected: `);
-    });
+  
 }
 
 export function sseHandler(req, res) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache'); 
     res.setHeader('Connection', 'keep-alive');
-
+     
     console.log("admin calls this page ")
     const newClient = { id: req.userId, res };
     clients.push(newClient);
-
+    
     console.log(`Client connected: ${newClient.id}`);
-
+    
     // Remove client when disconnected
     req.on('close', () => {
         clients = clients.filter(client => client.id !== newClient);
         console.log(`Client disconnected: ${newClient}`);
     });
+}
+function sendNotification({ 
+    updatedOrder=null, 
+    oldDeliveryPartner = null,  // Optional
+    isAdmin = false, 
+    data = {} 
+    } = {})
+{
+console.log("Sending Notification. Data:", data);
+if (isAdmin) {
+    // Notify Admin
+    const adminClient = notificationsreceiver.find(client => client.id === "6794a5f4d750b097a7c65f6f");
+    if (adminClient) {
+        console.log("this is data ",data);
+        console.log(adminClient.id);
+        // admin.res.write(`data: ${JSON.stringify(data)}\n\n`);
+        adminClient.write(`data: ${JSON.stringify({ message: "🔔 order delivered" })}\n\n`);
+        
+    }
+    return;
+}
+
+// notificationsReceiver.forEach(client => {
+    //     console.log("Checking Client ID:", client.id);
+    //     console.log("Target Delivery Partner ID:", updatedOrder.deliveryPartnerId);
+
+    //     if (client.id === String(updatedOrder.deliveryPartnerId)) {
+    //         // Notify the assigned delivery partner
+    //         client.res.write(`data: ${JSON.stringify(updatedOrder)}\n\n`);
+    //     } else if (client.id === oldDeliveryPartner) {
+    //         // Notify the previous delivery partner
+    //         console.log("Notifying previous delivery partner:", oldDeliveryPartner);
+    //         client.res.write(`data: ${JSON.stringify({
+    //             orderId: updatedOrder.orderId,
+    //             isPreviousDeliveryPartner: true // Mark it as a previous partner notification
+    //         })}\n\n`);
+    //     }
+    // });
 }
 
 // Function to notify all connected clients
@@ -336,6 +402,8 @@ export async function assignDeliveryPartnerController(request, response) {
                 success: false
             });
         }
+      //  sendNotification(updatedOrder,deliveryPartnerId);
+
         notifyClients(
             preid,
             {
@@ -401,7 +469,7 @@ export async function assignBulkDeliveryPartnerController(request, response) {
         const failedOrderIds = orderIds.filter(orderId => 
             !successfulUpdates.find(order => order.orderId === orderId)
         );
-
+        //    sendNotification(updatedOrders,partnerId);
         // Send notifications for each successfully updated order
         preUpdateInfo.forEach(({ orderId, oldPartnerId }) => {
             const updatedOrder = successfulUpdates.find(order => order.orderId === orderId);
@@ -730,6 +798,11 @@ export const updateOrderStatusController = async (request, response) => {
             await order.save();
             const isadmin = true;  // Assuming the request is from an admin
             notifyClients("", order, isadmin);
+            console.log('notification sent');
+            sendNotification({
+                isAdmin: true,
+                data: { message: `delivered` }
+            });
 
             console.log("✅ Order successfully marked as Delivered:", order);
             return response.json({

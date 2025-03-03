@@ -3,7 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
 import cookieParser from 'cookie-parser'
-import { sseHandler,sseHandlerforadmin } from './controllers/order.controller.js'
+import { sseHandler,sseHandlerforadmin,sseHandlerfornotifications } from './controllers/order.controller.js'
 import { admin } from './middleware/Admin.js'
 import morgan from 'morgan'
 import helmet from 'helmet'
@@ -50,6 +50,7 @@ app.use("/api/admin",adminrouter)
 app.use("/api/cart",cartRouter)
 app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
+app.get('/notification',auth,admin, sseHandlerfornotifications);
 app.get('/events',auth, sseHandler);
 app.get('/eventsadmin',auth,admin, sseHandlerforadmin);
 connectDB().then(()=>{

@@ -21,6 +21,7 @@ import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
+import Notification from "../components/Notification";
 import AddAdmin from "../pages/AddAdmin";
 import SetPasswordPage from "../pages/SetPasswordPage";
 import AdminLogin from "../pages/AdminLogin";
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
                         path: "profile",
                         element: <Profile />
                     },
+                   
                     {
                         path: "myorders",
                         element: <MyOrders />
@@ -124,6 +126,10 @@ const router = createBrowserRouter([
                     {
                         path: "admin-list",
                         element: <AdminListPage />
+                    },
+                    {
+                        path: "notificationcheck",
+                        element: <Notification />
                     },
                     {
                         path: "order-list",
