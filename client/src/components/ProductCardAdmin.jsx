@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import EditProductAdmin from './EditProductAdmin'
 import CofirmBox from './CofirmBox'
 import { IoClose } from 'react-icons/io5'
 import SummaryApi from '../common/SummaryApi'
@@ -8,6 +7,7 @@ import AxiosToastError from '../utils/AxiosToastError'
 import toast from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAllProduct } from '../store/productSlice'
+import ProductForm from './ProductForm'
 
 const ProductCardAdmin = ({ data }) => {
   
@@ -53,7 +53,7 @@ const ProductCardAdmin = ({ data }) => {
             // fetchProductData()
             usedispatch(
               setAllProduct(
-                allProduct.filter((p) => p._id !== deleteProduct._id)
+                allProduct.filter((p) => p._id !== data._id)
             ));
           setOpenDelete(false)
       }
@@ -90,7 +90,7 @@ const ProductCardAdmin = ({ data }) => {
 
         {
           editOpen && (
-            <EditProductAdmin  data={data} close={()=>setEditOpen(false)}/>
+            < ProductForm updatedata={data} isEdit={true} close={()=>setEditOpen(false)}/>
           )
         }
 

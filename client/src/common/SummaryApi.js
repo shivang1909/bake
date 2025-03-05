@@ -152,18 +152,33 @@ const SummaryApi = {
         url : '/api/address/disable',
         method : 'delete'
     },
-    CashOnDeliveryOrder : {
-        url : "/api/order/cash-on-delivery",
-        method : 'post'
+    // =========== Order Related APIs ===================  
+    CashOnDeliveryOrder: {
+        url: "/api/order/cash-on-delivery",
+        method: "post"
     },
-    payment_url : {
-        url : "/api/order/checkout",
-        method : 'post'
+    payment_url: {
+        url: "/api/order/checkout",
+        method: "post"
     },
-    getOrderItems : {
-        url : '/api/order/order-list',
-        method : 'get'
-    }
+    getOrderItems: {
+        url: "/api/order/order-list",
+        method: "get"
+    },
+
+    // =========== Delivery NEW APIs  ===================
+    assignDeliveryPartner: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/assign-delivery-partner",
+        method: "put"
+    },
+    getOrdersForDeliveryPartner: {  // 🆕 Delivery Partner fetches assigned orders
+        url: "/api/order/delivery-partner-orders",
+        method: "get"
+    },
+    updateOrderStatus: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/update-order-status",
+        method: "put"
+    },
 }
 
 export default SummaryApi

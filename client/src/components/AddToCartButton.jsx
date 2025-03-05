@@ -43,7 +43,6 @@ const AddToCartButton = ({ data }) => {
         } finally {
             setLoading(false)
         }
-
     }
 
     //checking this item in cart or not

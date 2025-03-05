@@ -19,6 +19,7 @@ const auth = async (request, response, next) => {
     console.log('Decoded token payload:', decoded); // Log decoded payload for debugging
 
     if (!decoded) {
+      
       return response.status(401).json({
         message: "Unauthorized access",
         error: true,

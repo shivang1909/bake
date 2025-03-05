@@ -19,9 +19,9 @@
             },
             setAllProduct : (state,action)=>{
 
-                console.log("calling",state.product);
-
+                
                 state.Allproduct = [...action.payload]
+                // console.log("calling",state.Allproduct);
             }
         }
     })

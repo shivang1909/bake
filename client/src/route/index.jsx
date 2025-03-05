@@ -13,7 +13,6 @@ import Profile from "../pages/Profile";
 import MyOrders from "../pages/MyOrders";
 import Address from "../pages/Address";
 import CategoryPage from "../pages/CategoryPage";
-import UploadProduct from "../pages/UploadProduct";
 import ProductAdmin from "../pages/ProductAdmin";
 import AdminPermision from "../layouts/AdminPermision";
 import ProductListPage from "../pages/ProductListPage";
@@ -22,13 +21,12 @@ import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
-
 import AddAdmin from "../pages/AddAdmin";
 import SetPasswordPage from "../pages/SetPasswordPage";
 import AdminLogin from "../pages/AdminLogin";
 import AdminListPage from "../pages/AdminListPage";
-
-
+import OrderListPage from "../pages/OrderListPage";
+import MyDeliveries from "../pages/MyDeliveries";
 
 const router = createBrowserRouter([
     {
@@ -114,10 +112,6 @@ const router = createBrowserRouter([
                         element: <CategoryPage />
                     },
                     {
-                        path: "upload-product",
-                        element: <UploadProduct />
-                    },
-                    {
                         path: "product",
                         element: <ProductAdmin />
                     },
@@ -128,23 +122,45 @@ const router = createBrowserRouter([
                     {
                         path: "admin-list",
                         element: <AdminListPage />
-                    }
-                ]
-            },
-            {
-                path: "inventory",
-                element: <Dashboard />,
-                children: [
-                    {
-                        path: "profile",
-                        element: <Profile />
                     },
                     {
-                        path: "product",
-                        element: <ProductAdmin />
+                        path: "order-list",
+                        element: <OrderListPage />
+                    },
+                    {
+                        path: "my-deliveries",
+                        element: <MyDeliveries />
                     },
                 ]
             },
+            // {
+            //     path: "inventory",
+            //     element: <Dashboard />,
+            //     children: [
+            //         {
+            //             path: "profile",
+            //             element: <Profile />
+            //         },
+            //         {
+            //             path: "product",
+            //             element: <ProductAdmin />
+            //         },
+            //     ]
+            // },
+            // {
+            //     path: "deliveries",
+            //     element: <Dashboard />,
+            //     children: [
+            //         {
+            //             path: "profile",
+            //             element: <Profile />
+            //         },
+            //         {
+            //             path: "my-deliveries",
+            //             element: <MyDeliveries />
+            //         },
+            //     ]
+            // },
             {
                 path: ":category",
                 element: <ProductListPage />

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react'
 import { FaCloudUploadAlt } from "react-icons/fa";
-
 import Loading from '../components/Loading';
 import ViewImage from '../components/ViewImage';
 import { MdDelete } from "react-icons/md";
@@ -13,34 +12,45 @@ import AxiosToastError from '../utils/AxiosToastError';
 import successAlert from '../utils/SuccessAlert';
 import { useEffect } from 'react';
 import { setAllProduct } from '../store/productSlice';
+import CategorySelect from './CategorySelect';
 
-const ProductForm = ({close}) => {
-  const [imagePreview, setImagePreview] = useState([]);
+const ProductForm = ({close, isEdit = false, updatedata}) => {
+  console.log(updatedata);
+  
   const usedispatch = useDispatch();
+  
   const allProduct = useSelector(state => state.product.Allproduct);
-  console.log(allProduct);
-  const [selectedcategory, setSelectedCategory] = useState(false)
-  const [temp, settemp] = useState([])
-  const [coverimaepreview, setCoverImagepreview] = useState(null)
+  
+
+  const [selectedCategory, setSelectedCategory] = useState(false);
+
   const [data, setData] = useState({
-    name: "",
-    image: [],
-    category: 0,
-    coverimage: null,
-    discount: "",
-    description: "",
-    more_details: {}, 
-    weightVariants: [],
-    sku_code: "", // New field for weight variants
-  })
+    _id: isEdit ? updatedata._id : "",
+    name: isEdit ? updatedata.name : "",
+    coverimage: isEdit ? updatedata.coverimage : null,
+    image: isEdit ? updatedata.image : [],
+    category: isEdit ? updatedata.category : 0,
+    discount: isEdit ? updatedata.discount : "",
+    description: isEdit ? updatedata.description : "",
+    more_details: isEdit ? updatedata.more_details || {} : {},
+    weightVariants: isEdit ? updatedata.weightVariants : [],
+    sku_code: isEdit ? updatedata.sku_code : "",
+    checkcategory: false,
+  });
+  const [imagePreview, setImagePreview] = useState(data.image);
+  console.log(data);
+  const [newimage, setNewImage] = useState([]); // Stores newly selected images for update  
+const imageRef = useRef(null); // Reference for file input  
+const blobimages = useRef([]); // Stor
+  const [coverimaepreview, setCoverImagepreview] = useState(data.coverimage)
   const [imageLoading, setImageLoading] = useState(false)
   const [ViewImageURL, setViewImageURL] = useState("")
   const allCategory = useSelector(state => state.product.allCategory)
   const [openAddField, setOpenAddField] = useState(false)
   const [fieldName, setFieldName] = useState("")
+  
   console.log(data);
   const file1 = useRef(null)
-
 
  // Handle adding weight variants (weight, price, qty)
  const handleAddWeightVariant = () => {
@@ -53,41 +63,17 @@ const ProductForm = ({close}) => {
 
  // Handle change in weight variant fields
  const handleWeightVariantChange = (index, e) => {
-  const { name, value } = e.target;
-  const updatedWeightVariants = [...data.weightVariants];
-  updatedWeightVariants[index][name] = value;
-  setData((prev) => ({
-    ...prev,
-    weightVariants: updatedWeightVariants
-  }));
-};
-  const handleUploadCoverImage = (e) => { 
-    
-    setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
-    console.log("handle upload cover image")
-      setData((preve) => {
-        return {
-          ...preve,
-          coverimage: e.target.files[0]
-        };
-       });
-
-  }
-  const handleChange = (e) => {
-  
-    const { name, value } = e.target
-    
-    setData((preve) => {
-      return {
-        ...preve,
-        [name]: value
-      }
-    })
-  }
-  const handleUploadImage = async (e) => {
+    const { name, value } = e.target;
+    const updatedWeightVariants = [...data.weightVariants];
+    updatedWeightVariants[index][name] = value;
+    setData((prev) => ({
+      ...prev,
+      weightVariants: updatedWeightVariants
+    }));
+  };
+  const addUpload = (e) =>{
     console.log("handleUploadImage")
-      
-      const files =  file1.current.files;
+    const files =  file1.current.files;
     var allselectedfiles = [];
     Array.from(files).forEach((element) => {
     allselectedfiles.push(element);      
@@ -95,10 +81,6 @@ const ProductForm = ({close}) => {
     });
     console.log(allselectedfiles);
     file1.current.value = "";
-    
-    
-    
-    
     var duplicateName = null;
       const hasDuplicate = allselectedfiles.some((newFile) => {
         const isDuplicate = data.image.some((existingFile) => existingFile.name === newFile.name);
@@ -121,14 +103,76 @@ const ProductForm = ({close}) => {
     setImagePreview((prev) => [...prev, ...allselectedfiles.map((file) => URL.createObjectURL(file))]);
   }
 
+ 
+  const handleUploadCoverImage = (e) => {   
+    setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
+    console.log("handle upload cover image")
+      setData((preve) => {
+        return {
+          ...preve,
+          coverimage: e.target.files[0]
+        };
+       });
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setData((preve) => {
+      return {
+        ...preve,
+        [name]: value
+      }
+    })
+  }
 
+  
+  const handleEditUpload = async (e) => {
+    console.log("Editing Upload...");
+  
+    const files = file1.current.files; // Use file1 for Edit mode
+    const allSelectedFiles = Array.from(files);
+    
+    const imageNames = data.image.map((image) => image.split("/").pop()); // Extract existing image names
+    const newImageNames = newimage.map((file) => file.name); // Names of newly selected images
+    
+    let duplicateName = null;
+    const hasDuplicate = allSelectedFiles.some((newFile) => {
+      if (imageNames.includes(newFile.name) || newImageNames.includes(newFile.name)) {
+        duplicateName = newFile.name;
+        return true;
+      }
+      return false;
+    });
+  
+    if (hasDuplicate) {
+      alert(`${duplicateName} is already there, please select new images.`);
+      return;
+    }
+  
+    file1.current.value = ""; // Clear input after selecting images
+  
+    const newPreviews = allSelectedFiles.map((file) => URL.createObjectURL(file));
+  
+    setImagePreview((prev) => [...prev, ...newPreviews]);
+    setNewImage((prev) => [...prev, ...allSelectedFiles]);
+  
+    blobimages.current.push(...newPreviews);
+    console.log(blobimages);
+  };
+  
+  const handleUploadImage = async (e) => {
+    if (isEdit) {
+      handleEditUpload(e);
+    } else {
+      addUpload(e);
+    }
+  };
+  
   const deletepreviw = async (updatedPreviews) => {
     if (file1.current) {
       console.log(file1.current.value)
       file1.current.value = "";
 
     }
-
     await setImagePreview(updatedPreviews)
   }
   const handleDeleteImage = async (index) => {
@@ -144,8 +188,6 @@ const ProductForm = ({close}) => {
     await deletepreviw(updatedPreviews);
     // Update the `imagePreview` state
     console.log(imagePreview)
-
-
     setData((prev) => ({
       ...prev,
       image: updatedImages, // Update the `data.image` property
@@ -166,8 +208,116 @@ const ProductForm = ({close}) => {
     setFieldName("")
     setOpenAddField(false)
   }
+const handleSubmit = (e) => {
+  if (isEdit) {
+    handleEditProduct(e); // Call the edit handler if it's an edit action
+  } else {
+    handleAddProduct(e); // Call the add handler if it's an add action
+  }
+};
 
-  const handleSubmit = async (e) => {
+
+const handleCategoryChange = (e) => {
+  const selectedCategoryId = e.target.value;
+    console.log("this is function")
+  // Find the selected category object from `allCategory`
+  const selectedCategory = allCategory.find(c => c._id === selectedCategoryId);
+
+  console.log("Selected Category:", selectedCategory);
+
+  // Update the state with the selected category object
+  setData((prev) => ({
+    ...prev,
+    category: selectedCategory || null, // Ensure category is set to the object or null
+    checkcategory: !!selectedCategory // Converts to `true` if category exists, otherwise false
+  }));
+};
+
+
+const handleEditProduct = async (e) => {
+  e.preventDefault()
+  
+  console.log("data", data)
+  const formData = new FormData();
+  formData.append("_id", data._id);
+  formData.append("name", data.name);
+
+  if (data.checkcategory && data.category) {
+      formData.append("category", data.category._id); // ✅ Send only the ObjectId
+      } else if (data.category?._id) {
+    formData.append("category", data.category._id);
+  }
+
+  formData.append("coverimage", data.coverimage);
+  formData.append("discount", data.discount);
+  formData.append("description", data.description);
+  formData.append("more_details", JSON.stringify(data.more_details));
+  formData.append("weightVariants", JSON.stringify(data.weightVariants));
+  formData.append("sku_code", data.sku_code);
+
+  data.image.forEach((url) => {
+    formData.append("existedImage", url);
+  });
+  // Append files
+  newimage.forEach((file) => {
+    console.log(imagePreview)
+    formData.append("image", file); // Field name 'image' must match `upload.array("image")`
+  });
+  console.log(data)
+  console.log(formData);
+  
+  console.log(newimage);
+
+  try {
+    const response = await Axios({
+      ...SummaryApi.updateProductDetails,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    const { data: responseData } = response;
+    if (responseData.success) { 
+      console.log(data.category);
+      
+      const updatedData = {
+        ...data,
+        // category: data.checkcategory ? { ...data.category } : data.category._id, 
+        // category: data.checkcategory ? data.category  : data.category._id, // Ensures a new object reference
+        image: blobimages.current.length > 0 ?  [...data.image, ...blobimages.current] : data.image,
+        coverimage: data.coverimage instanceof File ? coverimaepreview : data.coverimage,
+      };
+console.log(updatedData);
+
+const updatedproducts = allProduct.map((product) =>
+        product._id === updatedData._id ? updatedData : product
+    );
+    console.log('updated products' ,updatedproducts);
+    
+    usedispatch(setAllProduct([...updatedproducts]));
+    console.log(allProduct);
+      successAlert(responseData.message);
+      if (close) close();
+      // fetchProductData();
+      setData({
+        name: "",
+        image: [],
+        category: null,
+        discount: "",
+        description: "",
+        more_details: {},
+        weightVariants: [],
+        sku_code: "",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    
+    AxiosToastError(error);
+  }
+
+}
+// ==============================================
+  const handleAddProduct = async (e) => {
     e.preventDefault()
     setSelectedCategory(false);
     setCoverImagepreview(null);  
@@ -178,9 +328,11 @@ const ProductForm = ({close}) => {
     const formdata = new FormData();
     formdata.append("name", data.name)
 
-    formdata.append("category", data.category)
+    // formdata.append("category", data.category)
+    formdata.append("category", data.category?._id || data.category);  // Ensure `_id` is passed, or fallback to `data.category` if it's already an ID
 
-
+    // console.log("display category",data.category);
+    
     formdata.append("unit", data.unit)
     formdata.append("stock", data.stock)
     formdata.append("price", data.price)
@@ -219,6 +371,9 @@ const ProductForm = ({close}) => {
         
         }
         usedispatch(setAllProduct([...allProduct, responseData.data]));
+        console.log(responseData.data);
+        console.log(allProduct);
+      
         successAlert(responseData.message)
         // toast.success(responseData.message);
                 close();
@@ -236,17 +391,19 @@ const ProductForm = ({close}) => {
 
       }
     } catch (error) {
+      console.log(error);
+      
       AxiosToastError(error)
     }
-
-
   }
 
   return (
     <section className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
       <div className='bg-white p-6 w-full max-w-4xl h-auto max-h-[80vh] overflow-y-auto rounded-lg shadow-lg'>
         <div className='flex items-center justify-between p-2 bg-white shadow-md'>
-          <h2 className='font-semibold text-lg'>Upload Product</h2>
+          <h2 className='font-semibold text-lg'>
+      {isEdit ? "Update Product" : "Add product"}
+          </h2>
           <button onClick={close} className='text-gray-600 hover:text-gray-900'>
             <IoClose size={25} />
           </button>
@@ -303,16 +460,15 @@ const ProductForm = ({close}) => {
   
             {/* Cover Image Section */}
             <div>
+              
               <p className='font-medium'>Cover Image</p>
               <div>
                 <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
                   <div className='text-center flex justify-center items-center flex-col'>
-                    {imageLoading ? <Loading /> : (
-                      <>
+                    
                         <FaCloudUploadAlt size={35} />
                         <p>Upload Cover Image</p>
-                      </>
-                    )}
+
                   </div>
                   <input
                     type='file'
@@ -346,12 +502,10 @@ const ProductForm = ({close}) => {
               <div>
                 <label htmlFor='productImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
                   <div className='text-center flex justify-center items-center flex-col'>
-                    {imageLoading ? <Loading /> : (
-                      <>
+                    
                         <FaCloudUploadAlt size={35} />
                         <p>Upload Image</p>
-                      </>
-                    )}
+                      
                   </div>
                   <input
                     ref={file1}
@@ -388,35 +542,28 @@ const ProductForm = ({close}) => {
                 </div>
               </div>
             </div>
-  
-            {/* Category Section */}
-            <div className='grid gap-1'>
-              <label className='font-medium'>Category</label>
-              <div>
-                <select
-                  className='bg-blue-50 border w-full p-2 rounded'
-                  value={data.category}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    setData((prev) => {
-                      return {
-                        ...prev,
-                        category: value,
-                      }
-                    })
-                    setSelectedCategory(true)
-                  }}
-                >
-                  {!selectedcategory && <option value={0}>Select category</option>}
-                  {allCategory.map((c, index) => (
-                    <option key={c?._id} value={c?._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+    
 
+<div className="grid gap-1">
+  <label className="font-medium">Category</label>
+  <div>
+
+    {console.log(data.category)}
+    {console.log(data.category._id)}
+    {console.log(selectedCategory)}
+    
+<CategorySelect
+  selectedCategory={selectedCategory}
+  allCategory={allCategory}
+  handleCategoryChange={handleCategoryChange}
+  data={data}
+  isEdit={isEdit}
+/>
+  
+  </div>
+</div>
+
+{/* ========================= */}
    <div>
             <p className='font-medium'>Weight Variants</p>
             {data.weightVariants.map((variant, index) => (

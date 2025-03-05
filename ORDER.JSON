@@ -1,0 +1,43 @@
+[
+    {
+      "userId": { "$oid": "67a5a123e17deaea5bbc41a1" },
+      "orderId": "ORD123456",
+      "productId": { "$oid": "67a5a456e17deaea5bbc41b2" },
+      "product_details": {
+        "name": "Kaju Katli",
+        "image": [
+          "http://127.0.0.1:5000/uploads/kajukatli.jpg"
+        ]
+      },
+      "paymentId": "PAY123456",
+      "payment_status": "Paid",
+      "delivery_address": { "$oid": "67a5a789e17deaea5bbc41c3" },
+      "subTotalAmt": 300,
+      "totalAmt": 330,
+      "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123456.pdf",
+      "createdAt": { "$date": "2025-02-07T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-02-07T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "userId": { "$oid": "67a5a223e17deaea5bbc41a2" },
+      "orderId": "ORD123457",
+      "productId": { "$oid": "67a5a556e17deaea5bbc41b3" },
+      "product_details": {
+        "name": "Ghari",
+        "image": [
+          "http://127.0.0.1:5000/uploads/ghari.jpg"
+        ]
+      },
+      "paymentId": "PAY123457",
+      "payment_status": "Pending",
+      "delivery_address": { "$oid": "67a5a889e17deaea5bbc41c4" },
+      "subTotalAmt": 500,
+      "totalAmt": 550,
+      "invoice_receipt": "http://127.0.0.1:5000/uploads/invoice_ORD123457.pdf",
+      "createdAt": { "$date": "2025-02-07T12:05:00.000Z" },
+      "updatedAt": { "$date": "2025-02-07T12:05:00.000Z" },
+      "__v": 0
+    }
+  ]
+  

@@ -12,7 +12,6 @@ import { setAllCategory } from '../store/productSlice'
 import CategoryForm from '../components/CategoryForm'
 const serverurl = import.meta.env.VITE_API_URL;
 
-
 const CategoryPage = () => {
     const [openUploadCategory,setOpenUploadCategory] = useState(false)
     const [loading,setLoading] = useState(false)
@@ -44,8 +43,6 @@ const CategoryPage = () => {
 
             const { data : responseData } = response
                         // usedispatch(setAllCategory([...allCategory, responseData.data]));
-            
-
             if(responseData.success){
                 toast.success(responseData.message)
                 usedispatch(
@@ -53,8 +50,6 @@ const CategoryPage = () => {
                       allCategory.filter((category) => category._id !== deleteCategory._id)
                     )
                   );
-                  
-           
                 setOpenConfirmBoxDelete(false)
             }
         } catch (error) {
