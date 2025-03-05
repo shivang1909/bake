@@ -72,7 +72,6 @@ const ProductCardAdmin = ({ data }) => {
             />
         </div>
         <p className='text-ellipsis line-clamp-2 font-medium'>{data?.name}</p>
-        <p className='text-slate-400'>{data?.unit}</p>
 
 <div className='grid grid-cols-2 gap-3 py-2'>
           {

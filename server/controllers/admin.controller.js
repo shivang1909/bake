@@ -11,7 +11,6 @@ export async function loginController(request,response){
     try {
         const { email , password } = request.body
 
-
         if(!email || !password){ 
             return response.status(400).json({
                 message : "provide email, password",

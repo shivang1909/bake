@@ -1,0 +1,224 @@
+[{
+  "_id": {
+    "$oid": "67a58fbce17deaea5bbc40e2"
+  },
+  "name": "sweets",
+  "image": "uploads/sweets.jfif",
+  "createdAt": {
+    "$date": "2025-02-07T04:44:44.616Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-07T04:44:44.616Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67a58fc7e17deaea5bbc40e4"
+  },
+  "name": "namkeen sweet new",
+  "image": "uploads/namkeen.jfif",
+  "createdAt": {
+    "$date": "2025-02-07T04:44:55.014Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-17T05:34:47.778Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67a58fdae17deaea5bbc40ea"
+  },
+  "name": "test",
+  "image": "uploads/party.png",
+  "createdAt": {
+    "$date": "2025-02-07T04:45:14.569Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-07T04:45:14.569Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67ab33cc61f33395a23da09a"
+  },
+  "name": "new cat",
+  "image": "uploads/screencapture-utsav-shah-mern-stcvhq-rollout-site-2025-02-10-22_19_44.png",
+  "createdAt": {
+    "$date": "2025-02-11T11:26:04.853Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-11T11:26:04.853Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67ade28fcab3e4e31c09cd0f"
+  },
+  "name": "swem",
+  "image": "uploads/nutbliss003.jpeg",
+  "createdAt": {
+    "$date": "2025-02-13T12:16:15.047Z"
+  },
+  "updatedAt": {
+    "$date": "2025-02-13T12:16:15.047Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd4724965"
+  },
+  "name": "BAKERY ITEM",
+  "image": "uploads/image_cat1.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd4724966"
+  },
+  "name": "GHEE SWEETS",
+  "image": "uploads/image_cat2.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd4724967"
+  },
+  "name": "MAVA SWEET",
+  "image": "uploads/image_cat3.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd4724968"
+  },
+  "name": "DRY FRUIT FANCY SWEETS",
+  "image": "uploads/image_cat4.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd4724969"
+  },
+  "name": "NATURAL SWEETS",
+  "image": "uploads/image_cat5.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496a"
+  },
+  "name": "BAKE SWEET",
+  "image": "uploads/image_cat6.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496b"
+  },
+  "name": "BANGALI SWEETS",
+  "image": "uploads/image_cat7.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496c"
+  },
+  "name": "FLAVOUR BITE",
+  "image": "uploads/image_cat8.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496d"
+  },
+  "name": "CHHAPPAN BHOG (ANNAKUT)",
+  "image": "uploads/image_cat9.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496e"
+  },
+  "name": "NAMKEEN",
+  "image": "uploads/image_cat10.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c6e9948c33570cd472496f"
+  },
+  "name": "DRY FRUITS",
+  "image": "uploads/image_cat11.jfif",
+  "createdAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-04T12:00:00.000Z"
+  },
+  "__v": 0
+}]

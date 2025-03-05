@@ -1,0 +1,80 @@
+[
+    {
+      "name": "BAKERY ITEM",
+      "image": "uploads/image_cat1.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "GHEE SWEETS",
+      "image": "uploads/image_cat2.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "MAVA SWEET",
+      "image": "uploads/image_cat3.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "DRY FRUIT FANCY SWEETS",
+      "image": "uploads/image_cat4.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "NATURAL SWEETS",
+      "image": "uploads/image_cat5.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "BAKE SWEET",
+      "image": "uploads/image_cat6.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "BANGALI SWEETS",
+      "image": "uploads/image_cat7.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "FLAVOUR BITE",
+      "image": "uploads/image_cat8.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "CHHAPPAN BHOG (ANNAKUT)",
+      "image": "uploads/image_cat9.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "NAMKEEN",
+      "image": "uploads/image_cat10.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "DRY FRUITS",
+      "image": "uploads/image_cat11.jfif",
+      "createdAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:00:00.000Z" },
+      "__v": 0
+    }
+  ]
+  

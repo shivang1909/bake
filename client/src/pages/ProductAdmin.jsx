@@ -15,6 +15,8 @@ const ProductAdmin = () => {
     const [openUploadProduct,setOpenUploadProduct] = useState(false)
 
   const [productData, setProductData] = useState([]);
+    const user = useSelector(state => state.user)
+  
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [totalPageCount, setTotalPageCount] = useState(1);
@@ -119,9 +121,12 @@ const fetchProductData = async () => {
             onChange={handleOnChange}
           />
         </div>
+        {user.role !== 'Inventory Manager' && (
+
       <div>
         <button onClick={()=>setOpenUploadProduct(true)} className='text-sm border border-primary-200 hover:bg-primary-200 px-3 py-1 rounded'>Add Product</button>
       </div>
+      )}
       </div>
       {
             openUploadProduct && (

@@ -1,0 +1,118 @@
+[
+    {
+      "name": "Meethu (Sweet) Chavanu",
+      "coverimage": "http://127.0.0.1:5000/uploads/p1.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/p1.1.jfif",
+        "http://127.0.0.1:5000/uploads/p1.2.jfif",
+        "http://127.0.0.1:5000/uploads/p1.3.jfif"
+      ],
+      "category": {
+        "$oid": "67c6e9948c33570cd472496e"
+      },
+      "description": "Meethu (Sweet) Chavanu",
+      "weightVariants": [
+        { "weight": "250g", "price": 70, "qty": 20, "discount": 5 },
+        { "weight": "500g", "price": 140, "qty": 15, "discount": 8 },
+        { "weight": "1Kg", "price": 280, "qty": 10, "discount": 10 }
+      ],
+      "publish": true,
+      "sku_code": "MC01",
+      "createdAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "Khatu Meethu Chavanu",
+      "coverimage": "http://127.0.0.1:5000/uploads/p2.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/p2.1.jfif",
+        "http://127.0.0.1:5000/uploads/p2.2.jfif",
+        "http://127.0.0.1:5000/uploads/p2.3.jfif"
+      ],
+      "category": {
+        "$oid": "67c6e9948c33570cd472496e"
+      },
+      "description": "Khatu Meethu Chavanu",
+      "weightVariants": [
+        { "weight": "250g", "price": 70, "qty": 25, "discount": 5 },
+        { "weight": "500g", "price": 140, "qty": 20, "discount": 8 },
+        { "weight": "1Kg", "price": 280, "qty": 15, "discount": 10 }
+      ],
+      "publish": true,
+      "sku_code": "KMC02",
+      "createdAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "Spicy Chavanu",
+      "coverimage": "http://127.0.0.1:5000/uploads/p3.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/p3.1.jfif",
+        "http://127.0.0.1:5000/uploads/p3.2.jfif",
+        "http://127.0.0.1:5000/uploads/p3.3.jfif"
+      ],
+      "category": {
+        "$oid": "67c6e9948c33570cd472496e"
+      },
+      "description": "Spicy Chavanu",
+      "weightVariants": [
+        { "weight": "250g", "price": 70, "qty": 30, "discount": 5 },
+        { "weight": "500g", "price": 140, "qty": 25, "discount": 8 },
+        { "weight": "1Kg", "price": 280, "qty": 20, "discount": 10 }
+      ],
+      "publish": true,
+      "sku_code": "SC03",
+      "createdAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "Indori Mix Chavanu",
+      "coverimage": "http://127.0.0.1:5000/uploads/p2.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/p2.1.jfif",
+        "http://127.0.0.1:5000/uploads/p2.2.jfif",
+        "http://127.0.0.1:5000/uploads/p2.3.jfif"
+      ],
+      "category": {
+        "$oid": "67c6e9948c33570cd472496e"
+      },
+      "description": "Indori Mix Chavanu",
+      "weightVariants": [
+        { "weight": "250g", "price": 70, "qty": 20, "discount": 5 },
+        { "weight": "500g", "price": 140, "qty": 18, "discount": 8 },
+        { "weight": "1Kg", "price": 280, "qty": 12, "discount": 10 }
+      ],
+      "publish": true,
+      "sku_code": "IMC04",
+      "createdAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "__v": 0
+    },
+    {
+      "name": "Sadi Dalmooth",
+      "coverimage": "http://127.0.0.1:5000/uploads/p3.jfif",
+      "image": [
+        "http://127.0.0.1:5000/uploads/p3.1.jfif",
+        "http://127.0.0.1:5000/uploads/p3.2.jfif",
+        "http://127.0.0.1:5000/uploads/p3.3.jfif"
+      ],
+      "category": {
+        "$oid": "67c6e9948c33570cd472496e"
+      },
+      "description": "Sadi Dalmooth",
+      "weightVariants": [
+        { "weight": "250g", "price": 100, "qty": 10, "discount": 5 },
+        { "weight": "500g", "price": 200, "qty": 8, "discount": 8 },
+        { "weight": "1Kg", "price": 400, "qty": 5, "discount": 10 }
+      ],
+      "publish": true,
+      "sku_code": "SD05",
+      "createdAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "updatedAt": { "$date": "2025-03-04T12:30:00.000Z" },
+      "__v": 0
+    }
+  ]
+  

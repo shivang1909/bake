@@ -359,10 +359,7 @@ const OrderListPage = () => {
       try {
         const response = await Axios(SummaryApi.getOrderItems);
         if (response.data.success) {
-          const filteredOrders = response.data.data.filter(order => 
-            order.orderStatus !== "Delivered" && // Exclude delivered orders
-            order.orderStatus !== "Cancelled"
-          );
+          const filteredOrders = response.data.data;
           setOrders(filteredOrders);
           initializeAssignedPartners(filteredOrders);
         }
@@ -474,8 +471,9 @@ const OrderListPage = () => {
   const handleSelectAll = (e) => {
     const isChecked = e.target.checked;
     const newSelection = {};
+    console.log(orders)
     orders.forEach(order => {
-      if (order.orderStatus !== "Delivered" && order.orderStatus !== "Out for Delivery") {
+      if (order.orderStatus !== "Out for Delivery") {
         newSelection[order.orderId] = isChecked;
       }
     });
@@ -487,10 +485,28 @@ const OrderListPage = () => {
       setError('Please select a delivery partner');
       return;
     }
+    console.log(selectedOrders)
 
-    const selectedOrderIds = Object.entries(selectedOrders)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([orderId]) => orderId);
+    let selectedOrderIds = [] ;  
+    let assignedIds = [];
+    orders
+        .forEach(order => {
+          if(selectedOrders[order.orderId])
+          {
+            if(order.deliveryPartnerId === null)
+            {
+              selectedOrderIds.push(order.orderId)// Update all matching orders
+            }
+            else if (order.deliveryPartnerId !== bulkPartner)
+            {
+              assignedIds.push(order.orderId)
+            }
+          }
+
+        });
+
+      console.log(assignedIds);
+      
 
     if (selectedOrderIds.length === 0) {
       setError('Please select at least one order');
@@ -500,20 +516,29 @@ const OrderListPage = () => {
     try {
       const response = await Axios.put('/api/order/bulk-assign-delivery-partner', {
         orderIds: selectedOrderIds,
+        assignedIds : assignedIds,
         partnerId: bulkPartner,
       });
 
       if (response.data.success) {
         // Update orders state
+        let updatedOrders=[];
+        console.log(" before updated Order:",updatedOrders);
+        
+        updatedOrders.push(...selectedOrderIds)
+        updatedOrders.push(...assignedIds)
+        console.log(" new updated Order:",updatedOrders);
         setOrders(prev => prev.map(order => 
-          selectedOrderIds.includes(order.orderId)
+          updatedOrders.includes(order.orderId)
             ? { ...order, deliveryPartnerId: bulkPartner, orderStatus: "Assigned" }
             : order
         ));
+        // console.log("middle updated Order:",updatedOrders);
+
 
         // Update assigned partners state
         const newAssignments = {};
-        selectedOrderIds.forEach(orderId => {
+        updatedOrders.forEach(orderId => {
           newAssignments[orderId] = {
             partnerId: bulkPartner,
             isDisabled: true,
@@ -524,6 +549,7 @@ const OrderListPage = () => {
           ...prev,
           ...newAssignments
         }));
+        console.log("after state chage updated Order:",updatedOrders);
 
         // Clear selections
         setSelectedOrders({});
@@ -761,7 +787,7 @@ const OrderListPage = () => {
           </tbody> */}
           <thead>
   <tr className="bg-gray-200">
-    {!filteredOrders.every(order => order.orderStatus === "Delivered" || order.orderStatus === "Out for Delivery") && (
+    {!filteredOrders.every(order =>  order.orderStatus === "Out for Delivery") && (
       <th className="border p-2">
         <input
           type="checkbox"

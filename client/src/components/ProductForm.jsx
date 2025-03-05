@@ -19,7 +19,7 @@ const ProductForm = ({close, isEdit = false, updatedata}) => {
   console.log(updatedata);
   
   const usedispatch = useDispatch();
-  
+    const user = useSelector(state => state.user)
   const allProduct = useSelector(state => state.product.Allproduct);
   const allCategory = useSelector(state => state.product.allCategory)
   
@@ -437,154 +437,167 @@ const updatedproducts = allProduct.map((product) =>
         <div className='grid p-3'>
           <form className='grid gap-4' method='post' onSubmit={handleSubmit} encType='multipart/form-data'>
             
-            {/* Name Section */}
-            <div className='grid gap-1'>
-              <label htmlFor='name' className='font-medium'>Name</label>
-              <input
-                id='name'
-                type='text'
-                placeholder='Enter product name'
-                name='name'
-                value={data.name}
-                onChange={handleChange}
-                required
-                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
-              />
-            </div>
-  
-            {/* Description Section */}
-            <div className='grid gap-1'>
-              <label htmlFor='description' className='font-medium'>Description</label>
-              <textarea
-                id='description'
-                type='text'
-                placeholder='Enter product description'
-                name='description'
-                value={data.description}
-                onChange={handleChange}
-                required
-                rows={3}
-                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none'
-              />
-            </div>
-  
-            {/* SKU Code Section */}
-            <div className='grid gap-1'>
-              <label htmlFor='sku_code' className='font-medium'>Enter SKU code</label>
-              <input
-                id='sku_code'
-                type='text'
-                placeholder='Enter SKU code'
-                name='sku_code'
-                value={data.sku_code}
-                onChange={handleChange}
-                required
-                className='bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded'
-              />
-            </div>
-  
-            {/* Cover Image Section */}
-            <div>
-              
-              <p className='font-medium'>Cover Image</p>
-              <div>
-                <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
-                  <div className='text-center flex justify-center items-center flex-col'>
-                    
-                        <FaCloudUploadAlt size={35} />
-                        <p>Upload Cover Image</p>
+           {/* Name Section */}
+<div className='grid gap-1'>
+  <label htmlFor='name' className='font-medium'>Name</label>
+  <input
+    id='name'
+    type='text'
+    placeholder='Enter product name'
+    name='name'
+    value={data.name}
+    onChange={handleChange}
+    required
+    disabled={user.role === 'Inventory Manager'} // Disable for Inventory Manager
+    className={`bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded ${
+      user.role === 'Inventory Manager' ? 'cursor-not-allowed opacity-80' : ''
+    }`}
+  />
+</div>
 
-                  </div>
-                  <input
-                    type='file'
-                    name="CoverImage"
-                    id='CoverImage'
-                    className='hidden'
-                    accept='image/*'
-                    onChange={handleUploadCoverImage}
-                  />
-                </label>
-                <div className="flex flex-wrap gap-4">
-                  {coverimaepreview ? (
-                    <div key={coverimaepreview} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
-                      <img
-                        src={coverimaepreview}
-                        alt="Preview"
-                        className="w-full h-full object-scale-down cursor-pointer"
-                        onClick={() => setViewImageURL(coverimaepreview)}
-                      />
-                    </div>
-                  ) : (
-                    <p>No images to display</p>
-                  )}
-                </div>
-              </div>
-            </div>
   
-            {/* Product Image Section */}
-            <div>
-              <p className='font-medium'>Image</p>
-              <div>
-                <label htmlFor='productImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
-                  <div className='text-center flex justify-center items-center flex-col'>
-                    
-                        <FaCloudUploadAlt size={35} />
-                        <p>Upload Image</p>
-                      
-                  </div>
-                  <input
-                    ref={file1}
-                    type='file'
-                    name="image"
-                    id='productImage'
-                    className='hidden'
-                    accept='image/*'
-                    multiple
-                    onChange={handleUploadImage}
-                  />
-                </label>
-                <div className="flex flex-wrap gap-4">
-                  {imagePreview && imagePreview.length > 0 ? (
-                    imagePreview.map((image, index) => (
-                      <div key={image + index} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
-                        <img
-                          src={image}
-                          alt={`Preview ${index}`}
-                          className="w-full h-full object-scale-down cursor-pointer"
-                          onClick={() => setViewImageURL(image)}
-                        />
-                        <div
-                          onClick={() => handleDeleteImage(index)}
-                          className="absolute bottom-0 right-0 p-1 bg-red-600 hover:bg-red-600 rounded text-white hidden group-hover:block cursor-pointer"
-                        >
-                          <MdDelete />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No images to display</p>
-                  )}
-                </div>
+         {/* Description Section */}
+<div className='grid gap-1'>
+  <label htmlFor='description' className='font-medium'>Description</label>
+  <textarea
+    id='description'
+    type='text'
+    placeholder='Enter product description'
+    name='description'
+    value={data.description}
+    onChange={handleChange}
+    required
+    rows={3}
+    disabled={user.role === 'Inventory Manager'} // Disable for Inventory Manager
+    className={`bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded resize-none ${
+      user.role === 'Inventory Manager' ? 'cursor-not-allowed opacity-50' : ''
+    }`}
+  />
+</div>
+
+{/* SKU Code Section */}
+<div className='grid gap-1'>
+  <label htmlFor='sku_code' className='font-medium'>Enter SKU code</label>
+  <input
+    id='sku_code'
+    type='text'
+    placeholder='Enter SKU code'
+    name='sku_code'
+    value={data.sku_code}
+    onChange={handleChange}
+    required
+    disabled={user.role === 'Inventory Manager'} // Disable for Inventory Manager
+    className={`bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded ${
+      user.role === 'Inventory Manager' ? 'cursor-not-allowed opacity-50' : ''
+    }`}
+  />
+</div>
+
+  
+         {/* Cover Image Section */}
+<div>
+  <p className='font-medium'>Cover Image</p>
+  <div>
+    {user.role !== 'Inventory Manager' && ( // Hide for Inventory Manager
+      <label htmlFor='CoverImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
+        <div className='text-center flex justify-center items-center flex-col'>
+          <FaCloudUploadAlt size={35} />
+          <p>Upload Cover Image</p>
+        </div>
+        <input
+          type='file'
+          name="CoverImage"
+          id='CoverImage'
+          className='hidden'
+          accept='image/*'
+          onChange={handleUploadCoverImage}
+        />
+      </label>
+    )}
+    <div className="flex flex-wrap gap-4">
+      {coverimaepreview ? (
+        <div key={coverimaepreview} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
+          <img
+            src={coverimaepreview}
+            alt="Preview"
+            className="w-full h-full object-scale-down cursor-pointer"
+            onClick={() => setViewImageURL(coverimaepreview)}
+          />
+        </div>
+      ) : (
+        <p>No images to display</p>
+      )}
+    </div>
+  </div>
+</div>
+
+{/* Product Image Section */}
+<div>
+  <p className='font-medium'>Image</p>
+  <div>
+    {user.role !== 'Inventory Manager' && ( // Hide for Inventory Manager
+      <label htmlFor='productImage' className='bg-blue-50 h-24 border rounded flex justify-center items-center cursor-pointer'>
+        <div className='text-center flex justify-center items-center flex-col'>
+          <FaCloudUploadAlt size={35} />
+          <p>Upload Image</p>
+        </div>
+        <input
+          ref={file1}
+          type='file'
+          name="image"
+          id='productImage'
+          className='hidden'
+          accept='image/*'
+          multiple
+          onChange={handleUploadImage}
+        />
+      </label>
+    )}
+    <div className="flex flex-wrap gap-4">
+      {imagePreview && imagePreview.length > 0 ? (
+        imagePreview.map((image, index) => (
+          <div key={image + index} className="h-20 mt-1 w-20 min-w-20 bg-blue-50 border relative group">
+            <img
+              src={image}
+              alt={`Preview ${index}`}
+              className="w-full h-full object-scale-down cursor-pointer"
+              onClick={() => setViewImageURL(image)}
+            />
+            {user.role !== 'Inventory Manager' && ( // Hide delete option for Inventory Manager
+              <div
+                onClick={() => handleDeleteImage(index)}
+                className="absolute bottom-0 right-0 p-1 bg-red-600 hover:bg-red-600 rounded text-white hidden group-hover:block cursor-pointer"
+              >
+                <MdDelete />
               </div>
-            </div>
-    
+            )}
+          </div>
+        ))
+      ) : (
+        <p>No images to display</p>
+      )}
+    </div>
+  </div>
+</div>
 
 <div className="grid gap-1">
   <label className="font-medium">Category</label>
   <div>
-
     {console.log(data.category)}
     {console.log(data.category._id)}
     {console.log(selectedCategory)}
-    
-<CategorySelect
-  selectedCategory={selectedCategory}
-  allCategory={allCategory}
-  handleCategoryChange={handleCategoryChange}
-  data={data}
-  isEdit={isEdit}
-/>
-  
+
+    {user.role !== 'Inventory Manager' ? (
+      <CategorySelect
+        selectedCategory={selectedCategory}
+        allCategory={allCategory}
+        handleCategoryChange={handleCategoryChange}
+        data={data}
+        isEdit={isEdit}
+      />
+    ) : (
+      <p className="bg-gray-100 p-2 rounded">{data.category?.name || 'No Category'}</p>
+    )}
   </div>
 </div>
 
@@ -695,9 +708,15 @@ const updatedproducts = allProduct.map((product) =>
               </div>
             ))}
   
-            <div onClick={() => setOpenAddField(true)} className='bg-white py-1 px-3 w-32 text-center font-semibold border border-primary-200 hover:text-neutral-900 cursor-pointer rounded'>
-              Add Fields
-            </div>
+  {user.role !== 'Inventory Manager' && (
+  <div
+    onClick={() => setOpenAddField(true)}
+    className="bg-white py-1 px-3 w-32 text-center font-semibold border border-primary-200 hover:text-neutral-900 cursor-pointer rounded"
+  >
+    Add Fields
+  </div>
+)}
+
   
             {/* Submit Button */}
             <button className='bg-primary-100 hover:bg-primary-200 py-2 rounded font-semibold'>

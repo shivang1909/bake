@@ -230,7 +230,7 @@ import PromocodeModel from "../models/promocode.model.js";
 import nodemailer from 'nodemailer';
 
 
-import { sendOrderDeliveredEmail } from "../utils/emailService.js";
+import { sendOrderDeliveredEmail,sendOrderConfirmationEmail,sendOrderReassignedEmail,sendBulkOrderAssignedEmail, sendOutForDeliveryEmail,sendNewOrderNotificationEmail,sendOrderAssignedEmail } from "../utils/emailService.js";
 
 
 // ssehandler function 
@@ -311,139 +311,320 @@ async function  GetOlddeliverypartner(oid)
 
 }
 /** Assign a Delivery Partner to an Order */
+// export async function assignDeliveryPartnerController(request, response) {
+//     try {
+//         // const { orderId, deliveryPartnerId } = request.body;
+//         const orderId =request.body.orderId;
+//         const deliveryPartnerId = request.body.partnerId;
+//         // console.log("this is is the order id",orderid);
+//          const preid =  await GetOlddeliverypartner(orderId);
+//         // Validate request
+//         if (!orderId || !deliveryPartnerId) {
+//             console.log(orderId);
+            
+//             return response.status(400).json({
+//                 message: "Order ID and Delivery Partner ID are required",
+//                 error: true,
+//                 success: false
+//             });
+//         }
+//         // Update order with assigned delivery partner
+//         const updatedOrder = await OrderModel.findOneAndUpdate(
+//             { orderId },
+//             { deliveryPartnerId, orderStatus: "Assigned" ,orderAssignedDatetime: new Date()},
+//             { new: true }
+//         ).populate("delivery_address");
+//         if (!updatedOrder) {
+//             console.log("Order not found in DB with orderId:", orderId);
+//             return response.status(404).json({
+//                 message: "Order not found",
+//                 error: true,
+//                 success: false
+//             });
+//         }
+
+//         // ✅ Fetch Delivery Partner Email
+//         const deliveryPartner = await AdminModel.findById(deliveryPartnerId, { email: 1 });
+
+//         if (deliveryPartner && deliveryPartner.email) {
+//             // console.log("new delivery");
+            
+//             await sendOrderAssignedEmail(deliveryPartner.email, updatedOrder);
+//             console.log("📧 Email sent to delivery partner:", deliveryPartner.email);
+//         } else {
+//             // console.log("new delivery erroororoo");
+//             console.log("❌ Delivery partner email not found.");
+//         }
+
+
+//         notifyClients(
+//             preid,
+//             {
+//                 updatedOrder
+//             },false
+//         );
+//         return response.json({
+//             message: "Delivery partner assigned successfully",
+//             error: false,
+//             success: true,
+//             data: updatedOrder
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         return response.status(500).json({
+//             message: error.message || error,
+//             error: true,
+//             success: false
+//         });
+//     }
+// }
 export async function assignDeliveryPartnerController(request, response) {
     try {
-        // const { orderId, deliveryPartnerId } = request.body;
-        const orderId =request.body.orderId;
-        const deliveryPartnerId = request.body.partnerId;
-        // console.log("this is is the order id",orderid);
-         const preid =  await GetOlddeliverypartner(orderId);
+        const { orderId, partnerId: newDeliveryPartnerId } = request.body;
+        
         // Validate request
-        if (!orderId || !deliveryPartnerId) {
-            console.log(orderId);
-            
+        if (!orderId || !newDeliveryPartnerId) {
             return response.status(400).json({
                 message: "Order ID and Delivery Partner ID are required",
                 error: true,
                 success: false
             });
         }
-        // Update order with assigned delivery partner
-        const updatedOrder = await OrderModel.findOneAndUpdate(
-            { orderId },
-            { deliveryPartnerId, orderStatus: "Assigned" ,orderAssignedDatetime: new Date()},
-            { new: true }
-        ).populate("delivery_address");
-        if (!updatedOrder) {
-            console.log("Order not found in DB with orderId:", orderId);
+
+        // Fetch the existing order
+        const existingOrder = await OrderModel.findOne({ orderId }).populate("delivery_address");
+        if (!existingOrder) {
             return response.status(404).json({
                 message: "Order not found",
                 error: true,
                 success: false
             });
         }
-        notifyClients(
-            preid,
-            {
 
-                updatedOrder
-            },false
-        );
+        // Store the old delivery partner ID before update
+        const oldDeliveryPartnerId = existingOrder.deliveryPartnerId;
+        
+        // Check if the order is already assigned
+        // if (existingOrder.orderStatus === "Assigned" && oldDeliveryPartnerId) {
+        //     // Fetch the old delivery partner email
+        //     const oldDeliveryPartner = await AdminModel.findById(oldDeliveryPartnerId, { email: 1 });
+        //         console.log("📧 Sorry email sent to old delivery partner:", oldDeliveryPartner.email);
+                
+        //     if (oldDeliveryPartner && oldDeliveryPartner.email) {
+        //         await sendOrderReassignedEmail(oldDeliveryPartner.email, existingOrder);
+        //         console.log("📧 Sorry email sent to old delivery partner:", oldDeliveryPartner.email);
+        //     }
+        // }
+        if (existingOrder.orderStatus === "Assigned" && existingOrder.deliveryPartnerId) {
+            const oldDeliveryPartner = await AdminModel.findById(existingOrder.deliveryPartnerId, { email: 1 });
+        
+            if (oldDeliveryPartner && oldDeliveryPartner.email) {
+                await sendOrderReassignedEmail(oldDeliveryPartner.email, [existingOrder]); // Send as an array
+            }
+        }
+        
+
+
+        // Update order with the new delivery partner
+        existingOrder.deliveryPartnerId = newDeliveryPartnerId;
+        existingOrder.orderStatus = "Assigned";
+        existingOrder.orderAssignedDatetime = new Date();
+        await existingOrder.save();
+
+        // Fetch new delivery partner email
+        const newDeliveryPartner = await AdminModel.findById(newDeliveryPartnerId, { email: 1 });
+        if (newDeliveryPartner && newDeliveryPartner.email) {
+            await sendOrderAssignedEmail(newDeliveryPartner.email, existingOrder);
+            console.log("📧 Email sent to new delivery partner:", newDeliveryPartner.email);
+        }
+
         return response.json({
             message: "Delivery partner assigned successfully",
             error: false,
             success: true,
-            data: updatedOrder
+            data: existingOrder
         });
     } catch (error) {
-        console.log(error);
+        console.error("Error in assigning delivery partner:", error);
         return response.status(500).json({
-            message: error.message || error,
+            message: error.message || "Internal Server Error",
             error: true,
             success: false
         });
     }
 }
 
+
 /** Assign a Delivery Partner to Multiple Orders */
+// export async function assignBulkDeliveryPartnerController(request, response) {
+//     try {
+//         const { orderIds, partnerId } = request.body;
+        
+//         if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0 || !partnerId) {
+//             return response.status(400).json({
+//                 message: "Order IDs array and Partner ID are required",
+//                 error: true,
+//                 success: false
+//             });
+//         }
+
+//         const preUpdateInfo = await Promise.all(
+//             orderIds.map(async (orderId) => {
+//                 const oldPartner = await GetOlddeliverypartner(orderId);
+//                 return { orderId, oldPartnerId: oldPartner };
+//             })
+//         );
+
+//         const bulkUpdatePromises = orderIds.map(orderId => 
+//             OrderModel.findOneAndUpdate(
+//                 { orderId },
+//                 { 
+//                     deliveryPartnerId: partnerId, 
+//                     orderStatus: "Assigned",
+//                     orderAssignedDatetime: new Date()
+//                 },
+//                 { new: true }
+//             ).populate("delivery_address")
+//         );
+
+//         const updatedOrders = await Promise.all(bulkUpdatePromises);
+//         const successfulUpdates = updatedOrders.filter(order => order !== null);
+//         const failedOrderIds = orderIds.filter(orderId => 
+//             !successfulUpdates.find(order => order.orderId === orderId)
+//         );
+
+//         preUpdateInfo.forEach(({ orderId, oldPartnerId }) => {
+//             const updatedOrder = successfulUpdates.find(order => order.orderId === orderId);
+//             if (updatedOrder) {
+//                 notifyClients(
+//                     oldPartnerId,
+//                     { updatedOrder },
+//                     false
+//                 );
+//             }
+//         });
+
+//         const deliveryPartner = await AdminModel.findById(partnerId, { email: 1 });
+        
+//         if (deliveryPartner && deliveryPartner.email) {
+//             if (successfulUpdates.length > 0) {
+//                 console.log("📧 Email sent to delivery partner:", deliveryPartner.email);
+//                 await sendBulkOrderAssignedEmail(deliveryPartner.email, successfulUpdates);
+//             }
+//         } else {
+//             console.log("❌ Delivery partner email not found.");
+//         }
+
+//         if (successfulUpdates.length === 0) {
+//             return response.status(404).json({
+//                 message: "No orders were found or updated",
+//                 error: true,
+//                 success: false
+//             });
+//         }
+
+//         return response.json({
+//             message: `Successfully updated ${successfulUpdates.length} orders`,
+//             error: false,
+//             success: true,
+//             data: {
+//                 updatedOrders: successfulUpdates,
+//                 failedOrderIds: failedOrderIds,
+//                 totalProcessed: orderIds.length,
+//                 successfulUpdates: successfulUpdates.length,
+//                 failedUpdates: failedOrderIds.length
+//             }
+//         });
+//     } catch (error) {
+//         console.error("Bulk assignment error:", error);
+//         return response.status(500).json({
+//             message: error.message || "Internal server error during bulk assignment",
+//             error: true,
+//             success: false
+//         });
+//     }
+// }
+
+
 export async function assignBulkDeliveryPartnerController(request, response) {
     try {
-        const { orderIds, partnerId } = request.body;
+        const { orderIds, partnerId, assignedIds } = request.body;
+
+        console.log("order", orderIds);
+        console.log("assign", assignedIds);
         
-        // Validate request
-        if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0 || !partnerId) {
-            return response.status(400).json({
-                message: "Order IDs array and Partner ID are required",
-                error: true,
-                success: false
-            });
+        let newOrders = [];
+        
+        // Update orders in bulk
+        if (orderIds.length > 0) {
+            // Use Promise.all to ensure all updates complete before moving forward
+            newOrders = await Promise.all(orderIds.map(async (orderId) => {
+                let order = await OrderModel.findOneAndUpdate(
+                    { orderId },
+                    {
+                        deliveryPartnerId: partnerId,
+                        orderStatus: "Assigned",
+                        orderAssignedDatetime: new Date()
+                    } // Ensure updated document is returned
+                ).populate("delivery_address").exec(); // Ensure populate works
+        
+                return order; // Return updated order for Promise.all
+            }));
         }
-
-        // Store pre-update delivery partner IDs for notifications
-        const preUpdateInfo = await Promise.all(
-            orderIds.map(async (orderId) => {
-                const oldPartner = await GetOlddeliverypartner(orderId);
-                return { orderId, oldPartnerId: oldPartner };
-            })
-        );
-
-        // Update all orders with the assigned delivery partner
-        const bulkUpdatePromises = orderIds.map(orderId => 
-            OrderModel.findOneAndUpdate(
+        
+        console.log("newOrder", newOrders);
+        
+        let oldDetails = {};
+        
+        // Send reassignment emails to old delivery partners
+        for (const orderId of assignedIds) {
+            const oldOrder = await OrderModel.findOneAndUpdate(
                 { orderId },
-                { 
-                    deliveryPartnerId: partnerId, 
+                {
+                    deliveryPartnerId: partnerId,
                     orderStatus: "Assigned",
                     orderAssignedDatetime: new Date()
-                },
-                { new: true }
-            )
-        );
-
-        const updatedOrders = await Promise.all(bulkUpdatePromises);
-
-        // Filter out any null results (orders not found)
-        const successfulUpdates = updatedOrders.filter(order => order !== null);
-        const failedOrderIds = orderIds.filter(orderId => 
-            !successfulUpdates.find(order => order.orderId === orderId)
-        );
-
-        // Send notifications for each successfully updated order
-        preUpdateInfo.forEach(({ orderId, oldPartnerId }) => {
-            const updatedOrder = successfulUpdates.find(order => order.orderId === orderId);
-            if (updatedOrder) {
-                notifyClients(
-                    oldPartnerId,
-                    {
-                        updatedOrder
-                    },
-                    false
-                );
-            }
-        });
-
-        // Prepare response
-        if (successfulUpdates.length === 0) {
-            return response.status(404).json({
-                message: "No orders were found or updated",
-                error: true,
-                success: false
-            });
+                } // Ensure updated document is returned
+            ).populate("delivery_address").exec(); // Ensure populate works
+        
+          
+                const deliveryPartner = await AdminModel.findById(oldOrder.deliveryPartnerId, { email: 1 });
+        
+                if (deliveryPartner && deliveryPartner.email) {
+                    if (!oldDetails[deliveryPartner.email]) {
+                        oldDetails[deliveryPartner.email] = []; // Initialize as an array
+                    }
+                    oldDetails[deliveryPartner.email].push(oldOrder);
+                }
         }
-
+        
+        console.log("oldDetails", oldDetails);
+        
+        // Send reassignment emails
+        for (const [email, orders] of Object.entries(oldDetails)) {
+            await sendOrderReassignedEmail(email, orders);
+            newOrders.push(...orders);
+        }
+        
+        console.log("newOrder2", newOrders);
+        
+        // Notify the new delivery partner about the assignment
+        const deliveryPartner = await AdminModel.findById(partnerId, { email: 1 });
+        
+        if (deliveryPartner && deliveryPartner.email && newOrders.length > 0) {
+            console.log("📧 Email sent to new delivery partner:", deliveryPartner.email);
+            await sendBulkOrderAssignedEmail(deliveryPartner.email, newOrders);
+        } else {
+            console.log("❌ New delivery partner email not found.");
+        }
+        
+        // Return response
         return response.json({
-            message: `Successfully updated ${successfulUpdates.length} orders`,
+            message: `Successfully updated orders`,
             error: false,
-            success: true,
-            data: {
-                updatedOrders: successfulUpdates,
-                failedOrderIds: failedOrderIds,
-                totalProcessed: orderIds.length,
-                successfulUpdates: successfulUpdates.length,
-                failedUpdates: failedOrderIds.length
-            }
+            success: true
         });
-
+        
     } catch (error) {
         console.error("Bulk assignment error:", error);
         return response.status(500).json({
@@ -453,7 +634,6 @@ export async function assignBulkDeliveryPartnerController(request, response) {
         });
     }
 }
-
 
 
 // ===============Working Code ==============================
@@ -626,6 +806,27 @@ export async function CashOnDeliveryOrderController(request, response) {
         // Remove items from cart after placing order
         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
         
+        // ================= mail notification code =================
+         // Fetch user details for email
+         const user = await UserModel.findById(userId);
+         console.log("user",user);
+         console.log("user email",user.email);
+         
+         const adminEmail = process.env.ADMIN_EMAIL; // Admin email from env
+ 
+         // Send confirmation email to customer
+         if (user && user.email) {
+            console.log("helooo user");
+            
+             await sendOrderConfirmationEmail(user.email, generatedOrder);
+         } 
+ 
+         // Send new order notification to admin
+         if (adminEmail) {
+            console.log("helooo admin"); 
+             await sendNewOrderNotificationEmail(adminEmail, generatedOrder);
+         }
+
         return response.json({
             message: "Order placed successfully",
             error: false,
@@ -641,198 +842,6 @@ export async function CashOnDeliveryOrderController(request, response) {
         });
     }
 }
-
-
-
-// update order status to Assigned ---> Out For delivery ---> Deliverd 
-// update payment status also Pending ---> Paid
-// export async function updateOrderStatusController(request, response) {
-//     try {
-//       const { orderId, status, paymentStatus } = request.body;
-//         console.log(paymentStatus);
-        
-//       // Validate input data
-//       if (!orderId || !status) {
-//         return response.status(400).json({
-//           message: "Order ID and new status are required",
-//           error: true,
-//           success: false,
-//         });
-//       }
-  
-//       // Fetch the order by orderId
-//       const order = await OrderModel.findOne({ orderId });
-//       if (!order) {
-//         return response.status(404).json({
-//           message: "Order not found",
-//           error: true,
-//           success: false,
-//         });
-//       }
-  
-//      // If paymentStatus is "Paid," update it
-//      if (paymentStatus === "Paid") {
-//         order.payment_status = "Paid";
-//         // Save the updated order
-//         await order.save();
-//       }
-
-//       // If the status is being changed to "Delivered", check the payment status
-//       if (status === "Delivered") {
-//         if (order.payment_status === "Pending") {
-//           // If payment is pending, open modal for payment
-//           return response.status(400).json({
-//             message: "Payment is pending. Please update the payment status before delivering the order.",
-//             error: true,
-//             success: false,
-//             paymentRequired: true, // Indicating the frontend should open a payment modal
-//           });
-//         }
-  
-//         // If payment is already received, update the order status
-//         if (order.payment_status === "Paid") {            
-//           // Update order status to delivered
-//           const updateData = { orderStatus: "Delivered" };
-          
-//           // Set the orderDeliveredDatetime if not already set
-//           if (!order.orderDeliveredDatetime) {
-//             updateData.orderDeliveredDatetime = new Date();
-//           }
-//           const updatedOrder = await OrderModel.findOneAndUpdate(
-//             { orderId },
-//             updateData,
-//             { new: true }
-//           );
-  
-//           if (!updatedOrder) {            
-//             return response.status(404).json({
-//               message: "Failed to update the order status",
-//               error: true,
-//               success: false,
-//             });
-//           }
-  
-//           // Notify clients that the order status has been updated
-
-//           return response.json({
-    //             message: "Order status updated to 'Delivered' successfully",
-    //             error: false,
-    //             success: true,
-    //             data: updatedOrder,
-//           });
-//         }
-//       }
-  
-//       // If the status is not "Delivered", update the order status normally
-//       const updateData = { orderStatus: status };
-  
-//       const updatedOrder = await OrderModel.findOneAndUpdate(
-//         { orderId },
-//         updateData,
-//         { new: true }
-//       );
-
-//       if (!updatedOrder) {
-    //         return response.status(404).json({
-        //           message: "Order not found",
-        //           error: true,
-        //           success: false,
-        //         });
-        //       }
-        
-        //       notifyClients("", updatedOrder, true);
-  
-//       return response.json({
-//         message: "Order status updated successfully",
-//         error: false,
-//         success: true,
-//         data: updatedOrder,
-//       });
-//     } catch (error) {
-//       console.error("Error updating order status:", error);
-//       return response.status(500).json({
-    //         message: error.message || "Internal Server Error",
-    //         error: true,
-//         success: false,
-//       });
-//     }
-//   }
-  
-
-// export const updateOrderStatusController = async (request, response) => {
-//     try {
-//         const { orderId, status, isPaymentDone } = request.body;
-
-//         console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
-
-//         // Fetch order from database
-//         let order = await OrderModel.findOne({ orderId });
-
-//         if (!order) {
-//             console.log("❌ Order not found.");
-//             return response.status(404).json({
-//                 message: "Order not found",
-//                 error: true,
-//                 success: false,
-//             });
-//         }
-
-//         // ✅ Update payment status before checking order status
-//         if (isPaymentDone === true && !order.isPaymentDone) {
-//             console.log("💰 Updating payment status for order...");
-//             order.isPaymentDone = true;
-//             await order.save();
-//             console.log("✅ Payment status updated successfully.");
-//         }
-
-//         // ✅ Now check if order can be marked as Delivered
-//         if (status === "Delivered") {
-//             console.log("🚚 Attempting to deliver order... Checking payment status.");
-
-//             if (!order.isPaymentDone) {
-//                 console.log("❌ Payment pending. Cannot mark order as Delivered.");
-//                 return response.status(400).json({
-//                     message: "Payment is pending. Please update the payment status before delivering the order.",
-//                     error: true,
-//                     success: false,
-//                     paymentModalRequired: true,
-//                 });
-//             }
-
-//             console.log("✅ Payment is done. Proceeding to mark order as Delivered.");
-//             order.orderStatus = "Delivered";
-//             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
-//             await order.save();
-
-//             console.log("✅ Order successfully marked as Delivered:", order);
-//             return response.json({
-//                 message: "Order status updated to 'Delivered' successfully",
-//                 error: false,
-//                 success: true,
-//                 data: order,
-//             });
-//         }
-
-//         // ✅ Handle other status updates if necessary
-//         order.orderStatus = status;
-//         await order.save();
-//         console.log("✅ Order status updated successfully:", order);
-
-//         return response.json({
-//             message: "Order status updated successfully",
-//             error: false,
-//             success: true,
-//             data: order,
-//         });
-//     } catch (error) {
-//         console.error("❌ Error updating order status:", error);
-//         return response.status(500).json({
-//             message: "Internal server error",
-//             error: true,
-//             success: false,
-//         });
-//     }
-// };
 
 
 export const updateOrderStatusController = async (request, response) => {
@@ -861,6 +870,20 @@ export const updateOrderStatusController = async (request, response) => {
             console.log("✅ Payment status updated successfully.");
         }
 
+        // ✅ Check if the order is being updated to "Out for Delivery"
+        if (status === "Out for Delivery") {
+            console.log("🚚 Order is now Out for Delivery. Sending email notification...");
+
+            const user = await UserModel.findById(order.userId, { email: 1 });
+
+            if (user && user.email) {
+                await sendOutForDeliveryEmail(user.email, order);
+                console.log("📧 Out for Delivery email sent to:", user.email);
+            } else {
+                console.log("❌ Unable to send email. User email not found.");
+            }
+        }
+
         // ✅ Now check if order can be marked as Delivered
         if (status === "Delivered") {
             console.log("🚚 Attempting to deliver order... Checking payment status.");
@@ -883,12 +906,13 @@ export const updateOrderStatusController = async (request, response) => {
             notifyClients("", order, isadmin);
 
             console.log("✅ Order successfully marked as Delivered:", order);
+            const userEmail= await UserModel.findById(order.userId,{email:1})
+             console.log("email",userEmail);
 
+            await sendOrderDeliveredEmail(userEmail, order);
             // ✅ Send Email Notification to Customer
-             // ✅ Send order delivered email to the customer
-            //  console.log("email",order);
+            //  ✅ Send order delivered email to the customer
              
-            //  await sendOrderDeliveredEmail(order.customerEmail, order);
             // await sendOrderDeliveredEmail(order);
 
             return response.json({
@@ -1392,7 +1416,7 @@ export async function getOrderDetailsController(request, response) {
 
 export async function getUserDeliverdOrderController(req, res) {
     try {
-        const userId = req.userId; // Assuming user ID is extracted from the auth middleware
+        const userId = req.userId; //  uming user ID is extracted from the auth middleware
 
         // Fetch delivered orders for the specific user
         const deliveredOrders = await OrderModel.find({ userId: userId });
