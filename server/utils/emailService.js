@@ -67,7 +67,59 @@ export const sendOrderConfirmationEmail = async (customerEmail, order) => {
 };
 
 // Mail for "Out for Delivery" Notification to USER
-export const sendOutForDeliveryEmail = async (customerEmail, order) => {
+// export const sendOutForDeliveryEmail = async (customerEmail, order) => {
+//     try {
+//         const deliveryDate = new Date().toLocaleString("en-IN", {
+//             year: "numeric", month: "long", day: "numeric",
+//             hour: "2-digit", minute: "2-digit", hour12: true
+//         });
+
+//         const productTable = order.products.map(item =>
+//             item.variantPrices.map(variant => `
+//                 <tr>
+//                     <td style="border: 1px solid #ddd; padding: 8px;">${item.itemname || "Unknown"}</td>
+//                     <td style="border: 1px solid #ddd; padding: 8px;">${variant.weight || "N/A"}</td>
+//                     <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${variant.quantity || 0}</td>
+//                 </tr>
+//             `).join("")
+//         ).join("");
+
+//         const userOrderList = `${process.env.FRONTEND_URL}/dashboard/myorders`;
+
+//         const mailOptions = {
+//             from: process.env.EMAIL,
+//             to: customerEmail,
+//             subject: "🚚 Your Order is Out for Delivery!",
+//             html: `
+//                 <h3>Your order is on the way! 🚀</h3>
+//                 <p>Your order <strong>#${order.orderId}</strong> is now out for delivery as of ${deliveryDate}.</p>
+//                 <p>Here’s a summary of your order:</p>
+//                 <table style="border-collapse: collapse; width: 100%;">
+//                     <thead>
+//                         <tr style="background-color: #f2f2f2;">
+//                             <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
+//                             <th style="border: 1px solid #ddd; padding: 8px;">Weight</th>
+//                             <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+//                         </tr>
+//                     </thead>
+//                     <tbody>${productTable}</tbody>
+//                 </table>
+//                 <p><strong>Expected Delivery: Within a few hours</strong></p>
+//                 <p>Track your order or contact support:
+//                     <a href="${userOrderList}" target="_blank" style="color: blue; text-decoration: underline;">
+//                         Click here
+//                     </a>
+//                 </p>
+//             `,
+//         };
+
+//         await transporter.sendMail(mailOptions);
+//         console.log("📧 Out for delivery email sent to:", customerEmail);
+//     } catch (error) {
+//         console.error("❌ Error sending out for delivery email:", error.message);
+//     }
+// };
+export const sendOutForDeliveryEmail = async (customerEmail, order, otp) => {
     try {
         const deliveryDate = new Date().toLocaleString("en-IN", {
             year: "numeric", month: "long", day: "numeric",
@@ -84,12 +136,10 @@ export const sendOutForDeliveryEmail = async (customerEmail, order) => {
             `).join("")
         ).join("");
 
-        const userOrderList = `${process.env.FRONTEND_URL}/dashboard/myorders`;
-
         const mailOptions = {
             from: process.env.EMAIL,
             to: customerEmail,
-            subject: "🚚 Your Order is Out for Delivery!",
+            subject: "🚚 Your Order is Out for Delivery! (OTP Inside)",
             html: `
                 <h3>Your order is on the way! 🚀</h3>
                 <p>Your order <strong>#${order.orderId}</strong> is now out for delivery as of ${deliveryDate}.</p>
@@ -104,21 +154,19 @@ export const sendOutForDeliveryEmail = async (customerEmail, order) => {
                     </thead>
                     <tbody>${productTable}</tbody>
                 </table>
-                <p><strong>Expected Delivery: Within a few hours</strong></p>
-                <p>Track your order or contact support:
-                    <a href="${userOrderList}" target="_blank" style="color: blue; text-decoration: underline;">
-                        Click here
-                    </a>
-                </p>
+                <p><strong>Your OTP for Payment Confirmation: <span style="color: red;">${otp}</span></strong></p>
+                <p>Please enter this OTP to confirm your payment before receiving the order.</p>
             `,
         };
 
         await transporter.sendMail(mailOptions);
-        console.log("📧 Out for delivery email sent to:", customerEmail);
+        console.log("📧 OTP email sent to:", customerEmail);
     } catch (error) {
-        console.error("❌ Error sending out for delivery email:", error.message);
+        console.error("❌ Error sending OTP email:", error.message);
     }
 };
+
+
 
 // mail for order deliverd to USER
 export const sendOrderDeliveredEmail = async (customerEmail, order) => {

@@ -227,7 +227,8 @@ import ProductModel from "../models/product.model.js";
 import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
 import PromocodeModel from "../models/promocode.model.js";
-import nodemailer from 'nodemailer';
+// import nodemailer from 'nodemailer';
+import crypto from "crypto"; // To generate OTP
 
 
 import { sendOrderDeliveredEmail,sendOrderConfirmationEmail,sendOrderReassignedEmail,sendBulkOrderAssignedEmail, sendOutForDeliveryEmail,sendNewOrderNotificationEmail,sendOrderAssignedEmail } from "../utils/emailService.js";
@@ -683,7 +684,7 @@ export async function assignBulkDeliveryPartnerController(request, response) {
 // }
 
 
-// ====================prmociode added===========================
+// ====================promocode added===========================
 /** Place a Cash on Delivery Order */
 export async function CashOnDeliveryOrderController(request, response) {
     try {
@@ -843,16 +844,15 @@ export async function CashOnDeliveryOrderController(request, response) {
     }
 }
 
-
 export const updateOrderStatusController = async (request, response) => {
     try {
-        const { orderId, status, isPaymentDone } = request.body;
+        const { orderId, status, isPaymentDone, otpEntered } = request.body;
 
-        console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
+        console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone, otpEntered });
 
         // Fetch order from database
         let order = await OrderModel.findOne({ orderId });
-        
+
         if (!order) {
             console.log("❌ Order not found.");
             return response.status(404).json({
@@ -861,31 +861,65 @@ export const updateOrderStatusController = async (request, response) => {
                 success: false,
             });
         }
-        
-        // ✅ Update payment status before checking order status
-        if (isPaymentDone === true && !order.isPaymentDone) {
-            console.log("💰 Updating payment status for order...");
-            order.isPaymentDone = true;
-            await order.save();
-            console.log("✅ Payment status updated successfully.");
-        }
 
-        // ✅ Check if the order is being updated to "Out for Delivery"
-        if (status === "Out for Delivery") {
-            console.log("🚚 Order is now Out for Delivery. Sending email notification...");
+        // ✅ Generate and store OTP when order status is "Out for Delivery"
+        if (status === "Out for Delivery" && order.orderStatus !== "Out for Delivery") {
+            console.log("🚚 Order is now Out for Delivery. Generating OTP...");
+
+            const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP
+            order.otp = otp; // Store OTP in order document
+            order.orderStatus = "Out for Delivery"; // Update order status
+            await order.save();
 
             const user = await UserModel.findById(order.userId, { email: 1 });
 
             if (user && user.email) {
-                await sendOutForDeliveryEmail(user.email, order);
-                console.log("📧 Out for Delivery email sent to:", user.email);
+                await sendOutForDeliveryEmail(user.email, order, otp);
+                console.log("📧 Out for Delivery email sent with OTP:", otp);
             } else {
                 console.log("❌ Unable to send email. User email not found.");
             }
+
+            notifyClients("", order, true);
         }
 
-        // ✅ Now check if order can be marked as Delivered
-        if (status === "Delivered") {
+        // ✅ Verify OTP and update payment status
+        if (otpEntered) {
+            console.log("order .otp is",order.otp);
+            
+            if (order.otp == otpEntered) {
+                console.log("✅ OTP Verified. Updating payment status to PAID.");
+                order.isPaymentDone = true;
+                order.paymentStatus = "Paid";
+                order.otp = null; // Remove OTP after verification
+                await order.save();
+
+                // ✅ Automatically mark as Delivered
+                order.orderStatus = "Delivered";
+                order.orderDeliveredDatetime = new Date();
+                await order.save();
+
+                console.log("✅ Order status updated to Delivered.");
+                notifyClients("", order, true);
+
+                return response.json({
+                    message: "OTP verified. Payment updated & Order Delivered!",
+                    error: false,
+                    success: true,
+                    data: order,
+                });
+            } else {
+                console.log("❌ Invalid OTP entered.");
+                return response.status(400).json({
+                    message: "Invalid OTP. Please try again.",
+                    error: true,
+                    success: false,
+                });
+            }
+        }
+
+        // ✅ Check if order can be marked as Delivered
+        if (status === "Delivered" && order.orderStatus !== "Delivered") {
             console.log("🚚 Attempting to deliver order... Checking payment status.");
 
             if (!order.isPaymentDone) {
@@ -902,18 +936,16 @@ export const updateOrderStatusController = async (request, response) => {
             order.orderStatus = "Delivered";
             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
             await order.save();
-            const isadmin = true;  // Assuming the request is from an admin
-            notifyClients("", order, isadmin);
 
+            notifyClients("", order, true);
             console.log("✅ Order successfully marked as Delivered:", order);
-            const userEmail= await UserModel.findById(order.userId,{email:1})
-             console.log("email",userEmail);
 
-            await sendOrderDeliveredEmail(userEmail, order);
-            // ✅ Send Email Notification to Customer
-            //  ✅ Send order delivered email to the customer
-             
-            // await sendOrderDeliveredEmail(order);
+            const user = await UserModel.findById(order.userId, { email: 1 });
+
+            if (user && user.email) {
+                await sendOrderDeliveredEmail(user.email, order);
+                console.log("📧 Order Delivered email sent.");
+            }
 
             return response.json({
                 message: "Order status updated to 'Delivered' successfully",
@@ -922,13 +954,15 @@ export const updateOrderStatusController = async (request, response) => {
                 data: order,
             });
         }
-        
+
         // ✅ Handle other status updates if necessary
-        order.orderStatus = status;
-        await order.save();
-        console.log("✅ Order status updated successfully:", order);
- const isadmin = true;  // Assuming the request is from an admin
-            notifyClients("", order, isadmin);
+        if (status !== order.orderStatus) {
+            order.orderStatus = status;
+            await order.save();
+            notifyClients("", order, true);
+            console.log("✅ Order status updated successfully:", order);
+        }
+
         return response.json({
             message: "Order status updated successfully",
             error: false,
@@ -944,6 +978,156 @@ export const updateOrderStatusController = async (request, response) => {
         });
     }
 };
+
+// export const updateOrderStatusController = async (request, response) => {
+//     try {
+//         const { orderId, status, isPaymentDone ,otpEntered } = request.body;
+
+//         console.log("🔄 Updating order status for:", { orderId, status, isPaymentDone });
+
+//         // Fetch order from database
+//         let order = await OrderModel.findOne({ orderId });
+        
+//         if (!order) {
+//             console.log("❌ Order not found.");
+//             return response.status(404).json({
+//                 message: "Order not found",
+//                 error: true,
+//                 success: false,
+//             });
+//         }
+
+
+        
+//         // // ✅ Update payment status before checking order status
+//         // if (isPaymentDone === true && !order.isPaymentDone) {
+//         //     console.log("💰 Updating payment status for order...");
+//         //     order.isPaymentDone = true;
+//         //     await order.save();
+//         //     console.log("✅ Payment status updated successfully.");
+//         // }
+
+//         // // ✅ Check if the order is being updated to "Out for Delivery"
+//         // if (status === "Out for Delivery") {
+//         //     console.log("🚚 Order is now Out for Delivery. Sending email notification...");
+
+//         //     const user = await UserModel.findById(order.userId, { email: 1 });
+
+//         //     if (user && user.email) {
+//         //         await sendOutForDeliveryEmail(user.email, order);
+//         //         console.log("📧 Out for Delivery email sent to:", user.email);
+//         //     } else {
+//         //         console.log("❌ Unable to send email. User email not found.");
+//         //     }
+//         // }
+
+//          // ✅ Generate and store OTP when order status is "Out for Delivery"
+//          if (status === "Out for Delivery") {
+//             console.log("🚚 Order is now Out for Delivery. Generating OTP...");
+
+//             const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP
+//             order.otp = otp; // Store OTP in order document
+//             await order.save();
+
+//             const user = await UserModel.findById(order.userId, { email: 1 });
+
+//             if (user && user.email) {
+//                 await sendOutForDeliveryEmail(user.email, order, otp);
+//                 console.log("📧 Out for Delivery email sent with OTP:", otp);
+//             } else {
+//                 console.log("❌ Unable to send email. User email not found.");
+//             }
+//         }
+
+//         // ✅ Verify OTP and update payment status
+//         if (otpEntered) {
+//             if (order.otp === otpEntered) {
+//                 console.log("✅ OTP Verified. Updating payment status to PAID.");
+//                 order.isPaymentDone = true;
+//                 order.orderStatus = "Paid";
+//                 order.otp = null; // Remove OTP after verification
+//                 await order.save();
+
+//                 // ✅ Automatically mark as Delivered
+//                 order.orderStatus = "Delivered";
+//                 order.orderDeliveredDatetime = new Date();
+//                 await order.save();
+
+//                 console.log("✅ Order status updated to Delivered.");
+
+//                 return response.json({
+//                     message: "OTP verified. Payment updated & Order Delivered!",
+//                     error: false,
+//                     success: true,
+//                     data: order,
+//                 });
+//             } else {
+//                 console.log("❌ Invalid OTP entered.");
+//                 return response.status(400).json({
+//                     message: "Invalid OTP. Please try again.",
+//                     error: true,
+//                     success: false,
+//                 });
+//             }
+//         }
+
+//         // ✅ Now check if order can be marked as Delivered
+//         if (status === "Delivered") {
+//             console.log("🚚 Attempting to deliver order... Checking payment status.");
+
+//             if (!order.isPaymentDone) {
+//                 console.log("❌ Payment pending. Cannot mark order as Delivered.");
+//                 return response.status(400).json({
+//                     message: "Payment is pending. Please update the payment status before delivering the order.",
+//                     error: true,
+//                     success: false,
+//                     paymentModalRequired: true,
+//                 });
+//             }
+
+//             console.log("✅ Payment is done. Proceeding to mark order as Delivered.");
+//             order.orderStatus = "Delivered";
+//             order.orderDeliveredDatetime = order.orderDeliveredDatetime || new Date();
+//             await order.save();
+//             const isadmin = true;  // Assuming the request is from an admin
+//             notifyClients("", order, isadmin);
+
+//             console.log("✅ Order successfully marked as Delivered:", order);
+//             const userEmail= await UserModel.findById(order.userId,{email:1})
+//              console.log("email",userEmail);
+
+//             await sendOrderDeliveredEmail(userEmail, order);
+
+//             return response.json({
+//                 message: "Order status updated to 'Delivered' successfully",
+//                 error: false,
+//                 success: true,
+//                 data: order,
+//             });
+//         }
+        
+//         // ✅ Handle other status updates if necessary
+//         order.orderStatus = status;
+//         await order.save();
+//         console.log("✅ Order status updated successfully:", order);
+        
+//         const isadmin = true;  // Assuming the request is from an admin
+//             notifyClients("", order, isadmin);
+//         return response.json({
+//             message: "Order status updated successfully",
+//             error: false,
+//             success: true,
+//             data: order,
+//         });
+//     } catch (error) {
+//         console.error("❌ Error updating order status:", error);
+//         return response.status(500).json({
+//             message: "Internal server error",
+//             error: true,
+//             success: false,
+//         });
+//     }
+// };
 
 export const updateCODStatusController = async (request, response) => {
     try {

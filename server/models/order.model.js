@@ -39,6 +39,7 @@ const orderSchema = new mongoose.Schema({
     type: String, 
     default: 'Not Assigned' 
   },
+  otp:{type:Number,default: null},
   orderAssignedDatetime: { type: Date, default: null },
   orderDeliveredDatetime: { type: Date, default: null }
 }, { timestamps: true });

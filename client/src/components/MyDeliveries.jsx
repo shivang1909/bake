@@ -164,7 +164,10 @@ const MyDeliveries = ({ filterDelivered }) => {
   // Modal visibility state
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentOrderId, setPaymentOrderId] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState("CASH ON DELIVERY");
+  const [paymentStatus, setPaymentStatus] = useState("Not Paid");
+  const [otp, setOtp] = useState(""); // Stores the OTP entered by the user
+
+
   console.log(`this is filterDelivered ${filterDelivered}`);
   // filter
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -310,34 +313,34 @@ const MyDeliveries = ({ filterDelivered }) => {
     setShowPaymentModal(true);
   };
 
-  const handlePaymentStatusUpdate = async (orderId) => {
-    try {
-      setLoading(true);
-      console.log("🔼 Sending request to update order:", { orderId, status: "Delivered", isPaymentDone: true });
+  // const handlePaymentStatusUpdate = async (orderId) => {
+  //   try {
+  //     setLoading(true);
+  //     console.log("🔼 Sending request to update order:", { orderId, status: "Delivered", isPaymentDone: true });
 
-      const response = await Axios({
-        ...SummaryApi.updateOrderStatus,
-        data: { orderId, status: "Delivered", isPaymentDone: true }, // ✅ Sending isPaymentDone
-      });
+  //     const response = await Axios({
+  //       ...SummaryApi.updateOrderStatus,
+  //       data: { orderId, status: "Delivered", isPaymentDone: true }, // ✅ Sending isPaymentDone
+  //     });
 
-      if (response.data.success) {
-        // ✅ Update UI state with isPaymentDone = true
-        setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
+  //     if (response.data.success) {
+  //       // ✅ Update UI state with isPaymentDone = true
+  //       setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
 
-          console.log(orders)
-        setShowPaymentModal(false);
-        setError(null);
-      } else {
-        console.error("Failed to update payment status:", response.data.message);
-        setError(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error updating payment status:", error);
-      setError("Error updating payment status");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //         console.log(orders)
+  //       setShowPaymentModal(false);
+  //       setError(null);
+  //     } else {
+  //       console.error("Failed to update payment status:", response.data.message);
+  //       setError(response.data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating payment status:", error);
+  //     setError("Error updating payment status");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Handle status change for filter
 const handleStatusFilterChange = (e) => {
@@ -398,6 +401,28 @@ const filteredOrders = orders.filter ((order) => {
     }
 }
 });
+const handleVerifyOtp = async (orderId, otp) => {
+  try {
+    const response = await Axios({
+        ...SummaryApi.updateOrderStatus,
+        data: { orderId, otpEntered: otp },
+    });
+
+    if (response.data.success) {
+        alert("✅ OTP Verified! Payment updated & Order Delivered.");
+        setShowPaymentModal(false);
+        setPaymentStatus("Paid"); // Update UI with new status
+        // fetchUpdatedOrderData(orderId); // Fetch latest order details if needed
+    } else {
+        alert("❌ Invalid OTP. Please try again.");
+    }
+} catch (error) {
+    console.error("Error verifying OTP:", error);
+    alert("❌ Something went wrong.");
+}
+};
+
+
 
 return (
   <div className="p-6">
@@ -572,7 +597,7 @@ return (
   </tbody>
 </table>
 </div>
-{showPaymentModal && (
+{/* {showPaymentModal && (
   <div className="modal">
     <div className="modal-content">
       <h3>Update Payment Status</h3>
@@ -582,13 +607,12 @@ return (
           value={paymentStatus} 
           onChange={(e) => setPaymentStatus(e.target.value)}
         >
-          <option value="">Select Status</option> {/* Default option */}
+          <option value="">Select Status</option> }
           <option value="Pending">Pending</option>
           <option value="Paid">Paid</option>
         </select>
       </div>
       
-      {/* Disable button if no valid paymentStatus is selected */}
       <button 
         className="btnHandlePayment" 
         onClick={() => handlePaymentStatusUpdate(paymentOrderId, paymentStatus)}
@@ -605,7 +629,49 @@ return (
       </button>
     </div>
   </div>
+)} */}
+
+{showPaymentModal && (
+  <div className="modal">
+    <div className="modal-content">
+      <h3>Enter OTP to Confirm Payment</h3>
+      
+      <div>
+        <label>Order Status:</label>
+        <p>{paymentStatus}</p>  
+      </div>
+
+      <div>
+        <label>Enter OTP:</label>
+        <input 
+          type="text" 
+          value={otp} 
+          onChange={(e) => setOtp(e.target.value)} 
+          maxLength="6"
+          placeholder="Enter 6-digit OTP"
+        />
+      </div>
+
+      <button 
+        className="btnVerifyOtp" 
+        onClick={() => handleVerifyOtp(paymentOrderId, otp)}
+        disabled={otp.length !== 6} 
+      >
+        Verify OTP
+      </button>
+      
+      <br />
+      <button 
+        className="btnCloseModal" 
+        onClick={() => setShowPaymentModal(false)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
 )}
+
+
 </div>
 
 );
