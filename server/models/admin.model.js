@@ -11,6 +11,10 @@ const adminSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    paymentReceived: {
+        type: Number, // or Boolean
+        default: 0
+      },
     role: { type: String, required: true },
     password: { type: String }, // Optional for initial creation
     isPasswordSet: { type: Boolean, default: false }, // New field
@@ -18,6 +22,7 @@ const adminSchema = new mongoose.Schema({
         type: Date,
         default: "",
       },
+
 }, { timestamps: true });
 
 // Prevent model redefinition

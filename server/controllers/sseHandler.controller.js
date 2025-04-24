@@ -20,6 +20,7 @@ const handleSSEConnection = (req, res) => {
   // Send initial heartbeat to keep connection alive
   const heartbeat = setInterval(() => {
     res.write('event: ping\ndata: {}\n\n');
+    
   }, 30000); // every 30 seconds
 
   // Clean up on disconnect

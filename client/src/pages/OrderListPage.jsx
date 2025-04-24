@@ -314,47 +314,7 @@ const OrderListPage = () => {
   useSSE(eventHandlers);
   
   useEffect(() => {
-    let eventSource;
-  
-    // Set up the EventSource for real-time updates
-    try {
-      eventSource = new EventSource("http://localhost:5000/eventsadmin", { withCredentials: true });
-    } catch (error) {
-      console.log(error);
-    }
-  
-    // Handle incoming messages from the EventSource
-  eventSource.onmessage = (event) => {
-  console.log("i am inside on message event");
-  var data = JSON.parse(event.data);
-  console.log(data);
-
-  // Only proceed if data is valid
-  if (!data || typeof data !== 'object') return;
-
-  // Filter out orders with status "Delivered" from the state
-  if (data.orderStatus === "Delivered") {
-    // If the order is marked as "Delivered", don't update the state with that order
-    setOrders((prevOrders) => {
-      return prevOrders.filter(order => order.orderId !== data.orderId);
-    });
-    return; // Exit after filtering out the "Delivered" status
-  }
-
-  setOrders((prevOrders) => {
-    console.log("prevOrders", prevOrders);
-
-    // If the new order status is "Out for delivery", we add/update it, excluding "Delivered" ones
-    const updatedOrders = prevOrders.filter(order => order.orderId !== data.orderId); // Remove old order (if any)
     
-    // Update state with the new order status, excluding "Delivered"
-    const newOrders = [...updatedOrders, data];
-    
-    // Return the updated state
-    return newOrders;
-  });
-};
-
   
     // Fetch users for delivery partners
     const fetchUsers = async () => {
@@ -388,11 +348,7 @@ const OrderListPage = () => {
     fetchOrders();
   
     // Clean up the EventSource when the component is unmounted
-    return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
-    };
+   
   }, []); // Empty dependency array ensures this effect runs once after the initial render
   
 
@@ -504,7 +460,7 @@ const OrderListPage = () => {
     console.log(`button click of bulk`);
 
     if (!bulkPartner) {
-      setError('Please select a delivery partner');
+      toast.error('Please select a delivery partner');
       return;
     }
     console.log('new selected order',selectedOrders)
@@ -513,13 +469,11 @@ const OrderListPage = () => {
     let assignedIds = [];
     orders
         .forEach(order => {
-           console.log(`this is order ${JSON.stringify(order)}`);
           if(selectedOrders[order.orderId])
           {
             console.log(`this is selected order ${selectedOrders[order.orderId]}`);
             if(order.deliveryPartnerId === null)
             {
-              
               selectedOrderIds.push(order.orderId)// Update all matching orders
             }
             else if (order.deliveryPartnerId !== bulkPartner)
@@ -527,22 +481,21 @@ const OrderListPage = () => {
               assignedIds.push(order.orderId)
             }
           }
-
         });
 
       console.log(assignedIds);
-      
-
-    if (selectedOrderIds.length === 0 ) {
+    if (selectedOrderIds.length === 0) {
       setError('Please select at least one order');
-      return;
     }
 
     try {
-      const response = await Axios.put('/api/order/bulk-assign-delivery-partner', {
+
+      const response = await Axios({...SummaryApi.assignBulkDeliveryPartner,
+        data:{
         orderIds: selectedOrderIds,
-        assignedIds : assignedIds,
+        assignedIds: assignedIds,
         partnerId: bulkPartner,
+        }
       });
 
       if (response.data.success) {
@@ -585,7 +538,6 @@ const OrderListPage = () => {
       }
     } catch (err) {
       console.log(err);
-
       setError('Error assigning delivery partners');
     }
   };
@@ -819,7 +771,7 @@ const OrderListPage = () => {
         <input
           type="checkbox"
           onChange={handleSelectAll}
-          checked={Object.values(selectedOrders).length > 0 && Object.values(selectedOrders).every(Boolean)}
+          checked={Object.values(selectedOrders).length === filteredOrders.length && Object.values(selectedOrders).every(Boolean)}
         />
       </th>
     )}

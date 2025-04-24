@@ -1,4 +1,3 @@
-
 export const baseURL = import.meta.env.VITE_API_URL
 
 const SummaryApi = {
@@ -187,6 +186,10 @@ const SummaryApi = {
     // =========== Delivery NEW APIs  ===================
     assignDeliveryPartner: {  // 🆕 Admin assigns a delivery partner
         url: "/api/order/assign-delivery-partner",
+        method: "put"
+    },
+    assignBulkDeliveryPartner: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/bulk-assign-delivery-partner",
         method: "put"
     },
    

@@ -93,6 +93,7 @@ export const addUser = async (req, res) => {
 
              // Create user data object
         let userData = { name, email, mobile, role };
+        
 
         
         // Save new user

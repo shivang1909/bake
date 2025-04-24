@@ -50,7 +50,7 @@ const CodUpdate = useCallback((data) => {
 
  const Delivery_notification = useCallback((data) => {
   console.log('🛠️ Delivery notification:', data);
-  setNotifications((prev) => [...prev, data.message]);
+  setNotifications((prev) => [...prev, data]);
 }, []); 
 const eventHandlers = useMemo(() => ({
   'admin-event': handleAdminEvent,
@@ -148,17 +148,24 @@ useSSE(eventHandlers);
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{notifications.length}</span>
                 )}
               </button>
-              {isNotificationOpen && (
-                <div className="absolute right-0 top-10 w-64 bg-white shadow-lg rounded-md p-3 max-h-48 overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((notif, index) => (
-                      <p key={index} className="text-sm p-2 border-b last:border-none">{notif}</p>
-                    ))
-                  ) : (
-                    <p className="text-sm p-2">No new notifications</p>
-                  )}
-                </div>
-              )}
+                {isNotificationOpen && (
+                  <div className="absolute right-0 top-10 w-64 bg-white shadow-lg rounded-md p-3 max-h-48 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notif, index) => (
+                        <a
+                        key={index}
+                        href={notif.link}
+                        className="block text-sm text-gray-700 hover:text-blue-600 p-2 border-b border-gray-200 last:border-none transition-colors duration-200"
+                      >
+                        {notif.message}
+                      </a>
+
+                      ))
+                    ) : (
+                      <p className="text-sm p-2">No new notifications</p>
+                    )}
+                  </div>
+                )}
             </div>
 
             {/**Desktop**/}

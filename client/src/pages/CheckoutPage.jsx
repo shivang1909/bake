@@ -1021,8 +1021,8 @@ const CheckoutPage = () => {
 
       if (responseData.success) {
         toast.success(responseData.message);
-        `setCartItem([]);
-        dispatch(updatedShoppingCart([]));`
+        setCartItem([]);
+        dispatch(updatedShoppingCart([]));
         setTotalQty(0);
         navigate("/success", {
           state: {
