@@ -17,9 +17,7 @@ import orderRouter from './route/order.route.js'
 import adminrouter from './route/admin.route.js'
 import auth from './middleware/auth.js'
 import promocodeRouter from './route/promocode.route.js'
-
-
-
+import {handleSSEConnection} from './controllers/sseHandler.controller.js'
 const app = express()
 app.use(cors({
     credentials : true,
@@ -55,6 +53,7 @@ app.use("/api/address",addressRouter)
 app.use('/api/order',orderRouter)
 app.get('/events',auth, sseHandler);
 app.get('/eventsadmin',auth,admin, sseHandlerforadmin);
+app.get('/SSEhandler',auth, handleSSEConnection);
 
 app.use('/api/', promocodeRouter);
 connectDB().then(()=>{

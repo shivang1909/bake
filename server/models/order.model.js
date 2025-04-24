@@ -17,7 +17,7 @@ const productSchema = new mongoose.Schema({
 },{_id:false});
 
 const orderSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
   orderId: { type: String, required: true, unique: true },
   products: [productSchema],
   paymentId: {type: String, required: true },

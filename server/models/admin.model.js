@@ -14,6 +14,10 @@ const adminSchema = new mongoose.Schema({
     role: { type: String, required: true },
     password: { type: String }, // Optional for initial creation
     isPasswordSet: { type: Boolean, default: false }, // New field
+    last_login_date: {
+        type: Date,
+        default: "",
+      },
 }, { timestamps: true });
 
 // Prevent model redefinition

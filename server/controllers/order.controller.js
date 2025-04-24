@@ -145,46 +145,6 @@
 //     return productList
 // }
 
-// //http://localhost:8080/api/order/webhook
-// export async function webhookStripe(request,response){
-//     const event = request.body;
-//     const endPointSecret = process.env.STRIPE_ENPOINT_WEBHOOK_SECRET_KEY
-
-//     console.log("event",event)
-
-//     // Handle the event
-//   switch (event.type) {
-//     case 'checkout.session.completed':
-//       const session = event.data.object;
-//       const lineItems = await Stripe.checkout.sessions.listLineItems(session.id)
-//       const userId = session.metadata.userId
-//       const orderProduct = await getOrderProductItems(
-//         {
-//             lineItems : lineItems,
-//             userId : userId,
-//             addressId : session.metadata.addressId,
-//             paymentId  : session.payment_intent,
-//             payment_status : session.payment_status,
-//         })
-    
-//       const order = await OrderModel.insertMany(orderProduct)
-
-//         console.log(order)
-//         if(Boolean(order[0])){
-//             const removeCartItems = await  UserModel.findByIdAndUpdate(userId,{
-//                 shopping_cart : []
-//             })
-//             const removeCartProductDB = await CartProductModel.deleteMany({ userId : userId})
-//         }
-//       break;
-//     default:
-//       console.log(`Unhandled event type ${event.type}`);
-//   }
-
-//   // Return a response to acknowledge receipt of the event
-//   response.json({received: true});
-// }
-
 // export async function getOrderDetailsController(request, response) {
 //     try {
 //         console.log("hello");
@@ -219,19 +179,22 @@
 // }
 
     
-import Stripe from "../config/stripe.js";
+
 import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import ProductModel from "../models/product.model.js";
 import AdminModel from '../models/admin.model.js'; // Assuming you have AdminModel which contains both Admin and Delivery Partner data
 import mongoose from "mongoose";
+import Razorpay from "razorpay";
 import PromocodeModel from "../models/promocode.model.js";
 // import nodemailer from 'nodemailer';
 import crypto from "crypto"; // To generate OTP
 
 
-import { sendOrderDeliveredEmail,sendOrderConfirmationEmail,sendOrderReassignedEmail,sendBulkOrderAssignedEmail, sendOutForDeliveryEmail,sendNewOrderNotificationEmail,sendOrderAssignedEmail } from "../utils/emailService.js";
+import { sendOrderDeliveredEmail,sendOrderConfirmationEmail,sendOrderReassignedEmail,sendBulkOrderAssignedEmail, sendOutForDeliveryEmail,sendNewOrderNotificationEmail,sendOrderAssignedEmail,sendOrderCancellationEmailToAdmin ,sendOrderCancellationEmailToUser ,sendOrderCancellationEmailToDeliveryPartner} from "../utils/emailService.js";
+import { codupdatebydeliverypartner, orderstatuschange, newordersseHandler, deliveryPartnerNotification } from "./sseHandler.controller.js";
+import { json } from "stream/consumers";
 
 
 // ssehandler function 
@@ -431,13 +394,18 @@ export async function assignDeliveryPartnerController(request, response) {
         existingOrder.orderStatus = "Assigned";
         existingOrder.orderAssignedDatetime = new Date();
         await existingOrder.save();
-
+        
         // Fetch new delivery partner email
+        console.log(`delivery partner assigned : ${newDeliveryPartnerId}`);
+        deliveryPartnerNotification({"message": `new Order Assigned OrderID : ${existingOrder.orderId} `,
+            "deliveryPartnerId": newDeliveryPartnerId,'link': 'http://localhost:5173/admin/dashboard/my-deliveries'});
         const newDeliveryPartner = await AdminModel.findById(newDeliveryPartnerId, { email: 1 });
         if (newDeliveryPartner && newDeliveryPartner.email) {
             await sendOrderAssignedEmail(newDeliveryPartner.email, existingOrder);
             console.log("📧 Email sent to new delivery partner:", newDeliveryPartner.email);
         }
+        
+        
 
         return response.json({
             message: "Delivery partner assigned successfully",
@@ -549,6 +517,7 @@ export async function assignDeliveryPartnerController(request, response) {
 
 export async function assignBulkDeliveryPartnerController(request, response) {
     try {
+        console.log("assign bulk delivery partner controller called");
         const { orderIds, partnerId, assignedIds } = request.body;
 
         console.log("order", orderIds);
@@ -600,6 +569,13 @@ export async function assignBulkDeliveryPartnerController(request, response) {
         }
         
         console.log("oldDetails", oldDetails);
+        const deliveryPartner = await AdminModel.findById(partnerId, { email: 1 });
+      
+        deliveryPartnerNotification({
+            message: `New Orders Assigned. OrderIDs: ${newOrders.map(order => order.id).join(', ')}`
+          ,"deliveryPartnerId": newDeliveryPartnerId,
+          'link': 'http://localhost:5173/admin/dashboard/my-deliveries'
+        });     
         
         // Send reassignment emails
         for (const [email, orders] of Object.entries(oldDetails)) {
@@ -610,7 +586,6 @@ export async function assignBulkDeliveryPartnerController(request, response) {
         console.log("newOrder2", newOrders);
         
         // Notify the new delivery partner about the assignment
-        const deliveryPartner = await AdminModel.findById(partnerId, { email: 1 });
         
         if (deliveryPartner && deliveryPartner.email && newOrders.length > 0) {
             console.log("📧 Email sent to new delivery partner:", deliveryPartner.email);
@@ -637,53 +612,147 @@ export async function assignBulkDeliveryPartnerController(request, response) {
 }
 
 
-// ===============Working Code ==============================
-// /** Place a Cash on Delivery Order */
-// export async function CashOnDeliveryOrderController(request, response) {
-//     try {
-
-//         const userId = request.userId; // auth middleware 
-//         const { list_items, addressId,total } = request.body;
-//          console.log("=-=0=");
-         
-//         console.log("this is gift note  : ",JSON.stringify(list_items));
+export const createPaymentOrder = async (req,res) => {
+    console.log(req.body)
+    try {
+        const razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+    const { amount } = req.body;
+    const options = {
+        amount: amount * 100,
         
+        currency: "INR",
+        receipt: "order_receipt_1",
+    };
+    const order = await razorpay.orders.create(options);      
+      return res.status(200).json(order);
+    } catch (error) {
+           return res.status(500).json({
+            error: "error in razor pay"
+           })
+    }
+  };
 
-//         const payload = {
-//             userId: userId,
-//             orderId: `ORD-${new mongoose.Types.ObjectId()}`,
-//             products:list_items,
-//             paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
-//             payment_status: "CASH ON DELIVERY",
-//             finalOrderTotal: total,
-//             delivery_address: addressId,
-//             deliveryPartnerId: null, // No delivery partner assigned initially
-//             orderStatus: "Not Assigned",  // Default status
-//         }
-        
-//         const generatedOrder = await OrderModel.create(payload);
+  //Verify Payment
+  export const verifyPayment = async (req, res) => {
 
-//         // Remove items from cart after placing order
-//         // await CartProductModel.deleteMany({ userId: userId });
-//         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+    try {
+        const userId = req.userId;
 
-//         return response.json({
-//             message: "Order placed successfully",
-//             error: false,
-//             success: true,
-//             data: generatedOrder
-//         });
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        list_items,
+        addressId,
+        total,
+        promocodeId,
+        promocodeDiscount
+      } = req.body;
+  
+      
+  
+      // Verify payment signature
+      const hmac = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest("hex");
+  
+      if (hmac !== razorpay_signature) {
+        return res.status(400).json({ success: false, message: "Payment verification failed" });
+      }
+    
+      // Build order payload
+      const payload = {
+        userId: userId,
+        orderId: `ORD-${new mongoose.Types.ObjectId()}`,
+        products: list_items,
+        paymentId: razorpay_payment_id,
+        payment_status: "ONLINE PAYMENT",
+        finalOrderTotal: total,
+        delivery_address: addressId,
+        deliveryPartnerId: null,
+        orderStatus: "Not Assigned",
+        isPaymentDone: true
+     
 
-//     } catch (error) {
-//         return response.status(500).json({
-//             message: error.message || error,
-//             error: true,
-//             success: false
-//         });
-//     }
-// }
-
-
+      };
+        console.log(payload)
+      // Handle promocode
+      if (promocodeId) {
+        try {
+          const promocode = await PromocodeModel.findById(promocodeId);
+          payload.promo_code = promocode.code;
+          await PromocodeModel.findByIdAndUpdate(promocodeId, {
+            $set: { users: userId }
+          });
+        } catch (promoError) {
+          console.error("Error applying promocode:", promoError);
+        }
+      }
+  
+      // Reduce stock
+      for (const item of list_items) {
+        const { productId, variantPrices } = item;
+        if (!productId || !Array.isArray(variantPrices)) continue;
+  
+        const product = await ProductModel.findById(productId);
+        if (!product) continue;
+  
+        for (const variant of variantPrices) {
+          const { weight, quantity } = variant;
+          const matchedVariant = product.weightVariants.find(v => v.weight === weight);
+          if (!matchedVariant) continue;
+  
+          await ProductModel.updateOne(
+            { _id: productId, "weightVariants._id": matchedVariant._id },
+            { $inc: { "weightVariants.$.qty": -quantity } }
+          );
+        }
+      }
+  
+      // Gift wrapping
+      let giftPackingTotal = 0;
+      for (const item of list_items) {
+        for (const variant of item.variantPrices) {
+          if (variant.isGiftWrap) {
+            giftPackingTotal += variant.giftWrapCharge || 0;
+          }
+        }
+      }
+      if (giftPackingTotal > 0) {
+        payload.special_Gift_packing = giftPackingTotal;
+      }
+  
+      // Create order
+      const generatedOrder = await OrderModel.create(payload);
+  
+      // Clear user cart
+      await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
+  
+      // Email notifications
+      const user = await UserModel.findById(userId);
+      const adminEmail = process.env.ADMIN_EMAIL;
+  
+      if (user?.email) {
+        await sendOrderConfirmationEmail(user.email, generatedOrder);
+      }
+  
+      if (adminEmail) {
+        await sendNewOrderNotificationEmail(adminEmail, generatedOrder);
+      }
+  
+      return res.status(200).json({ success: true, data: generatedOrder });
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || "Error verifying payment and creating order"
+      });
+    }
+  };
 // ====================promocode added===========================
 /** Place a Cash on Delivery Order */
 export async function CashOnDeliveryOrderController(request, response) {
@@ -803,6 +872,9 @@ export async function CashOnDeliveryOrderController(request, response) {
         
         // Create the order
         const generatedOrder = await OrderModel.create(payload);
+        console.log("this is generated Order details :" , generatedOrder);
+        newordersseHandler(generatedOrder);
+
         
         // Remove items from cart after placing order
         await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
@@ -818,7 +890,6 @@ export async function CashOnDeliveryOrderController(request, response) {
          // Send confirmation email to customer
          if (user && user.email) {
             console.log("helooo user");
-            
              await sendOrderConfirmationEmail(user.email, generatedOrder);
          } 
  
@@ -844,6 +915,48 @@ export async function CashOnDeliveryOrderController(request, response) {
     }
 }
 
+// send mail when oprder is cancelled (Admin,user,Delivery Partner If applicalbe) 
+export const cancelOrder = async (req, res) => {
+    try {
+      const orderId = req.params.id;
+      const adminEmail = process.env.ADMIN_EMAIL;
+      // Step 1: Find the order and populate user + deliveryPartner if available
+      const order = await OrderModel.findById(orderId)
+        .populate("userId", "name email")
+        .populate("deliveryPartnerId", "name email");
+  
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      console.log("Order Detyails:",order);
+      
+      // Step 2: Prevent cancel if order is already out or delivered
+      if (["Out for delivery", "Delivered"].includes(order.orderStatus)) {
+        return res.status(400).json({ message: "Cannot cancel this order" });
+      }
+  
+      // Step 3: Update order status to Cancelled
+      order.orderStatus = "Cancelled";
+      await order.save();
+  
+      // Step 4: Send email to Admin
+      await sendOrderCancellationEmailToAdmin(adminEmail,order);
+  
+       // Step 5: Notify User
+        if (order.userId?.email) {
+            await sendOrderCancellationEmailToUser(order.userId.email, order);
+        }
+        if (order.deliveryPartnerId?.email) {
+            await sendOrderCancellationEmailToDeliveryPartner(order.deliveryPartnerId.email, order);
+        }
+      return res.status(200).json({ message: "Order cancelled successfully", order });
+  
+    } catch (error) {
+      console.error("❌ Error in cancelOrder:", error);
+      res.status(500).json({ message: "Server error while cancelling order" });
+    }
+  };
+  
 export const updateOrderStatusController = async (request, response) => {
     try {
         const { orderId, status, isPaymentDone, otpEntered } = request.body;
@@ -861,7 +974,8 @@ export const updateOrderStatusController = async (request, response) => {
                 success: false,
             });
         }
-
+        
+        orderstatuschange("order status changed by delivery partner");
         // ✅ Generate and store OTP when order status is "Out for Delivery"
         if (status === "Out for Delivery" && order.orderStatus !== "Out for Delivery") {
             console.log("🚚 Order is now Out for Delivery. Generating OTP...");
@@ -902,6 +1016,15 @@ export const updateOrderStatusController = async (request, response) => {
                 console.log("✅ Order status updated to Delivered.");
                 notifyClients("", order, true);
 
+                const user = await UserModel.findById(order.userId, { email: 1 });
+                console.log("utsav",user);
+                
+                if (user || user.email) {
+                    console.log("inside send mail",user.email);
+                    await sendOrderDeliveredEmail(user.email, order);
+                    console.log("📧 Order Delivered email sent.");
+                }
+
                 return response.json({
                     message: "OTP verified. Payment updated & Order Delivered!",
                     error: false,
@@ -941,8 +1064,10 @@ export const updateOrderStatusController = async (request, response) => {
             console.log("✅ Order successfully marked as Delivered:", order);
 
             const user = await UserModel.findById(order.userId, { email: 1 });
-
+            console.log("utsav",user);
+            
             if (user && user.email) {
+                console.log("inside send mail",user.email);
                 await sendOrderDeliveredEmail(user.email, order);
                 console.log("📧 Order Delivered email sent.");
             }
@@ -1137,6 +1262,9 @@ export const updateCODStatusController = async (request, response) => {
             { deliveryPartnerId, cod_status: "NOT COMPLETED" ,orderStatus: "Delivered" },
             { $set: { cod_status: "PENDING" } }
         );
+            const dp = await AdminModel.findById(deliveryPartnerId, { paymentReceived: 1, name: 1 });
+        codupdatebydeliverypartner(`Total ${dp.paymentReceived} submited by ${dp.name} ` );
+
 
         return response.status(200).json({
             message: "COD status updated, payment reset, and added to pendingFromAdmin", 
@@ -1193,13 +1321,17 @@ export async function getCODOrdersHistory(request, response) {
     try {    
         let filterConditions = {
             cod_status: { $ne: "COMPLETED" }, // COD status should NOT be "COMPLETED"
-            orderStatus: "Delivered" // Order status should be "Delivered"
+            orderStatus: "Delivered"
+            // deliveryPartnerId: request.userId // Filter by the current delivery partner's ID
         }; 
-
-        // // If the user is a Delivery Partner, filter by deliveryPartnerId
-        // if (role === "Delivery Partner") {
-        //     filterConditions.deliveryPartnerId = userId; // Only fetch orders for the specific delivery partner
-        // }
+        console.log("1210",request.role);
+        
+        // If the user is a Delivery Partner, filter by deliveryPartnerId
+        if (request.role === "Delivery Partner") {
+            console.log("1213");
+            
+            filterConditions.deliveryPartnerId = request.userId; // Only fetch orders for the specific delivery partner
+        }
 
         // Fetch the orders based on the conditions
         const orders = await OrderModel.find(filterConditions)
@@ -1225,69 +1357,6 @@ export async function getCODOrdersHistory(request, response) {
             error: true,
             success: false
         });
-    }
-}
-
-// export async function getPaymentReceivedData(req, res) {
-//     try {
-//         const deliveryPartnerId = req.userId; // Get the logged-in user's ID from auth middleware
-
-//         // Fetch the delivery partner details from AdminModel
-//         const deliveryPartner = await AdminModel.findById(deliveryPartnerId);
-
-//         if (!deliveryPartner || deliveryPartner.role !== "Delivery Partner") {
-//             return res.status(404).json({ success: false, message: "Delivery partner not found" });
-//         }
-
-//         // Return the payment received
-//         res.json({
-//             success: true,
-//             paymentReceived: deliveryPartner.paymentReceived,
-//             pendingfromAdmin:deliveryPartner.pendingfromAdmin
-//         });
-
-//     } catch (error) {
-//         console.error("Error fetching payment received:", error);
-//         res.status(500).json({ success: false, message: "Server error" });
-//     }
-// }
-
-export async function getPaymentReceivedData(req, res) {
-    try {
-        const userId = req.userId; // Get the logged-in user's ID from auth middleware
-
-        // Fetch user details
-        const user = await AdminModel.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-
-        if (user.role === "Admin") {
-            // If admin, fetch payment details for all delivery partners
-            const allPartners = await AdminModel.find({ role: "Delivery Partner" });
-
-            const paymentSummary = allPartners.map(partner => ({
-                name: partner.name,
-                paymentReceived: partner.paymentReceived,
-                pendingfromAdmin: partner.pendingfromAdmin
-            }));
-
-            return res.json({ success: true, data: paymentSummary });
-        } else if (user.role === "Delivery Partner") {
-            // If delivery partner, fetch only their data
-            return res.json({
-                success: true,
-                paymentReceived: user.paymentReceived,
-                pendingfromAdmin: user.pendingfromAdmin
-            });
-        } else {
-            return res.status(403).json({ success: false, message: "Unauthorized access" });
-        }
-
-    } catch (error) {
-        console.error("Error fetching payment received:", error);
-        res.status(500).json({ success: false, message: "Server error" });
     }
 }
 
@@ -1498,39 +1567,10 @@ export const pricewithDiscount = (price, dis = 1) => {
 export async function paymentController(request, response) {
     try {
         const userId = request.userId;
-        const { list_items, totalAmt, addressId, subTotalAmt } = request.body;
-        const user = await UserModel.findById(userId);
-
-        const line_items = list_items.map(item => ({
-            price_data: {
-                currency: 'inr',
-                product_data: {
-                    name: item.productId.name,
-                    images: item.productId.image,
-                    metadata: { productId: item.productId._id }
-                },
-                unit_amount: pricewithDiscount(item.productId.price, item.productId.discount) * 100
-            },
-            adjustable_quantity: { enabled: true, minimum: 1 },
-            quantity: item.quantity
-        }));
-
-        const params = {
-            submit_type: 'pay',
-            mode: 'payment',
-            payment_method_types: ['card'],
-            customer_email: user.email,
-            metadata: { userId, addressId },
-            line_items,
-            success_url: `${process.env.FRONTEND_URL}/success`,
-            cancel_url: `${process.env.FRONTEND_URL}/cancel`
-        };
-
-        const session = await Stripe.checkout.sessions.create(params);
-
-        return response.status(200).json(session);
+        
 
     } catch (error) {
+        console.log(error)
         return response.status(500).json({
             message: error.message || error,
             error: true,
@@ -1539,39 +1579,7 @@ export async function paymentController(request, response) {
     }
 }
 
-/** Stripe Webhook Handler */
-export async function webhookStripe(request, response) {
-    const event = request.body;
-    const endPointSecret = process.env.STRIPE_ENPOINT_WEBHOOK_SECRET_KEY;
-    console.log("event", event);
 
-    switch (event.type) {
-        case 'checkout.session.completed':
-            const session = event.data.object;
-            const lineItems = await Stripe.checkout.sessions.listLineItems(session.id);
-            const userId = session.metadata.userId;
-            const orderProduct = await getOrderProductItems({
-                lineItems,
-                userId,
-                addressId: session.metadata.addressId,
-                paymentId: session.payment_intent,
-                payment_status: session.payment_status,
-            });
-
-            const order = await OrderModel.insertMany(orderProduct);
-            console.log(order);
-
-            if (Boolean(order[0])) {
-                await UserModel.findByIdAndUpdate(userId, { shopping_cart: [] });
-                await CartProductModel.deleteMany({ userId });
-            }
-            break;
-        default:
-            console.log(`Unhandled event type ${event.type}`);
-    }
-
-    response.json({ received: true });
-}
 
 // Admin dashboard Fetch data in ORDERLIST page to assign delivery partner
 export async function getOrderDetailsController(request, response) {

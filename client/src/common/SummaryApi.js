@@ -166,6 +166,11 @@ const SummaryApi = {
         url: "/api/order/cash-on-delivery",
         method: "post"
     },
+    CancelOrder: {
+        url: (orderId) => `/api/order/cancel/${orderId}`,
+        method: "put",
+      },
+      
     payment_url: {
         url: "/api/order/checkout",
         method: "post"
@@ -193,10 +198,7 @@ const SummaryApi = {
         url: "/api/order/cod-order-history",
        method: "get"
    },
-    getPaymentReceived: {       // 🆕 Total PaymentReceived from Delivery Partner Role
-        url: "/api/order/delivery-partner-payment-received",
-        method: "get"
-    },
+   
     getNotDeliveredOrder:{
         url: "/api/order/delivery-partner-not-deliverd",
        method: "get"

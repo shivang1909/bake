@@ -846,6 +846,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { updatedShoppingCart } from "../store/userSlice";
 import wrapprice from "../utils/wrapprice.json";
+import axios from "axios";
 
 const CheckoutPage = () => {
   const [openAddress, setOpenAddress] = useState(false);
@@ -985,24 +986,24 @@ const CheckoutPage = () => {
   const handleSelectPromocode = (code) => {
     setSelectedPromocode(code);
   };
-
+  
+  // Add gift wrap charge to each variant that has gift wrap
+  const itemsWithGiftWrapCharge = checkoutItems.map(item => ({
+    ...item,
+    variantPrices: item.variantPrices.map(variant => {
+      if (variant.isGiftWrap) {
+        return {
+          ...variant,
+          giftWrapCharge: wrapprice[variant.weight] * variant.quantity
+        };
+      }
+      return variant;
+    })
+  }));
   const handleCashOnDelivery = async () => {
     try {
       toast.loading("Processing order...");
       
-      // Add gift wrap charge to each variant that has gift wrap
-      const itemsWithGiftWrapCharge = checkoutItems.map(item => ({
-        ...item,
-        variantPrices: item.variantPrices.map(variant => {
-          if (variant.isGiftWrap) {
-            return {
-              ...variant,
-              giftWrapCharge: wrapprice[variant.weight] * variant.quantity
-            };
-          }
-          return variant;
-        })
-      }));
       
       const response = await Axios({
         ...SummaryApi.CashOnDeliveryOrder,
@@ -1020,8 +1021,8 @@ const CheckoutPage = () => {
 
       if (responseData.success) {
         toast.success(responseData.message);
-        setCartItem([]);
-        dispatch(updatedShoppingCart([]));
+        `setCartItem([]);
+        dispatch(updatedShoppingCart([]));`
         setTotalQty(0);
         navigate("/success", {
           state: {
@@ -1037,41 +1038,60 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-      toast.loading("Redirecting to payment...");
-      const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-      const stripePromise = await loadStripe(stripePublicKey);
       
-      // Add gift wrap charge to each variant that has gift wrap
-      const itemsWithGiftWrapCharge = checkoutItems.map(item => ({
-        ...item,
-        variantPrices: item.variantPrices.map(variant => {
-          if (variant.isGiftWrap) {
-            return {
-              ...variant,
-              giftWrapCharge: wrapprice[variant.weight] * variant.quantity
-            };
+      const response = await Axios({...SummaryApi.payment_url,data:{
+        amount: grandTotal,
+       
+      }})
+        console.log(response)
+      const order = response.data;
+      console.log('order',order)
+       const options = {
+        key: "rzp_test_SXcix9cPDGx5eU",
+        amount: order.amount,
+        currency: order.currency,
+        name: "Bake Flavour",
+        description: "Test Transaction",
+        order_id: order.id,
+        handler: async (response) => {
+          console.log("Razorpay Response:", response);
+
+          const verifyRes = await fetch(
+            "http://localhost:5000/api/order/verifyPayment",{credentials: "include"
+            ,headers: {
+              "Content-Type": "application/json",  // Important!
+            },
+              method: "POST",
+              body: JSON.stringify({
+                ...response,
+                list_items: itemsWithGiftWrapCharge,
+                addressId: addressList[selectAddress]?._id,
+                total: (finalTotal - discountedPrice - promocodeDiscount) + GiftWrapCharges,
+                promocodeId: appliedPromocode?._id || null,
+                promocodeDiscount: promocodeDiscount || 0,
+                amount: order.amount, // Include `amount` in verification
+              }),
+            }
+          );
+          const verifyData = await verifyRes.json();
+          console.log(verifyData)
+          if (verifyData.success) {
+            setCartItem([]);
+        dispatch(updatedShoppingCart([]));
+        setTotalQty(0);
+toast.success("Payment verified successfully!");
+
+navigate("/success")
           }
-          return variant;
-        })
-      }));
-
-      const response = await Axios({
-        ...SummaryApi.payment_url,
-        data: {
-          list_items: itemsWithGiftWrapCharge,
-          addressId: addressList[selectAddress]?._id,
-          subTotalAmt: finalTotal - discountedPrice,
-          total: (finalTotal - discountedPrice - promocodeDiscount) + GiftWrapCharges,
-          promocodeId: appliedPromocode?._id || null,
-          promocodeDiscount: promocodeDiscount || 0
-        },
-      });
-
-      const { data: responseData } = response;
-      stripePromise.redirectToCheckout({ sessionId: responseData.id });
+        }
+      }
+    
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+      
     } catch (error) {
-      toast.dismiss();
-      AxiosToastError(error);
+        console.log(error)
+      // AxiosToastError(error);
     }
   };
 
@@ -1099,6 +1119,7 @@ const CheckoutPage = () => {
   }, [checkoutItems]);
 
 
+  const grandTotal=(finalTotal - discountedPrice - promocodeDiscount) + GiftWrapCharges;
   useEffect(() => {
  // Fetch all promocodes
  const fetchPromocodes = async () => {
@@ -1420,7 +1441,7 @@ fetchPromocodes();
                 </div>
                 <div className="font-semibold flex items-center justify-between gap-4 mt-2 pt-2 border-t">
                   <p>Grand total</p>
-                  <p>{DisplayPriceInRupees((finalTotal - discountedPrice - promocodeDiscount) + GiftWrapCharges)}</p>
+                  <p>{DisplayPriceInRupees(grandTotal)}</p>
                 </div>
               </div>
               <div className="w-full flex flex-col gap-4 mt-4">
@@ -1443,7 +1464,7 @@ fetchPromocodes();
             </>
           ) : (
             <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500">NO data Found in CART</div>
+              <div className="rounded-full h-8 w-8 border-b-2 border-blue-500">NO data Found in CART</div>
             </div>
           )}
         </div>

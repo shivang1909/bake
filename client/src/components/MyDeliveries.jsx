@@ -176,7 +176,7 @@ const MyDeliveries = ({ filterDelivered }) => {
   
   const [selectedDate, setSelectedDate] = useState("");
   
-  const statusOptions = ["Assigned", "Out for Delivery", "Delivered"];
+  // const statusOptions = ["Assigned", "Out for Delivery", "Delivered"];
  
   useEffect(() => {
     let eventSource;
@@ -354,23 +354,7 @@ const handleCODStatusFilterChange = (e) => {
 const handleDateFilterChange = (e) => {
   setSelectedDate(e.target.value);
 };
-// Fetch Payment Received
-// useEffect(() => {
-//   const fetchPaymentReceived = async () => {
-//     try {
-//       const response = await Axios({ ...SummaryApi.getPaymentReceived });
-//       if (response.data.success) {
-//         setPaymentReceived(response.data.paymentReceived);
-//         // console.log("Payment received:", response.data.paymentReceived);
-        
-//       }
-//     } catch (error) {
-//       console.error("Error fetching payment received:", error);
-//     }
-//   };
 
-//   fetchPaymentReceived();
-// }, []);
 
 // Filter orders based on selected status or date
 const filteredOrders = orders.filter ((order) => {
@@ -544,25 +528,29 @@ return (
             {order.delivery_address.pincode}
           </td>
           <td className="border p-2">
-            <div className="flex items-center justify-center gap-2">
-              <select
-                className={`border rounded p-2 ${
-                  order.orderStatus === "Delivered" ? "bg-green-50" : "bg-white"
-                }`}
-                value={order.orderStatus}
-                onChange={(e) => {
-                  handleStatusUpdate(order.orderId, e.target.value);
-                }}
-                disabled={order.orderStatus === "Delivered"}
-              >
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </td>
+  <div className="flex items-center justify-center gap-2">
+    <select
+      className={`border rounded p-2 ${
+        order.orderStatus === "Delivered" ? "bg-green-50" : "bg-white"
+      }`}
+      value={order.orderStatus}
+      onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
+      disabled={order.orderStatus === "Delivered"}
+    >
+      <option value={order.orderStatus}>{order.orderStatus}</option>
+
+      {order.orderStatus === "Assigned" && (
+        <option value="Out for Delivery">Out for Delivery</option>
+      )}
+
+      {order.orderStatus === "Out for Delivery" && (
+        <option value="Delivered">Delivered</option>
+      )}
+    </select>
+  </div>
+</td>
+
+
           {filterDelivered ? (
             <>
               <td className="border p-2">

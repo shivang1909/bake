@@ -280,10 +280,12 @@
 
 // export default OrderListPage;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Axios from '../utils/Axios';
 import { getUsers } from '../services/UserService';
 import SummaryApi from "../common/SummaryApi";
+import useSSE from '../hooks/useSSE';
+
 
 const OrderListPage = () => {
   const [orders, setOrders] = useState([]);
@@ -296,8 +298,21 @@ const OrderListPage = () => {
   const [selectedPartnerFilter, setSelectedPartnerFilter] = useState(""); // State for the filter
   const [orderStatusFilter, setOrderStatusFilter] = useState(""); // State for Order Status filter
   const [paymentStatusFilter, setPaymentStatusFilter] = useState(""); // State for Payment Status filter
+   
+    const newOrderArrival = useCallback((data) => {
+      console.log('🛠️ new order  :', data);
+      setOrders(prevOrders => [...prevOrders, data])
+      console.log(orders);
+      
 
-
+      
+    }, []);
+    
+ const eventHandlers = useMemo(() => ({
+   'new-order': newOrderArrival
+ }), [newOrderArrival]);
+  useSSE(eventHandlers);
+  
   useEffect(() => {
     let eventSource;
   
@@ -461,11 +476,16 @@ const OrderListPage = () => {
   };
 
   // New bulk assignment functions
+   useEffect(() => {
+    console.log('selected orders changed:', selectedOrders);
+   },[selectedOrders]);
   const handleSelectOrder = (orderId) => {
     setSelectedOrders(prev => ({
       ...prev,
       [orderId]: !prev[orderId]
     }));
+    
+
   };
 
   const handleSelectAll = (e) => {
@@ -481,20 +501,25 @@ const OrderListPage = () => {
   };
 
   const handleBulkAssign = async () => {
+    console.log(`button click of bulk`);
+
     if (!bulkPartner) {
       setError('Please select a delivery partner');
       return;
     }
-    console.log(selectedOrders)
+    console.log('new selected order',selectedOrders)
 
     let selectedOrderIds = [] ;  
     let assignedIds = [];
     orders
         .forEach(order => {
+           console.log(`this is order ${JSON.stringify(order)}`);
           if(selectedOrders[order.orderId])
           {
+            console.log(`this is selected order ${selectedOrders[order.orderId]}`);
             if(order.deliveryPartnerId === null)
             {
+              
               selectedOrderIds.push(order.orderId)// Update all matching orders
             }
             else if (order.deliveryPartnerId !== bulkPartner)
@@ -508,7 +533,7 @@ const OrderListPage = () => {
       console.log(assignedIds);
       
 
-    if (selectedOrderIds.length === 0) {
+    if (selectedOrderIds.length === 0 ) {
       setError('Please select at least one order');
       return;
     }
@@ -559,6 +584,8 @@ const OrderListPage = () => {
         throw new Error('Failed to assign delivery partners');
       }
     } catch (err) {
+      console.log(err);
+
       setError('Error assigning delivery partners');
     }
   };

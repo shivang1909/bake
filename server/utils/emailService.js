@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import InvoicePDF from "./InvoicePDF.js";
+import { renderToBuffer } from "@react-pdf/renderer";
+
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -18,6 +21,7 @@ export const sendOrderConfirmationEmail = async (customerEmail, order) => {
             year: "numeric", month: "long", day: "numeric",
             hour: "2-digit", minute: "2-digit", hour12: true
         });
+        const pdfBuffer = await renderToBuffer(InvoicePDF({ order }));
 
         const productTable = order.products.map(item =>
             item.variantPrices.map(variant => `
@@ -29,7 +33,6 @@ export const sendOrderConfirmationEmail = async (customerEmail, order) => {
                 </tr>
             `).join("")
         ).join("");
-        // const userOrderList = "http://localhost:5173/dashboard/myorders";
         const userOrderList = `${process.env.FRONTEND_URL}/dashboard/myorders`;
 
         const mailOptions = {
@@ -57,8 +60,14 @@ export const sendOrderConfirmationEmail = async (customerEmail, order) => {
                     </a>
                 </p>
             `,
+            attachments: [
+                {
+                    filename: `Invoice-${order.orderId}.pdf`,
+                    content: pdfBuffer,
+                    contentType: 'application/pdf'
+                }
+            ]
         };
-
         await transporter.sendMail(mailOptions);
         console.log("📧 Order confirmation email sent to:", customerEmail);
     } catch (error) {
@@ -66,59 +75,9 @@ export const sendOrderConfirmationEmail = async (customerEmail, order) => {
     }
 };
 
-// Mail for "Out for Delivery" Notification to USER
-// export const sendOutForDeliveryEmail = async (customerEmail, order) => {
-//     try {
-//         const deliveryDate = new Date().toLocaleString("en-IN", {
-//             year: "numeric", month: "long", day: "numeric",
-//             hour: "2-digit", minute: "2-digit", hour12: true
-//         });
 
-//         const productTable = order.products.map(item =>
-//             item.variantPrices.map(variant => `
-//                 <tr>
-//                     <td style="border: 1px solid #ddd; padding: 8px;">${item.itemname || "Unknown"}</td>
-//                     <td style="border: 1px solid #ddd; padding: 8px;">${variant.weight || "N/A"}</td>
-//                     <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${variant.quantity || 0}</td>
-//                 </tr>
-//             `).join("")
-//         ).join("");
 
-//         const userOrderList = `${process.env.FRONTEND_URL}/dashboard/myorders`;
 
-//         const mailOptions = {
-//             from: process.env.EMAIL,
-//             to: customerEmail,
-//             subject: "🚚 Your Order is Out for Delivery!",
-//             html: `
-//                 <h3>Your order is on the way! 🚀</h3>
-//                 <p>Your order <strong>#${order.orderId}</strong> is now out for delivery as of ${deliveryDate}.</p>
-//                 <p>Here’s a summary of your order:</p>
-//                 <table style="border-collapse: collapse; width: 100%;">
-//                     <thead>
-//                         <tr style="background-color: #f2f2f2;">
-//                             <th style="border: 1px solid #ddd; padding: 8px;">Product</th>
-//                             <th style="border: 1px solid #ddd; padding: 8px;">Weight</th>
-//                             <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
-//                         </tr>
-//                     </thead>
-//                     <tbody>${productTable}</tbody>
-//                 </table>
-//                 <p><strong>Expected Delivery: Within a few hours</strong></p>
-//                 <p>Track your order or contact support:
-//                     <a href="${userOrderList}" target="_blank" style="color: blue; text-decoration: underline;">
-//                         Click here
-//                     </a>
-//                 </p>
-//             `,
-//         };
-
-//         await transporter.sendMail(mailOptions);
-//         console.log("📧 Out for delivery email sent to:", customerEmail);
-//     } catch (error) {
-//         console.error("❌ Error sending out for delivery email:", error.message);
-//     }
-// };
 export const sendOutForDeliveryEmail = async (customerEmail, order, otp) => {
     try {
         const deliveryDate = new Date().toLocaleString("en-IN", {
@@ -309,67 +268,222 @@ export const sendNewOrderNotificationEmail = async (adminEmail, order) => {
     }
 };
 
-// export async function sendOrderReassignedEmail(email, order) {
-//     try {
-//         console.log("📧 Sending reassignment email to:", email);
+export const sendOrderCancellationEmailToAdmin = async (adminEmail, order) => {
+    try {
+        const orderDate = new Date().toLocaleString("en-IN", {
+            year: "numeric", month: "long", day: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: true
+        });
 
-//         let transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             auth: {
-//                 user: process.env.EMAIL,
-//                 pass: process.env.EMAIL_PASSWORD,
-//             },
-//         });
+        const adminDashboardLink = `${process.env.FRONTEND_URL}/admin/dashboard/order-list`;
 
-//         let mailOptions = {
-//             from: process.env.EMAIL,
-//             to: email,
-//             subject: "🚨 Order Reassignment Notification",
-//             html: `
-//                 <p>Hello,</p>
-//                 <p>We regret to inform you that order <strong>${order.orderId}</strong> has been reassigned to another delivery partner.</p>
-//                 <p>We appreciate your efforts and look forward to working with you on future orders.</p>
-//                 <p>Thank you for your understanding.</p>
-//             `
-//         };
+        const productTable = `
+            <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>Product Name</th>
+                        <th>Weight</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${order.products.map(item =>
+                        item.variantPrices.map(variant => `
+                            <tr>
+                                <td>${item.itemname || "Unknown"}</td>
+                                <td>${variant.weight || "N/A"}</td>
+                                <td>${variant.quantity || 0}</td>
+                            </tr>
+                        `).join("")
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
 
-//         await transporter.sendMail(mailOptions);
-//         console.log("✅ Reassignment email sent successfully to:", email);
-//     } catch (error) {
-//         console.error("❌ Error sending reassignment email:", error);
-//     }
-// }
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: adminEmail,
+            subject: `❌ Order Cancelled - #${order.orderId}`,
+            html: `
+                <h3 style="color: #c0392b;">Order Cancelled</h3>
+                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                <p><strong>Cancelled on:</strong> ${orderDate}</p>
+                ${productTable}
+                <p><strong>Total Amount:</strong> ₹${order.finalOrderTotal}</p>
+                <p>View details: <a href="${adminDashboardLink}" target="_blank">Admin Dashboard</a></p>
+            `,
+        };
 
-// export async function sendOrderReassignedEmail(email, order) {
-//     try {
-//         console.log("📧 Sending reassignment email to:", email); // Debugging Log
+        await transporter.sendMail(mailOptions);
+        console.log("📧 Order cancellation email sent to Admin:", adminEmail);
+    } catch (error) {
+        console.error("❌ Error sending cancellation email to admin:", error.message);
+    }
+};
 
-//         let transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             auth: {
-//                 user: process.env.EMAIL,
-//                 pass: process.env.EMAIL_PASSWORD,
-//             },
-//         });
+export const sendOrderCancellationEmailToUser = async (customerEmail, order) => {
+    try {
+        const orderDate = new Date(order.createdAt).toLocaleString("en-IN", {
+            year: "numeric", month: "long", day: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: true
+        });
 
-//         let mailOptions = {
-//             from: process.env.EMAIL,
-//             to: email,
-//             subject: "🚚 Order Reassigned Notification",
-//             html: `
-//                 <p>Hello,</p>
-//                 <p>We regret to inform you that the following order has been reassigned to another delivery partner:</p>
-//                 <p><strong>Order ID:</strong> ${order.orderId}</p>
-//                 <p>Thank you for your service!</p>
-//             `
-//         };
+        const userOrderList = `${process.env.FRONTEND_URL}/dashboard/myorders`;
 
-//         await transporter.sendMail(mailOptions);
-//         console.log("✅ Reassignment email sent successfully to:", email);
-//     } catch (error) {
-//         console.error("❌ Error sending reassignment email:", error);
-//     }
-// }
+        // const productTable = order.products.map(item =>
+        //     item.variantPrices.map(variant => `
+        //         <tr>
+        //             <td>${item.itemname || "Unknown"}</td>
+        //             <td>${variant.weight || "N/A"}</td>
+        //             <td>${variant.quantity || 0}</td>
+        //         </tr>
+        //     `).join("")
+        // ).join("");
+
+        const productTable = `
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Product Name</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Weight</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${order.products.map(item => 
+                    item.variantPrices.map(variant => `
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${item.itemname || "Unknown"}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${variant.weight || "N/A"}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${variant.quantity || 0}</td>
+                        </tr>
+                    `).join("")
+                ).join("")}
+            </tbody>
+        </table>
+    `;
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: customerEmail,
+            subject: `✅ Your Order #${order.orderId} has been Cancelled`,
+            html: `
+                <h3>Your order has been cancelled</h3>
+                <p>You have successfully cancelled order <strong>#${order.orderId}</strong> placed on ${orderDate}.</p>
+                <p>Below are the order details:</p>
+                ${productTable}
+                <p><strong>Total: ₹${order.finalOrderTotal}</strong></p>
+                <p>You can view your order history here: 
+                    <a href="${userOrderList}" target="_blank" style="color: blue;">My Orders</a>
+                </p>
+                <p>If you have any questions or made a mistake, feel free to contact our support.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("📧 Order cancellation email (user-initiated) sent to:", customerEmail);
+    } catch (error) {
+        console.error("❌ Error sending user-initiated cancellation email:", error.message);
+    }
+};
+
+
+export const sendOrderCancellationEmailToDeliveryPartner = async (partnerEmail, order) => {
+    try {
+        const orderDate = new Date().toLocaleString("en-IN", {
+            year: "numeric", month: "long", day: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: true
+        });
+
+        const deliveryPanelLink = `${process.env.FRONTEND_URL}/delivery/dashboard/assigned-orders`;
+
+        const productTable = `
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; text-align: left;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Product Name</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Weight</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${order.products.map(item => 
+                    item.variantPrices.map(variant => `
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${item.itemname || "Unknown"}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${variant.weight || "N/A"}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${variant.quantity || 0}</td>
+                        </tr>
+                    `).join("")
+                ).join("")}
+            </tbody>
+        </table>
+    `;
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: partnerEmail,
+            subject: `❌ Assigned Order Cancelled - #${order.orderId}`,
+            html: `
+                <h3>Heads Up!</h3>
+                <p>The following assigned order has been cancelled:</p>
+                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                <p><strong>Cancelled on:</strong> ${orderDate}</p>
+                ${productTable}
+                <p>Check your dashboard for updated assignments: 
+                    <a href="${deliveryPanelLink}" target="_blank">Assigned Orders</a>
+                </p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log("📧 Order cancellation email sent to Delivery Partner:", partnerEmail);
+    } catch (error) {
+        console.error("❌ Error sending cancellation email to delivery partner:", error.message);
+    }
+};
+export  const sendResetOTP =  async (email,otp)=>{
+    try {
+       
+
+        console.log("📧 Sending reassignment email to:", email);
+
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+
+        // Format the email body to include all reassigned order IDs
+         
+
+        let mailOptions = {
+            from: `"Bake Flavour Support" <${process.env.EMAIL}>`,
+            to: email,  
+            subject: "🔐 Password Reset OTP - Bake Flavour",
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2 style="color: #d9534f;">Password Reset Request</h2>
+                    <p>We received a request to reset your password for your Bake Flavour account.</p>
+                    <p>Please use the following One-Time Password (OTP) to proceed:</p>
+
+                    <div style="font-size: 24px; font-weight: bold; background-color: #f0f0f0; padding: 10px; width: fit-content; border-radius: 5px;">
+                        ${otp}
+                    </div>
+
+                    <p>This OTP is valid for the next 10 minutes. If you didn’t request a password reset, please ignore this email.</p>
+                    <br>
+                    <p>Regards,<br><strong>Bake Flavour Team</strong></p>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+    
+    } catch (error) {
+        console.error("❌ Error sending reassignment email:", error);
+    }
+}
 
 export async function sendOrderReassignedEmail(email, orders) {
     try {
@@ -494,82 +608,6 @@ export async function sendOrderAssignedEmail(email, order) {
 }
 
 
-
-// export async function sendBulkOrderAssignedEmail(email, orders) {
-//     try {
-//         let transporter = nodemailer.createTransport({
-//             service: "gmail",
-//             auth: {
-//                 user: process.env.EMAIL,  // Your email
-//                 pass: process.env.EMAIL_PASS   // Your email password
-//             }
-//         });
-
-//         // Construct order details in table format
-//         let orderTableRows = orders.map(order => `
-//             <tr>
-//                 <td>${order.orderId}</td>
-//                 <td>${order.payment_status}</td>
-//                 <td>${order.cod_status}</td>
-//                 <td>₹${order.finalOrderTotal}</td>
-//             </tr>
-//         `).join('');
-
-//         // Construct delivery addresses in table format
-//         let addressTableRows = orders.map(order => `
-//             <tr>
-//                 <td>${order.delivery_address.address_line}</td>
-//                 <td>${order.delivery_address.city}</td>
-//                 <td>${order.delivery_address.state}</td>
-//                 <td>${order.delivery_address.pincode}</td>
-//                 <td>${order.delivery_address.country}</td>
-//                 <td>${order.delivery_address.mobile}</td>
-//             </tr>
-//         `).join('');
-
-//         let mailOptions = {
-//             from: process.env.EMAIL,
-//             to: email,
-//             subject: "🚚 Multiple Orders Assigned to You",
-//             html: `
-//                 <p>Hello,</p>
-//                 <p>The following orders have been assigned to you:</p>
-
-//                 <h3>📦 Order Details:</h3>
-//                 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-//                     <tr>
-//                         <th>Order ID</th>
-//                         <th>Payment Status</th>
-//                         <th>COD Status</th>
-//                         <th>Final Total</th>
-//                     </tr>
-//                     ${orderTableRows}
-//                 </table>
-
-//                 <h3>🏠 Delivery Addresses:</h3>
-//                 <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-//                     <tr>
-//                         <th>Address Line</th>
-//                         <th>City</th>
-//                         <th>State</th>
-//                         <th>Pincode</th>
-//                         <th>Country</th>
-//                         <th>Mobile</th>
-//                     </tr>
-//                     ${addressTableRows}
-//                 </table>
-
-//                 <p>Please check your dashboard for more details.</p>
-//                 <p>Thank you!</p>
-//             `
-//         };
-
-//         await transporter.sendMail(mailOptions);
-//         console.log("✅ Bulk order assignment email sent to:", email);
-//     } catch (error) {
-//         console.error("❌ Error sending bulk assignment email:", error);
-//     }
-// }
 
 export async function sendBulkOrderAssignedEmail(email, orders) {
     try {

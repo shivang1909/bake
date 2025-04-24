@@ -20,8 +20,7 @@ export async function loginController(request,response){
         }
 
         const user = await AdminModel.findOne({ email })
-      console.log("------------------");
-      console.log(user); 
+     console.log("This is Admin",user); 
         if(!user){
             return response.status(400).json({
                 message : "User not register",
@@ -30,7 +29,7 @@ export async function loginController(request,response){
             })
         }
 
-        const checkPassword = await bcryptjs.compare(password,user.password)
+        const checkPassword = bcryptjs.compare(password,user.password)
 
         if(!checkPassword){
             return response.status(400).json({
@@ -47,6 +46,8 @@ export async function loginController(request,response){
             last_login_date : new Date()
         })
 
+        console.log("updated user",updateUser);
+        
         const cookiesOption = {
             httpOnly : true,
             secure : true,

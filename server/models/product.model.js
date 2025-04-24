@@ -96,6 +96,30 @@ const weightVariantSchema = new mongoose.Schema({
         default: 0,   // Default discount is 0
     },
 });
+const reviewSchema = new mongoose.Schema({
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', // reference to the User model
+    },
+    rating: {
+      type: Number,
+     
+      min: 1,
+      max: 5
+    },
+    comment: {
+      type: String,
+      trim: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  },
+  {_id:false}
+
+);
+  
 
 const productSchema = new mongoose.Schema(
     {
@@ -132,6 +156,7 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        reviews: [reviewSchema], 
     },
     {
         timestamps: true,

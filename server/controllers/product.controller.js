@@ -7,6 +7,41 @@ import CategoryModel from "../models/category.model.js";
 
 
 dotenv.config();
+
+export const addreview = async (request,response)=>{
+
+     let  {productid,rating,comment}=request.body;
+     try {
+          const product = await ProductModel.findById(productid);
+          const review = {
+            rating: Number(rating),
+            comment,
+            user: request.userId
+          };
+           
+        product.reviews.push(review)
+        await product.save();
+        return response.status(200).json({"sucess": true})
+     } catch (error) {
+        console.log(error);
+     }
+}
+export const getreviewsofproduct = async (request,response)=>
+{
+       const productid = request.params.id;
+      
+       const product = await ProductModel.findById(productid)
+       .populate({
+           path: 'reviews.user',  // Populate the 'user' field in each review
+           select: 'name'   // Only select 'name' and 'email' from the User model
+        });
+        let filteredReviews;
+            filteredReviews = product.reviews.filter(review => review.rating >= 4);
+            return response.status(200).json(filteredReviews)  
+}
+
+
+
 export const createProductController = async (request, response) => {
     try {
         let {

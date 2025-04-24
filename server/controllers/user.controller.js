@@ -11,6 +11,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import AdminModel from '../models/admin.model.js'
 import mongoose from  'mongoose'; // Ensure mongoose is imported
+import { sendResetOTP } from '../utils/emailService.js'
 
 export async function fetchCartProductData(request, response)
 {
@@ -262,7 +263,7 @@ export async function loginController(request,response){
             })
         }
 
-        const accesstoken = await generatedAccessToken(user._id)
+        const accesstoken = await generatedAccessToken(user._id,)
         const refreshToken = await genertedRefreshToken(user._id)
 
         const updateUser = await UserModel.findByIdAndUpdate(user?._id,{
@@ -350,7 +351,6 @@ export async  function uploadAvatar(request,response){
                 }
         else
         {
-
             const updateUser = await AdminModel.findByIdAndUpdate(userId,{
                 avatar : image
             })
@@ -437,14 +437,7 @@ export async function forgotPasswordController(request,response) {
             forgot_password_expiry : new Date(expireTime).toISOString()
         })
 
-        await sendEmail({
-            sendTo : email,
-            subject : "Forgot password from Binkeyit",
-            html : forgotPasswordTemplate({
-                name : user.name,
-                otp : otp
-            })
-        })
+        await sendResetOTP(email,otp)
 
         return response.json({
             message : "check your email",
