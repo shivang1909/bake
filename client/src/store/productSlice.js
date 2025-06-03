@@ -2,8 +2,7 @@
 
     const initialValue = {
         allCategory : [],
-        loadingCategory : false,
-        Allproduct : []
+        Allproduct : [],
     }
 
     const productSlice = createSlice({
@@ -12,18 +11,16 @@
         reducers : {
             setAllCategory : (state,action)=>{
                 state.allCategory = [...action.payload]
-                console.log(state.allCategory)
-            },
-            setLoadingCategory : (state,action)=>{
-                state.loadingCategory = action.payload
+                // console.log(state.allCategory)
             },
             setAllProduct : (state,action)=>{
                 state.Allproduct = [...action.payload]
-                // console.log("calling",state.Allproduct);
+                console.log("calling",state.Allproduct);
+                console.trace(); // 🔥 this prints the call stack
             }
         }
     })
 
-    export const  { setAllCategory,setLoadingCategory ,setAllProduct} = productSlice.actions
+    export const  { setAllCategory,setLoadingCategory ,setAllProduct ,setLoadingProduct} = productSlice.actions
 
     export default productSlice.reducer

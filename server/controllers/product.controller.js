@@ -4,9 +4,104 @@ import fs from 'fs';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 import CategoryModel from "../models/category.model.js";
+import { json } from "stream/consumers";
+import HomepageSection from "../models/homepagesection.model.js";
+
 
 
 dotenv.config();
+
+export const addreview = async (request, response) => {
+    const { productid, rating, comment } = request.body;
+  
+    try {
+      const product = await ProductModel.findById(productid);
+      if (!product) {
+        return response.status(404).json({ success: false, message: "Product not found" });
+      }
+  
+      const review = {
+        rating: Number(rating),
+        comment,
+        user: request.userId
+      };
+  
+      console.log('This is review:', review);
+  
+      // Push the new review
+      product.reviews.push(review);
+  
+      // Save the review
+      await product.save();
+  
+      // ✅ Calculate and update the average rating
+      const totalRating = product.reviews.reduce((sum, r) => sum + r.rating, 0);
+      const average = totalRating / product.reviews.length;
+  
+      // ✅ Update and save again with averageRating
+      product.averageRating = average;
+      await product.save();
+  
+      return response.status(200).json({ success: true, averageRating: average });
+  
+    } catch (error) {
+      console.log(error);
+      return response.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+  };
+  export const getreviewsofproduct = async (request,response)=>
+    {
+           const productid = request.params.id;
+          const ratingsStats = await ProductModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(productid) } },
+      { $unwind: "$reviews" },
+      {
+        $group: {
+          _id: "$reviews.rating",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: -1 } } // Sort by star rating descending (5 to 1)
+    ]);
+    console.log('this is ratingsStats',ratingsStats);
+           const product = await ProductModel.findById(productid)
+           .populate({
+               path: 'reviews.user',  // Populate the 'user' field in each review
+               select: 'name avatar' 
+                 // Only select 'name' and 'email' from the User model
+            });
+            
+     return response.status(200).json(
+        {
+            "success": true,
+            "data": product.reviews,
+            "ratingsStats": ratingsStats,
+            "message": "Review fetched successfully",
+            "totalReviews": product.reviews.length
+        }
+      );
+     
+    };
+
+
+
+export const getallProduct = async (req, res) => {
+    try {
+        
+      const product = await ProductModel.find().sort({ createdAt: -1 });
+      res.status(200).json({
+        success: true,
+        data: product,
+        message: 'Product retrieved successfully'});
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve product',
+        error: error.message,
+        });
+  }
+  };
 export const createProductController = async (request, response) => {
     try {
         let {
@@ -29,6 +124,14 @@ export const createProductController = async (request, response) => {
 
         // console.log(category);
 
+        let wv = JSON.parse(weightVariants)
+        
+        wv.forEach((item) => {
+            if(item.discount == ""){
+                item.discount = 0;
+            }
+        })
+        
         // Create a new product with the provided data, including weightVariants
         const product = new ProductModel({
             name,
@@ -38,7 +141,7 @@ export const createProductController = async (request, response) => {
             // discount,
             description,
             more_details,
-            weightVariants: JSON.parse(weightVariants) || [], // Handling weightVariants as an array
+            weightVariants: wv || [], // Handling weightVariants as an array
             sku_code
         });
 
@@ -104,7 +207,7 @@ export const getProductController = async (request, response) => {
 export const getProductByCategory = async(request,response)=>{
     try {
         const { id } = request.body 
-        
+        const limit = request.body.limit || 15
         if(!id){
             return response.status(400).json({
                 message : "provide category id",
@@ -115,7 +218,7 @@ export const getProductByCategory = async(request,response)=>{
 
         const product = await ProductModel.find({ 
             category : { $in : id }
-        }).limit(15)
+        }).limit(limit).populate('category')
 
         return response.json({
             message : "category product list",
@@ -198,8 +301,9 @@ export const getProductByCategoryName = async (request, response) => {
 export const getProductDetails = async(request,response)=>{
     try {
         const { productId } = request.body 
-
-        const product = await ProductModel.findOne({ _id : productId })
+            console.log('this is productId',productId);
+        const product = await ProductModel.findOne({ _id : productId }).populate
+        ('category')
 
         // console.log(product);
         
@@ -211,6 +315,7 @@ export const getProductDetails = async(request,response)=>{
         })
 
     } catch (error) {
+        console.log('this is error',error);
         return response.status(500).json({
             message : error.message || error,
             error : true,
@@ -315,6 +420,12 @@ export const deleteProductDetails = async(request,response)=>{
                 }
 
         const deleteProduct = await ProductModel.deleteOne({_id : _id })
+           await HomepageSection.updateMany(
+      { productIds: _id },
+      { $pull: { productIds: _id } }
+    ); 
+
+    
 
         return response.json({
             message : "Delete successfully",

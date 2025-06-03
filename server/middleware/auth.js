@@ -29,6 +29,8 @@ const auth = async (request, response, next) => {
 
     // Attach userId to the request object
     request.userId = decoded.id;
+    request.role = decoded.role;
+    
     console.log(`Request userId: ${request.userId}`); // Log userId for verification
 
     next();

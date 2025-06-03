@@ -36,10 +36,16 @@ const userSchema = new mongoose.Schema(
       required: [true, "Provide email"],
       unique: true,
     },
-    password: {
-      type: String,
-      required: [true, "Provide password"],
-    },
+    isOAuthUser: {
+    type: Boolean,
+    default: false
+  },
+  password: {
+    type: String,
+    required: function() {
+      return !this.isOAuthUser; // password required only if NOT oauth user
+    }
+  },
     avatar: {
       type: String,
       default: "",

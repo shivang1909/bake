@@ -13,86 +13,124 @@ import { updatedShoppingCart } from "../store/userSlice";
 import { useEffect } from "react";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
-import { FaMinus, FaPlus } from "react-icons/fa6";
+import { FaMinus, FaPlus } from "react-icons/fa";
+import { FaCartShopping } from "react-icons/fa6";
+import { FaEye } from "react-icons/fa";
 
-const DisplayCartItem = ({ close }) => {
+const DisplayCartItem = ({ close, open }) => {
   const dispatch = useDispatch();
-  const {cartItems,setCartItem, totalPrice,totalQty, notDiscountTotalPrice,setTotalPrice,setTotalQty,setNotDiscountTotalPrice} = useGlobalContext()
+  const {
+    cartItems,
+    setCartItem,
+    totalPrice,
+    totalQty,
+    notDiscountTotalPrice,
+    setTotalPrice,
+    setTotalQty,
+    setNotDiscountTotalPrice,
+  } = useGlobalContext();
   const cartdata = useSelector((state) => state.user.shopping_cart);
-  console.log(cartdata)
+  console.log(cartdata);
   const user = useSelector((state) => state.user);
   console.log(user);
   // console.log();
+
+  const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
+
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = "hidden"; // Disable scrolling
+    } else {
+      document.body.style.overflow = "auto"; // Enable scrolling
+    }
+  }, [isCartOpen]);
+
+  const handleclose = () => {
+    close();
+  };
+
+  const [activeTab, setActiveTab] = useState("cart");
+  const [selectedTab, setSelectedTab] = useState(0);
+
   const decreaseQty = (qty, productIndex, variantIndex) => {
- 
-      let updatedData;
-      if (qty === 1 && cartdata[productIndex].variants.length === 1 && cartdata.length === 1) {
-        dispatch(updatedShoppingCart([])); // Make sure you have this action
-        setCartItem([])
-      }
-      else if (qty === 1 && cartdata[productIndex].variants.length === 1) {
-        updatedData = cartdata.filter((_, index) => index !== productIndex);
+    let updatedData;
+    if (
+      qty === 1 &&
+      cartdata[productIndex].variants.length === 1 &&
+      cartdata.length === 1
+    ) {
+      dispatch(updatedShoppingCart([])); // Make sure you have this action
+      setCartItem([]);
+    } else if (qty === 1 && cartdata[productIndex].variants.length === 1) {
+      updatedData = cartdata.filter((_, index) => index !== productIndex);
 
-        dispatch(updatedShoppingCart(updatedData)); // Make sure you have this action
+      dispatch(updatedShoppingCart(updatedData)); // Make sure you have this action
 
-        // Update cartItems
-        setCartItem((prevCartItems) => {
-          const updatedCartItems = prevCartItems.filter((_, index) => index !== productIndex);
-          return updatedCartItems;
-        });
-      } else if (qty === 1) {
-        updatedData = cartdata.map((product) => ({
-          ...product,
-          variants: [...product.variants],
-        }));
-
-        updatedData[productIndex].variants.splice(variantIndex, 1);
-        dispatch(updatedShoppingCart(updatedData));
-        setCartItem((prevCartItems) => {
-          const updatedCartItems = prevCartItems.map((item) => ({
-            ...item,
-            variantPrices: [...item.variantPrices],
-          }));
-          updatedCartItems[productIndex].variantPrices.splice(variantIndex, 1);
-  
-          return updatedCartItems;
-        });        
-      }
-      else{
-        // Step 1: Create a deep copy of the cart data
-    updatedData = cartdata.map((product) => ({
-      ...product,
-      variants: product.variants.map((variant) => ({ ...variant })), // Ensure deep copy of variants
-    }));
-
-    // Step 2: Decrease the quantity
-    updatedData[productIndex].variants[variantIndex].cartQty = qty - 1;
-
-    // Step 3: Dispatch the updated cart data
-    dispatch(updatedShoppingCart(updatedData));
-
-    // Step 4: Update local cart items if managed separately
-    setCartItem((prevCartItems) => {
-      const updatedCartItems = prevCartItems.map((item) => ({
-        ...item,
-        variantPrices: [...item.variantPrices],
+      // Update cartItems
+      setCartItem((prevCartItems) => {
+        const updatedCartItems = prevCartItems.filter(
+          (_, index) => index !== productIndex
+        );
+        return updatedCartItems;
+      });
+    } else if (qty === 1) {
+      updatedData = cartdata.map((product) => ({
+        ...product,
+        variants: [...product.variants],
       }));
 
-      updatedCartItems[productIndex].variantPrices[variantIndex].quantity = qty - 1;
-      
-      return updatedCartItems;
-    });
-    
-  }
-  //Quantity
-  let newTotalQty = totalQty - 1;
-  setTotalQty(newTotalQty)
-  //Discounted Price
-  let newTotalPrice = totalPrice - (cartItems[productIndex].variantPrices[variantIndex].price)
-  let eachDiscount= (cartItems[productIndex].variantPrices[variantIndex].price ) * (cartItems[productIndex].variantPrices[variantIndex].discount / 100)
-    setTotalPrice(newTotalPrice + eachDiscount) 
+      updatedData[productIndex].variants.splice(variantIndex, 1);
+      dispatch(updatedShoppingCart(updatedData));
+      setCartItem((prevCartItems) => {
+        const updatedCartItems = prevCartItems.map((item) => ({
+          ...item,
+          variantPrices: [...item.variantPrices],
+        }));
+        updatedCartItems[productIndex].variantPrices.splice(variantIndex, 1);
+
+        return updatedCartItems;
+      });
+    } else {
+      // Step 1: Create a deep copy of the cart data
+      updatedData = cartdata.map((product) => ({
+        ...product,
+        variants: product.variants.map((variant) => ({ ...variant })), // Ensure deep copy of variants
+      }));
+
+      // Step 2: Decrease the quantity
+      updatedData[productIndex].variants[variantIndex].cartQty = qty - 1;
+
+      // Step 3: Dispatch the updated cart data
+      dispatch(updatedShoppingCart(updatedData));
+
+      // Step 4: Update local cart items if managed separately
+      setCartItem((prevCartItems) => {
+        const updatedCartItems = prevCartItems.map((item) => ({
+          ...item,
+          variantPrices: [...item.variantPrices],
+        }));
+
+        updatedCartItems[productIndex].variantPrices[variantIndex].quantity =
+          qty - 1;
+
+        return updatedCartItems;
+      });
+    }
+    //Quantity
+    let newTotalQty = totalQty - 1;
+    setTotalQty(newTotalQty);
+    //Discounted Price
+    let newTotalPrice =
+      totalPrice - cartItems[productIndex].variantPrices[variantIndex].price;
+    let eachDiscount =
+      cartItems[productIndex].variantPrices[variantIndex].price *
+      (cartItems[productIndex].variantPrices[variantIndex].discount / 100);
+    setTotalPrice(newTotalPrice + eachDiscount);
     //Not  Discounted Price
-    setNotDiscountTotalPrice(notDiscountTotalPrice-cartItems[productIndex].variantPrices[variantIndex].price)
+    setNotDiscountTotalPrice(
+      notDiscountTotalPrice -
+        cartItems[productIndex].variantPrices[variantIndex].price
+    );
   };
 
   const increaseQty = (qty, productIndex, variantIndex) => {
@@ -104,48 +142,62 @@ const DisplayCartItem = ({ close }) => {
 
     // Step 2: Update the cart quantity for the specific product and variant
     updatedData[productIndex].variants[variantIndex].cartQty = qty + 1;
-  
+
     // Step 3: Dispatch the updated cart data to the state
     dispatch(updatedShoppingCart(updatedData));
-    
+
     // Step 4: Optionally update local cart items if managed separately
     setCartItem((prevCartItems) => {
       const updatedCartItems = prevCartItems.map((item) => ({
         ...item,
         variantPrices: [...item.variantPrices],
       }));
-      
+
       // Update the cart quantity in the local state
-      updatedCartItems[productIndex].variantPrices[variantIndex].quantity = qty + 1;  
+      updatedCartItems[productIndex].variantPrices[variantIndex].quantity =
+        qty + 1;
       return updatedCartItems;
     });
     let newTotalQty = totalQty + 1;
-    setTotalQty(newTotalQty)
-    let newTotalPrice = totalPrice + (cartItems[productIndex].variantPrices[variantIndex].price)
-    let eachDiscount= (cartItems[productIndex].variantPrices[variantIndex].price ) * (cartItems[productIndex].variantPrices[variantIndex].discount / 100)
-    setTotalPrice(newTotalPrice - eachDiscount) 
-    setNotDiscountTotalPrice(notDiscountTotalPrice+cartItems[productIndex].variantPrices[variantIndex].price)
+    setTotalQty(newTotalQty);
+    let newTotalPrice =
+      totalPrice + cartItems[productIndex].variantPrices[variantIndex].price;
+    let eachDiscount =
+      cartItems[productIndex].variantPrices[variantIndex].price *
+      (cartItems[productIndex].variantPrices[variantIndex].discount / 100);
+    setTotalPrice(newTotalPrice - eachDiscount);
+    setNotDiscountTotalPrice(
+      notDiscountTotalPrice +
+        cartItems[productIndex].variantPrices[variantIndex].price
+    );
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const updateQuantity = async () => {
       try {
-      console.log(cartdata);
-      console.log(cartItems);
-      
-      // Make API call to update the cart in the database
-      const response = await Axios({
-        ...SummaryApi.updateCartDetails,
-        data: { cart: cartdata }, // Send the entire updated cart
-      });
-      console.log("Cart updated in the database:", response.data);
-    } catch (error) {
-      console.error("Error updating cart in the database:", error);
-    }
-  }
+        console.log(cartdata);
+        console.log(cartItems);
+
+        // Make API call to update the cart in the database
+        const response = await Axios({
+          ...SummaryApi.updateCartDetails,
+          data: { cart: cartdata }, // Send the entire updated cart
+        });
+        console.log("Cart updated in the database:", response.data);
+      } catch (error) {
+        console.error("Error updating cart in the database:", error);
+      }
+    };
     updateQuantity();
-    
-  },[cartdata])
+  }, [cartdata]);
+
+  // useEffect(() => {
+  //   if (isCartOpen) {
+  //     document.body.style.overflow = "hidden"; // Disable scrolling
+  //   } else {
+  //     document.body.style.overflow = "auto"; // Enable scrolling
+  //   }
+  // }, [isCartOpen]);
 
   const navigate = useNavigate();
   const redirectToCheckoutPage = () => {
@@ -159,37 +211,80 @@ const DisplayCartItem = ({ close }) => {
     toast("Please Login");
   };
   return (
-    <section className="bg-neutral-900 fixed top-0 bottom-0 right-0 left-0 bg-opacity-70 z-50">
-      <div className="bg-white w-full max-w-sm min-h-screen max-h-screen ml-auto">
-        <div className="flex items-center p-4 shadow-md gap-3 justify-between">
-          <h2 className="font-semibold">Cart</h2>
-          <Link to={"/"} className="lg:hidden">
-            <IoClose size={25} />
-          </Link>
-          <button onClick={close} className="hidden lg:block">
+    <>
+      <div
+        className={`
+        fixed inset-0 bg-zinc-800/60 z-40 transition-opacity duration-300
+        ${
+          isCartOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }
+      `}
+        onClick={handleclose}
+      />
+
+      <div
+        className={`
+        bg-white w-full max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out 
+        ${isCartOpen ? "translate-x-0" : "translate-x-full"}
+      `}
+      >
+        {/* Top bar */}
+        <div className="flex items-center p-4 gap-3 justify-between">
+          <span className="font-bold text-xl text-center">My Cart</span>
+          <button onClick={close}>
             <IoClose size={25} />
           </button>
         </div>
 
-        <div className="min-h-[75vh] lg:min-h-[80vh] h-full max-h-[calc(100vh-150px)] bg-blue-50 p-2 flex flex-col gap-4">
-          {Array.isArray(cartItems) && cartItems?.length > 0 ? (
-            <>
-            
-              <div className="flex items-center justify-between px-4 py-2 bg-blue-100 text-blue-500 rounded-full">
-                <p>Your total savings</p>
-                <p>
-                  {DisplayPriceInRupees(notDiscountTotalPrice - totalPrice)}
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 grid gap-5 overflow-auto">
-                {cartItems.map((item, productIndex) =>
+        {/* Toggle buttons */}
+        <div className="relative flex justify-between items-center w-full max-w-md mx-auto bg-white p-2 rounded-[25px] shadow-md ">
+          <span
+            className="absolute top-2 left-2 h-[48px] w-[calc(50%-0.5rem)] rounded-full z-0 transition-transform duration-300"
+            style={{
+              transform:
+                activeTab === "cart" ? "translateX(0)" : "translateX(100%)",
+              backgroundColor: activeTab === "cart" ? "#d1f3f5" : "#ffe8d0",
+            }}
+          />
+          <button
+            onClick={() => setActiveTab("cart")}
+            className={`z-10 flex justify-center items-center w-1/2 py-3 text-2xl font-semibold transition-colors rounded-full ${
+              activeTab === "cart" ? "text-[#008E97]" : "text-black"
+            }`}
+          >
+            <FaCartShopping />
+          </button>
+
+          <button
+            onClick={() => setActiveTab("recent")}
+            className={`z-10 flex justify-center items-center w-1/2 py-3 text-2xl font-semibold transition-colors rounded-full ${
+              activeTab === "recent" ? "text-orange-500" : "text-black"
+            }`}
+          >
+            <FaEye />
+          </button>
+        </div>
+
+        {/* Cart Content */}
+        {activeTab === "cart" ? (
+          <div className="flex flex-col h-[calc(100%-120px)]">
+            {/* HEADER */}
+
+            {/* BODY - SCROLLABLE */}
+            {console.log(cartItems)}
+            <div className="flex-1 overflow-auto px-2 space-y-4">
+              {Array.isArray(cartItems) && cartItems.length > 0 ? (
+                
+                cartItems.map((item, productIndex) =>
                   item.variantPrices.map((variant, index) => (
                     <div
-                    key={`${item.productId}_product_${index}`}
-                      className="flex flex-col w-full gap-4 border-b pb-4"
+                      key={`${item.productId}_product_${index}`}
+                      className="flex flex-col w-full border-b p-4"
                     >
                       <div className="flex gap-4 items-start">
-                        <div className="w-16 h-16 bg-red-500 border rounded">
+                        <div className="w-16 h-16 bg-orange-50 rounded">
                           <img
                             src={item.coverimage}
                             alt={item.name}
@@ -200,124 +295,150 @@ const DisplayCartItem = ({ close }) => {
                           <p className="text-sm font-semibold">
                             {item.itemname}
                           </p>
-                          <div
-                            key={`${item.productId}_variant_${index}`}
-                            className="flex justify-between items-center mt-2"
-                          >
+                          <div className="flex justify-between items-center mt-1">
                             <div>
-                              <p className="text-xs text-neutral-400">
-                                Weight: {variant.weight}
+                              <p className="text-xs font-normal text-neutral-400">
+                                {variant.weight}
                               </p>
                               <p className="font-semibold">
                                 {DisplayPriceInRupees(
                                   pricewithDiscount(
                                     variant.price,
-                                    variant.discount 
-                                  )*variant.quantity
+                                    variant.discount
+                                  ) * variant.quantity
                                 )}
                               </p>
                             </div>
-                            <div className="w-full max-w-[150px]">
-                              <div className="flex w-full h-full">
-                                <button
-                                  onClick={() =>
-                                    decreaseQty(
-                                      variant.quantity,
-                                      productIndex,
-                                      index
-                                    )
-                                  }
-                                  className="bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center"
-                                >
-                                  <FaMinus />
-                                </button>
 
-                                <p className="flex-1 w-full font-semibold px-1 flex items-center justify-center">
-                                  {variant.quantity}
-                                </p>
-
-                                <button
-                                  onClick={()=> 
-                                    increaseQty(
+                            <div className="flex h-full">
+                              <button
+                                onClick={() =>
+                                  decreaseQty(
                                     variant.quantity,
-                                      productIndex,
-                                      index
-                                  )}
-                                  className="bg-green-600 hover:bg-green-700 text-white flex-1 w-full p-1 rounded flex items-center justify-center"
-                                >
-                                  <FaPlus />
-                                </button>
-                              </div>
+                                    productIndex,
+                                    index
+                                  )
+                                }
+                                className="bg-orange-400 hover:bg-orange-400 text-white px-3 py-1 rounded-full flex items-center justify-center"
+                              >
+                                <FaMinus />
+                              </button>
+                              <p className="font-semibold px-4 flex items-center justify-center">
+                                <span>{variant.quantity}</span>
+                              </p>
+                              <button
+                                onClick={() =>
+                                  increaseQty(
+                                    variant.quantity,
+                                    productIndex,
+                                    index
+                                  )
+                                }
+                                className="bg-orange-400 hover:bg-orange-400 text-white px-3 py-1 rounded-full flex items-center justify-center"
+                              >
+                                <FaPlus />
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   ))
-                )}
-              </div>
-              <div className="bg-white p-4">
-                <h3 className="font-semibold">Bill details</h3>
+                )
+              ) : (
+                <div className="flex flex-col justify-center items-center mt-10">
+                  <img
+                    src={imageEmpty}
+                    className="w-48 h-48 object-scale-down"
+                    alt="Cart is empty"
+                  />
+                  <Link
+                    onClick={close}
+                    to={"/"}
+                    className="block mt-4 font-semibold text-md bg-green-600 px-4 py-2 text-white rounded-full transition-all duration-300 hover:bg-green-700 active:scale-95 cursor-pointer"
+                  >
+                    Shop Now
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* FOOTER - STICKY */}
+            {cartItems.length > 0 && 
+            <div
+              style={{ boxShadow: "0 -4px 8px rgba(0, 0, 0, 0.1)" }}
+              className="bg-white p-4 border-t font-normal text-black rounded-[35px] "
+            >
+              <h3 className="font-semibold text-lg text-center mb-3">
+                Bill Details
+              </h3>
+
+              <div className="space-y-2">
                 <div className="flex gap-4 justify-between ml-1">
                   <p>Items total</p>
                   <p className="flex items-center gap-2">
                     <span className="line-through text-neutral-400">
-                    {DisplayPriceInRupees(notDiscountTotalPrice)}
-                      
+                      {DisplayPriceInRupees(notDiscountTotalPrice)}
                     </span>
                     <span>{DisplayPriceInRupees(totalPrice)}</span>
                   </p>
                 </div>
+
+
                 <div className="flex gap-4 justify-between ml-1">
                   <p>Quantity total</p>
-                  <p className="flex items-center gap-2">{totalQty} items</p>
+                  <p>{totalQty} items</p>
                 </div>
+
                 <div className="flex gap-4 justify-between ml-1">
                   <p>Delivery Charge</p>
-                  <p className="flex items-center gap-2">Free</p>
+                  <p>Free</p>
                 </div>
-                <div className="font-semibold flex items-center justify-between gap-4">
+
+                <div className="my-4">
+                  <div className="flex items-center justify-between  py-1  font-semibold text-green-700 px-1">
+                    <p>Your total savings</p>
+                    <p>
+                      {DisplayPriceInRupees(notDiscountTotalPrice - totalPrice)}
+                    </p>
+                  </div>
+                </div>
+
+                
+                <div className="font-semibold text-[#008E97] flex items-center justify-between gap-4 ml-1">
                   <p>Grand total</p>
                   <p>{DisplayPriceInRupees(totalPrice)}</p>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="bg-white flex flex-col justify-center items-center">
-              <img
-                src={imageEmpty}
-                className="w-full h-full object-scale-down"
-                alt="Cart is empty"
-              />
-              <Link
-                onClick={close}
-                to={"/"}
-                className="block bg-green-600 px-4 py-2 text-white rounded"
-              >
-                Shop Now
-              </Link>
-            </div>
-          )}
 
-          {cartItems.length > 0 && (
-            <div className="p-2">
-              <div className="bg-green-700 text-neutral-100 px-4 font-bold text-base py-4 static bottom-3 rounded flex items-center gap-4 justify-between">
-                <div>{DisplayPriceInRupees(totalPrice)}</div>
-                <button
-                  onClick={redirectToCheckoutPage}
-                  className="flex items-center gap-1"
-                >
-                  Proceed
-                  <span>
-                    <FaCaretRight />
-                  </span>
-                </button>
+              <div className="p-2">
+                <div className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer">
+                  <div>{DisplayPriceInRupees(totalPrice)}</div>
+                  <button
+                    onClick={redirectToCheckoutPage}
+                    className="flex items-center gap-1"
+                  >
+                    Proceed
+                    <span>
+                      <FaCaretRight />
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+            }
+          </div>
+        ) : (
+          <div className="p-4">
+            <p>This is the Recently Viewed section with static data.</p>
+            <div className="mt-2">
+              <p>🍰 Chocolate Cake - ₹250</p>
+              <p>🧁 Vanilla Cupcake - ₹120</p>
+            </div>
+          </div>
+        )}
       </div>
-    </section>
+    </>
   );
 };
 

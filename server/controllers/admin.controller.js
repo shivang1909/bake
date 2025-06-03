@@ -48,8 +48,8 @@ export async function loginController(request,response){
         })
 
         const cookiesOption = {
-            httpOnly : true,
-            secure : true,
+                httpOnly : true,
+                secure : false, 
             sameSite : "None"
         }
         response.cookie('accessToken',accesstoken,cookiesOption)

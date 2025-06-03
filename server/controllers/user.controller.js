@@ -6,11 +6,11 @@ import generatedAccessToken from '../utils/generatedAccessToken.js'
 import genertedRefreshToken from '../utils/generatedRefreshToken.js'
 
 import generatedOtp from '../utils/generatedOtp.js'
-import forgotPasswordTemplate from '../utils/forgotPasswordTemplate.js'
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
 import AdminModel from '../models/admin.model.js'
 import mongoose from  'mongoose'; // Ensure mongoose is imported
+import WeightVariantModel from '../models/weightvariant.model.js'
+import { sendResetOTP } from '../utils/emailService.js'
 
 export async function fetchCartProductData(request, response)
 {
@@ -107,15 +107,34 @@ export async function getUserCartDetails(request,response) {
         }
       }
     ]);
-
-    console.log(cartDetails);
-
     
+let giftwrapCharges = {};
+
+for (const item of cartDetails) {
+  for (const variant of item.variantPrices) {
+    const weight = variant.weight;
+    if (weight) {
+      const weightDoc = await WeightVariantModel.findOne({ weight });
+      console.log("weight doc", weightDoc);
+
+      if (weightDoc && weightDoc.giftwrapCharge != null) {
+        giftwrapCharges[weight] = weightDoc.giftwrapCharge;
+      } else {
+        giftwrapCharges[weight] = 0; // Default value if not found
+      }
+    }
+  }
+}
+
+
+
+
     return response.json({
         message : "Fetched cart data",
         error : false,
         success : true,
-        data : cartDetails
+        data : cartDetails,
+        giftwrapCharges : giftwrapCharges
     })
 
 
@@ -127,98 +146,125 @@ export async function getUserCartDetails(request,response) {
 };
   
 
-export async function registerUserController(request,response){
+export async function registerUserController(request, response) {
     try {
-        const { name, email , password } = request.body
-
-        if(!name || !email || !password){
-            return response.status(400).json({
-                message : "provide email, name, password",
-                error : true,
-                success : false
-            })
-        }
-
-        const user = await UserModel.findOne({ email })
-
-        if(user){
-            return response.json({
-                message : "Already register email",
-                error : true,
-                success : false
-            })
-        }
-
-        const salt = await bcryptjs.genSalt(10)
-        const hashPassword = await bcryptjs.hash(password,salt)
-
-        const payload = {
-            name,
-            email,
-            password : hashPassword
-        }
-
-        const newUser = new UserModel(payload)
-        const save = await newUser.save()
-
-        const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${save?._id}`
-
-        const verifyEmail = await sendEmail({
-            sendTo : email,
-            subject : "Verify email from binkeyit",
-            html : verifyEmailTemplate({
-                name,
-                url : VerifyEmailUrl
-            })
-        })
-
+      const { name, email, password } = request.body;
+  
+  
+      if (!name || !email || !password) {
+        return response.status(400).json({
+          message: "Provide email, name, and password",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      const existingUser = await UserModel.findOne({ email });
+  
+  
+      if (existingUser) {
         return response.json({
-            message : "User register successfully",
-            error : false,
-            success : true,
-            data : save
-        })
-
+          message: "Email already registered",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      const salt = await bcryptjs.genSalt(10);
+      const hashPassword = await bcryptjs.hash(password, salt);
+  
+  
+      const newUser = new UserModel({ name, email, password: hashPassword });
+      const savedUser = await newUser.save();
+  
+  
+      const verifyUrl = `${process.env.VITE_API_URL}/api/user/verify-email?code=${savedUser._id}`;
+  
+  
+      await sendEmail({
+        sendTo: email,
+        subject: "Verify Your Email - Bake Flavours",
+        html: verifyEmailTemplate({ name, url: verifyUrl }),
+      });
+  
+  
+      return response.json({
+        message: "User registered successfully. Please check your email.",
+        error: false,
+        success: true,
+        data: savedUser,
+      });
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+      return response.status(500).json({
+        message: error.message || "Registration failed",
+        error: true,
+        success: false,
+      });
     }
-}
-
-export async function verifyEmailController(request,response){
+  }
+  export async function verifyEmailController(request, response) {
     try {
-        const { code } = request.body
-
-        const user = await UserModel.findOne({ _id : code})
-
-        if(!user){
-            return response.status(400).json({
-                message : "Invalid code",
-                error : true,
-                success : false
-            })
-        }
-
-        const updateUser = await UserModel.updateOne({ _id : code },{
-            verify_email : true
-        })
-
-        return response.json({
-            message : "Verify email done",
-            success : true,
-            error : false
-        })
+      const code = request.query.code;
+  
+  
+      if (!code) {
+        return response.status(400).send(`
+          <div style="text-align: center; font-family: Arial; padding: 50px;">
+            <h2 style="color: red;">Invalid Link</h2>
+            <p>No verification code provided.</p>
+          </div>
+        `);
+      }
+  
+  
+      const user = await UserModel.findById(code);
+  
+  
+      if (!user) {
+        return response.status(400).send(`
+          <div style="text-align: center; font-family: Arial; padding: 50px;">
+            <h2 style="color: red;">Verification Failed</h2>
+            <p>Invalid or expired verification link.</p>
+          </div>
+        `);
+      }
+  
+  
+      // if (user.verify_email) {
+      //   // ✅ Already verified → Redirect immediately
+      //   return response.redirect(`${process.env.FRONTEND_URL}/login`);
+      // }
+  
+  
+      // // ✅ Mark as verified
+      // await UserModel.updateOne({ _id: code }, { verify_email: true });
+  
+  
+      // // ✅ Redirect after successful verification
+      // return response.redirect(`${process.env.FRONTEND_URL}/login`);
+  
+  
+      if (user.verify_email) {
+    return response.redirect(`${process.env.FRONTEND_URL}/login?msg=already_verified`);
+  }
+  
+  
+  await UserModel.updateOne({ _id: code }, { verify_email: true });
+  
+  
+  return response.redirect(`${process.env.FRONTEND_URL}/login?msg=verified`);
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : true
-        })
+      return response.status(500).send(`
+        <div style="text-align: center; font-family: Arial; padding: 50px;">
+          <h2 style="color: red;">Verification Error</h2>
+          <p>${error.message}</p>
+        </div>
+      `);
     }
-}
+  }
+  
 
 //login controller
 export async function loginController(request,response){
@@ -262,7 +308,7 @@ export async function loginController(request,response){
             })
         }
 
-        const accesstoken = await generatedAccessToken(user._id)
+        const accesstoken = await generatedAccessToken(user._id,)
         const refreshToken = await genertedRefreshToken(user._id)
 
         const updateUser = await UserModel.findByIdAndUpdate(user?._id,{
@@ -271,8 +317,8 @@ export async function loginController(request,response){
 
         const cookiesOption = {
             httpOnly : true,
-            secure : true,
-            sameSite : "None"
+            secure : false,
+            sameSite : "Lax"
         }
         response.cookie('accessToken',accesstoken,cookiesOption)
         response.cookie('refreshToken',refreshToken,cookiesOption)
@@ -296,6 +342,38 @@ export async function loginController(request,response){
     }
 }
 
+
+export const googleAuthCallbackHandler = async (req, res) => {
+  try {
+    const user = req.user;
+    const accessToken = await generatedAccessToken(user._id);
+    const refreshToken = await genertedRefreshToken(user._id);
+
+    await UserModel.findByIdAndUpdate(user._id, {
+      last_login_date: new Date()
+    });
+
+    const cookiesOption = {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'None'
+    };
+
+    res.cookie('accessToken', accessToken, cookiesOption);
+    res.cookie('refreshToken', refreshToken, cookiesOption);
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    );
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Something went wrong during Google login'
+    });
+  }
+};
+
+
 //logout controller
 export async function logoutController(request,response){
     try {
@@ -303,8 +381,8 @@ export async function logoutController(request,response){
 
         const cookiesOption = {
             httpOnly : true,
-            secure : true,
-            sameSite : "None"
+            secure : false,
+            sameSite : "Lax"
         }
 
         response.clearCookie("accessToken",cookiesOption)
@@ -350,7 +428,6 @@ export async  function uploadAvatar(request,response){
                 }
         else
         {
-
             const updateUser = await AdminModel.findByIdAndUpdate(userId,{
                 avatar : image
             })
@@ -437,14 +514,7 @@ export async function forgotPasswordController(request,response) {
             forgot_password_expiry : new Date(expireTime).toISOString()
         })
 
-        await sendEmail({
-            sendTo : email,
-            subject : "Forgot password from Binkeyit",
-            html : forgotPasswordTemplate({
-                name : user.name,
-                otp : otp
-            })
-        })
+        await sendResetOTP(email,otp)
 
         return response.json({
             message : "check your email",
@@ -640,6 +710,8 @@ export async function userDetails(request,response){
 
         const user = await UserModel.findById(userId).select('-password -refresh_token')
 
+        console.log(user);
+
         return response.json({
             message : 'user details',
             data : user,
@@ -647,6 +719,7 @@ export async function userDetails(request,response){
             success : true
         })
     } catch (error) {
+        console.log("helloooooo")
         return response.status(500).json({
             message : "Something is wrong",
             error : true,

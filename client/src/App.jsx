@@ -1,6 +1,7 @@
 import { Outlet, useLocation,useNavigate } from 'react-router-dom'
 import './App.css'
-import Header from './components/Header'
+// import Header from './components/Header'
+import Header from  './components/Header.jsx'
 import Footer from './components/Footer'
 import toast, { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
@@ -12,79 +13,58 @@ import Axios from './utils/Axios';
 import { setDataLoading } from './store/loadingSlice';
 
 import SummaryApi from './common/SummaryApi';
-import { handleAddItemCart } from './store/cartProduct'
 import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
+import ProductPage from './pages/ProductPage';
+import BottomToolBar from './components/BottomToolBar.jsx'
+
+
 function App() {
-  
   const dispatch = useDispatch()
   const location = useLocation()
   const navigate = useNavigate()  
 
-
-const fetchUser = async () => {
-  try{
-    const userData = await fetchUserDetails();
-    dispatch(setUserDetails(userData.data));
-    dispatch(setDataLoading(true))
-    if (userData === "Provide  token") {
-        console.log(location.pathname);
-  
-        const pathParts = location.pathname.split("/").filter(Boolean); // Remove empty strings
-  
-        if (pathParts[1] === "dashboard") {
-            navigate("/admin/login");
-        } else if(pathParts[0] === "dashboard"){
-            navigate("/login");
-        } 
-    }
-  }
-  catch(error)
-  {
-    console.log(error);
-  }
-};
-  const fetchCategory = async()=>{
+  const fetchUser = async () => {
     try {
-        dispatch(setLoadingCategory(true))
-        const response = await Axios({
-            ...SummaryApi.getCategory
-        })   
-        const { data : responseData } = response;
-        console.log(`this is response of category ${JSON.stringify(responseData.data)}`);
-        
-        if(responseData.success){
-           dispatch(setAllCategory(responseData.data.sort((a, b) => a.name.localeCompare(b.name)))) 
+      dispatch(setDataLoading(false));
+      const userData = await fetchUserDetails();
+      dispatch(setUserDetails(userData.data));
+      dispatch(setDataLoading(true));
+      if (userData === "Provide  token") {
+        const pathParts = location.pathname.split("/").filter(Boolean);
+        if (pathParts[1] === "dashboard") {
+          navigate("/admin/login");
+        } else if (pathParts[0] === "dashboard") {
+          navigate("/login");
         }
+      }
     } catch (error) {
-
-    }finally{
-      dispatch(setLoadingCategory(false))
+      console.log(error);
     }
-  }
-  useEffect(()=>{
-    fetchUser()
-    fetchCategory()
+  };
 
-    // fetchCartItem()
-  },[])
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  // 👇 ADD THIS to fix scroll issue
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
-    <GlobalProvider> 
-      <Header/>
-      <main className='min-h-[78vh]'>
-          <Outlet/>
+    <GlobalProvider>
+      <Header />
+      <main className="min-h-[78vh] bg-white">
+        <Outlet />
       </main>
-      <Footer/>
-      <Toaster/>
-      {
-        location.pathname !== '/checkout' && (
-          <CartMobileLink/>
-        )
-      }
+      <Footer />
+      <Toaster />
+      {location.pathname !== '/checkout' && <CartMobileLink />}
     </GlobalProvider>
-  ) 
+  );
 }
+
 
 export default App

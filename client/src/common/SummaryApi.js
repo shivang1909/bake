@@ -2,7 +2,72 @@
 export const baseURL = import.meta.env.VITE_API_URL
 
 const SummaryApi = {
+    getInvoice :{
+        url: 'api/generate-invoice',
+        method: 'post'
+    },
+    getHomepageSections: {
+        url: '/api/product/get-HomepageSection',
+        method: 'get'
+    },
+    addReview : {
+        url : '/api/product/addreview',
+        method : 'post'
+    },
+   getReview: (id) => ({
+  url: `/api/product/getreviewproduct/${id}`,
+  method: 'get'
+}),
+    getnotification : {
+        url : '/api/notification/getnotifications',
+        method : 'get'
+    },
+    clearAllNotifications : {
+        url : '/api/notification/clearnotification',
+        method : 'delete'
+    },
+    updatenotification : {
+        url : '/api/notification/updatenotification',
+        method : 'put'
+       
+    },
+
+    addHomePageSection :{
+        url : '/api/admin/create-homepage-section',
+        method : 'post'
+    },
+
+    deleteHomePageSection :{
+        url : '/api/admin/delete-homepage-section',
+        method : 'delete'
+
+    },
+    updatehomepageSection : {
+        url : '/api/admin/update-homepage-section',
+        method : 'put'
+    },
     
+
+    getallHomepageSection : {
+        url : '/api/admin/homepage-sections',
+        method : 'get'
+    },
+    getallWeightVariant : {
+        url : '/api/weight/listweight',
+        method : 'get'
+    },
+    addWeightVariant : {
+        url : '/api/weight/addweight',
+        method : 'post'
+    },
+    deleteWeightVariant : {
+        url : '/api/weight/deleteweight',
+        method : 'delete'
+    },
+    updateWeightVariant : {
+        url : '/api/weight/updateweight',
+        method : 'put'
+    },
     register : {
         url : '/api/user/register',
         method : 'post'
@@ -113,6 +178,10 @@ const SummaryApi = {
         url : '/api/product/get-product-details',
         method : 'post'
     },
+    getallProduct : {
+        url : '/api/product/get-all-product',
+        method : 'get'
+        },
     updateProductDetails : {
         url : "/api/product/update-product-details",
         method : 'put'
@@ -157,15 +226,44 @@ const SummaryApi = {
         url : '/api/address/update',
         method : 'put'
     },
-    disableAddress : {
-        url : '/api/address/disable',
+    deleteAddress : {
+        url : '/api/address/delete',
         method : 'delete'
     },
+    AddAdmin:{
+        url: '/api/admin/add',
+        method: 'post'
+    },
+    getAdmins:{
+        url: '/api/admin/list',
+        method: 'get'
+    },
+     setPassword:{
+        url: (userId) => `/api/admin/set-password/${userId}`,
+        method: 'post'
+     },
+     verifyOtp:{
+        url: `/api/auth/verify-otp`,
+        method: 'post'
+     },
+     forgotPass:{
+        url: `/api/users/forgot-password`,
+        method: 'post'
+     },
+     resetPass:{
+        url: (token) => `/api/users/reset-password/${token}`,
+        method: 'post'
+     },
     // =========== Order Related APIs ===================  
     CashOnDeliveryOrder: {
         url: "/api/order/cash-on-delivery",
         method: "post"
     },
+    CancelOrder: {
+        url: (orderId) => `/api/order/cancel/${orderId}`,
+        method: "put",
+      },
+      
     payment_url: {
         url: "/api/order/checkout",
         method: "post"
@@ -184,6 +282,10 @@ const SummaryApi = {
         url: "/api/order/assign-delivery-partner",
         method: "put"
     },
+    assignBulkDeliveryPartner: {  // 🆕 Admin assigns a delivery partner
+        url: "/api/order/bulk-assign-delivery-partner",
+        method: "put"
+    },
    
     getDeliveredOrder:{
          url: "/api/order/delivery-partner-orders-history",
@@ -193,10 +295,7 @@ const SummaryApi = {
         url: "/api/order/cod-order-history",
        method: "get"
    },
-    getPaymentReceived: {       // 🆕 Total PaymentReceived from Delivery Partner Role
-        url: "/api/order/delivery-partner-payment-received",
-        method: "get"
-    },
+   
     getNotDeliveredOrder:{
         url: "/api/order/delivery-partner-not-deliverd",
        method: "get"

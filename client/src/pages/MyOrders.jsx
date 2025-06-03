@@ -23,9 +23,9 @@
 //                   <p>Order No : {order?.orderId}</p>
 //                   <div className='flex gap-3'>
 //                     <img
-//                       src={order.product_details.image[0]} 
+//                       src={order.product_details.image[0]}
 //                       className='w-14 h-14'
-//                     />  
+//                     />
 //                     <p className='font-medium'>{order.product_details.name}</p>
 //                   </div>
 //               </div>
@@ -37,7 +37,6 @@
 // }
 
 // export default MyOrders
-
 
 // import React, { useState } from "react";
 
@@ -152,7 +151,6 @@
 //   }
 // ];
 
-
 // const MyOrders = () => {
 //   const [expandedOrder, setExpandedOrder] = useState(null);
 
@@ -184,7 +182,7 @@
 //                 <p className="text-gray-600 text-sm">Address: {order.address}</p>
 
 //               </div>
-              
+
 //               <p className="font-medium text-gray-700">Payment Method {order.paymentMethod}</p>
 //               <p className="font-medium text-gray-700">Total: ₹{(order.totalPrice - order.discount)+ order.packaging}</p>
 //               <button
@@ -270,19 +268,49 @@
 // export default MyOrders;
 
 import React, { useState, useEffect } from "react";
-import Axios from '../utils/Axios'
-import SummaryApi from '../common/SummaryApi'
+import Axios from "../utils/Axios";
+import SummaryApi from "../common/SummaryApi";
+import { RxCross2 } from "react-icons/rx";
+import { MdExpandMore } from "react-icons/md";
+import { MdAccessTime } from "react-icons/md";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]); // Ensuring orders is always an array
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [animateModal, setAnimateModal] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  // Call this to show the modal
+  const openModal = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowCancelModal(true);
+    setTimeout(() => setAnimateModal(true), 10); // allow DOM to mount before animating
+  };
+
+  // Call this to close with animation
+  const closeModal = () => {
+    setAnimateModal(false);
+    setTimeout(() => setShowCancelModal(false), 300); // wait for animation to finish
+  };
+
+  useEffect(() => {
+    if (
+      showCancelModal &&
+      typeof window !== "undefined" &&
+      navigator?.vibrate
+    ) {
+      // Light haptic feedback (like iOS tap)
+      navigator.vibrate(10); // 10ms = soft tap
+    }
+  }, [showCancelModal]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await Axios({
           method: SummaryApi.getMyorderItems.method, // Dynamic method (GET)
-          url: SummaryApi.getMyorderItems.url,      // Dynamic URL
+          url: SummaryApi.getMyorderItems.url, // Dynamic URL
         });
 
         const data = Array.isArray(response.data) ? response.data : []; // Ensure response is an array
@@ -295,74 +323,279 @@ const MyOrders = () => {
 
     fetchOrders();
   }, []);
+  const handleCancelOrder = async (orderId) => {
+    const confirmCancel = window.confirm(
+      "Are you sure you want to cancel this order?"
+    );
+    if (!confirmCancel) return;
 
+    try {
+      const response = await Axios({
+        method: SummaryApi.CancelOrder.method,
+        url: SummaryApi.CancelOrder.url(orderId), // dynamic URL
+      });
+
+      alert("Order cancelled successfully!");
+
+      // Optional: Refresh or update order status in UI
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId ? { ...order, orderStatus: "Cancelled" } : order
+        )
+      );
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Failed to cancel order");
+    }
+  };
 
   const toggleMoreInfo = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
-      <div className="bg-white shadow-md p-4 rounded-md font-semibold mb-4">
+    <div className="bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto">
+      {/* <div className="bg-white shadow-md p-4 rounded-md font-semibold mb-4">
         <h1 className="text-lg">My Orders</h1>
-      </div>
+      </div> */}
 
       {orders.length === 0 ? (
         <div className="bg-white shadow-md p-4 rounded-md text-center">
-          {console.log(orders)
-          }
+          {console.log(orders)}
           <p>No Orders Available</p>
         </div>
       ) : (
-        orders.map((order) => (
-          <div
-            key={order._id}
-            className="bg-white shadow-md p-4 rounded-md mb-4 border border-gray-200 hover:shadow-lg transition-all duration-300"
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-bold text-gray-800">Order No: {order._id}</p>
-                <p className="text-gray-600 text-sm">Order Date: {new Date(order.createdAt).toLocaleString()}</p>
-                <p className="text-gray-600 text-sm">Address: {order.delivery_address || "N/A"}</p>
-              
+        orders
+          .slice()
+          .reverse()
+          .map((order) => (
+            <div
+              key={order._id}
+              className="bg-white pb-3 mb-3 p-0 md:p-4  hover:shadow-sm border-gray-200 transition-all duration-300"
+            >
+              <div className="bg-white rounded-xl md:border p-0 md:p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                {/* Left: Product Image + Info */}
+                <div className="flex justify-between items-center md:items-center gap-6 w-full md:w-1/3">
+                  <img
+                    src={order.products[0].coverimage}
+                    alt={order.itemname}
+                    className="w-20 h-20 object-cover rounded-md md:border"
+                  />
+                  <div className="flex flex-col gap-2">
+                    {/* <p className="font-semibold text-gray-800">
+                      Order No: {order._id}
+                    </p> */}
+                    {/* <p className="flex text-gray-500 text-sm">
+                      {new Date(order.createdAt).toLocaleString()}
+                    </p> */}
+                    {/* <p className="text-gray-600 text-sm truncate max-w-xs">
+                      Address: {order.delivery_address || "N/A"}
+                    </p> */}
+                    <p className="font-semibold text-gray-800">
+                      <span className="text-sm md:text-lg">Product Name</span>
+                    </p>
+                    <p className="flex gap-2 tracking-wider font-medium text-gray-700">
+                      {" "}
+                      <span className="text-black text-md md:text-lg tracking-wider">
+                        ₹{order.finalOrderTotal || 0}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex">
+                    {/* Mobile buttons at right side */}
+                    <div className="bloack md:hidden flex gap-2">
+                      {/* Expand More Button */}
+                      <button
+                        onClick={() => toggleMoreInfo(order._id)}
+                        className="p-1 rounded-full border border-blue-300 hover:bg-blue-50 transition"
+                        title="Toggle Details"
+                      >
+                        <MdExpandMore
+                          className={`text-xl text-blue-500 transform transition-transform duration-300 ${
+                            expandedOrder === order._id
+                              ? "rotate-180"
+                              : "rotate-0"
+                          }`}
+                        />
+                      </button>
+
+                      {/* Cancel Button */}
+                      {["Out for delivery", "Delivered", "Cancelled"].includes(
+                        order.orderStatus
+                      ) ? null : (
+                        <button
+                          onClick={() => openModal(order._id)}
+                          className="p-1 rounded-full border border-red-300 hover:bg-red-50 transition"
+                          title="Cancel Order"
+                        >
+                          <RxCross2 className="text-xl text-red-500 hover:text-red-600 transition-transform duration-300 hover:rotate-90" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle: Order Summary */}
+                <div className="hidden md:block">
+                  <div className="flex flex-col gap-3 text-center md:text-left md:w-1/3">
+                    <p className="flex gap-1 items-center font-medium text-gray-700">
+                      Status:{" "}
+                      <span className="text-blue-600">
+                        {["Assigned", "Not Assigned"].includes(
+                          order.orderStatus
+                        )
+                          ? "Order Placed"
+                          : order.orderStatus}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: Action Buttons */}
+                <div className="hidden md:block">
+                  <div className="flex items-center gap-2 md:w-auto">
+                    {/* Expand More Button */}
+                    <button
+                      onClick={() => toggleMoreInfo(order._id)}
+                      className="p-2 rounded-full border border-blue-300 hover:bg-blue-50 transition"
+                      title="Toggle Details"
+                    >
+                      <MdExpandMore
+                        className={`text-2xl text-blue-500 transform transition-transform duration-300 ${
+                          expandedOrder === order._id
+                            ? "rotate-180"
+                            : "rotate-0"
+                        }`}
+                      />
+                    </button>
+
+                    {/* Cancel Button */}
+                    {["Out for delivery", "Delivered", "Cancelled"].includes(
+                      order.orderStatus
+                    ) ? null : (
+                      <button
+                        onClick={() => openModal(order._id)}
+                        className="p-2 rounded-full border border-red-300 hover:bg-red-50 transition"
+                        title="Cancel Order"
+                      >
+                        <RxCross2 className="text-2xl text-red-500 hover:text-red-600 transition-transform duration-300 hover:rotate-90" />
+                      </button>
+                    )}
+
+                    {showCancelModal && (
+                      <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 transition-opacity duration-300">
+                        <div
+                          className={`bg-white w-full max-w-md sm:rounded-2xl rounded-xl p-5 sm:p-6 shadow-xl text-center transform transition-all duration-300
+                            ${
+                              animateModal
+                                ? "scale-100 opacity-100 translate-y-0"
+                                : "scale-95 opacity-0 translate-y-4"
+                            }`}
+                        >
+                          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                            Cancel this order?
+                          </h2>
+                          <p className="text-sm text-gray-500 mb-6">
+                            Are you sure you want to cancel this order? This
+                            action can’t be undone.
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                              onClick={closeModal}
+                              className="flex-1 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+                            >
+                              No
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleCancelOrder(selectedOrderId);
+                                closeModal();
+                              }}
+                              className="flex-1 py-2 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition"
+                            >
+                              Yes, Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <p className="font-medium text-gray-700">Total: ₹{order.finalOrderTotal || 0}</p>
-              <p className="font-medium text-gray-700">Order Status: {order.orderStatus === "Assigned" || order.orderStatus ===  "Not Assigned" ? "Order Placed" : order.orderStatus}</p>
+              <p className="flex gap-2 items-center justify-between  font-semibold text-gray-500 text-xs md:text-sm">
+               
+                <div className="flex gap-1 items-center">  <MdAccessTime className="text-lg" /> {new Date(order.createdAt).toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })} {"  "}</div>
+                <div>
+                {"  "}{new Date(order.createdAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+                </div>
+              
+               
+               
+              </p>
 
-              {/* <p className="font-medium text-gray-700">Order Status: {order.orderStatus === "Assigned" && "Not Assigned" ? "Order Placed" : order.orderStatus}</p> */}
+              {expandedOrder === order._id && (
+                <div className="mt-4 border-t pt-4 space-y-6">
+                  {/* <h2 className="font-semibold text-xl text-gray-800">
+                    Order Summary
+                  </h2> */}
 
-              {/* {order.orderStatus= order.orderStatus === "Assigned" && "NOt Assigned" ? "Order Placed": order.orderStatus}
-              <p className="font-medium text-gray-700">Order Status: {order.orderStatus}</p> */}
-              <button
-                onClick={() => toggleMoreInfo(order._id)}
-                className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700"
-              >
-                {expandedOrder === order._id ? "Hide Info" : "Click for More Info"}
-              </button>
-            </div>
-
-            {expandedOrder === order._id && (
-              <div className="mt-4 border-t pt-4">
-                <h2 className="font-bold text-lg mb-2">Order Details</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-bold text-md mb-2">Product Details</h3>
-                    {order.products && order.products.length > 0 ? (
+                  {/* Product Details */}
+                  <div className="h-[50vh] overflow-y-auto space-y-4">
+                    <h3 className="text-lg text-center md:text-left font-medium text-gray-700">
+                      Items in this Order
+                    </h3>
+                    {order.products?.length > 0 ? (
                       order.products.map((product, index) => (
-                        <div key={index} className="flex items-center gap-4 border-t border-gray-200 pt-4 mt-4">
-                          <img src={product.coverimage} alt={product.itemname} className="w-20 h-20 object-cover rounded-md border" />
-                          <div>
-                            <p className="font-bold">{product.itemname}</p>
+                        <div
+                          key={index}
+                          className="flex flex-col md:flex-row items-center justify-center md:items-start gap-4 bg-gray-50 p-4 rounded-xl shadow-sm"
+                        >
+                          <img
+                            src={product.coverimage}
+                            alt={product.itemname}
+                            className="w-20 h-20 object-cover rounded-lg border"
+                          />
+
+                          <div className="flex-1 space-y-2">
+                            <p className="md:text-left text-center font-semibold text-gray-800">
+                              {product.itemname}
+                            </p>
                             {product.variantPrices?.map((variant, i) => {
-                              const discountAmount = (variant.price * variant.discount) / 100; // Calculate discount in ₹
-                              // const totalPrice = variant.price * variant.quantity; // Total before discount
-                              // const finalPrice = totalPrice - discountAmount * variant.quantity; // Total after discount
+                              const discountAmount =
+                                (variant.price * variant.discount) / 100;
                               return (
-                                <div key={i}>
-                                  <p><span className="font-medium">Weight:</span> {variant.weight}g</p>
-                                  <p><span className="font-medium">Price:</span> ₹{variant.price}</p>
-                                  <p><span className="font-medium">Discount:</span> {variant.discount}% (₹{discountAmount} per item)</p>
-                                  <p><span className="font-medium">Quantity:</span> {variant.quantity}</p>
+                                <div
+                                  key={i}
+                                  className="grid md:grid-cols-2  gap-2 text-sm border p-3 w-fit text-gray-700"
+                                >
+                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
+                                    <span className="font-medium">
+                                      Weight -
+                                    </span>{" "}
+                                    {variant.weight}g
+                                  </p>
+                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
+                                    <span className="font-medium">Qty -</span>{" "}
+                                    {variant.quantity}
+                                  </p>
+                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
+                                    <span className="font-medium">Price -</span>{" "}
+                                    ₹{variant.price}
+                                  </p>
+                                  <p className="flex gap-1 items-center text-green-600 bg-gray-200 border p-2 rounded-xl ">
+                                    <span className="font-medium">
+                                      Discount -
+                                    </span>{" "}
+                                    {variant.discount}% (₹{discountAmount}/item)
+                                  </p>
                                 </div>
                               );
                             })}
@@ -370,42 +603,80 @@ const MyOrders = () => {
                         </div>
                       ))
                     ) : (
-                      <p>No products in this order.</p>
+                      <p className="text-gray-500 italic">
+                        No products in this order.
+                      </p>
                     )}
                   </div>
-                {/* Billing Summary */}
-<div className="bg-gray-50 p-4 rounded-md">
-  <h3 className="font-bold text-md mb-2">Billing Summary</h3>
 
-  {/* Calculate Total Price Before Discount */}
-  {(() => {
-    const totalOrderPrice = order.products?.reduce((acc, product) => {
-      return acc + product.variantPrices.reduce((sum, variant) => sum + (variant.price * variant.quantity), 0);
-    }, 0);
+                  {/* Billing Summary */}
+                  <div className="bg-white p-4 space-y-2">
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">
+                      Billing Summary
+                    </h3>
+                    {(() => {
+                      const totalOrderPrice = order.products?.reduce(
+                        (acc, product) =>
+                          acc +
+                          product.variantPrices.reduce(
+                            (sum, variant) =>
+                              sum + variant.price * variant.quantity,
+                            0
+                          ),
+                        0
+                      );
 
-    const totalDiscount = order.products?.reduce((acc, product) => {
-      return acc + product.variantPrices.reduce((sum, variant) => sum + ((variant.price * variant.discount) / 100) * variant.quantity, 0);
-    }, 0);
+                      const totalDiscount = order.products?.reduce(
+                        (acc, product) =>
+                          acc +
+                          product.variantPrices.reduce(
+                            (sum, variant) =>
+                              sum +
+                              ((variant.price * variant.discount) / 100) *
+                                variant.quantity,
+                            0
+                          ),
+                        0
+                      );
 
-    return (
-      <>
-        <p className="font-medium">Total Price: ₹{totalOrderPrice || 0}</p>
-        <p className="font-medium text-red-600">Discount: ₹{totalDiscount || 0}</p>
-        <p className="font-medium">Delivery Charges: ₹{order.delivery_charges || 0}</p>
-        <p className="font-medium">Gift Packaging: ₹{order.special_Gift_packing || 0}</p>
-        <p className="font-bold mt-2 text-lg">
-          Final Payable: ₹
-          {(totalOrderPrice || 0) - (totalDiscount || 0) + (order.delivery_charges || 0) + (order.special_Gift_packing || 0)}
-        </p>
-      </>
-    );
-  })()}
-</div>
+                      const finalAmount =
+                        (totalOrderPrice || 0) -
+                        (totalDiscount || 0) +
+                        (order.delivery_charges || 0) +
+                        (order.special_Gift_packing || 0);
+
+                      return (
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-sm text-gray-700 space-y-3">
+                          <div className="flex justify-between">
+                            <span className="font-medium">Total Price:</span>
+                            <span>₹{totalOrderPrice || 0}</span>
+                          </div>
+                          <div className="flex justify-between text-red-600">
+                            <span className="font-medium">Discount:</span>
+                            <span>-₹{totalDiscount || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium">
+                              Delivery Charges:
+                            </span>
+                            <span>₹{order.delivery_charges || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium">Gift Packaging:</span>
+                            <span>₹{order.special_Gift_packing || 0}</span>
+                          </div>
+                          <div className="border-t pt-3 flex justify-between font-bold text-base text-gray-800">
+                            <span>Final Payable:</span>
+                            <span>₹{finalAmount}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))
+              )}
+            </div>
+          ))
       )}
     </div>
   );

@@ -17,6 +17,7 @@ import ProductAdmin from "../pages/ProductAdmin";
 import AdminPermision from "../layouts/AdminPermision";
 import ProductListPage from "../pages/ProductListPage";
 import ProductDisplayPage from "../pages/ProductDisplayPage";
+import ProductDisplayPageNew from "../pages/ProductDisplayPageNew";
 import CartMobile from "../pages/CartMobile";
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
@@ -31,13 +32,33 @@ import OrderHistory from "../components/OrderHistory"
 import CodStatus from "../components/CodStatus";
 import AdminCodStatus from "../components/AdminCodStatus";
 import PromoCode from "../pages/PromocodePage";
-
+import ProductPage from "../pages/ProductPage";
+import ProductLeftBar from '../components/ProductsLeftBar'
+import HomeProducts from "../components/HomeProducts"
+import OurCategory from "../pages/Category"
+import HeroSection from '../pages/HeroSection'
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <App />,
         children: [
+            {
+                path:"HomeProducts",
+                element: <HomeProducts />
+            },
+            {
+                path:"OurCategory/:Category",
+                element: <OurCategory />
+            },
+            {
+                path:"productpage",
+                element: <ProductPage />
+            },
+            {
+                path:"ProductLeftBar",
+                element: <ProductLeftBar />
+            },
             {
                 path: "",
                 element: <Home />
@@ -79,13 +100,17 @@ const router = createBrowserRouter([
                 element: <UserMenuMobile />
             },
             {
+                path: "profile",
+                element: <Profile />
+            },
+            {
+                path: "checkout",
+                element: <CheckoutPage />
+            },
+            {
                 path: "dashboard",
                 element: <Dashboard />,
                 children: [
-                    {
-                        path: "profile",
-                        element: <Profile />
-                    },
                     {
                         path: "myorders",
                         element: <MyOrders />
@@ -101,7 +126,11 @@ const router = createBrowserRouter([
                     {
                         path: "checkout",
                         element: <CheckoutPage />
-                    }
+                    },
+                    {
+                        path: "profile",
+                        element: <Profile />
+                    },
                 ]
             },
             {
@@ -111,6 +140,10 @@ const router = createBrowserRouter([
                     {
                         path: "profile",
                         element: <Profile />
+                    },
+                    {
+                        path: "HeroSection",
+                        element: <HeroSection />
                     },
                     {
                         path: "category",
@@ -192,7 +225,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "product/:product",
-                element: <ProductDisplayPage />
+                element: <ProductDisplayPageNew />
+            },
+            {
+                path: "productNew",
+                element: <ProductDisplayPageNew />
             },
             
             {

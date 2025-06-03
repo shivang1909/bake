@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Divider from "./Divider";
@@ -13,13 +13,26 @@ import {
   isInventoryManager,
   isFinanceManager,
   isDeliveryPartner,
-  isUser
+  isUser,
 } from "../utils/isAdmin";
+import User from "../assets/BottomIcon/user.png";
+import Address from "../assets/BottomIcon/location.png";
+import Track from "../assets/BottomIcon/pending.png";
+import Logout from "../assets/BottomIcon/switch.png";
+import Tracking from "../assets/BottomIcon/order-tracking.png";
+import { FaArrowRightLong } from "react-icons/fa6";
 
-const UserMenu = ({ close }) => {
+
+
+const UserMenu = ({ close, open }) => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+  }, [open]);
 
   const handleLogout = async () => {
     try {
@@ -37,259 +50,126 @@ const UserMenu = ({ close }) => {
     }
   };
 
-  const handleClose = () => {
-    if (close) close();
-  };
-
-  const profileUrl = !isUser(user.role)
-    ? "/admin/dashboard/profile"
-    : "/dashboard/profile";
-
-
   return (
-    <div>
-      <div className="font-semibold">My Account</div>
-      <div className="text-sm flex items-center gap-2">
-        <span className="max-w-52 text-ellipsis line-clamp-1">
-          {user.name || user.mobile}{" "}
-          <span className="text-medium text-red-600">({user.role})</span>
-        </span>
-        <Link
-          onClick={handleClose}
-          to={profileUrl}
-          className="hover:text-primary-200"
-        >
-          <HiOutlineExternalLink size={15} />
-        </Link>
-      </div>
+    <>
+      {/* Backdrop */}
 
-      <Divider />
+      <div
+        className={`
+    fixed inset-0 bg-zinc-800/60 backdrop-blur-[3px] z-40 
+    transition-opacity duration-300 ease-out 
+    ${
+      open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+    }
+  `}
+        onClick={close}
+      />
+      {/* Bottom Drawer */}
+      <div
+        className={`
+    fixed min-h-[50%] md:min-h-[48%] bg-gray-50 bottom-0 left-0 right-0 z-50 rounded-t-3xl p-4 max-[375px]:px-10 px-16 pb-8 
+        ${
+          open
+            ? "pointer-events-auto  translate-y-0 "
+            : "pointer-events-none  translate-y-full"
+        }
+   duration-300 ease-out
+  `}
+      >
+        {/* Drag Handle & Close Button */}
+        <div className="flex justify-center relative mb-2" onClick={close}>
+          {/* Drag Handle Line */}
+          <div className="w-12 h-1.5 bg-gray-300 rounded-full mt-2"></div>
+        </div>
 
-      <div className="text-sm grid gap-1">
+        {/* Drawer Title */}
+        <div className="font-bold text-lg md:text-2xl text-center py-3 md:py-5">
+          My Account
+        </div>
+        <div className="my-2 border-gray-200" />
+        <div className="md:flex md:gap-5">
+          {/* Grid Menu */}
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-x-7 gap-y-5 text-sm mt-2 md:w-2/5">
+            <Link
+              to=""
+              className="hover:bg-orange-200 bg-white p-5 md:hidden rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
+            >
+              <img src={User} alt="" className="h-8 md:h-10 w-8 md:w-10" />
+              My Profile
+            </Link>
 
-        {/* ============================== Admin Role Dashboard Menu ============================== */}
-        {isAdmin(user.role) && (
-          <>
             <Link
-              onClick={handleClose}
-              to="/admin/dashboard/category"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Category
-            </Link>
-         
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/product"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Product
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/add-admin"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Add Admin
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/admin-list"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Admin List
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/order-list"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              New Order
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/order-history"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Order History
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/admin-cod-status"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              COD Status
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/admin-promo"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Promo Code
-            </Link>
-          </>
-        )}
-
-
-        {/* ============================== Inventory Role Dashboard Menu ============================== */}
-        {isInventoryManager(user.role) && (
-          <>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/product"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Product List
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/stock-management"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Stock Management
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/supplier-management"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Supplier Management
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/inventory-reports"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Reports
-            </Link>
-          </>
-        )}
-
-        {/* ============================== Finance Role Dashboard Menu ============================== */}
-        {isFinanceManager(user.role) && (
-          <>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/sales-records"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Sales Records
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/profit-analysis"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Profit Analysis
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/expense-records"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Expense Records
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/invoices"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Invoices
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/financial-reports"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Reports
-            </Link>
-          </>
-        )}
-
-
-        {/* ============================== Delivery Partner Role Dashboard Menu ============================== */}
-        {isDeliveryPartner(user.role) && (
-          <>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/my-deliveries"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              My Deliveries(Order)
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/delivery-history"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Delivery History
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/delivery-cod-status"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              COD STATUS
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/map-view"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Map View
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/notifications"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Notifications
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/support"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Support
-            </Link>
-          </>
-        )}
-
-
-        {/* ============================== End User Role Dashboard Menu ============================== */}
-        <Link
-          onClick={handleClose}
-          to={profileUrl}
-          className="px-2 hover:bg-orange-200 py-1"
-        >
-          My Profile 
-        </Link>
-        {isUser(user.role) && (
-          <>
-            <Link
-              onClick={handleClose}
               to="/dashboard/myorders"
-              className="px-2 hover:bg-orange-200 py-1"
+              className="hover:bg-blue-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
+              <img src={Track} alt="" className="h-8 md:h-10 w-8 md:w-10" />
               My Order
-            </Link> 
+            </Link>
+
             <Link
-              onClick={handleClose}
               to="/dashboard/address"
-              className="px-2 hover:bg-orange-200 py-1"
+              className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
+              <img src={Address} alt="" className="h-8 md:h-10 w-8 md:w-10" />
               Address
-            </Link> 
-          </>
-        )}
-        <button
-          onClick={handleLogout}
-          className="text-left px-2 hover:bg-orange-200 py-1"
-        >
-          Log Out
-        </button>
+            </Link>
+
+            <Link
+              to="/dashboard/address"
+              className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
+            >
+              <img src={Tracking} alt="" className="h-8 md:h-10 w-8 md:w-10" />
+              Track Order
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4 hidden md:block md:flex transition duration-300 active:scale-90"
+            >
+              <img src={Logout} alt="" className="h-8 md:h-10 w-8 md:w-10" />
+              Log Out
+            </button>
+          </div>
+
+          <div className="hidden md:flex md:flex-col md:w-3/5 justify-start items-center  gap-5 md:mx-6 md:py-6 rounded-3xl shadow-md bg-white">
+            <div className="relative">
+              <img
+                src={user.profile || User}
+                alt="Profile"
+                className="rounded-full w-44 h-44 object-cover border-4 border-gray-300"
+              />
+            </div>
+            <div className="sm:hidden md:block">
+              <h2 className="text-2xl font-bold text-center">
+                {user.name || "Guest"}
+              </h2>
+              <p className="text-black text-md text-center">+91 6353157921</p>
+            </div>
+            <Link
+              to=""
+              className="hover:bg-orange-200 bg-white py-3 px-20 sm:hidden md:block rounded-full text-center text-xs font-medium md:text-lg border border-gray-400 flex flex-col md:flex-row justify-left items-center transition duration-300 active:scale-90"
+            >
+              <span className="flex items-center gap-2">
+                 My Profile <FaArrowRightLong />
+
+              </span>
+             
+
+            </Link>
+          </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="grid grid-cols-1 text-sm mt-8 md:hidden">
+          <button
+            onClick={handleLogout}
+            className="hover:bg-red-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md flex flex-col md:flex-row justify-center items-center gap-2  w-full transition duration-300 active:scale-90"
+          >
+            <img src={Logout} alt="" className="h-8 md:h-10 w-8 md:w-10" />
+            Log Out
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

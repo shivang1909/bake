@@ -31,7 +31,7 @@ const Search = () => {
     }
 
   return (
-    <div className='w-full  min-w-[300px] lg:min-w-[420px] h-11 lg:h-12 rounded-lg border overflow-hidden flex items-center text-neutral-500 bg-slate-50 group focus-within:border-primary-200 '>
+    <div className='w-full  min-w-[300px] lg:min-w-[250px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-white group focus-within:border-primary-200 '>
         <div>
             {
                 (isMobile && isSearchPage ) ? (
@@ -49,27 +49,27 @@ const Search = () => {
             {
                 !isSearchPage ? (
                      //not in search page
-                     <div onClick={redirectToSearchPage} className='w-full h-full flex items-center'>
+                     <div onClick={redirectToSearchPage} className='w-full h-full flex items-center font-normal'>
                         <TypeAnimation
                                 sequence={[
                                     // Same substring at the start will only be typed out once, initially
-                                    'Search "milk"',
-                                    1000, // wait 1s before replacing "Mice" with "Hamsters"
-                                    'Search "bread"',
-                                    1000,
-                                    'Search "sugar"',
-                                    1000,
-                                    'Search "panner"',
-                                    1000,
-                                    'Search "chocolate"',
-                                    1000,
-                                    'Search "curd"',
-                                    1000,
-                                    'Search "rice"',
-                                    1000,
-                                    'Search "egg"',
-                                    1000,
-                                    'Search "chips"',
+                                    '"Chocolate Tart"',
+                                    500, // wait 1s before replacing "Mice" with "Hamsters"
+                                    '"Jira Toast"',
+                                    500,
+                                    '"Rajwadi Dalmuth"',
+                                    500,
+                                    '"Anjir Dry Fruit Halvo"',
+                                    500,
+                                    '"Badam Barfi"',
+                                    500,
+                                    '"Almond Rocher"',
+                                    500,
+                                    '"Anjir Roll"',
+                                    500,
+                                    '"Kaju Maisoor"',
+                                    500,
+                                    '"Dry Fruit Suki Kachori "',
                                 ]}
                                 wrapper="span"
                                 speed={50}
@@ -78,10 +78,10 @@ const Search = () => {
                      </div>
                 ) : (
                     //when i was search page
-                    <div className='w-full h-full'>
+                    <div className='w-full h-full font-normal'>
                         <input
                             type='text'
-                            placeholder='Search for atta dal and more.'
+                            placeholder='Search for Sweet, Namkeen, Bakery, Cookies, Dry Fruite.'
                             autoFocus
                             defaultValue={searchText}
                             className='bg-transparent w-full h-full outline-none'

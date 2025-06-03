@@ -42,8 +42,8 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['product', 'cartItem'], // ✅ Only persist 'product' & 'cartItem'
-  // blacklist: ['user'], // You can blacklist slices you don’t want to persist
+  // whitelist: ['product', 'cartItem'], // ✅ Only persist 'product' & 'cartItem'
+  blacklist: ['product','cartItem'], // You can blacklist slices you don’t want to persist
 };
 
 // Apply persisted reducer

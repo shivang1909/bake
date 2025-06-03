@@ -842,7 +842,7 @@ const OrderListPage = () => {
         <td className="border p-2">
           {order.delivery_address ? (
             <>
-              {order.delivery_address.address_line}, {order.delivery_address.city}, {order.delivery_address.state}, {order.delivery_address.pincode}
+              {order.delivery_address.address_line1}, {order.delivery_address.address_line2} {order.delivery_address.city}, {order.delivery_address.state}, {order.delivery_address.pincode}
             </>
           ) : (
             "Not Available"
