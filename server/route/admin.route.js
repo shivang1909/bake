@@ -25,7 +25,7 @@ adminRouter.get('/list', auth, admin, getUsers);
 adminRouter.put('/update/:id', auth, admin, updateUser);
 adminRouter.put('/update-admin', auth,admin,updateUser);
 adminRouter.get('/user-details',auth,userDetails)
-adminRouter.get('/homepage-sections', auth, admin, getHomepageSections); 
+adminRouter.get('/homepage-sections', getHomepageSections); 
 adminRouter.delete('/delete/:id', auth, admin, deleteUser);
 adminRouter.post('/create-homepage-section', createHomepageSection);
 adminRouter.delete('/delete-homepage-section', auth, admin, deletehomepageSection);

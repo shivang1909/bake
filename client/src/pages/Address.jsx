@@ -8,6 +8,10 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { useGlobalContext } from '../provider/GlobalProvider';
 
 import AddAddressDesktop from '../components/AddAddressDesktop';
+import { Link } from 'react-router-dom';
+import { CiUser } from "react-icons/ci";
+import { IoCallOutline } from "react-icons/io5";
+
 
 const Address = () => {
   const addressList = useSelector(state => state.addresses.addressList);
@@ -49,32 +53,36 @@ const Address = () => {
   return (
     <div className=''>
       {/* Header */}
-      <div className="bg-white rounded-lg px-4 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <span className="font-semibold text-lg text-gray-800">Saved Addresses</span>
+      <div className="bg-white rounded-lg px-4 py-3 flex flex-col sm:flex-row justify-between items-center lg:items-start sm:items-center gap-2">
+        <span className="font-semibold text-lg text-gray-800">Your Saved Addresses</span>
         <button
           onClick={handleOpenAddForm}
-          className="border border-primary-200 text-primary-200 px-4 py-1.5 rounded-full hover:bg-primary-200 hover:text-white transition"
+          className="w-full  border border-orange-400 text-orange-500 px-4 py-1.5 rounded-full hover:bg-orange-400 hover:text-white transition"
         >
           + Add Address
         </button>
+       
       </div>
   
       {/* Address List */}
-      <div className="bg-gray-50 p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="bg-gray-50 p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 h-full  max-h-[100vh] lg:min-h-[50vh] overflow-y-auto">
         {addressList
           .filter((address) => address.status)
           .map((address, index) => (
             <div
               key={index}
-              className="bg-white border rounded-lg shadow-sm p-4 flex flex-col justify-between h-full"
+              className="bg-white border border-gray-300 rounded-2xl shadow-sm p-4 flex flex-col justify-between h-full"
             >
-              <div className="space-y-1 text-sm text-gray-700">
-                <p className="font-medium text-base text-gray-900">{address.name}</p>
-                <p>{address.address_line1}</p>
+              <div className="space-y-1  text-gray-700">
+                <p className="font-medium text-lg text-gray-900 border-b py-1 flex gap-2 items-center"><CiUser className='text-lg'/>{address.name}</p>
+                <div className="content pl-2 py-2">
+                   <p>{address.address_line1}</p>
                 {address.address_line2 && <p>{address.address_line2}</p>}
                 <p>{address.city}, {address.state}</p>
                 <p>{address.country} - {address.pincode}</p>
-                <p className="text-gray-600 mt-1">📞 {address.mobile}</p>
+                </div>
+               
+                <p className="text-gray-600 mt-1 flex gap-2 items-center"><IoCallOutline className='text-lg'/> {address.mobile}</p>
               </div>
   
               {/* Action Buttons */}
@@ -97,12 +105,25 @@ const Address = () => {
   
         {/* Conditional Add Box */}
         {addressList.filter((address) => address.status).length <= 2 && (
-          <div
+          <>
+           <div
             onClick={handleOpenAddForm}
-            className="border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer flex items-center justify-center hover:border-primary-200 transition h-full min-h-[120px]"
+            className="hidden lg:block border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer md:flex items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
           >
             <p className="text-gray-500">+ Add new address</p>
           </div>
+
+           <div
+            
+            className="bloack lg:hidden border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer flex items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
+          >
+          <Link to="/SaperateAddress">
+          
+            <p className="text-gray-500">+ Add new address</p></Link>
+          </div>
+          
+          </>
+         
         )}
       </div>
   

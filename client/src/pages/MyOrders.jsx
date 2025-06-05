@@ -267,11 +267,11 @@
 
 // export default MyOrders;
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { RxCross2 } from "react-icons/rx";
-import { MdExpandMore } from "react-icons/md";
+import { MdExpandMore, MdDownload } from "react-icons/md";
 import { MdAccessTime } from "react-icons/md";
 
 const MyOrders = () => {
@@ -352,9 +352,23 @@ const MyOrders = () => {
   const toggleMoreInfo = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
+  const downloadInvoice = async (order) => {
+    console.log(order);
+    const res = await Axios({
+      ...SummaryApi.getInvoice,
+      data: { order },
+      responseType: "blob",
+    });
 
+    const blob = new Blob([res.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+    console.log(url);
+    window.open(url, "_blank");
+    window.URL.revokeObjectURL(url); // Optional cleanup
+    console.log(res);
+  };
   return (
-    <div className="bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto">
+    <div className="bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2">
       {/* <div className="bg-white shadow-md p-4 rounded-md font-semibold mb-4">
         <h1 className="text-lg">My Orders</h1>
       </div> */}
@@ -371,9 +385,9 @@ const MyOrders = () => {
           .map((order) => (
             <div
               key={order._id}
-              className="bg-white pb-3 mb-3 p-0 md:p-4  hover:shadow-sm border-gray-200 transition-all duration-300"
+              className="bg-gray-50 border-dotted border-2 rounded-lg pb-3 mb-3 p-0 md:p-4  hover:shadow-sm border-gray-300 transition-all duration-300"
             >
-              <div className="bg-white rounded-xl md:border p-0 md:p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="bg-white rounded-xl p-0 md:p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
                 {/* Left: Product Image + Info */}
                 <div className="flex justify-between items-center md:items-center gap-6 w-full md:w-1/3">
                   <img
@@ -403,8 +417,15 @@ const MyOrders = () => {
                   </div>
                   <div className="flex">
                     {/* Mobile buttons at right side */}
-                    <div className="bloack md:hidden flex gap-2">
+                    <div className=" md:hidden flex gap-2">
                       {/* Expand More Button */}
+                      <button
+                        onClick={() => downloadInvoice(order)}
+                        className="p-1 rounded-full border border-green-300 hover:bg-green-50 transition"
+                        title="Download Invoice"
+                      >
+                        <MdDownload className="text-xl text-green-500 hover:text-green-600 " />
+                      </button>
                       <button
                         onClick={() => toggleMoreInfo(order._id)}
                         className="p-1 rounded-full border border-blue-300 hover:bg-blue-50 transition"
@@ -455,6 +476,13 @@ const MyOrders = () => {
                 <div className="hidden md:block">
                   <div className="flex items-center gap-2 md:w-auto">
                     {/* Expand More Button */}
+                    <button
+                      onClick={() => downloadInvoice(order)}
+                      className="p-2 rounded-full border border-green-300 hover:bg-green-50 transition"
+                      title="Download Invoice"
+                    >
+                      <MdDownload className="text-2xl text-green-500 hover:text-green-600 " />
+                    </button>
                     <button
                       onClick={() => toggleMoreInfo(order._id)}
                       className="p-2 rounded-full border border-blue-300 hover:bg-blue-50 transition"
@@ -523,96 +551,124 @@ const MyOrders = () => {
                 </div>
               </div>
               <p className="flex gap-2 items-center justify-between  font-semibold text-gray-500 text-xs md:text-sm">
-               
-                <div className="flex gap-1 items-center">  <MdAccessTime className="text-lg" /> {new Date(order.createdAt).toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                })} {"  "}</div>
-                <div>
-                {"  "}{new Date(order.createdAt).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                <div className="flex gap-1 items-center">
+                  {" "}
+                  <MdAccessTime className="text-lg" />{" "}
+                  {new Date(order.createdAt).toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}{" "}
+                  {"  "}
                 </div>
-              
-               
-               
+                <div>
+                  {"  "}
+                  {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </div>
               </p>
 
               {expandedOrder === order._id && (
-                <div className="mt-4 border-t pt-4 space-y-6">
-                  {/* <h2 className="font-semibold text-xl text-gray-800">
-                    Order Summary
-                  </h2> */}
-
-                  {/* Product Details */}
-                  <div className="h-[50vh] overflow-y-auto space-y-4">
-                    <h3 className="text-lg text-center md:text-left font-medium text-gray-700">
-                      Items in this Order
+                <div className="mt-2 border-t pt-6 space-y-6">
+                  {/* Order Items */}
+                  <section className="space-y-4">
+                    <h3 className="text-xl font-semibold text-gray-800 text-center md:text-left">
+                      🛍️ Items in this Order
                     </h3>
-                    {order.products?.length > 0 ? (
-                      order.products.map((product, index) => (
-                        <div
-                          key={index}
-                          className="flex flex-col md:flex-row items-center justify-center md:items-start gap-4 bg-gray-50 p-4 rounded-xl shadow-sm"
-                        >
-                          <img
-                            src={product.coverimage}
-                            alt={product.itemname}
-                            className="w-20 h-20 object-cover rounded-lg border"
-                          />
-
-                          <div className="flex-1 space-y-2">
-                            <p className="md:text-left text-center font-semibold text-gray-800">
-                              {product.itemname}
-                            </p>
-                            {product.variantPrices?.map((variant, i) => {
-                              const discountAmount =
-                                (variant.price * variant.discount) / 100;
-                              return (
-                                <div
-                                  key={i}
-                                  className="grid md:grid-cols-2  gap-2 text-sm border p-3 w-fit text-gray-700"
-                                >
-                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
-                                    <span className="font-medium">
-                                      Weight -
-                                    </span>{" "}
-                                    {variant.weight}g
-                                  </p>
-                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
-                                    <span className="font-medium">Qty -</span>{" "}
-                                    {variant.quantity}
-                                  </p>
-                                  <p className="flex gap-1 items-center bg-gray-200 border p-2 rounded-xl ">
-                                    <span className="font-medium">Price -</span>{" "}
-                                    ₹{variant.price}
-                                  </p>
-                                  <p className="flex gap-1 items-center text-green-600 bg-gray-200 border p-2 rounded-xl ">
-                                    <span className="font-medium">
-                                      Discount -
-                                    </span>{" "}
-                                    {variant.discount}% (₹{discountAmount}/item)
-                                  </p>
-                                </div>
-                              );
-                            })}
+                    <div className="h-[50vh] overflow-y-auto space-y-4">
+                      {order.products?.length > 0 ? (
+                        order.products.map((product, index) => (
+                          <div
+                            key={index}
+                            className="flex flex-col md:flex-row items-center md:items-start gap-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
+                          >
+                            <img
+                              src={product.coverimage}
+                              alt={product.itemname}
+                              className="w-24 h-24 object-cover rounded-lg "
+                            />
+                            <div className="flex-1 space-y-2 w-full">
+                              <p className="text-lg font-semibold text-gray-800 text-center md:text-left">
+                                {product.itemname}
+                              </p>
+                              <div className="gap-3">
+                                {product.variantPrices?.map((variant, i) => {
+                                  const discountAmount =
+                                    (variant.price * variant.discount) / 100;
+                                  return (
+                                    <div
+                                      key={i}
+                                      className=" w-full border p-3 rounded-lg space-y-2 text-sm text-gray-700"
+                                    >
+                                      <div className="flex justify-between">
+                                        <span className="font-medium">
+                                          Weight:
+                                        </span>
+                                        <span>{variant.weight}g</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="font-medium">
+                                          Qty:
+                                        </span>
+                                        <span>{variant.quantity}</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="font-medium">
+                                          Price:
+                                        </span>
+                                        <span>₹{variant.price}</span>
+                                      </div>
+                                      <div className="flex justify-between text-green-600">
+                                        <span className="font-medium">
+                                          Discount:
+                                        </span>
+                                        <span>
+                                          {variant.discount}% (₹{discountAmount}
+                                          /item)
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between text-red-500">
+                                        <span className="font-medium">
+                                          GiftWrap:
+                                        </span>
+                                        <span>₹{variant.giftWrapCharge}</span>
+                                      </div>
+                                      {variant.giftNotes.map(
+                                        (giftnote, idx) => (
+                                          <div
+                                            key={idx}
+                                            className="bg-yellow-50 border flex justify-between border-yellow-200 rounded-md p-2"
+                                          >
+                                            
+                                            <span className="font-medium">
+                                            Gift Note:
+                                            </span>{" "}
+                                            "{giftnote}"
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 italic">
-                        No products in this order.
-                      </p>
-                    )}
-                  </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 italic text-center">
+                          No products in this order.
+                        </p>
+                      )}
+                    </div>
+                  </section>
 
                   {/* Billing Summary */}
-                  <div className="bg-white p-4 space-y-2">
-                    <h3 className="text-lg font-medium text-gray-700 mb-2">
-                      Billing Summary
+                  <section className="bg-white border border-gray-200 rounded-xl p-5 shadow-md">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                      💳 Billing Summary
                     </h3>
                     {(() => {
                       const totalOrderPrice = order.products?.reduce(
@@ -641,38 +697,43 @@ const MyOrders = () => {
 
                       const finalAmount =
                         (totalOrderPrice || 0) -
-                        (totalDiscount || 0) +
+                        (totalDiscount || 0) -
+                        (order.promocodeDiscount || 0) +
                         (order.delivery_charges || 0) +
                         (order.special_Gift_packing || 0);
 
                       return (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-sm text-gray-700 space-y-3">
+                        <div className="space-y-3 text-sm text-gray-700">
                           <div className="flex justify-between">
-                            <span className="font-medium">Total Price:</span>
+                            <span className="font-medium">Total Price</span>
                             <span>₹{totalOrderPrice || 0}</span>
                           </div>
                           <div className="flex justify-between text-red-600">
-                            <span className="font-medium">Discount:</span>
+                            <span className="font-medium">Discount</span>
                             <span>-₹{totalDiscount || 0}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="font-medium">
-                              Delivery Charges:
+                              Delivery Charges
                             </span>
                             <span>₹{order.delivery_charges || 0}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="font-medium">Gift Packaging:</span>
+                            <span className="font-medium">Gift Packaging</span>
                             <span>₹{order.special_Gift_packing || 0}</span>
                           </div>
-                          <div className="border-t pt-3 flex justify-between font-bold text-base text-gray-800">
-                            <span>Final Payable:</span>
+                          <div className="flex justify-between">
+                            <span className="font-medium">Promo Discount</span>
+                            <span>-₹{order.promocodeDiscount || 0}</span>
+                          </div>
+                          <div className="border-t pt-4 flex justify-between text-base font-bold text-gray-900">
+                            <span>Total Payable</span>
                             <span>₹{finalAmount}</span>
                           </div>
                         </div>
                       );
                     })()}
-                  </div>
+                  </section>
                 </div>
               )}
             </div>

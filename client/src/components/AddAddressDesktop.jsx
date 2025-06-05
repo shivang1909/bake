@@ -13,7 +13,6 @@ import Address from "../../assets/images/Custom/address.svg";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { MdOutlineAddLocationAlt } from "react-icons/md";
 
-
 const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
   const isEdit = mode === "edit";
   const { register, handleSubmit, reset, setValue, watch } = useForm({
@@ -184,33 +183,109 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
         }
         fixed bottom-0 lg:relative
         h-[75%] lg:h-auto
-        rounded-t-3xl lg:rounded-3xl
+        rounded-t-3xl lg:rounded-xl
         shadow-lg
       `}
       >
-        <div className="flex justify-between items-center gap-4 bg-[#ff8a23] text-white pb-3 p-4 rounded-t-xl">
-          <span className="font-semibold flex items-center gap-2 px-2 text-lg"><MdOutlineAddLocationAlt className="text-xl"/> Add Address</span>
+        <div className="sticky top-0 z-10 flex justify-between items-center gap-4 bg-[#ff8a23] text-white pb-3 p-4 rounded-t-xl">
+          <span className="font-semibold flex items-center gap-2 px-2 text-lg">
+            <MdOutlineAddLocationAlt className="text-xl" /> Add Address
+          </span>
 
-          
-            
-            <button
-              onClick={close}
-              className="hover:rotate-90 transition-transform duration-300"
-            >
-              <IoClose size={28} />
-            </button>
-          
+          <button
+            onClick={close}
+            className="hover:rotate-90 transition-transform duration-300"
+          >
+            <IoClose size={28} />
+          </button>
         </div>
 
-        <div className="addresscontent flex flex-col-reverse lg:flex-row gap-2 overflow-y-auto h-[80vh]">
+        <div className="addresscontent flex flex-col lg:flex-row-reverse gap-2 overflow-y-auto h-[80vh]">
+          <div className="w-full lg:w-2/5 sm:overflow-y-auto lg:overflow-hidden">
+            {/* Only show image and button when map is NOT visible */}
+            {!mapVisible && (
+              <div className="m-0 lg:m-3 max-w-md h-[50vh] lg:h-fit w-full p-4 border-gray-400 rounded-xl flex flex-col justify-center items-center text-center">
+                <div className="text-4xl text-gray-400 mb-2"></div>
+                <img
+                  src={Address}
+                  alt="address"
+                  className="h-32 w-32 lg:h-64 lg:w-64"
+                />
+                <p className="font-semibold text-gray-600 mb-1 mt-5">
+                  No Address Found
+                </p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Add your address to proceed with checkout.
+                </p>
+                <button
+                  onClick={handleUseCurrentLocation}
+                  className="px-4 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-full transition-all duration-300 active:scale-95"
+                >
+                  Use Current Location
+                </button>
+              </div>
+            )}
+            {/* Mobile map */}
+            {isLoaded && mapVisible && (
+              <div className="block lg:hidden h-64 shadow-md overflow-hidden">
+                <GoogleMap
+                  center={markerPosition}
+                  zoom={12}
+                  onClick={handleMapClick}
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
+                >
+                  {markerPosition && (
+                    <Marker
+                      position={markerPosition}
+                      draggable
+                      onDragEnd={(e) => {
+                        const lat = e.latLng.lat();
+                        const lng = e.latLng.lng();
+                        setMarkerPosition({ lat, lng });
+                        reverseGeocode(lat, lng);
+                      }}
+                    />
+                  )}
+                </GoogleMap>
+              </div>
+            )}
+
+            {/* Desktop map */}
+            <div className="hidden lg:block h-full shadow-md overflow-hidden mb-5">
+              {isLoaded && mapVisible && (
+                <GoogleMap
+                  center={markerPosition}
+                  zoom={12}
+                  onClick={handleMapClick}
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
+                >
+                  {markerPosition && (
+                    <Marker
+                      position={markerPosition}
+                      draggable
+                      onDragEnd={(e) => {
+                        const lat = e.latLng.lat();
+                        const lng = e.latLng.lng();
+                        setMarkerPosition({ lat, lng });
+                        reverseGeocode(lat, lng);
+                      }}
+                    />
+                  )}
+                </GoogleMap>
+              )}
+            </div>
+
+            {/* Only show map when isLoaded && mapVisible */}
+          </div>
           <div className="w-full lg:w-3/5">
             <form
-              className="mt-4 grid gap-4 px-5 pb-5"
+              className="mt-4 grid gap-2 px-5 pb-2"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <p className="text-sm text-red-400 px-2 rounded-md mt-2 flex items-center gap-2">
-              <RiErrorWarningLine className="text-lg"/> We currently deliver only in Ahmedabad.
-            </p>
+              <p className="text-xs lg:text-sm bg-red-100 py-1 rounded-lg w-full md:w-fit px-3 text-red-400  mt-2 flex items-center gap-2">
+                <RiErrorWarningLine className="text-lg" /> We currently deliver
+                only in Ahmedabad.
+              </p>
               <div className="grid grid-cols-2 gap-5">
                 <div className="grid my-3">
                   <div className="w-full relative flex rounded-xl">
@@ -247,15 +322,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                   </div>
                 </div>
 
-                {/* <div className="grid gap-1">
-                  <label htmlFor="mobile">Mobile No. :</label>
-                  <input
-                    type="text"
-                    id="mobile"
-                    className="border bg-gray-50 rounded-xl px-2"
-                    {...register("mobile", { required: true })}
-                  />
-                </div> */}
               </div>
 
               <div className="grid my-3">
@@ -294,58 +360,41 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
               </div>
 
               <div className="grid grid-cols-2 my-3 items-center justify-center gap-3">
-                <div className="w-full relative flex rounded-xl">
+                <div className="w-full relative flex items-center rounded-xl bg-white border border-2 border-gray-200 focus-within:ring-1 focus-within:ring-orange-300">
+                  {/* Pincode Input */}
                   <input
                     required
                     type="text"
                     id="pincode"
                     {...register("pincode", { required: true })}
-                    className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+                    className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight"
                   />
+
+                  {/* Floating Label */}
                   <label
                     htmlFor="pincode"
-                    className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
+                    className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
                   >
                     Pincode
                   </label>
-                </div>
-                <div>
-                  {pincodeChecked && !showCheckButton ? (
-                    <span className="text-green-600 font-medium bg-green-50 p-2 py-3 rounded-lg border border-green-200">
-                      ✅ Verified for Ahmedabad
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={checkPincode}
-                      className="p-2 py-3 w-28 bg-orange-100 border border-orange-400 rounded-lg"
-                    >
-                      Check
-                    </button>
-                  )}
-                </div>
-              </div>
 
-              {/* <div className="grid gap-1">
-                <label htmlFor="addressline">Address Line :</label>
-                <input
-                  type="text"
-                  id="addressline"
-                  className="border bg-gray-50 rounded-xl px-2"
-                  {...register("addressline", { required: true })}
-                />
-              </div>
-              <div className="grid gap-1">
-                <label htmlFor="addressline">Address Line 2:</label>
-                <input
-                  type="text"
-                  id="addressline"
-                  className="border bg-gray-50 rounded-xl px-2"
-                  {...register("addressline", { required: true })}
-                />
-              </div> */}
-
-              <div className="grid grid-cols-2 gap-5">
+                  {/* Inline Check Button */}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    {pincodeChecked && !showCheckButton ? (
+                      <span className="text-green-600 font-medium bg-green-50 px-3 py-1 rounded-md border border-green-200 text-sm">
+                        Verified
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={checkPincode}
+                        className="px-3 py-1 bg-orange-100 text-sm border border-orange-400 rounded-md"
+                      >
+                        Check
+                      </button>
+                    )}
+                  </div>
+                </div>
                 <div className="grid my-3">
                   <div className="w-full relative flex rounded-xl">
                     <input
@@ -364,6 +413,10 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                     </label>
                   </div>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-5">
+              
 
                 {/* <div className="grid gap-1">
                   <label htmlFor="city">City :</label>
@@ -394,46 +447,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                   </div>
                 </div>
 
-                {/* <div className="grid gap-1">
-                  <label htmlFor="state">State :</label>
-                  <input
-                    type="text"
-                    id="state"
-                    className="border bg-gray-50 rounded-xl px-2"
-                    {...register("state", { required: true })}
-                  />
-                </div> */}
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                {/* <div className="grid my-3">
-                  <div className="w-full relative flex rounded-xl">
-                    <input
-                      required
-                      type="text"
-                      id="pincode"
-                      {...register("pincode", { required: true })}
-                      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                    />
-                    <label
-                      htmlFor="pincode"
-                      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                    >
-                      Pincode
-                    </label>
-                  </div>
-                </div> */}
-
-                {/* <div className="grid gap-1">
-                  <label htmlFor="pincode">Pincode :</label>
-                  <input
-                    type="text"
-                    id="pincode"
-                    className="border bg-gray-50 rounded-xl px-2"
-                    {...register("pincode", { required: true })}
-                  />
-                </div> */}
-
                 <div className="grid my-3">
                   <div className="w-full relative flex rounded-xl">
                     <input
@@ -452,112 +465,18 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                     </label>
                   </div>
                 </div>
-
-                {/* <div className="grid gap-1">
-                  <label htmlFor="country">Country :</label>
-                  <input
-                    type="text"
-                    id="country"
-                    className="border bg-gray-50 rounded-xl px-2"
-                    {...register("country", { required: true })}
-                  />
-                </div> */}
               </div>
 
-              {/* <div className="grid gap-1">
-                <label htmlFor="mobile">Mobile No. :</label>
-                <input
-                  type="text"
-                  id="mobile"
-                  className="border bg-gray-50 rounded-xl px-2"
-                  {...register("mobile", { required: true })}
-                />
-              </div> */}
+            
 
               <button
                 type="submit"
                 disabled={!pincodeChecked}
-                className="w-full bg-white border border-orange-500 lg:w-60 text-orange-500 py-2 font-semibold mt-4 hover:bg-orange-500 hover:text-white rounded-xl transition-all duration-200 ease-in-out active:scale-95"
+                className="w-full bg-orange-500 border border-orange-500 lg:w-60 text-white py-3 mt-2 mb-2 lg:mt-0 lg:mb-0 font-semibold hover:bg-orange-400 hover:text-white rounded-xl transition-all duration-200 ease-in-out active:scale-95"
               >
                 Save Shipping Address
               </button>
             </form>
-          </div>
-          <div className="w-full lg:w-2/5 sm:overflow-y-auto lg:overflow-hidden">
-            {/* Only show image and button when map is NOT visible */}
-            {!mapVisible && (
-              <div className="m-0 lg:m-3 max-w-md h-fit w-full p-4 border-gray-400 rounded-xl flex flex-col justify-center items-center text-center">
-                <div className="text-4xl text-gray-400 mb-2"></div>
-                <img
-                  src={Address}
-                  alt="address"
-                  className="h-32 w-32 lg:h-64 lg:w-64"
-                />
-                <p className="font-semibold text-gray-600 mb-1 mt-5">
-                  No Address Found
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Add your address to proceed with checkout.
-                </p>
-                <button
-                  onClick={handleUseCurrentLocation}
-                  className="px-4 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded-full transition-all duration-300 active:scale-95"
-                >
-                  Use Current Location
-                </button>
-              </div>
-            )}
-            {/* Mobile map */}
-            <div className="block lg:hidden h-64 shadow-md overflow-hidden">
-              {isLoaded && mapVisible && (
-                <GoogleMap
-                  center={markerPosition}
-                  zoom={12}
-                  onClick={handleMapClick}
-                  mapContainerStyle={{ width: "100%", height: "100%" }}
-                >
-                  {markerPosition && (
-                    <Marker
-                      position={markerPosition}
-                      draggable
-                      onDragEnd={(e) => {
-                        const lat = e.latLng.lat();
-                        const lng = e.latLng.lng();
-                        setMarkerPosition({ lat, lng });
-                        reverseGeocode(lat, lng);
-                      }}
-                    />
-                  )}
-                </GoogleMap>
-              )}
-            </div>
-
-            {/* Desktop map */}
-            <div className="hidden lg:block h-full shadow-md overflow-hidden mb-5">
-              {isLoaded && mapVisible && (
-                <GoogleMap
-                  center={markerPosition}
-                  zoom={12}
-                  onClick={handleMapClick}
-                  mapContainerStyle={{ width: "100%", height: "100%" }}
-                >
-                  {markerPosition && (
-                    <Marker
-                      position={markerPosition}
-                      draggable
-                      onDragEnd={(e) => {
-                        const lat = e.latLng.lat();
-                        const lng = e.latLng.lng();
-                        setMarkerPosition({ lat, lng });
-                        reverseGeocode(lat, lng);
-                      }}
-                    />
-                  )}
-                </GoogleMap>
-              )}
-            </div>
-
-            {/* Only show map when isLoaded && mapVisible */}
           </div>
         </div>
       </div>

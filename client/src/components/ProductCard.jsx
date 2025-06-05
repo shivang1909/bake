@@ -4,8 +4,11 @@ import { TbShoppingBagPlus } from "react-icons/tb";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { valideURLConvert } from "../utils/valideURLConvert";
 import { Link } from "react-router-dom";
-import renderStars from "./RenderStars"
-const ProductCard = ({ product, setCartProduct,className = "" }) => {
+import renderStars from "./RenderStars";
+import "react-lazy-load-image-component/src/effects/blur.css";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+
+const ProductCard = ({ product, setCartProduct, className = "" }) => {
   const [isloaded, setloaded] = useState(true);
 
   const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
@@ -14,8 +17,6 @@ const ProductCard = ({ product, setCartProduct,className = "" }) => {
     setCartProduct(product);
   };
 
-
-
   return (
     <>
       <div
@@ -23,15 +24,15 @@ const ProductCard = ({ product, setCartProduct,className = "" }) => {
         className={`bg-white md:rounded-[20px]  border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
       >
         <div className="image-section overflow-hidden pt-4 p-2">
-          <Link to={url} className="" state={isloaded}>
-            <div className="flex justify-center items-center rounded-lg mb-2 h-[100px] lg:h-[130px]">
-              <div className="h-[130px] lg:h-[150px] rounded-lg bg-zinc-50 w-full overflow-hidden">
-                <img
-                  src={product.coverimage}
-                  alt={product.name}
-                  className="w-full h-full object-contain overflow-hidden rounded-lg transition-transform duration-1000 ease-in-out scale-110 hover:scale-100"
-                />
-              </div>
+          <Link to={url} className="rounded-lg" state={isloaded}>
+            <div className="flex justify-center rounded-lg items-center  mb-2 h-[100px] lg:h-[130px]">
+              <LazyLoadImage
+                alt="Example"
+                wrapperClassName="h-[130px] lg:h-[130px] rounded-lg bg-zinc-50 w-full overflow-hidden"
+                className=" w-full h-full object-contain overflow-hidden rounded-lg transition-transform duration-500 ease-in-out scale-110 hover:scale-100"
+                effect="blur"
+                src={product.coverimage}
+              />
             </div>
           </Link>
         </div>
@@ -53,9 +54,7 @@ const ProductCard = ({ product, setCartProduct,className = "" }) => {
                 {renderStars(product.averageRating || 4.5)}
               </div>
               <div className="w-fit hidden">
-                <span className="flex justify-between items-center gap-1 bg-yellow-50 text-yellow-500 rounded-lg px-3 text-xs">
-                 
-                </span>
+                <span className="flex justify-between items-center gap-1 bg-yellow-50 text-yellow-500 rounded-lg px-3 text-xs"></span>
               </div>
             </div>
 

@@ -78,7 +78,15 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        shelf_life: {
+            type: Number,
+            required: true, // Shelf life in days
+        },
         reviews: [reviewSchema], 
+        averageRating: {
+            type: Number,
+            default:0,
+      },
     },
     {
         timestamps: true,

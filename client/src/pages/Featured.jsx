@@ -8,9 +8,6 @@ import ProductCard from "../components/ProductCard";
 import ProductLoader from "../components/ProductLoader";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
 import Breadcrumbs from "../components/BreadCrumbs";
-import { setAllCategory, setAllProduct } from "../store/productSlice";
-import { useDispatch, useSelector } from "react-redux";
-import InfiniteScroll from "react-infinite-scroll-component";
 
 const features = [
   {
@@ -31,50 +28,33 @@ const features = [
   },
 ];
 
-const Category = () => {
+const Featured = () => {
   const [catproducts, setcatproducts] = useState([]);
   const [cartProduct, setCartProduct] = useState(null);
+  const [FeaturedProduct, setFeaturedProduct]=useState([])
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
-
-  const [page, setPage] = useState(1);
-  const dispatch = useDispatch();
-  const allProduct = useSelector((state) => state.product.Allproduct);
   const ref = useRef(null);
 
   const params = useParams();
-  const fullCategoryParam = params?.Category || "";
-  const categoryId = fullCategoryParam.split("-").slice(-1)[0];
-  const categoryNameSlug = fullCategoryParam.split("-").slice(0, -1).join("-");
+  const fullFeaturedParam = params?.Featured || "";
+  const FeaturedId = fullFeaturedParam.split("-").slice(-1)[0];
+  const FeaturedNameSlug = fullFeaturedParam.split("-").slice(0, -1).join("-");
 
-  const fetchproductbycategory = async (categoryId) => {
-    const response = await Axios({
-      ...SummaryApi.getProductByCategory,
-      data: { id: categoryId },
-    });
-    const data = response.data;
-    // build a fast-lookup set
-    const allProductIds = new Set(allProduct.map((p) => p._id));
-
-    // filter out any product whose _id is already in allProduct
-    const filteredProducts = data.data.filter((p) => !allProductIds.has(p._id));
-    dispatch(setAllProduct([...allProduct, ...filteredProducts]));
-    setPage((prevPage) => prevPage + 1);
+  const FetchFeaturedProduct = async (id) => {
+    try {
+        const response = await Axios({...SummaryApi.getProductByHomePageSection(id)});
+        setFeaturedProduct(response.data.productIds)
+    } catch (err) {
+        console.log(err)
+    }
   };
 
   useEffect(() => {
-    fetchproductbycategory(categoryId);
-  }, [fullCategoryParam]);
+    FetchFeaturedProduct(FeaturedId)
 
-  const hasmoredata = async () => {
-    console.log("Checking if more data is available for page:", page);
-    if (page > 2) {
-      return false;
-    } else {
-      return true;
-    }
-  };
+  }, [fullFeaturedParam]);
 
   return (
     <>
@@ -95,7 +75,7 @@ const Category = () => {
             style={{ fontFamily: "Bartex, sans-serif" }}
           >
             {/* <span className="text-yellow-600 text-3xl">💮</span> */}
-            {categoryNameSlug}
+            {FeaturedNameSlug}
             {/* <span className="text-yellow-600 text-3xl">💮</span> */}
           </span>
 
@@ -118,21 +98,12 @@ const Category = () => {
             </div>
           ))}
         </div>
-        <InfiniteScroll
-          dataLength={10}
-          hasMore={hasmoredata}
-          next={fetchproductbycategory}
-          className="py-3"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
-            {allProduct.filter((product)=>product.category._id===categoryId?true:false).map((product, index) => (
-              <>
-              {console.log(allProduct)}
-              <ProductCard product={product} setCartProduct={setCartProduct} />
-              </>
-            ))}
-          </div>
-        </InfiniteScroll>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
+          {FeaturedProduct.map((product, index) => (
+            <ProductCard product={product} setCartProduct={setCartProduct} />
+          ))}
+        </div>
       </div>
       {cartProduct && (
         <AddToCartBottomBar
@@ -145,4 +116,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default Featured;

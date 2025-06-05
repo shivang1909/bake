@@ -9,8 +9,7 @@ import { setIsCartOpen } from "../store/loadingSlice";
 import { useGlobalContext } from "../provider/GlobalProvider";
 import Axios from "../utils/Axios";
 import { AiFillInfoCircle } from "react-icons/ai";
-
-
+import { PiWarningCircleLight } from "react-icons/pi";
 
 const AddToCartBottomBar = ({ product, onClose }) => {
   const [selectedVariant, setSelectedVariant] = useState(0);
@@ -127,6 +126,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
 
   const handleCartOpen = () => {
     dispatch(setIsCartOpen(true));
+    handleClose();
   };
 
   return (
@@ -164,12 +164,26 @@ const AddToCartBottomBar = ({ product, onClose }) => {
 
         {/* Product Image */}
         <div className="flex justify-center">
+          <div className="relative w-fit h-40 flex justify-center">
           <img
             src={product.coverimage}
             alt={product.name}
-            className="w-fit h-40 object-cover rounded-xl mb-2"
+            className={`w-full h-full object-cover rounded-xl transition-all duration-300 ease-in-out 
+      ${
+        product.weightVariants[selectedVariant].qty < qty
+          ? "blur-[2px] brightness-50"
+          : ""
+      }
+    `}
           />
+          {product.weightVariants[selectedVariant].qty < qty && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-white text-xl font-bold">Out of Stock</span>
+            </div>
+          )}
         </div>
+        </div>
+        
 
         {/* Product Name */}
         <div className="overflow-hidden">
@@ -198,32 +212,42 @@ const AddToCartBottomBar = ({ product, onClose }) => {
             ))}
           </div>
         )}
-        <div className="flex justify-center items-center text-center gap-2 mt-4">
-           {product.weightVariants[selectedVariant].discount > 0 ? (
-              <span className="text-xs font-semibold text-green-600">
-                {product.weightVariants[selectedVariant].discount}% Off
-              </span>
-            ):(
-              <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
-               <AiFillInfoCircle/> Select Bigger Size for Discount
-              </span>
-            )}
+        <div className="hidden md:block flex justify-center items-center text-center gap-2 mt-4">
+          {product.weightVariants[selectedVariant].discount > 0 ? (
+            <span className="text-xs font-semibold text-green-600">
+              {product.weightVariants[selectedVariant].discount}% Off
+            </span>
+          ) : (
+            <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
+              <AiFillInfoCircle /> Select Bigger Size for Discount
+            </span>
+          )}
         </div>
-  
-        <div className="flex justify-center items-center text-center gap-2 mt-2">
+
+        <div className="flex justify-center items-center text-center gap-2 mt-5 md:mt-2">
           {product.weightVariants[selectedVariant].discount > 0 && (
             <span className="text-md text-gray-400 line-through">
               ₹{product.weightVariants[selectedVariant].price}
             </span>
           )}
-          <span className="flex text-lg font-bold text-gray-900 justify-center">
+          <span className="flex text-lg font-bold text-gray-900  justify-center items-center">
             ₹
             {pricewithDiscount(
               product.weightVariants[selectedVariant].price,
               product.weightVariants[selectedVariant].discount
             )}
-           
           </span>
+          <div className="block md:hidden">
+            {product.weightVariants[selectedVariant].discount > 0 ? (
+              <span className="text-xs font-semibold text-green-600">
+                ( {product.weightVariants[selectedVariant].discount}% Off )
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
+                <AiFillInfoCircle /> Select Bigger Size for Discount
+              </span>
+            )}
+          </div>
         </div>
 
         {/* out of stock if stock is not available  */}
@@ -254,16 +278,25 @@ const AddToCartBottomBar = ({ product, onClose }) => {
           {console.log(isAdded)}
           {/* Add to Cart Button */}
           {!isAdded ? (
-            <button
-              className="flex-1 bg-orange-500 text-white font-bold py-4 tracking-wider px-5 rounded-full shadow-md  transition active:scale-95"
-              onClick={addCartItem}
-            >
-              Add{" "}
-              {selectedVariant
-                ? `(${product.weightVariants[selectedVariant].weight})`
-                : ""}{" "}
-              to Cart
-            </button>
+            <>
+              {product.weightVariants[selectedVariant].qty < qty ? (
+                <div className="flex gap-2 text-xs justify-center items-center bg-white border border-red-500 text-red-500 font-bold py-4 tracking-wider px-5 rounded-full shadow-md transition active:scale-95 cursor-not-allowed">
+                  <PiWarningCircleLight className="text-lg" /> We're Out Of
+                  Stock
+                </div>
+              ) : (
+                <button
+                  className="flex-1 bg-orange-500 text-white font-bold py-4 tracking-wider px-5 rounded-full shadow-md transition active:scale-95"
+                  onClick={addCartItem}
+                >
+                  Add{" "}
+                  {selectedVariant
+                    ? `(${product.weightVariants[selectedVariant].weight})`
+                    : ""}{" "}
+                  to Cart
+                </button>
+              )}
+            </>
           ) : (
             <button
               className="flex-1 bg-orange-500 text-white font-bold py-4 tracking-wider px-5 rounded-full shadow-md  transition active:scale-95"

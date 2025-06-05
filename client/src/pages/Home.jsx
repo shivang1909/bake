@@ -16,21 +16,20 @@ import bannerMobile from "../assets/banner-mobile.webp";
 import bannerMobile2 from "../assets/cheese_cake.webp";
 // import BottomToolBar from '../components/BottomToolBar'
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  
-  Pagination,
-  Autoplay,
-  EffectCoverflow,
-} from "swiper/modules";
+import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
 import CategoryWiseProductDisplay from "../components/CategoryWiseProductDisplay";
 import axios from "axios";
+import BottomToolBar from "../components/BottomToolBar";
 
 const Home = () => {
-  const [banners, setBanners] = useState({ mobileBanners: [], laptopBanners: [] })
-  
+  const [banners, setBanners] = useState({
+    mobileBanners: [],
+    laptopBanners: [],
+  });
+
   const loadingCategory = useSelector((state) => state.product.loadingCategory);
   const categoryData = useSelector((state) => state.product.allCategory);
   const user = useSelector((state) => state.user);
@@ -47,57 +46,77 @@ const Home = () => {
 
   const fetchBanners = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/homebanner/getbanners`, { withCredentials: true })
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/homebanner/getbanners`,
+        { withCredentials: true }
+      );
       if (res.data.success) {
-        setBanners(res.data.data)
+        console.log("✅ Banner data received:", res.data.data);
+        setBanners(res.data.data);
+      } else {
+        console.warn("⚠️ Failed banner response:", res.data);
       }
-      console.log("banner testing ....")
-      console.log(res.data)
     } catch (error) {
-      console.error('Failed to fetch banners:', error)
+      console.error("❌ Error fetching banners:", error);
     }
-  }
-
+  };
 
   useEffect(() => {
-    fetchBanners()
-  }, [])
+    fetchBanners();
+  }, []);
 
   // Pick first active banners or fallback
-  const activeLaptopBanners = banners.laptopBanners?.filter(b => b.status === 'active') || [];
-  const activeMobileBanner = banners.mobileBanners.find(b => b.status === 'active')
+  const activeLaptopBanners =
+    banners?.laptopBanners?.filter((b) => b?.status === "active") || [];
 
+  useEffect(() => {
+    console.log("🧪 RAW banners state:", banners);
+    console.log("✅ Active Laptop Banners:", activeLaptopBanners);
+  }, [banners]);
 
+  const activeMobileBanner =
+    banners.mobileBanners.filter((b) => b.status === "active") || [];
 
   return (
     <section className="bg-white">
       <div className="container mx-auto lg:mt-24">
-        {/* ✅ Desktop Swiper (only shown on md and up) */}
+        {/* ✅ Desktop Swiper */}
         <div className="hidden md:block">
           <Swiper
-            effect="slide" // Optional, as "slide" is the default
+            spaceBetween={30}
+            effect="slide"
             grabCursor={true}
             pagination={{ clickable: true }}
             autoplay={{
-              delay: 1000,
+              delay: 3000,
               disableOnInteraction: false,
             }}
             modules={[Pagination, Autoplay]}
             className="w-full"
           >
-           
-           {activeLaptopBanners.map((banner, index) => (
-    <SwiperSlide key={index}>
-      <div className="transition-all duration-100 active:scale-95 px-2">
-        <img
-          src={`${import.meta.env.VITE_API_URL}/${banner.imageUrl}`}
-          alt={`banner-${index}`}
-          className="w-full h-full border border-gray-200 hover:border-orange-300 rounded-[30px] object-cover"
-        />
-      </div>
-    </SwiperSlide>
-  ))}
-           
+            {activeLaptopBanners.length > 0 ? (
+              activeLaptopBanners.map((banner, index) => (
+                <SwiperSlide key={index}>
+                  <div className="h-[300px] md:h-[400px] px-2">
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}/${banner.imageUrl}`}
+                      loading="lazy"
+                      alt={`banner-${index}`}
+                      className="w-full h-full object-cover rounded-[30px] border-gray-200 "
+                      onError={() =>
+                        console.error(
+                          `❌ Failed to load image for banner ${index}`
+                        )
+                      }
+                    />
+                  </div>
+                </SwiperSlide>
+              ))
+            ) : (
+              <div className="text-center py-10">
+                🚫 No active banners available
+              </div>
+            )}
           </Swiper>
         </div>
       </div>
@@ -119,17 +138,29 @@ const Home = () => {
           pagination={{ clickable: true }}
           modules={[EffectCoverflow, Pagination]}
         >
-          {[bannerMobile, bannerMobile2].map((img, idx) => (
-            <SwiperSlide key={idx}>
-              <div className="transition-all duration-100 active:scale-95">
-                <img
-                  src={img}
-                  alt={`mobile-banner-${idx}`}
-                  className="w-full h-full rounded-[20px]"
-                />
-              </div>
-            </SwiperSlide>
-          ))}
+          {activeMobileBanner.length > 0 ? (
+            activeMobileBanner.map((banner, index) => (
+              <SwiperSlide key={index}>
+                <div className="transition-all duration-100 active:scale-95">
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}/${banner.imageUrl}`}
+                    loading="lazy"
+                    alt={`mobile-banner-${index}`}
+                    className="w-full h-full rounded-[20px]"
+                    onError={() =>
+                      console.error(
+                        `❌ Failed to load image for banner ${index}`
+                      )
+                    }
+                  />
+                </div>
+              </SwiperSlide>
+            ))
+          ) : (
+            <div className="text-center py-10">
+              🚫 No active banners available
+            </div>
+          )}
         </Swiper>
       </div>
 
@@ -159,7 +190,7 @@ const Home = () => {
 
       {/* <Offer_and_Services /> */}
 
-      {/* <BottomToolBar/> */}
+      <BottomToolBar />
 
       {/* <div className='container mx-auto px-4 my-2 grid grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-2'>
         {

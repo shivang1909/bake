@@ -33,10 +33,16 @@ import CodStatus from "../components/CodStatus";
 import AdminCodStatus from "../components/AdminCodStatus";
 import PromoCode from "../pages/PromocodePage";
 import ProductPage from "../pages/ProductPage";
-import ProductLeftBar from '../components/ProductsLeftBar'
+import ShopAll from '../components/ShopAll'
 import HomeProducts from "../components/HomeProducts"
-import OurCategory from "../pages/Category"
+import Category from "../pages/Category"
 import HeroSection from '../pages/HeroSection'
+import Ad from "../pages/Ad";
+import MyProfile from "../pages/MyProfile";
+import Featured from "../pages/Featured";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import AuthSuccess from '../pages/AuthSuccess';
+
 
 const router = createBrowserRouter([
     {
@@ -48,16 +54,24 @@ const router = createBrowserRouter([
                 element: <HomeProducts />
             },
             {
-                path:"OurCategory/:Category",
-                element: <OurCategory />
+                path:"Privacy-Policy",
+                element: <PrivacyPolicy />
+            },
+            {
+                path:"Category/:Category",
+                element: <Category />
+            },
+            {
+                path:"Featured/:Featured",
+                element: <Featured />
             },
             {
                 path:"productpage",
                 element: <ProductPage />
             },
             {
-                path:"ProductLeftBar",
-                element: <ProductLeftBar />
+                path:"ShopAll",
+                element: <ShopAll />
             },
             {
                 path: "",
@@ -74,6 +88,10 @@ const router = createBrowserRouter([
             {
                 path: "login",
                 element: <Login />
+            },
+            {
+                path: "auth-success",    
+                element: <AuthSuccess />
             },
             {
                 path: "admin/login",
@@ -108,6 +126,18 @@ const router = createBrowserRouter([
                 element: <CheckoutPage />
             },
             {
+                path: "Ad",
+                element: <Ad />
+            },
+            {
+                path: "myorders",
+                element: <MyOrders />
+            },
+            {
+                path: "Myprofile",
+                element: <MyProfile />
+            },
+            {
                 path: "dashboard",
                 element: <Dashboard />,
                 children: [
@@ -128,8 +158,8 @@ const router = createBrowserRouter([
                         element: <CheckoutPage />
                     },
                     {
-                        path: "profile",
-                        element: <Profile />
+                        path: "Myprofile",
+                        element: <MyProfile />
                     },
                 ]
             },

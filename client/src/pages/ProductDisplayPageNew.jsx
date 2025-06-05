@@ -342,7 +342,7 @@ const ProductDisplayPageNew = () => {
             </div>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 font-normal">
-              <div className="flex items-center justify-between font-bold border rounded-full w-full md:w-fit px-3 py-2">
+              {/* <div className="flex items-center justify-between font-bold border rounded-full w-full md:w-fit px-3 py-2">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   className="text-xl px-6"
@@ -356,7 +356,7 @@ const ProductDisplayPageNew = () => {
                 >
                   +
                 </button>
-              </div>
+              </div> */}
 
               {data.weightVariants[selectedVariant] &&
               data.weightVariants[selectedVariant].qty > 0 ? (

@@ -61,6 +61,22 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [Featured, setFeatured] = useState([
+    { sectionName: "", sectionId: null }
+  ]);
+
+  const fetchAllFeatured = async () => {
+    try {
+      const response = await Axios(SummaryApi.getallHomepageSection);
+      const simplified = response.data.map(item => ({
+        sectionName: item.sectionName,
+        sectionId: item._id
+      }));
+      setFeatured(simplified);
+    } catch (err) {
+      console.log("Error fetching featured sections:", err);
+    }
+  };
 
   const handleOpenSearch = () => {
     setIsSearchOpen((prev) => !prev);
@@ -79,14 +95,14 @@ const Header = () => {
       const response = await Axios({ ...SummaryApi.getCategory });
       console.log("Categories response:", response);
       setCategories(response.data.data);
-      console.log("categoris test 2",categories);
-      
+      console.log("categoris test 2", categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
 
   useEffect(() => {
+    fetchAllFeatured();
     fetchcategories();
   }, []);
 
@@ -107,6 +123,18 @@ const Header = () => {
     setSubmenuOpen(submenuOpen === menu ? null : menu);
     setNestedOpen(null); // reset nested on switch
   };
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [isMenuOpen]);
 
   const handleLogout = async () => {
     try {
@@ -278,9 +306,21 @@ const Header = () => {
                           className="ec-header-user dropdown"
                           onClick={() => setOpenUserMenu((prev) => !prev)}
                         >
-                          <button className="dropdown-toggle">
-                            <i className="fi-rr-user"></i>
-                          </button>
+                          {user.avatar ? (
+                                <div className="h-10 w-10">
+                                  <img
+                                    src={user.avatar}
+                                    className="h-full w-full object-cover border border-gray-300 rounded-full"
+                                    alt="user"
+                                  />
+                                </div>
+                              ) : (
+                                <img
+                                  src="../../assets/images/Custom/user.png"
+                                  className="h-10 w-10 border border-gray-300 rounded-full"
+                                  alt="user"
+                                />
+                              )}
                         </div>
                         <a
                           href="#ec-side-cart"
@@ -303,7 +343,7 @@ const Header = () => {
                       <>
                         <button
                           onClick={redirectToLoginPage}
-                          className="text-xs px-3 py-1.5 font-bold  rounded-full border border-[#ff7e22] hover:bg-[#ff7e22] hover:text-white text-[#ff7e22] flex gap-1 justify-center items-center"
+                          className="text-xs px-3 py-1.5 font-bold  rounded-full border border-[#ff7e22]  hover:text-white text-[#ff7e22] flex gap-1 justify-center items-center"
                         >
                           Login <IoLogInOutline className="text-lg" />
                         </button>
@@ -366,7 +406,7 @@ const Header = () => {
                                 </Link>
                               </li>
                               <li className="dropdown position-static">
-                                <Link to="/ProductLeftBar">
+                                <Link to="/ShopAll">
                                   <a href="javascript:void(0)">Shop All</a>
                                 </Link>
                               </li>
@@ -376,10 +416,12 @@ const Header = () => {
                                   {categories.map((cat) => (
                                     <li key={cat._id}>
                                       {console.log(cat)}
-                                       <Link to={`/OurCategory/${valideURLConvert(cat.name)}-${cat._id}`}>
-                                      <a>
-                                        {cat.name}
-                                      </a>
+                                      <Link
+                                        to={`/Category/${valideURLConvert(
+                                          cat.name
+                                        )}-${cat._id}`}
+                                      >
+                                        <a>{cat.name}</a>
                                       </Link>
                                     </li>
                                   ))}
@@ -388,11 +430,18 @@ const Header = () => {
                               <li className="dropdown">
                                 <a href="javascript:void(0)">Featured</a>
                                 <ul className="sub-menu">
-                                  <li>
-                                    <a>
-                                      Privacy Policy
-                                    </a>
-                                  </li>
+                                {Featured.map((featured) => (
+                                    <li key={featured.sectionId}>
+                                      {console.log(featured)}
+                                      <Link
+                                        to={`/Featured/${valideURLConvert(
+                                          featured.sectionName
+                                        )}-${featured.sectionId}`}
+                                      >
+                                        <a>{featured.sectionName}</a>
+                                      </Link>
+                                    </li>
+                                  ))}
                                 </ul>
                               </li>
                               <li className="dropdown">
@@ -492,9 +541,23 @@ const Header = () => {
                           <div className="relative" ref={dropdownRef}>
                             <button
                               onClick={toggleDropdown}
-                              className="flex items-center gap-1 text-black hover:bg-gray-200 px-4 py-2 rounded-full"
+                              className="flex items-center gap-1 text-black hover:bg-gray-200  rounded-full"
                             >
-                              <CgProfile className="text-4xl text-gray-800" />
+                              {user.avatar ? (
+                                <div className="h-10 w-10">
+                                  <img
+                                    src={user.avatar}
+                                    className="h-full w-full object-cover border border-gray-300 rounded-full"
+                                    alt="user"
+                                  />
+                                </div>
+                              ) : (
+                                <img
+                                  src="../../assets/images/Custom/user.png"
+                                  className="h-10 w-10 border border-gray-300 rounded-full"
+                                  alt="user"
+                                />
+                              )}
                             </button>
 
                             {isDropdownOpen && (
@@ -547,7 +610,7 @@ const Header = () => {
                         ) : (
                           <button
                             onClick={redirectToLoginPage}
-                            className="text-lg px-4 py-2 font-bold border rounded-full bg-[#ff7e22] hover:bg-[#008E97] text-white flex gap-1 justify-center items-center"
+                            className="text-lg px-4 py-2 font-bold rounded-full border border-orange-500  hover:bg-orange-50 text-orange-500 active:scale-95 flex gap-1 justify-center items-center"
                           >
                             Login <IoLogInOutline className="text-3xl" />
                           </button>
@@ -622,163 +685,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* <div id="ec-main-menu-desk" className="d-none d-lg-block sticky-nav">
-          <div className="container position-relative">
-            <div className="row">
-              <div className="col-md-12 align-self-center">
-                <div className="ec-main-menu">
-                  <ul>
-                    <li>
-                      <Link to="/">
-                        <a>Home</a>
-                      </Link>
-                    </li>
-                    <li className="dropdown position-static">
-                      <Link to="/ProductLeftBar">
-                        <a href="javascript:void(0)">Shop</a>
-                      </Link>
-                    </li>
-                    <li className="dropdown">
-                      <a href="javascript:void(0)">Categories</a>
-                      <ul className="sub-menu">
-                        <li className="dropdown position-static">
-                          <a href="javascript:void(0)">
-                            Product page
-                            <i className="ecicon eci-angle-right"></i>
-                          </a>
-                          <ul className="sub-menu sub-menu-child">
-                            <li>
-                              <a href="product-left-sidebar.html">
-                                Product left sidebar
-                              </a>
-                            </li>
-                            <li>
-                              <a href="product-right-sidebar.html">
-                                Product right sidebar
-                              </a>
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="dropdown position-static">
-                          <a href="javascript:void(0)">
-                            Product 360
-                            <i className="ecicon eci-angle-right"></i>
-                          </a>
-                          <ul className="sub-menu sub-menu-child">
-                            <li>
-                              <a href="product-360-left-sidebar.html">
-                                360 left sidebar
-                              </a>
-                            </li>
-                            <li>
-                              <a href="product-360-right-sidebar.html">
-                                360 right sidebar
-                              </a>
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="dropdown position-static">
-                          <a href="javascript:void(0)">
-                            Product video
-                            <i className="ecicon eci-angle-right"></i>
-                          </a>
-                          <ul className="sub-menu sub-menu-child">
-                            <li>
-                              <a href="product-video-left-sidebar.html">
-                                Video left sidebar
-                              </a>
-                            </li>
-                            <li>
-                              <a href="product-video-right-sidebar.html">
-                                Video right sidebar
-                              </a>
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="dropdown position-static">
-                          <a href="javascript:void(0)">
-                            Product gallery
-                            <i className="ecicon eci-angle-right"></i>
-                          </a>
-                          <ul className="sub-menu sub-menu-child">
-                            <li>
-                              <a href="product-gallery-left-sidebar.html">
-                                Gallery left sidebar
-                              </a>
-                            </li>
-                            <li>
-                              <a href="product-gallery-right-sidebar.html">
-                                Gallery right sidebar
-                              </a>
-                            </li>
-                          </ul>
-                        </li>
-                        <li>
-                          <a href="product-full-width.html">
-                            Product full width
-                          </a>
-                        </li>
-                        <li>
-                          <a href="product-360-full-width.html">
-                            360 full width
-                          </a>
-                        </li>
-                        <li>
-                          <a href="product-video-full-width.html">
-                            Video full width
-                          </a>
-                        </li>
-                        <li>
-                          <a href="product-gallery-full-width.html">
-                            Gallery full width
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li className="dropdown">
-                      <a href="javascript:void(0)">Gifting</a>
-                      <ul className="sub-menu">
-                        <li>
-                          <a href="about-us.html">About Us</a>
-                        </li>
-                        <li>
-                          <a href="contact-us.html">Contact Us</a>
-                        </li>
-                        <li>
-                          <a href="cart.html">Cart</a>
-                        </li>
-                        <li>
-                          <a href="checkout.html">Checkout</a>
-                        </li>
-                        <li>
-                          <a href="compare.html">Compare</a>
-                        </li>
-                        <li>
-                          <a href="faq.html">FAQ</a>
-                        </li>
-                        <li>
-                          <a href="login.html">Login</a>
-                        </li>
-                        <li>
-                          <a href="register.html">Register</a>
-                        </li>
-                        <li>
-                          <a href="track-order.html">Track Order</a>
-                        </li>
-                        <li>
-                          <a href="terms-condition.html">Terms Condition</a>
-                        </li>
-                        <li>
-                          <a href="privacy-policy.html">Privacy Policy</a>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
         <div class="ec-menu-overlay"></div>
 
         <div
@@ -797,18 +703,20 @@ const Header = () => {
             <div class="ec-menu-content">
               <ul className="flex flex-col space-y-2 text-[15px] tracking-wider gap-2 font-bold ">
                 {/* offers */}
-                <li>
-                  <div className="flex justify-between items-center cursor-pointer">
-                    <span>Home</span>
-                  </div>
-                </li>
-                <li>
-                  <Link to="/ProductLeftBar">
+                <Link to="/" onClick={() => setIsMenuOpen(false)}>
+                  <li>
+                    <div className="flex justify-between items-center cursor-pointer">
+                      <span>Home</span>
+                    </div>
+                  </li>
+                </Link>
+                <Link to="/ShopAll" onClick={() => setIsMenuOpen(false)}>
+                  <li>
                     <div className="flex justify-between items-center cursor-pointer">
                       <span>Shop Now</span>
                     </div>
-                  </Link>
-                </li>
+                  </li>
+                </Link>
                 {/* Categories */}
                 <li>
                   <div
@@ -822,25 +730,23 @@ const Header = () => {
                   {/* Submenu under Categories */}
                   <ul
                     className={`pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "categories" ? "max-h-[500px]" : "max-h-0"
+                      submenuOpen === "categories"
+                        ? "max-h-[300px] overflow-y-auto"
+                        : "max-h-0"
                     }`}
                   >
                     <div className="flex flex-col gap-2 mt-2 justify-center">
-                      <li className="rounded-2xl">
-                        <a href="">Sweets</a>
-                      </li>
-                      <li className="rounded-2xl">
-                        <a href="">Namkeens</a>
-                      </li>
-                      <li className="rounded-2xl">
-                        <a href="">Farsan</a>
-                      </li>
-                      <li className="rounded-2xl">
-                        <a href="">Bakery</a>
-                      </li>
-                      <li className="rounded-2xl">
-                        <a href="">Gifts & More</a>
-                      </li>
+                      {categories.map((cat) => (
+                        <li key={cat._id} className="rounded-2xl">
+                          <Link
+                            to={`/Category/${valideURLConvert(cat.name)}-${
+                              cat._id
+                            }`}
+                          >
+                            <a>{cat.name}</a>
+                          </Link>
+                        </li>
+                      ))}
                     </div>
                   </ul>
                   <ul class="sub-menu">
@@ -981,7 +887,7 @@ const Header = () => {
             </div>
           </div>
           {/* Bottom Section: Help Center + Social Icons */}
-          <div className="flex flex-col mt-auto px-4 pb-6 space-y-4">
+          <div className="flex flex-col mt-auto px-4 space-y-4">
             {/* Help Center */}
             <div className="border-b pb-3 pt-4 ">
               <ul className="text-[15px] font-bold">
@@ -992,7 +898,7 @@ const Header = () => {
             </div>
 
             {/* Social Media Icons */}
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-6">
               <a
                 href="https://www.instagram.com"
                 target="_blank"

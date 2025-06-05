@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import auth from '../middleware/auth.js'
-import {addreview, createProductController, deleteProductDetails, getProductByCategory, getProductController, getProductDetails, searchProduct, updateProductDetails ,getProductByCategoryName, getreviewsofproduct} from '../controllers/product.controller.js'
+import {addreview, createProductController, deleteProductDetails, getProductByCategory, getProductController, getProductDetails, searchProduct, updateProductDetails ,getProductByCategoryName, getreviewsofproduct, getproductfilter} from '../controllers/product.controller.js'
 import { admin } from '../middleware/Admin.js'
 import upload from "../middleware/multer.js";
 import { getallProduct } from '../controllers/product.controller.js'
 import { getHomepageSections } from '../controllers/Homepagesection.js';
+import { GetHomePageSectionProducts } from '../controllers/Homepagesection.js';
 
 const productRouter = Router()
 
@@ -31,6 +32,7 @@ productRouter.post('/addreview',auth,addreview);
 productRouter.get('/getreviewproduct/:id',auth,getreviewsofproduct);
 productRouter.get('/get-all-product',auth,admin,getallProduct)
 productRouter.get('/get-HomepageSection',getHomepageSections)
-
+productRouter.get('/getProductByHomePageSection/:sectionId',GetHomePageSectionProducts)
+productRouter.post('/getfilterproduct',getproductfilter)
 
 export default productRouter

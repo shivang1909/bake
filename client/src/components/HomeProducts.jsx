@@ -12,6 +12,8 @@ import { setAllProduct } from "../store/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setDataLoading } from "../store/loadingSlice";
 import { RxCornerTopLeft } from "react-icons/rx";
+import { Link } from "react-router-dom";
+import { valideURLConvert } from "../utils/valideURLConvert";
 
 const HomeProducts = () => {
   const [cartProduct, setCartProduct] = useState(null);
@@ -39,126 +41,7 @@ const HomeProducts = () => {
     setCartProduct(null);
   };
 
-  const sampleProducts = [
-    {
-      id: 1,
-      name: "Gulab Jamun",
-      image: "../../assets/images/Custom/Kajukatri.png",
-      category: "Hot & Fresh",
-      price: 300,
-      discountPrice: 250,
-      rating: 4.3,
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 1,
-      name: "Gulab Jamun",
-      image: "../../assets/images/Custom/KajuRoll.png",
-      category: "Hot & Fresh",
-      price: 300,
-      discountPrice: 250,
-      rating: 4.3,
-      variants: ["200g", "400g", "800g"],
-    },
-  ];
 
-  const NewArrival = [
-    {
-      id: 1,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/Kajukatri.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 2,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/KajuRoll.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 3,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/MixBites.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 4,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/farsan.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 5,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/laddo.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    {
-      id: 5,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/promo-chocolate.png",
-      category: "Trending",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-    // ... more products
-  ];
-
-  const Offers = [
-    {
-      id: 1,
-      name: "Kaju Katli",
-      image: "../../assets/images/Custom/Kajukatri.png",
-      category: "Hot & Fresh",
-      price: 500,
-      discountPrice: 450,
-      rating: 4.5,
-      discount: "10% OFF",
-      variants: ["200g", "400g", "800g"],
-    },
-  ];
-
-  const HotSpicy = [
-    {
-      id: 1,
-      name: "Masala Namkeen",
-      image: "../../assets/images/Custom/Kajukatri.png",
-      category: "Bakery",
-      price: 200,
-      discountPrice: 180,
-      rating: 4,
-      discount: "Save ₹20",
-      variants: ["200g", "400g", "800g"],
-    },
-  ];
 
   const scrollRefs = useRef([]);
   const isDragging = useRef(false);
@@ -201,7 +84,9 @@ const HomeProducts = () => {
                 {section.sectionName}
               </span>
               <button className="text-xs flex items-center gap-1 bg-orange-400 text-white pl-3 pr-2 py-2 rounded-l-full font-semibold">
+               <Link to={`/Featured/${valideURLConvert(section.sectionName)}-${section._id}`}> 
                 View All <FaAngleDoubleRight />
+                </Link>
               </button>
             </div>
 

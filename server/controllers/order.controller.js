@@ -9,6 +9,7 @@ import Razorpay from "razorpay";
 import PromocodeModel from "../models/promocode.model.js";
 import crypto from "crypto";
 import { nanoid } from 'nanoid';
+import AddressModel from "../models/address.model.js";
 import dotenv from 'dotenv';
 dotenv.config();
 import {
@@ -288,6 +289,7 @@ export const createPaymentOrder = async (req, res) => {
 };
 
 //Verify Payment
+//Verify Payment
 export const verifyPayment = async (req, res) => {
   try {
     const userId = req.userId;
@@ -303,6 +305,26 @@ export const verifyPayment = async (req, res) => {
       promocodeId,
       promocodeDiscount,
     } = req.body;
+  const selectedAddress = await  AddressModel.findById(addressId);
+    if (!selectedAddress) {
+      return response.status(404).json({
+        message: "Address not found",
+        error: true,
+        success: false,
+      });
+    }
+    
+
+   const deliveryAddress = {
+      name: selectedAddress.name,
+      address_line1: selectedAddress.address_line1,
+      address_line2: selectedAddress.address_line2,
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      pincode: selectedAddress.pincode,
+      country: selectedAddress.country,
+      mobile: selectedAddress.mobile
+    };
 
     // Verify payment signature
     const hmac = crypto
@@ -325,7 +347,7 @@ export const verifyPayment = async (req, res) => {
       paymentId: razorpay_payment_id,
       payment_status: "ONLINE PAYMENT",
       finalOrderTotal: total,
-      delivery_address: addressId,
+      delivery_address: deliveryAddress,
       deliveryPartnerId: null,
       orderStatus: "Not Assigned",
       isPaymentDone: true,
@@ -337,6 +359,7 @@ export const verifyPayment = async (req, res) => {
       try {
         const promocode = await PromocodeModel.findById(promocodeId);
         payload.promo_code = promocode.code;
+         payload.promocodeDiscount = promocodeDiscount;
         await PromocodeModel.findByIdAndUpdate(promocodeId, {
           $set: { users: userId },
         });
@@ -400,22 +423,42 @@ export const verifyPayment = async (req, res) => {
 
     return res.status(200).json({ success: true, data: generatedOrder });
   } catch (error) {
-    console.error("Payment verification error:", error);
+    console.log("Payment verification error:", error);
     return res.status(500).json({
       success: false,
       error: error.message || "Error verifying payment and creating order",
     });
   }
 };
-// ====================promocode added===========================
-/** Place a Cash on Delivery Order */
+
+
 export async function CashOnDeliveryOrderController(request, response) {
   try {
     const userId = request.userId; // auth middleware
     const { list_items, addressId, total,special_Gift_packing, promocodeId, promocodeDiscount } =
       request.body;
 
+      
     console.log("this is list item : ", JSON.stringify(list_items));
+    const selectedAddress = await  AddressModel.findById(addressId);
+    if (!selectedAddress) {
+      return response.status(404).json({
+        message: "Address not found",
+        error: true,
+        success: false,
+      });
+    }
+
+   const deliveryAddress = {
+      name: selectedAddress.name,
+      address_line1: selectedAddress.address_line1,
+      address_line2: selectedAddress.address_line2,
+      city: selectedAddress.city,
+      state: selectedAddress.state,
+      pincode: selectedAddress.pincode,
+      country: selectedAddress.country,
+      mobile: selectedAddress.mobile
+    };
 
     // Create the base order payload
     const payload = {
@@ -426,14 +469,14 @@ export async function CashOnDeliveryOrderController(request, response) {
       paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
       payment_status: "CASH ON DELIVERY",
       finalOrderTotal: total,
-      delivery_address: addressId,
+      delivery_address: deliveryAddress,
       deliveryPartnerId: null, // No delivery partner assigned initially
       orderStatus: "Not Assigned", // Default status
     };
     payload.special_Gift_packing = special_Gift_packing;
     console.log("********************************");
     
-console.log(payload);
+console.log(JSON.stringify(payload));
 
     // If promocode is provided, verify and apply it
     if (promocodeId) {
@@ -443,6 +486,7 @@ console.log(payload);
 
         // Add promocode to order payload
         payload.promo_code = promocode.code;
+        payload.promocodeDiscount = promocodeDiscount;
 
         // Update promocode usage count
         await PromocodeModel.findByIdAndUpdate(promocodeId, {
@@ -1102,7 +1146,6 @@ export async function notDeliverdOrderController(request, response) {
       orderStatus: { $in: ["Assigned", "Out for Delivery"] }, // Correct filter condition
     })
       .sort({ createdAt: -1 })
-      .populate("delivery_address");
 
     if (!orders.length) {
       return response.status(200).json({
@@ -1163,7 +1206,6 @@ export async function getOrdersForDeliveryPartnerHistory(request, response) {
     // Fetch the orders based on the conditions
     const orders = await OrderModel.find(filterConditions)
       .sort({ createdAt: -1 })
-      .populate("delivery_address")
       .populate({
         path: "deliveryPartnerId", // Assuming this field refers to AdminModel
         select: "name", // Fetch only the name field

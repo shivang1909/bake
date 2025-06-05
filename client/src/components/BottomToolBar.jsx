@@ -13,7 +13,7 @@ const BottomToolBar = () => {
               </Link>
             </div>
             <div className="ec-nav-panel-icons">
-              <Link to="/side-cart" className="toggle-cart ec-header-btn ec-side-toggle">
+              <Link to="/shopall" className="toggle-cart ec-header-btn ec-side-toggle">
                 <i className="fi-rr-shopping-basket"></i>
                 <span className="ec-cart-noti ec-header-count cart-count-lable">3</span>
               </Link>

@@ -43,7 +43,7 @@ const persistConfig = {
   key: 'root',
   storage,
   // whitelist: ['product', 'cartItem'], // ✅ Only persist 'product' & 'cartItem'
-  blacklist: ['product','cartItem'], // You can blacklist slices you don’t want to persist
+  blacklist: ['product','cartItem','user','addresses','orders','loading'], // You can blacklist slices you don’t want to persist
 };
 
 // Apply persisted reducer

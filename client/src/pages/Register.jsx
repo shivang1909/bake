@@ -150,6 +150,20 @@ const Register = () => {
 
                     <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Register</button>
 
+ <p className="text-center">Or</p>
+                <div className="text-center mt-">
+                <button
+                    type="button"
+                    onClick={() => {
+                        window.location.href = `${import.meta.env.VITE_API_URL}/api/user/google`;
+                    }}
+                    className="w-full bg-green-600 hover:bg-red-700 text-white py-2 rounded font-semibold flex justify-center items-center gap-2"
+                    >
+                    <img src="images/google-logo.png" alt="Google" className="w-5 h-5" />
+                    Continue with Google
+                </button>
+                </div>
+
                 </form>
 
                 <p>

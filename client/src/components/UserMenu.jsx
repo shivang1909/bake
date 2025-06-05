@@ -91,7 +91,7 @@ const UserMenu = ({ close, open }) => {
           {/* Grid Menu */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-x-7 gap-y-5 text-sm mt-2 md:w-2/5">
             <Link
-              to=""
+              to="/Dashboard" onClick={close}
               className="hover:bg-orange-200 bg-white p-5 md:hidden rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
               <img src={User} alt="" className="h-8 md:h-10 w-8 md:w-10" />
@@ -99,7 +99,8 @@ const UserMenu = ({ close, open }) => {
             </Link>
 
             <Link
-              to="/dashboard/myorders"
+              to="/myorders"
+              onClick={close}
               className="hover:bg-blue-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
               <img src={Track} alt="" className="h-8 md:h-10 w-8 md:w-10" />
@@ -107,7 +108,8 @@ const UserMenu = ({ close, open }) => {
             </Link>
 
             <Link
-              to="/dashboard/address"
+              to="/address"
+              onClick={close}
               className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
               <img src={Address} alt="" className="h-8 md:h-10 w-8 md:w-10" />
@@ -115,7 +117,8 @@ const UserMenu = ({ close, open }) => {
             </Link>
 
             <Link
-              to="/dashboard/address"
+              to="/address"
+              onClick={close}
               className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
               <img src={Tracking} alt="" className="h-8 md:h-10 w-8 md:w-10" />
@@ -123,6 +126,7 @@ const UserMenu = ({ close, open }) => {
             </Link>
             <button
               onClick={handleLogout}
+              
               className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4 hidden md:block md:flex transition duration-300 active:scale-90"
             >
               <img src={Logout} alt="" className="h-8 md:h-10 w-8 md:w-10" />

@@ -173,14 +173,15 @@ const CategorySlider = () => {
                 <img
                   src={import.meta.env.VITE_API_URL+"/"+cat.image}
                   alt={cat.name}
-                  className="w-20 h-20 object-contain spin-on-mobile lg:group-hover:animate-spinSlow"
+                  loading="lazy"
+                  className="w-20 h-20 object-contain"
                 />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">
                   {cat.name}{" "}
                 </h3>
-                <Link to={`/OurCategory/${valideURLConvert(cat.name)}-${cat._id}`}>
+                <Link to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`}> 
                 <a
                  
                   className="text-sm text-pink-500 font-semibold mt-1 inline-block"

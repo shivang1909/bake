@@ -118,7 +118,7 @@ const CheckoutPage = () => {
 
   const promoRef = useRef(null);
   const promoRefAlt = useRef(null);
-
+   
   const handleClick = () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -144,7 +144,9 @@ const CheckoutPage = () => {
       return () => clearTimeout(timeout);
     }
   }, [openAddress]);
-
+ useEffect(() => {
+  console.log("useeffect for check out items",checkoutItems)
+ },[checkoutItems]);
   useEffect(() => {
     if (appliedPromocode && promoRef.current) {
       // Trigger smooth iPhone-style vibration
@@ -213,85 +215,184 @@ const CheckoutPage = () => {
     }));
   };
 
-  const handleGiftWrapChange = (
-    productIndex,
-    variantIndex,
-    weight,
-    isChecked
-  ) => {
-    const quantity =
-      checkoutItems[productIndex].variantPrices[variantIndex].quantity;
-    const pricePerWrap = giftWrapChargesList[weight];
-    console.log("pricePerWrap", pricePerWrap);
-    console.log("quantity", quantity);
-    console.log("handleGiftWrapChange", productIndex, variantIndex, isChecked);
+  // const handleGiftWrapChange = (
+  //   productIndex,
+  //   variantIndex,
+  //   weight,
+  //   isChecked
+  // ) => {
+  //   const quantity =
+  //     checkoutItems[productIndex].variantPrices[variantIndex].quantity;
+  //   const pricePerWrap = giftWrapChargesList[weight];
+  //   console.log("pricePerWrap", pricePerWrap);
+  //   console.log("quantity", quantity);
+  //   console.log("handleGiftWrapChange", productIndex, variantIndex, isChecked);
 
-    if (isChecked) {
-      // Initialize with default quantity (all items)
-      setGiftNoteQtys((prev) => ({
-        ...prev,
-        [`${productIndex}-${variantIndex}`]: quantity,
-      }));
+  //   if (isChecked) {
+  //     // Initialize with default quantity (all items)
+  //     setGiftNoteQtys((prev) => ({
+  //       ...prev,
+  //       [`${productIndex}-${variantIndex}`]: quantity,
+  //     }));
 
-      // Initialize empty notes for each item
-      const initialNotes = {};
-      for (let i = 0; i < quantity; i++) {
-        initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
-      }
-      setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
-      console.log("GiftWrapCharges", GiftWrapCharges);
-      setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
-    } else {
-      // Clean up all related states
-      setGiftNotes((prev) => {
-        const updated = { ...prev };
-        for (let i = 0; i < quantity; i++) {
-          delete updated[`${productIndex}-${variantIndex}-${i}`];
-        }
-        return updated;
-      });
+  //     // Initialize empty notes for each item
+  //     const initialNotes = {};
+  //     for (let i = 0; i < quantity; i++) {
+  //       initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
+  //     }
+  //     setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
+  //     console.log("GiftWrapCharges", GiftWrapCharges);
+  //     setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
+  //   } else {
+  //     // Clean up all related states
+  //     setGiftNotes((prev) => {
+  //       const updated = { ...prev };
+  //       for (let i = 0; i < quantity; i++) {
+  //         delete updated[`${productIndex}-${variantIndex}-${i}`];
+  //       }
+  //       return updated;
+  //     });
 
-      setGiftNoteEditable((prev) => {
-        const updated = { ...prev };
-        for (let i = 0; i < quantity; i++) {
-          delete updated[`${productIndex}-${variantIndex}-${i}`];
-        }
-        return updated;
-      });
+  //     setGiftNoteEditable((prev) => {
+  //       const updated = { ...prev };
+  //       for (let i = 0; i < quantity; i++) {
+  //         delete updated[`${productIndex}-${variantIndex}-${i}`];
+  //       }
+  //       return updated;
+  //     });
 
-      setGiftNoteQtys((prev) => {
-        const updated = { ...prev };
-        delete updated[`${productIndex}-${variantIndex}`];
-        return updated;
-      });
+  //     setGiftNoteQtys((prev) => {
+  //       const updated = { ...prev };
+  //       delete updated[`${productIndex}-${variantIndex}`];
+  //       return updated;
+  //     });
 
-      setGiftWrapCharges(
-        (prev) =>
-          prev -
-          pricePerWrap *
-            (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
-      );
+  //     setGiftWrapCharges(
+  //       (prev) =>
+  //         prev -
+  //         pricePerWrap *
+  //           (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
+  //     );
+  //   }
+
+  //   // Update checkout items
+  //   setcheckoutItems((prev) => {
+  //     const updated = [...prev];
+  //     updated[productIndex] = {
+  //       ...updated[productIndex],
+  //       variantPrices: updated[productIndex].variantPrices.map((v, i) =>
+  //         i === variantIndex
+  //           ? {
+  //               ...v,
+  //               isGiftWrap: isChecked,
+  //             }
+  //           : v
+  //       ),
+  //     };
+  //     return updated;
+  //   });
+  // };
+
+  // Apply promocode
+ const handleGiftWrapChange = (
+  productIndex,
+  variantIndex,
+  weight,
+  isChecked
+) => {
+  const quantity =
+    checkoutItems[productIndex].variantPrices[variantIndex].quantity;
+  const pricePerWrap = giftWrapChargesList[weight];
+
+  if (isChecked) {
+    // Set number of gift notes
+    setGiftNoteQtys((prev) => ({
+      ...prev,
+      [`${productIndex}-${variantIndex}`]: quantity,
+    }));
+
+    // Initialize notes
+    const initialNotes = {};
+    for (let i = 0; i < quantity; i++) {
+      initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
     }
+    setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
 
-    // Update checkout items
+    // Add to total charge
+    setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
+
+    // ✅ Update checkout items with isGiftWrap and giftWrapCharge
     setcheckoutItems((prev) => {
       const updated = [...prev];
       updated[productIndex] = {
         ...updated[productIndex],
-        variantPrices: updated[productIndex].variantPrices.map((v, i) =>
+        variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
           i === variantIndex
             ? {
-                ...v,
-                isGiftWrap: isChecked,
+                ...variant,
+                isGiftWrap: true,
+                giftWrapCharge: quantity * pricePerWrap,
               }
-            : v
+            : variant
         ),
       };
       return updated;
     });
-  };
+  } else {
+    // Remove notes
+    setGiftNotes((prev) => {
+      const updated = { ...prev };
+      for (let i = 0; i < quantity; i++) {
+        delete updated[`${productIndex}-${variantIndex}-${i}`];
+      }
+      return updated;
+    });
 
-  // Apply promocode
+    // Remove editables
+    setGiftNoteEditable((prev) => {
+      const updated = { ...prev };
+      for (let i = 0; i < quantity; i++) {
+        delete updated[`${productIndex}-${variantIndex}-${i}`];
+      }
+      return updated;
+    });
+
+    // Remove qty
+    setGiftNoteQtys((prev) => {
+      const updated = { ...prev };
+      delete updated[`${productIndex}-${variantIndex}`];
+      return updated;
+    });
+
+    // Deduct gift wrap charges
+    setGiftWrapCharges(
+      (prev) =>
+        prev -
+        pricePerWrap *
+          (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
+    );
+
+    // ✅ Update checkout items: remove giftWrapCharge
+    setcheckoutItems((prev) => {
+      const updated = [...prev];
+      updated[productIndex] = {
+        ...updated[productIndex],
+        variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
+          i === variantIndex
+            ? {
+                ...variant,
+                isGiftWrap: false,
+                giftWrapCharge: 0,
+              }
+            : variant
+        ),
+      };
+      return updated;
+    });
+  }
+ 
+};
+
   const applyPromocode = async () => {
     if (!selectedPromocode) {
       toast.error("Please enter a promocode");
@@ -311,6 +412,7 @@ const CheckoutPage = () => {
 
       if (response.data.success) {
         setAppliedPromocode(selectedPromocode);
+       
         setPromocodeDiscount(response.data.data.discountAmount);
         toast.success("Promocode applied successfully!");
         setShowPromocodes(false);
@@ -394,10 +496,12 @@ const CheckoutPage = () => {
   //     AxiosToastError(error);
   //   }
   // };
+  
 
   const handleCashOnDelivery = async () => {
     try {
       toast.loading("Processing order...");
+      console.log("checkoutitems",checkoutItems);
 
       // Prepare items with gift notes
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
@@ -418,6 +522,7 @@ const CheckoutPage = () => {
         }),
       }));
       console.log("itemwithgiftdetailss", itemsWithGiftDetails);
+
 
       const response = await Axios({
         ...SummaryApi.CashOnDeliveryOrder,
@@ -454,7 +559,7 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-      const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
+       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
         ...item,
         variantPrices: item.variantPrices.map((variant, vIndex) => {
           const notes = [];
@@ -510,6 +615,7 @@ const CheckoutPage = () => {
                   GiftWrapCharges,
                 promocodeId: appliedPromocode?._id || null,
                 promocodeDiscount: promocodeDiscount || 0,
+                
                 amount: order.amount, // Include `amount` in verification
               }),
             }
@@ -534,6 +640,7 @@ const CheckoutPage = () => {
       // AxiosToastError(error);
     }
   };
+
 
   const { finalTotal, quantity, discountedPrice } = useMemo(() => {
     let finalTotal = 0;
@@ -639,21 +746,21 @@ const CheckoutPage = () => {
       }
 
       // Update checkout items (only update the charge for the actually wrapped items)
-      // setcheckoutItems(prevItems => {
-      //   const updatedItems = [...prevItems];
-      //   updatedItems[productIndex] = {
-      //     ...updatedItems[productIndex],
-      //     variantPrices: updatedItems[productIndex].variantPrices.map((variant, vIndex) =>
-      //       vIndex === variantIndex
-      //         ? {
-      //             ...variant,
-      //             giftWrapCharge: newQty * pricePerWrap
-      //           }
-      //         : variant
-      //     ),
-      //   };
-      //   return updatedItems;
-      // });
+      setcheckoutItems(prevItems => {
+        const updatedItems = [...prevItems];
+        updatedItems[productIndex] = {
+          ...updatedItems[productIndex],
+          variantPrices: updatedItems[productIndex].variantPrices.map((variant, vIndex) =>
+            vIndex === variantIndex
+              ? {
+                  ...variant,
+                  giftWrapCharge: newQty * pricePerWrap
+                }
+              : variant
+          ),
+        };
+        return updatedItems;
+      });
 
       // Update gift note quantity
       setGiftNoteQtys((prev) => ({
@@ -1515,7 +1622,7 @@ const CheckoutPage = () => {
           }
         >
           <div>
-            <div className="w-full max-w-md bg-white py-4 px-2 overflow-y-auto h-full max-h-[75vh]">
+            <div className="w-full  bg-white py-4 px-2 overflow-y-auto h-full max-h-[75vh]">
               {/**summary**/}
               {checkoutItems.length > 0 ? (
                 <>
@@ -1527,7 +1634,7 @@ const CheckoutPage = () => {
                       )}
                     </p>
                   </div>
-                  <div className="bg-white rounded-lg py-2 grid gap-5 overflow-auto h-full max-h-[75vh]">
+                  <div className="bg-white rounded-lg py-2 grid gap-5 overflow-auto w-full h-full max-h-[75vh]">
                     {checkoutItems.map((item, productIndex) =>
                       item.variantPrices.map((variant, index) => {
                         const isDetailsVisible =
@@ -1535,6 +1642,7 @@ const CheckoutPage = () => {
                           true;
 
                         return (
+                         
                           <div
                             key={`${item.productId}_product_${index}`}
                             className={`flex flex-col w-full gap-4 border-b pb-4 border rounded-xl px-3 transition-colors duration-300 ${
@@ -1782,6 +1890,7 @@ const CheckoutPage = () => {
                             </div>
 
                             {/* Product Display */}
+                            
                             <div className="flex gap-4 items-start">
                               <div className="w-20 h-20 rounded-lg bg-gray-200">
                                 <img
@@ -1822,6 +1931,7 @@ const CheckoutPage = () => {
                               </div>
                             </div>
                           </div>
+                         
                         );
                       })
                     )}

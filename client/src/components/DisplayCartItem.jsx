@@ -202,7 +202,7 @@ const DisplayCartItem = ({ close, open }) => {
   const navigate = useNavigate();
   const redirectToCheckoutPage = () => {
     if (user?._id) {
-      navigate("/dashboard/checkout");
+      navigate("/checkout");
       if (close) {
         close();
       }
@@ -214,7 +214,7 @@ const DisplayCartItem = ({ close, open }) => {
     <>
       <div
         className={`
-        fixed inset-0 bg-zinc-800/60 z-40 transition-opacity duration-300
+        fixed inset-0 bg-zinc-800/60 z-50 transition-opacity duration-300
         ${
           isCartOpen
             ? "opacity-100 pointer-events-auto"
@@ -412,7 +412,7 @@ const DisplayCartItem = ({ close, open }) => {
               </div>
 
               <div className="p-2">
-                <div className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer">
+                <div  onClick={redirectToCheckoutPage} className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer">
                   <div>{DisplayPriceInRupees(totalPrice)}</div>
                   <button
                     onClick={redirectToCheckoutPage}

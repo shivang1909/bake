@@ -267,112 +267,145 @@ export async function registerUserController(request, response) {
   
 
 //login controller
-export async function loginController(request,response){
+export async function loginController(request, response) {
     try {
-        const { email , password } = request.body
-
-
-        if(!email || !password){
-            return response.status(400).json({
-                message : "provide email, password",
-                error : true,
-                success : false
-            })
-        }
-
-        const user = await UserModel.findOne({ email })
-
-        if(!user){
-            return response.status(400).json({
-                message : "User not register",
-                error : true,
-                success : false
-            })
-        }
-
-        if(user.status !== "Active"){
-            return response.status(400).json({
-                message : "Contact to Admin",
-                error : true,
-                success : false
-            })
-        }
-
-        const checkPassword = await bcryptjs.compare(password,user.password)
-
-        if(!checkPassword){
-            return response.status(400).json({
-                message : "Check your password",
-                error : true,
-                success : false
-            })
-        }
-
-        const accesstoken = await generatedAccessToken(user._id,)
-        const refreshToken = await genertedRefreshToken(user._id)
-
-        const updateUser = await UserModel.findByIdAndUpdate(user?._id,{
-            last_login_date : new Date()
-        })
-
-        const cookiesOption = {
-            httpOnly : true,
-            secure : false,
-            sameSite : "Lax"
-        }
-        response.cookie('accessToken',accesstoken,cookiesOption)
-        response.cookie('refreshToken',refreshToken,cookiesOption)
-
-        return response.json({
-            message : "Login successfully",
-            error : false,
-            success : true,
-            data : {
-                accesstoken,
-                refreshToken
-            }
-        })
-
+      const { email, password } = request.body;
+  
+  
+      if (!email || !password) {
+        return response.status(400).json({
+          message: "Provide email and password",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      const user = await UserModel.findOne({ email });
+  
+  
+      if (!user) {
+        return response.status(400).json({
+          message: "User not registered",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      if (user.status !== "Active") {
+        return response.status(400).json({
+          message: "Contact Admin - Account not active",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      // ✅ Check if email is verified
+      if (!user.verify_email) {
+        return response.status(403).json({
+          message: "Please verify your email before logging in.",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      const checkPassword = await bcryptjs.compare(password, user.password);
+  
+  
+      if (!checkPassword) {
+        return response.status(400).json({
+          message: "Incorrect password",
+          error: true,
+          success: false,
+        });
+      }
+  
+  
+      const accesstoken = await generatedAccessToken(user._id);
+      const refreshToken = await genertedRefreshToken(user._id);
+  
+  
+      await UserModel.findByIdAndUpdate(user._id, {
+        last_login_date: new Date(),
+      });
+  
+  
+      const cookiesOption = {
+        httpOnly: true,
+        secure: false,
+        sameSite: "Lax",
+      };
+  
+  
+      response.cookie("accessToken", accesstoken, cookiesOption);
+      response.cookie("refreshToken", refreshToken, cookiesOption);
+  
+  
+      return response.json({
+        message: "Login successful",
+        error: false,
+        success: true,
+        data: {
+          accesstoken,
+          refreshToken,
+        },
+      });
+  
+  
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+      return response.status(500).json({
+        message: error.message || "Login failed",
+        error: true,
+        success: false,
+      });
     }
-}
-
-
-export const googleAuthCallbackHandler = async (req, res) => {
-  try {
-    const user = req.user;
-    const accessToken = await generatedAccessToken(user._id);
-    const refreshToken = await genertedRefreshToken(user._id);
-
-    await UserModel.findByIdAndUpdate(user._id, {
-      last_login_date: new Date()
-    });
-
-    const cookiesOption = {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'None'
-    };
-
-    res.cookie('accessToken', accessToken, cookiesOption);
-    res.cookie('refreshToken', refreshToken, cookiesOption);
-
-    return res.redirect(
-      `${process.env.FRONTEND_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
-    );
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: error.message || 'Something went wrong during Google login'
-    });
   }
-};
+  
+  
+  
 
+
+
+  export const googleAuthCallbackHandler = async (req, res) => {
+    try {
+      const user = req.user;
+      const accessToken = await generatedAccessToken(user._id);
+      const refreshToken = await genertedRefreshToken(user._id);
+  
+  
+      await UserModel.findByIdAndUpdate(user._id, {
+        last_login_date: new Date()
+      });
+  
+  
+      const cookiesOption = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None'
+      };
+  
+  
+      res.cookie('accessToken', accessToken, cookiesOption);
+      res.cookie('refreshToken', refreshToken, cookiesOption);
+  
+  
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+      );
+    } catch (error) {
+      console.log('Error during Google login:', error);
+      
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Something went wrong during Google login'
+      });
+    }
+  };
+  
+  
 
 //logout controller
 export async function logoutController(request,response){
