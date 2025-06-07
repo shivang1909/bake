@@ -127,7 +127,7 @@ const router = createBrowserRouter([
                 element: <Profile />
             },
             {
-                path: "checkout",
+                path: "dashboard/checkout",
                 element: <CheckoutPage />
             },
             {
@@ -135,7 +135,7 @@ const router = createBrowserRouter([
                 element: <Address />
             },
             {
-                path: "dashboard/myorders",
+                path: "/dashboard/myorders",
                 element: <MyOrders />
             },
             {

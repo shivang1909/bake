@@ -202,7 +202,7 @@ const DisplayCartItem = ({ close, open }) => {
   const navigate = useNavigate();
   const redirectToCheckoutPage = () => {
     if (user?._id) {
-      navigate("/checkout");
+      navigate("/dashboard/checkout");
       if (close) {
         close();
       }

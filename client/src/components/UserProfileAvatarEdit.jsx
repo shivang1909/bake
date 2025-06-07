@@ -101,17 +101,17 @@ const UserProfileAvatarEdit = ({ close, open }) => {
 
   // }
   return (
-    <section className="fixed inset-0 z-50 bg-transparent backdrop-blur-none flex items-start md:items-center justify-center">
-      <div
-        className={`
-    bg-white/50 backdrop-blur-lg w-full max-w-xs
-    md:max-w-md md:rounded-2xl
-    shadow-xl p-6 relative flex flex-col items-center
-    border border-gray-300 rounded-xl
-    overflow-hidden transition-all duration-500 ease-in-out
-    ${open ? "h-fit mt-6 opacity-100 scale-100" : "h-0 opacity-0 scale-95"}
-  `}
-      >
+    <section className="absolute inset-0 z-50 bg-white/40 backdrop-blur-sm flex items-center justify-center">
+    <div
+      className={`
+        bg-white/50 backdrop-blur-lg w-full max-w-xs
+        md:max-w-md md:rounded-2xl
+        shadow-xl p-6 relative flex flex-col items-center
+        border border-gray-300 rounded-xl
+        overflow-hidden transition-all duration-500 ease-in-out
+        ${open ? "h-fit opacity-100 scale-100" : "h-0 opacity-0 scale-95"}
+      `}
+    >
         {/* Close Button */}
         <button
           onClick={close}

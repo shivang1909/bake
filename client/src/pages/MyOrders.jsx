@@ -273,8 +273,11 @@ import SummaryApi from "../common/SummaryApi";
 import { RxCross2 } from "react-icons/rx";
 import { MdExpandMore, MdDownload } from "react-icons/md";
 import { MdAccessTime } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NoOrder from "../../assets/images/Custom/basket.png"
+import ProfileSideBar from "../components/ProfileSideBar";
+import { IoCaretBackOutline } from "react-icons/io5";
+
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]); // Ensuring orders is always an array
@@ -284,32 +287,32 @@ const MyOrders = () => {
   const [animateModal, setAnimateModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
-  const navigate = useNavigate();
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  // const navigate = useNavigate();
+  // const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setScreenWidth(window.innerWidth);
+  //   };
 
-    // Listen to resize
-    window.addEventListener("resize", handleResize);
+  //   // Listen to resize
+  //   window.addEventListener("resize", handleResize);
 
-    // Initial check
-    if (window.innerWidth > 1024) {
-      navigate("/dashboard"); // or home
-    }
+  //   // Initial check
+  //   if (window.innerWidth > 1024) {
+  //     navigate("/dashboard"); // or home
+  //   }
 
-    // Cleanup
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  //   // Cleanup
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
-  // Also check after resize
-  useEffect(() => {
-    if (screenWidth > 1024) {
-      navigate("/dashboard");
-    }
-  }, [screenWidth]);
+  // // Also check after resize
+  // useEffect(() => {
+  //   if (screenWidth > 1024) {
+  //     navigate("/dashboard");
+  //   }
+  // }, [screenWidth]);
 
   // Call this to show the modal
   const openModal = (orderId) => {
@@ -409,7 +412,15 @@ const MyOrders = () => {
     console.log(res);
   };
   return (
-    <div className="bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-20 md:mt-0">
+<>
+<div className=" md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden" >
+<div >
+      <ProfileSideBar  activesection={"myorders"}/>
+      </div>
+    <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
+    <Link to="/dashboard" className="text-orange-500 flex gap-1 items-center justify-start px-2 py-3">
+    <IoCaretBackOutline/> Dashboard
+    </Link>
       {/* <div className="bg-white shadow-md p-4 rounded-md font-semibold mb-4">
         <h1 className="text-lg">My Orders</h1>
       </div> */}
@@ -843,6 +854,9 @@ const MyOrders = () => {
           ))
       )}
     </div>
+</div>
+    </>
+
   );
 };
 

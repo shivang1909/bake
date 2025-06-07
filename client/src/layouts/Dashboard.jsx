@@ -48,12 +48,41 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPencilAlt } from "react-icons/fa";
 import AddAddress from "../pages/Address";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { RiPencilFill } from "react-icons/ri";
+
 
 const Dashboard = () => {
   const user = useSelector((state) => state.user);
   const role = user.role;
   const dispatch = useDispatch();
+
+    const navigate = useNavigate();
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    // Listen to resize
+    window.addEventListener("resize", handleResize);
+
+    // Initial check
+    if (window.innerWidth > 1024) {
+      navigate("/dashboard/MyProfile"); // or home
+    }
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Also check after resize
+  useEffect(() => {
+    if (screenWidth > 1024) {
+      navigate("/dashboard/MyProfile");
+    }
+  }, [screenWidth]);
 
   const [activeSection, setActiveSection] = useState("profile");
 
@@ -433,155 +462,6 @@ const Dashboard = () => {
         </ul>
       </aside>
 
-      {/* Main Content */}
-      <section className="hidden md:block md:w-3/4 w-full bg-white min-h-screen rounded-xl border p-6 h-full max-h-[75vh] ">
-        {activeSection === "profile" && (
-          <>
-            {/* Avatar */}
-            <div className="flex flex-col items-center mb-8 relative">
-              <div className="relative">
-                {/* Profile Image Circle */}
-                <div className="w-24 h-24 rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FaRegUserCircle size={80} className="text-gray-500" />
-                  )}
-                </div>
-
-                {/* Pencil Icon Button on the edge */}
-                <button
-                  onClick={() => setProfileAvatarEdit(true)}
-                  className="absolute -bottom-0 -right-0 bg-white border border-zinc-700 text-zinc-700 p-2 rounded-full shadow hover:bg-zinc-100 transition-all duration-300 active:scale-95 hover:p-2.5"
-                >
-                  <FaPencilAlt size={14} />
-                </button>
-              </div>
-
-              {openProfileAvatarEdit && (
-                <UserProfileAvatarEdit
-                  close={() => setProfileAvatarEdit(false)}
-                />
-              )}
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-5">
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={userData.name}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              {/* <div className="grid my-8">
-                <div className="w-full relative flex rounded-xl">
-                <input
-                  type="text"
-                  name="name"
-                  value={userData.name}
-                  onChange={handleOnChange}
-                    id="name"
-                    className="peer w-full bg-transparent outline-none px-3 py-3 text-sm rounded-lg h-10 leading-tight bg-white border border-gray-300 focus:shadow-md"
-                   
-                  />
-                  <label
-                    htmlFor="name"
-                    className="absolute bg-white text-black/70 rounded-full left-4 px-2 font-normal text-xs duration-150 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/2 -translate-y-1/2 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                  >
-                    Name
-                  </label>
-                </div>
-              </div> */}
-
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={userData.email}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Mobile
-                </label>
-                <input
-                  type="text"
-                  name="mobile"
-                  value={userData.mobile}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Alt. Mobile
-                </label>
-                <input
-                  type="text"
-                  name="altMobile"
-                  value={userData.alt_Mobile}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition"
-                >
-                  {loading ? "Loading..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-
-        {activeSection === "MyOrders" && (
-          <div className="font-normal py-3 pb-3">
-            <h3 className="text-xl font-semibold mb-4">My Orders</h3>
-            <p className="text-gray-500">You can manage your Orders here.</p>
-            <div className="overflow-y-auto h-[60vh]">
-              <MyOrders />
-            </div>
-          </div>
-        )}
-        {activeSection === "address" && (
-          <div>
-            {/* <h3 className="text-xl font-semibold mb-4">Shipping Addresses</h3>
-            <p className="text-gray-500">
-              You can manage your shipping addresses here.
-            </p> */}
-            <AddAddress />
-          </div>
-        )}
-
-        {activeSection === "reviews" && (
-          <div>
-            <h3 className="text-xl font-semibold mb-4">My Reviews</h3>
-            <p className="text-gray-500">
-              Your product reviews will appear here.
-            </p>
-            {/* Add reviews logic here */}
-          </div>
-        )}
-      </section>
     </div>
   );
 };

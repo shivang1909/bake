@@ -11,6 +11,7 @@ import Axios from "../utils/Axios";
 import { AiFillInfoCircle } from "react-icons/ai";
 import { PiWarningCircleLight } from "react-icons/pi";
 import toast from "react-hot-toast";
+import { BiLogInCircle } from "react-icons/bi";
 
 
 const AddToCartBottomBar = ({ product, onClose }) => {
@@ -33,7 +34,24 @@ const AddToCartBottomBar = ({ product, onClose }) => {
       }
 
       // Show new error and store its ID
-      errorToastId.current = toast.error("Please login to add items to the cart");
+      errorToastId.current = toast.error(
+       <>
+        <div className="flex items-center gap-2">
+    <BiLogInCircle className="text-yellow-500 text-3xl -ml-4" />
+    <span className="font-semibold whitespace-nowrap">
+      Please login to add items to the cart
+    </span>
+  </div>
+         
+          </>,
+        {
+          icon: '', // disable default icon
+          style: {
+            paddingLeft: 0, // 👈 remove that left spacing
+          },
+        }
+      );
+      
       return;
     }
 
