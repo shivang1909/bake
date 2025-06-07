@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef  } from "react";
 import { IoMdCloseCircle } from "react-icons/io";
 import { motion } from "framer-motion";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 
 
 const AddToCartBottomBar = ({ product, onClose }) => {
+  const errorToastId = useRef(null);
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [qty, setQty] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
@@ -25,8 +26,14 @@ const AddToCartBottomBar = ({ product, onClose }) => {
   const [isAdded, setCart] = useState(false);
 
   const addCartItem = async () => {
-    if (user._id === undefined) {      
-      toast.error("Please login to add items to the cart");
+    if (user._id === undefined) {
+      // If toast is already active, dismiss it
+      if (errorToastId.current) {
+        toast.dismiss(errorToastId.current);
+      }
+
+      // Show new error and store its ID
+      errorToastId.current = toast.error("Please login to add items to the cart");
       return;
     }
 

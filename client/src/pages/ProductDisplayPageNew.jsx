@@ -30,7 +30,10 @@ import shapegrey from "../../assets/images/Custom/shape-grey.png";
 
 const ProductDisplayPageNew = () => {
   const ref = useRef(null);
-  const { totalQty, setTotalQty } = useGlobalContext();
+   const { totalQty, setTotalQty, setIsSearchOpen  } = useGlobalContext();
+    useEffect(() => {
+      setIsSearchOpen(false);
+    }, []);
   const user = useSelector((state) => state.user);
   const cartdata = useSelector((state) => state.user.shopping_cart);
   console.log(cartdata);
@@ -59,6 +62,18 @@ const ProductDisplayPageNew = () => {
 
   const [zoom, setZoom] = useState(false);
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
+  const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+  
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
+
   const containerRef = useRef(null);
   const dispatch = useDispatch();
   const handleVariantChange = (index) => {
@@ -218,8 +233,9 @@ const ProductDisplayPageNew = () => {
           <div className="w-full lg:w-1/2 h-full [@media(min-height:1366px)]:max-h-[25vh] max-h-[75vh] lg:max-h-[60vh]">
             <div
               className="relative h-fit  w-full min-w-fit [@media(min-height:1366px)]:max-h-[25vh] lg:h-[58vh] mb-3 border rounded-2xl overflow-hidden"
-              onMouseEnter={() => setZoom(true)}
-              onMouseLeave={() => setZoom(false)}
+              onMouseEnter={() => isLargeScreen && setZoom(true)}
+onMouseLeave={() => isLargeScreen && setZoom(false)}
+
               onMouseMove={handleMouseMove}
               ref={containerRef}
             >
@@ -229,25 +245,26 @@ const ProductDisplayPageNew = () => {
                 className="w-full h-full ipadpro:h-[20vh] object-contain rounded-2xl" // match parent rounding
               />
               {/* Zoom lens */}
-              {zoom && (
-                <div
-                  className="absolute pointer-events-none border border-gray-300 rounded-full shadow-lg overflow-hidden"
-                  style={{
-                    width: "250px",
-                    height: "250px",
-                    top: lensPosition.y - 100,
-                    left: lensPosition.x - 100,
-                    backgroundImage: `url(${data.coverimage})`,
-                    backgroundSize: "300% 300%",
-                    backgroundPosition: `${
-                      (lensPosition.x / containerRef.current.offsetWidth) * 100
-                    }% ${
-                      (lensPosition.y / containerRef.current.offsetHeight) * 100
-                    }%`,
-                    zIndex: 20,
-                  }}
-                ></div>
-              )}
+              {zoom && isLargeScreen && (
+  <div
+    className="absolute pointer-events-none border border-gray-300 rounded-full shadow-lg overflow-hidden"
+    style={{
+      width: "250px",
+      height: "250px",
+      top: lensPosition.y - 100,
+      left: lensPosition.x - 100,
+      backgroundImage: `url(${data.coverimage})`,
+      backgroundSize: "300% 300%",
+      backgroundPosition: `${
+        (lensPosition.x / containerRef.current.offsetWidth) * 100
+      }% ${
+        (lensPosition.y / containerRef.current.offsetHeight) * 100
+      }%`,
+      zIndex: 20,
+    }}
+  ></div>
+)}
+
             </div>
 
             {/* Thumbnails */}
@@ -446,44 +463,52 @@ const ProductDisplayPageNew = () => {
        
       </div>
 
-      <img src={shapegrey} alt="" className="mt-28  w-full"/>
-      <div className=" bg-[#FAF7F2] py-10 w-full flex justify-center">
-        <div className="flex gap-6 justify-between max-w-4xl w-full">
-          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-              <GiDuration />
-            </div>
-            <span className="text-xs font-semibold text-center">
-              {data.shelf_life} Days Of
-              <br /> Shelf Life
-            </span>
-          </div>
-          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-              <FaTruckFast />
-            </div>
-            <span className="text-xs font-semibold text-center">
-              Delivery Within <br /> 1-2 Days
-            </span>
-          </div>
-          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-              <GiIndiaGate />
-            </div>
-            <span className="text-xs font-semibold text-center">
-             Free <br /> Shipping
-            </span>
-          </div>
-          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-              <FaLeaf />
-            </div>
-            <span className="text-xs font-semibold text-center">
-            No any <br /> Preservatives
-            </span>
-          </div>
-        </div>
+      <img src={shapegrey} alt="" className="lg:mt-28  w-full"/>
+      <div className="bg-[#FAF7F2] py-10 w-full flex justify-center">
+  <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
+    {/* Icon 1 */}
+    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+        <GiDuration />
       </div>
+      <span className="text-xs font-semibold text-center">
+        {data.shelf_life} Days Of
+        <br /> Shelf Life
+      </span>
+    </div>
+
+    {/* Icon 2 */}
+    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+        <FaTruckFast />
+      </div>
+      <span className="text-xs font-semibold text-center">
+        Delivery Within <br /> 1-2 Days
+      </span>
+    </div>
+
+    {/* Icon 3 */}
+    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+        <GiIndiaGate />
+      </div>
+      <span className="text-xs font-semibold text-center">
+        Free <br /> Shipping
+      </span>
+    </div>
+
+    {/* Icon 4 */}
+    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+        <FaLeaf />
+      </div>
+      <span className="text-xs font-semibold text-center">
+        No any <br /> Preservatives
+      </span>
+    </div>
+  </div>
+</div>
+
       <img src={shapegrey} alt="" className="w-full rotate-180" />
 
       <div className="lg:mt-28 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm">

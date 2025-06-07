@@ -37,7 +37,7 @@ import { valideURLConvert } from "../utils/valideURLConvert.js";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { fetchCartDetails, totalQty } = useGlobalContext();
+  const { fetchCartDetails, totalQty, isSearchOpen, setIsSearchOpen } = useGlobalContext();
   const [isMobile] = useMobile();
   // const isCartOpen = useSelector((state) => state.loading.isCartOpen);
   const location = useLocation();
@@ -59,7 +59,7 @@ const Header = () => {
   const [nestedOpen, setNestedOpen] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [Featured, setFeatured] = useState([
     { sectionName: "", sectionId: null }

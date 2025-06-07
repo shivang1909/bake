@@ -31,7 +31,7 @@ const Search = () => {
     }
 
   return (
-    <div className='w-full [@media(min-height:1366px)]:min-w-[30px] min-w-[300px] lg:min-w-[250px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text'>
+    <div className='w-full [@media(min-height:1366px)]:min-w-[30px] min-w-[300px] lg:min-w-[250px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text mt-20 lg:mt-0'>
         <div>
             {
                 (isMobile && isSearchPage ) ? (

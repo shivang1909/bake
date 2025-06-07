@@ -19,6 +19,7 @@ const GlobalProvider = ({children}) => {
     const [notDiscountTotalPrice,setNotDiscountTotalPrice] = useState(0)
     const [totalQty,setTotalQty] = useState(0)
     const [cartItems, setCartItem] = useState([]);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const user = useSelector(state => state?.user)
     const fetchCartDetails = async () => {
@@ -100,6 +101,8 @@ const GlobalProvider = ({children}) => {
     return(
         <GlobalContext.Provider value={{
           fetchCartDetails,
+          isSearchOpen,
+          setIsSearchOpen,
             setCartItem,
             cartItems,
             setTotalPrice,

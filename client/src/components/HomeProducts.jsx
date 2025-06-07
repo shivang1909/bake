@@ -85,8 +85,8 @@ const HomeProducts = () => {
               </span>
               <button className="text-xs flex items-center gap-1 bg-orange-400 text-white pl-3 pr-2 py-2 rounded-l-full font-semibold">
                <Link to={`/Featured/${valideURLConvert(section.sectionName)}-${section._id}`}> 
-                View All <FaAngleDoubleRight />
-                </Link>
+                View All 
+                </Link><FaAngleDoubleRight />
               </button>
             </div>
 

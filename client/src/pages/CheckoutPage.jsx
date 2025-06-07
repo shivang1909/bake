@@ -1494,7 +1494,7 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      <div className="lg:hidden flex flex-col gap-4 p-4 px-0">
+      <div className="lg:hidden flex flex-col gap-4 p-4 px-0 mt-20">
         <Accordion
           title="Address"
           isOpen={openSection === "address"}

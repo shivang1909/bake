@@ -20,7 +20,11 @@ import { useGlobalContext } from "../provider/GlobalProvider";
 
 const ProductDisplayPage = () => {
   const params = useParams();
-  const { totalQty, setTlQty } = useGlobalContext();
+  const { totalQty, setTotalQty, setIsSearchOpen  } = useGlobalContext();
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, []);
+
   const cartdata = useSelotaector((state) => state.user.shopping_cart);
   // const [cartdata, setCartdata] = useState([]);  // Define the state
   let productId = params?.product?.split("-")?.slice(-1)[0];

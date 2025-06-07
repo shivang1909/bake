@@ -123,9 +123,7 @@ const ReviewDisplay = ({ productId }) => {
                   <div className="relative p-6 mb-6 space-y-6 leading-none rounded-lg bg-gray-50 ring-1 ring-gray-900/5">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={`${import.meta.env.VITE_API_URL}/${
-                          data.user.avatar
-                        }`}
+                        src={`${data.user.avatar}`} 
                         alt={data.user.avatar}
                         className="w-12 h-12 bg-center bg-cover border rounded-full"
                       />
