@@ -1,3 +1,5 @@
+import { method } from "lodash";
+
 export const baseURL = import.meta.env.VITE_API_URL;
 
 const SummaryApi = {
@@ -171,6 +173,11 @@ const SummaryApi = {
   getProductByCategoryName: {
     url: "/api/product/get-product-by-categoryname",
     method: "post",
+  },
+
+  getFeaturedProduct:{
+    url : "/api/product/getProductByHomePageSection",
+    method:"post",
   },
 
   getProductDetails: {

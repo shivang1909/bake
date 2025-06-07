@@ -812,7 +812,7 @@ const productTable = order.products.map(item =>
             </table>
 
             <div style="margin-top: 25px;">
-              <a href="${adminDashboardLink}" class="cta-button">View Order in Dashboard</a>
+              <a href="${adminDashboardLink}" class="cta-button" style="display: inline-block; background-color: #c0392b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 15px;" >View Order in Dashboard</a>
             </div>
 
             <div class="footer">
@@ -965,7 +965,7 @@ export const sendOrderCancellationEmailToAdmin = async (adminEmail, order) => {
             </table>
 
             <div style="margin-top: 25px;">
-              <a href="${adminDashboardLink}" class="cta-button">View Order in Dashboard</a>
+              <a href="${adminDashboardLink}" class="cta-button" style="display: inline-block; background-color: #c0392b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 15px;">View Order in Dashboard</a>
             </div>
 
             <div class="footer">

@@ -84,7 +84,7 @@ const ProductPage = ({ category, setMobileFiltersOpen }) => {
       const filteredProducts = data.data.filter(
         (p) => !allProductIds.has(p._id)
       );
-      dispatch(setAllProduct((prev) => [...prev, ...filteredProducts]));
+      dispatch(setAllProduct([...allProduct, ...filteredProducts]));
       setPage((prevPage) => prevPage + 1);
     } catch (error) {
       console.error("Error fetching products:", error);

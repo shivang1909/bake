@@ -224,8 +224,13 @@ export const getProductController = async (request, response) => {
 
 export const getProductByCategory = async (request, response) => {
   try {
-    const { id } = request.body;
-    const limit = request.body.limit || 15;
+    let { id, page, limit } = request.body;
+    console.log("here is my category id in server")
+    console.log(id)
+
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    
     if (!id) {
       return response.status(400).json({
         message: "provide category id",
@@ -234,15 +239,22 @@ export const getProductByCategory = async (request, response) => {
       });
     }
 
-    const product = await ProductModel.find({
-      category: { $in: id },
+    const totalCount =await ProductModel.countDocuments({
+      category:{
+        $in : [id]
+      }
     })
+    const skip = (page - 1) * limit;
+
+    const product = await ProductModel.find({
+      category: { $in: [id] },
+    }).skip(skip)
       .limit(limit)
       .populate("category");
 
     return response.json({
       message: "category product list",
-      data: product,
+      data:{product,totalCount},
       error: false,
       success: true,
     });

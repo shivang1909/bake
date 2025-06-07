@@ -19,6 +19,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import CookiesModel from "../components/Cookies"
 
 import CategoryWiseProductDisplay from "../components/CategoryWiseProductDisplay";
 import axios from "axios";
@@ -79,7 +80,7 @@ const Home = () => {
 
   return (
     <section className="bg-white">
-      <div className="container mx-auto lg:mt-24">
+      <div className="container mx-auto mt-20 lg:mt-24">
         {/* ✅ Desktop Swiper */}
         <div className="hidden md:block">
           <Swiper
@@ -232,6 +233,8 @@ const Home = () => {
           )
         })
       } */}
+
+      <CookiesModel/>
 
       {/* <div className="recent-purchase">
         <img src="assets/images/product-image/111_1.jpg" alt="payment image"/>

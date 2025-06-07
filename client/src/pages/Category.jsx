@@ -34,6 +34,7 @@ const features = [
 const Category = () => {
   const [catproducts, setcatproducts] = useState([]);
   const [cartProduct, setCartProduct] = useState(null);
+  const [categoryId, setcategoryId] = useState();
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -45,27 +46,27 @@ const Category = () => {
 
   const params = useParams();
   const fullCategoryParam = params?.Category || "";
-  const categoryId = fullCategoryParam.split("-").slice(-1)[0];
+  
   const categoryNameSlug = fullCategoryParam.split("-").slice(0, -1).join("-");
 
-  const fetchproductbycategory = async (categoryId) => {
+  const fetchproductbycategory = async () => {
     const response = await Axios({
       ...SummaryApi.getProductByCategory,
-      data: { id: categoryId },
+      data: { id: categoryId,page:page },
     });
     const data = response.data;
-    // build a fast-lookup set
-    const allProductIds = new Set(allProduct.map((p) => p._id));
-
-    // filter out any product whose _id is already in allProduct
-    const filteredProducts = data.data.filter((p) => !allProductIds.has(p._id));
-    dispatch(setAllProduct([...allProduct, ...filteredProducts]));
+    console.log(response.data)
+    setcatproducts((prev)=>[...prev,...response.data.data.product])
     setPage((prevPage) => prevPage + 1);
   };
 
   useEffect(() => {
-    fetchproductbycategory(categoryId);
+    setcategoryId(fullCategoryParam.split("-").slice(-1)[0])
   }, [fullCategoryParam]);
+
+  useEffect(()=>{
+    fetchproductbycategory();
+  },[categoryId])
 
   const hasmoredata = async () => {
     console.log("Checking if more data is available for page:", page);
@@ -125,7 +126,7 @@ const Category = () => {
           className="py-3"
         >
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
-            {allProduct.filter((product)=>product.category._id===categoryId?true:false).map((product, index) => (
+            {catproducts.map((product, index) => (
               <>
               {console.log(allProduct)}
               <ProductCard product={product} setCartProduct={setCartProduct} />

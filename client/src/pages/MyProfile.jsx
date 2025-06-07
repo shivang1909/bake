@@ -85,7 +85,7 @@ const MyProfile =()=> {
     };
   return (
     <>
-      <div className="px-3 mt-8 mb-10">
+      <div className="px-3 mt-20 mb-10">
         <div className="flex flex-col items-center mb-8">
           <div className="w-24 h-24 rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">
             {user.avatar ? (
@@ -196,9 +196,8 @@ const MyProfile =()=> {
         </form>
       </div>
       {openProfileAvatarEditMobile && (
-        <UserProfileAvatarEdit
-          close={() => setProfileAvatarEditMobile(false)}
-        />
+       <UserProfileAvatarEdit open={openProfileAvatarEditMobile} close={() => setProfileAvatarEditMobile(false)} />
+
       )}
     </>
   );

@@ -64,6 +64,59 @@ const Header = () => {
   const [Featured, setFeatured] = useState([
     { sectionName: "", sectionId: null }
   ]);
+  const [showHeader, setShowHeader] = useState(true);
+  const [showMobileHeader, setShowMobileHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMenuOpen(false); // close menu on large devices
+      }
+    };
+  
+    // Initial check
+    handleResize();
+  
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // scrolling down
+        setShowHeader(false);
+        setShowMobileHeader(false);
+      } else {
+        // scrolling up
+        setShowHeader(true);
+        setShowMobileHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const fetchAllFeatured = async () => {
     try {
@@ -213,7 +266,8 @@ const Header = () => {
       <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
 
       <header className="ec-header">
-        <div className="header-top d-md-block d-lg-none text-center items-center py-3  z-40 bg-white w-full shadow-md">
+        <div className={`header-top d-md-block d-lg-none text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm ${
+          showMobileHeader ? "translate-y-0" : "-translate-y-full"}`}> 
           <div className="container">
             <div className="row align-items-center">
               <div className="col text-left header-top-left d-none d-lg-block">
@@ -292,12 +346,13 @@ const Header = () => {
                 >
                   <i className="fi-rr-menu-burger"></i>
                 </a>
+                <Link to="/">
                 <img
                   src={Logo}
                   alt="Site Logo"
                   className="mx-auto w-20 h-auto"
                 />
-
+                  </Link>
                 <div className="col d-lg-none ">
                   <div className="ec-header-bottons">
                     {user._id ? (
@@ -371,13 +426,19 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="ec-header-bottom d-none d-lg-block bg-gray-50 py-3 shadow-md z-40 fixed w-full ">
+        <div
+        className={`ec-header-bottom d-none d-lg-block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 ${
+          showHeader ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
           <div className="container position-relative">
             <div className="row">
               <div className="ec-flex">
                 <div className="align-self-center flex">
                   <div className="header-logo">
                     <a href="/">
+                    <Link to="/">
+                    
                       <img src={Logo} alt="Site Logo" />
                       <img
                         className="dark-logo"
@@ -385,6 +446,7 @@ const Header = () => {
                         alt={Logo}
                         style={{ display: "none" }}
                       />
+                      </Link>
                     </a>
                   </div>
                 </div>
@@ -432,8 +494,10 @@ const Header = () => {
                                 <ul className="sub-menu">
                                 {Featured.map((featured) => (
                                     <li key={featured.sectionId}>
+                                      {console.log("Newwww Loggggg")}
                                       {console.log(featured)}
                                       <Link
+                                      
                                         to={`/Featured/${valideURLConvert(
                                           featured.sectionName
                                         )}-${featured.sectionId}`}

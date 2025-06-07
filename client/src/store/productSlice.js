@@ -14,6 +14,8 @@
                 // console.log(state.allCategory)
             },
             setAllProduct : (state,action)=>{
+                console.log(action.payload);
+                
                 state.Allproduct = [...action.payload]
                 console.log("calling",state.Allproduct);
                 console.trace(); // 🔥 this prints the call stack

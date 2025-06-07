@@ -1,161 +1,8 @@
-// import React, { useEffect, useState } from "react";
-// import Axios from "../utils/Axios";
-// import { useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import SummaryApi from "../common/SummaryApi";
-
-// const MyDeliveries = () => {
-//   const [orders, setOrders] = useState([]);
-//   const [error, setError] = useState(null);
-//   const [loading, setLoading] = useState(false);
-
-//   // Define possible status options
-//   const statusOptions = [
-//     "Assigned",
-//     "Out for Delivery",
-//     "Delivered"
-//   ];
-
-//   useEffect(() => {
-//     const fetchOrders = async () => {
-//       try {
-//         const response = await Axios({
-//           ...SummaryApi.getOrdersForDeliveryPartner,
-//         });
-//         const { data: responseData } = response;
-//         if (responseData.success) {
-//           setOrders(responseData.data);
-//         } else {
-//           setError(responseData.message);
-//         }
-//       } catch (err) {
-//         setError('Error fetching orders');
-//       }
-//     };
-//     fetchOrders();
-//   }, []);
-
-// const handleStatusUpdate = async (orderId, newStatus) => {
-//   try {
-//     setLoading(true);
-
-//     const response = await Axios({
-//       ...SummaryApi.updateOrderStatus,
-//       data: { orderId, status: newStatus },
-//     });
-
-//     if (response.data.success) {
-//       console.log("Order status updated successfully:", response.data);
-
-//       // ✅ Update the local state immediately
-//       setOrders((prevOrders) =>
-//         prevOrders.map((order) =>
-//           order.orderId === orderId
-//             ? { ...order, orderStatus: newStatus } // Update status in UI
-//             : order
-//         )
-//       );
-
-//       setError(null);
-//     } else {
-//       console.error("Failed to update order status:", response.data.message);
-//       setError(response.data.message);
-//     }
-//   } catch (error) {
-//     console.error("Error updating order status:", error);
-//     setError("Error updating delivery status");
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-//   return (
-//     <div className="p-6">
-//       <h2 className="text-xl font-bold mb-4">My Deliveries</h2>
-//       {error && (
-//         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-//           {error}
-//         </div>
-//       )}
-//       <div className="overflow-x-auto">
-//         <table className="w-full border-collapse border border-gray-300">
-//           <thead>
-//             <tr className="bg-gray-200">
-//               <th className="border p-2">Order ID</th>
-//               <th className="border p-2">Product</th>
-//               <th className="border p-2">Payment Status</th>
-//               <th className="border p-2">Total Amount</th>
-//               <th className="border p-2">Delivery Address</th>
-//               <th className="border p-2">Delivery Status</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {Array.isArray(orders) && orders.length > 0 ? (
-//               orders.map((order) => (
-//                 <tr key={order._id} className="text-center">
-//                   <td className="border p-2">{order.orderId}</td>
-//                   <td className="border p-2">{order.product_details.name}</td>
-//                   <td className="border p-2">{order.payment_status || "Pending"}</td>
-//                   <td className="border p-2">₹{order.totalAmt.toFixed(2)}</td>
-//                   <td className="border p-2">{order.delivery_address || "Not Available"}</td>
-//       <td className="border p-2">
-//         <div className="flex items-center justify-center gap-2">
-//           <select
-//             className={`border rounded p-2 ${
-//               loading ? 'opacity-50 cursor-not-allowed' : ''
-//             } ${
-//               order.orderStatus === 'Delivered'
-//                 ? 'bg-green-50'
-//                 : 'bg-white'
-//             }`}
-//             value={order.orderStatus || "Assigned"}
-//             onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
-//             disabled={loading || order.orderStatus === 'Delivered'}
-//           >
-//             {statusOptions.map((status) => (
-//               <option
-//                 key={status}
-//                 value={status}
-//                 disabled={
-//                   order.orderStatus === 'Delivered' &&
-//                   status !== 'Delivered'
-//                 }
-//               >
-//                 {status}
-//               </option>
-//             ))}
-//           </select>
-//           {loading && (
-//             <span className="text-sm text-gray-500">
-//               Updating...
-//             </span>
-//           )}
-//         </div>
-//       </td>
-//     </tr>
-//   ))
-// ) : (
-//   <tr>
-//     <td colSpan="6" className="border p-2 text-center">
-//       No assigned deliveries
-//     </td>
-//               </tr>
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MyDeliveries;
-
 import React, { useEffect, useState } from "react";
 import Axios from "../utils/Axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SummaryApi from "../common/SummaryApi";
-import '../assets/styles/receivepaymentmodel.css'
 
 const MyDeliveries = ({ filterDelivered }) => {
   const [orders, setOrders] = useState([]);
@@ -598,76 +445,56 @@ return (
   </tbody>
 </table>
 </div>
-{/* {showPaymentModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <h3>Update Payment Status</h3>
-      <div>
-        <label>Payment Status:</label>
-        <select 
-          value={paymentStatus} 
-          onChange={(e) => setPaymentStatus(e.target.value)}
-        >
-          <option value="">Select Status</option> }
-          <option value="Pending">Pending</option>
-          <option value="Paid">Paid</option>
-        </select>
-      </div>
-      
-      <button 
-        className="btnHandlePayment" 
-        onClick={() => handlePaymentStatusUpdate(paymentOrderId, paymentStatus)}
-        disabled={!paymentStatus} 
-      >
-        Update Payment Status
-      </button>
-      <br />
-      <button 
-        className="btnHandlePaymentClose" 
-        onClick={() => setShowPaymentModal(false)}
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)} */}
 
 {showPaymentModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <h3>Enter OTP to Confirm Payment</h3>
-      
-      <div>
-        <label>Order Status:</label>
-        <p>{paymentStatus}</p>  
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <h3 className="text-xl font-bold text-center mb-4">Enter OTP to Confirm Payment</h3>
+     
+      <div className="mb-4">
+        <label className="block font-medium text-gray-700 mb-1">Order ID:</label>
+        <p className="text-gray-900">{paymentOrderId}</p>
+      </div>
+     
+      <div className="mb-4">
+        <label className="block font-medium text-gray-700 mb-1">Order Status:</label>
+        <p className="text-gray-900">{paymentStatus}</p>  
       </div>
 
-      <div>
-        <label>Enter OTP:</label>
-        <input 
-          type="text" 
-          value={otp} 
-          onChange={(e) => setOtp(e.target.value)} 
+
+      <div className="mb-4">
+        <label htmlFor="otpInput" className="block font-medium text-gray-700 mb-1">Enter OTP:</label>
+        <input
+          id="otpInput"
+          type="text"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
           maxLength="6"
           placeholder="Enter 6-digit OTP"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      <button 
-        className="btnVerifyOtp" 
-        onClick={() => handleVerifyOtp(paymentOrderId, otp)}
-        disabled={otp.length !== 6} 
-      >
-        Verify OTP
-      </button>
-      
-      <br />
-      <button 
-        className="btnCloseModal" 
-        onClick={() => setShowPaymentModal(false)}
-      >
-        Close
-      </button>
+
+      <div className="flex justify-center space-x-4 mt-6">
+        <button
+          className={`px-4 py-2 rounded-md text-white ${otp.length !== 6 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}
+          onClick={() => handleVerifyOtp(paymentOrderId, otp)}
+          disabled={otp.length !== 6}
+        >
+          Verify OTP
+        </button>
+       
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+          onClick={() => {
+            setShowPaymentModal(false);
+            setOtp("");
+          }}
+        >
+          Close
+        </button>
+      </div>
     </div>
   </div>
 )}

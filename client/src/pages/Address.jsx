@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { MdDelete, MdEdit } from "react-icons/md";
 import Axios from '../utils/Axios';
@@ -8,7 +8,7 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { useGlobalContext } from '../provider/GlobalProvider';
 
 import AddAddressDesktop from '../components/AddAddressDesktop';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CiUser } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 
@@ -20,6 +20,33 @@ const Address = () => {
   const [formMode, setFormMode] = useState("add"); // "add" or "edit"
   const [editData, setEditData] = useState({});
   const { fetchAddress } = useGlobalContext();
+
+  const navigate = useNavigate();
+      const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+    
+      useEffect(() => {
+        const handleResize = () => {
+          setScreenWidth(window.innerWidth);
+        };
+    
+        // Listen to resize
+        window.addEventListener("resize", handleResize);
+    
+        // Initial check
+        if (window.innerWidth > 1024) {
+          navigate("/dashboard"); // or home
+        }
+    
+        // Cleanup
+        return () => window.removeEventListener("resize", handleResize);
+      }, []);
+    
+      // Also check after resize
+      useEffect(() => {
+        if (screenWidth > 1024) {
+          navigate("/dashboard");
+        }
+      }, [screenWidth]);
 
   const handleDisableAddress = async (id) => {
     try {
@@ -51,7 +78,7 @@ const Address = () => {
     setOpenAddress(true)
   };
   return (
-    <div className=''>
+    <div className='mt-20 md:mt-0'>
       {/* Header */}
       <div className="bg-white rounded-lg px-4 py-3 flex flex-col sm:flex-row justify-between items-center lg:items-start sm:items-center gap-2">
         <span className="font-semibold text-lg text-gray-800">Your Saved Addresses</span>

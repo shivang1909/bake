@@ -8,6 +8,9 @@ import ProductCard from "../components/ProductCard";
 import ProductLoader from "../components/ProductLoader";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
 import Breadcrumbs from "../components/BreadCrumbs";
+import { setAllCategory, setAllProduct } from "../store/productSlice";
+import { useDispatch, useSelector } from "react-redux";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const features = [
   {
@@ -29,32 +32,52 @@ const features = [
 ];
 
 const Featured = () => {
-  const [catproducts, setcatproducts] = useState([]);
+  const [FeaturedProduct, setFeaturedProduct]=useState([]);
+  const [FeaturedId, setFeaturedId]=useState();
   const [cartProduct, setCartProduct] = useState(null);
-  const [FeaturedProduct, setFeaturedProduct]=useState([])
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
+
+  const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
+  const allProduct = useSelector((state) => state.product.Allproduct);
   const ref = useRef(null);
 
   const params = useParams();
   const fullFeaturedParam = params?.Featured || "";
-  const FeaturedId = fullFeaturedParam.split("-").slice(-1)[0];
+ 
   const FeaturedNameSlug = fullFeaturedParam.split("-").slice(0, -1).join("-");
 
-  const FetchFeaturedProduct = async (id) => {
-    try {
-        const response = await Axios({...SummaryApi.getProductByHomePageSection(id)});
-        setFeaturedProduct(response.data.productIds)
-    } catch (err) {
-        console.log(err)
-    }
+
+
+  const FetchFeaturedProduct = async () => {
+    const response = await Axios({
+      ...SummaryApi.getFeaturedProduct,
+      data: { sectionId: FeaturedId , page:page},
+    });
+    console.log(response.data)
+    console.log("above")
+    setFeaturedProduct((prev)=>[...prev,...response.data.data])
+    setPage((prevPage) => prevPage + 1);
   };
 
   useEffect(() => {
-    FetchFeaturedProduct(FeaturedId)
-
+    setFeaturedId(fullFeaturedParam.split("-").slice(-1)[0])
   }, [fullFeaturedParam]);
+
+  useEffect(()=>{
+    FetchFeaturedProduct();
+  },[FeaturedId])
+
+  const hasmoredata = async () => {
+    console.log("Checking if more data is available for page:", page);
+    if (page > 2) {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   return (
     <>
@@ -98,12 +121,22 @@ const Featured = () => {
             </div>
           ))}
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
-          {FeaturedProduct.map((product, index) => (
-            <ProductCard product={product} setCartProduct={setCartProduct} />
-          ))}
-        </div>
+        <InfiniteScroll
+          dataLength={10}
+          hasMore={hasmoredata}
+          next={FetchFeaturedProduct}
+          className="py-3"
+        >
+          {console.log(allProduct)}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
+            {FeaturedProduct.map((product, index) => (
+              <>
+              {console.log(allProduct)}
+              <ProductCard product={product} setCartProduct={setCartProduct} />
+              </>
+            ))}
+          </div>
+        </InfiniteScroll>
       </div>
       {cartProduct && (
         <AddToCartBottomBar

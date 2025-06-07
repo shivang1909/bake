@@ -112,7 +112,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="lg:mt-20 lg:h-[75vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
+    <div className="mt-10 md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
       <div className="mobilemenusection md:hidden my-6 flex flex-col min-h-screen relative overflow-hidden">
         
         <div
@@ -146,7 +146,7 @@ const Dashboard = () => {
                   <button
                     className="flex justify-between w-full py-3 text-left"
                   >
-                    <Link to="/Myprofile">
+                    <Link to="/dashboard/Myprofile">
                     <div className="flex gap-1 items-center">
                       <CgProfile size={20} className="text-gray-500" />
                       <span className="ml-2">Profile</span>
@@ -159,7 +159,7 @@ const Dashboard = () => {
                   <button
                     className="flex justify-between w-full py-3 text-left"
                   >
-                    <Link to="/myorders">
+                    <Link to="/dashboard/myorders">
                       <div className="flex gap-1 items-center">
                       <LuBox size={20} className="text-gray-500" />
                       <span className="ml-2">My Orders</span>
@@ -174,7 +174,7 @@ const Dashboard = () => {
                    
                     className="flex justify-between w-full py-3 text-left"
                   >
-                    <Link to="/AD">
+                    <Link to="/dashboard/address">
                       <div className="flex gap-1 items-center">
                       <TbTruckDelivery size={20} className="text-gray-500" />
                       <span className="ml-2">Shipping Addresses</span>
@@ -381,13 +381,13 @@ const Dashboard = () => {
       </div>
 
       {/* Sidebar */}
-      <aside className="hidden md:block md:w-1/4 w-full bg-white rounded-xl border p-4 sticky ">
-        <h2 className="text-lg font-semibold mb-4">Hello {userData.name}</h2>
-        <ul className="space-y-2">
+      <aside className="hidden md:block md:w-1/4 lg:1/4 w-full bg-white  rounded-xl border  sticky ">
+        <h2 className="text-lg lg:text-xl font-semibold mb-4 border-b pb-5 pt-5">Hello, {userData.name}</h2>
+        <ul className="space-y-2 p-4">
           <li>
             <button
               onClick={() => setActiveSection("profile")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
+              className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full md:w-fit md:p-5 ${
                 activeSection === "profile"
                   ? "bg-orange-100 text-orange-600 font-semibold"
                   : "hover:bg-gray-100"
@@ -402,7 +402,7 @@ const Dashboard = () => {
           <li>
             <button
               onClick={() => setActiveSection("MyOrders")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
+              className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full md:w-fit md:p-5 ${
                 activeSection === "MyOrders"
                   ? "bg-orange-100 text-orange-600 font-semibold"
                   : "hover:bg-gray-100"
@@ -417,7 +417,7 @@ const Dashboard = () => {
           <li>
             <button
               onClick={() => setActiveSection("address")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
+              className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full md:w-fit md:p-5 ${
                 activeSection === "address"
                   ? "bg-orange-100 text-orange-600 font-semibold"
                   : "hover:bg-gray-100"
@@ -429,26 +429,12 @@ const Dashboard = () => {
               </div>
             </button>
           </li>
-          <li>
-            <button
-              onClick={() => setActiveSection("reviews")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
-                activeSection === "reviews"
-                  ? "bg-orange-100 text-orange-600 font-semibold"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <div className="flex gap-1 items-center justify-start">
-                <IoChatboxEllipsesOutline size={20} className="" />
-                <span className="ml-2">My Reviews</span>
-              </div>
-            </button>
-          </li>
+         
         </ul>
       </aside>
 
       {/* Main Content */}
-      <section className="hidden md:block md:w-3/4 w-full bg-white rounded-xl border p-6 h-full max-h-[75vh] ">
+      <section className="hidden md:block md:w-3/4 w-full bg-white min-h-screen rounded-xl border p-6 h-full max-h-[75vh] ">
         {activeSection === "profile" && (
           <>
             {/* Avatar */}
@@ -568,7 +554,7 @@ const Dashboard = () => {
         )}
 
         {activeSection === "MyOrders" && (
-          <div className="font-normal">
+          <div className="font-normal py-3 pb-3">
             <h3 className="text-xl font-semibold mb-4">My Orders</h3>
             <p className="text-gray-500">You can manage your Orders here.</p>
             <div className="overflow-y-auto h-[60vh]">

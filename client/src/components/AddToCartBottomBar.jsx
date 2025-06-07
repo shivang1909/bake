@@ -10,6 +10,8 @@ import { useGlobalContext } from "../provider/GlobalProvider";
 import Axios from "../utils/Axios";
 import { AiFillInfoCircle } from "react-icons/ai";
 import { PiWarningCircleLight } from "react-icons/pi";
+import toast from "react-hot-toast";
+
 
 const AddToCartBottomBar = ({ product, onClose }) => {
   const [selectedVariant, setSelectedVariant] = useState(0);
@@ -23,18 +25,11 @@ const AddToCartBottomBar = ({ product, onClose }) => {
   const [isAdded, setCart] = useState(false);
 
   const addCartItem = async () => {
-    console.log("this is cart");
-    if (user._id === undefined) {
-      AxiosToastError({
-        response: {
-          data: {
-            message: "Please Login To Add Item in Cart", // Custom error message
-          },
-        },
-      });
+    if (user._id === undefined) {      
+      toast.error("Please login to add items to the cart");
       return;
-      // AxiosToastError(error)
     }
+
     let newVariant = {
       weight: selectedVariant, // The selected weight or variant
       cartQty: qty,

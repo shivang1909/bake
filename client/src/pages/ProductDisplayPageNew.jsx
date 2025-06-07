@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaStar,FaLeaf } from "react-icons/fa";
 import { VscDebugBreakpointLogUnverified } from "react-icons/vsc";
 import Kajukatri from "../../assets/images/Custom/Kajukatri.png";
 import laddo from "../../assets/images/Custom/laddo.png";
@@ -26,19 +26,18 @@ import { useGlobalContext } from "../provider/GlobalProvider";
 // import { useGlobalContext } from "../provider/GlobalProvider";
 import ProductCard from "../components/ProductCard";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
-
+import shapegrey from "../../assets/images/Custom/shape-grey.png";
 
 const ProductDisplayPageNew = () => {
-  
   const ref = useRef(null);
   const { totalQty, setTotalQty } = useGlobalContext();
   const user = useSelector((state) => state.user);
   const cartdata = useSelector((state) => state.user.shopping_cart);
   console.log(cartdata);
-  
+
   const [quantity, setQuantity] = useState(1);
   const [suggestedproduct, setsuggestproduct] = useState([]);
-  
+
   const [data, setData] = useState({
     name: "",
     image: [],
@@ -57,7 +56,7 @@ const ProductDisplayPageNew = () => {
     setCartProduct(null);
   };
   const [mainImage, setMainImage] = useState(Kajukatri);
-  
+
   const [zoom, setZoom] = useState(false);
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
@@ -80,13 +79,13 @@ const ProductDisplayPageNew = () => {
     console.log("Fetching products by category ID:", categoryId);
     const response = await Axios({
       ...SummaryApi.getProductByCategory,
-      data: { id: categoryId ,limit : 5},
+      data: { id: categoryId, limit: 5 },
     });
     const { data: responseData } = response;
     if (responseData.success) {
       console.log(responseData);
-      const filteredProducts = responseData.data.filter(
-          (product) => product._id !== productId
+      const filteredProducts = responseData.data.product.filter(
+        (product) => product._id !== productId
       );
       setsuggestproduct(filteredProducts);
     } else {
@@ -213,12 +212,12 @@ const ProductDisplayPageNew = () => {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 py-10 bg-white lg:mt-20">
+      <div className="mt-10 max-w-7xl mx-auto px-4 py-10 bg-white lg:mt-20">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left: Images */}
-          <div className="w-full lg:w-1/2">
+          <div className="w-full lg:w-1/2 h-full [@media(min-height:1366px)]:max-h-[25vh] max-h-[75vh] lg:max-h-[60vh]">
             <div
-              className="relative rounded-2xl h-full max-h-[75vh] mb-3 border overflow-hidden"
+              className="relative h-fit  w-full min-w-fit [@media(min-height:1366px)]:max-h-[25vh] lg:h-[58vh] mb-3 border rounded-2xl overflow-hidden"
               onMouseEnter={() => setZoom(true)}
               onMouseLeave={() => setZoom(false)}
               onMouseMove={handleMouseMove}
@@ -227,9 +226,8 @@ const ProductDisplayPageNew = () => {
               <img
                 src={data.coverimage}
                 alt="Main"
-                className="max-h-full max-w-full object-contain p-5"
+                className="w-full h-full ipadpro:h-[20vh] object-contain rounded-2xl" // match parent rounding
               />
-
               {/* Zoom lens */}
               {zoom && (
                 <div
@@ -240,7 +238,7 @@ const ProductDisplayPageNew = () => {
                     top: lensPosition.y - 100,
                     left: lensPosition.x - 100,
                     backgroundImage: `url(${data.coverimage})`,
-                    backgroundSize: "350% 350%",
+                    backgroundSize: "300% 300%",
                     backgroundPosition: `${
                       (lensPosition.x / containerRef.current.offsetWidth) * 100
                     }% ${
@@ -263,7 +261,7 @@ const ProductDisplayPageNew = () => {
                   className={`border rounded-xl p-1 ${
                     mainImage === img
                       ? "border-orange-500"
-                      : "border-transparent bg-orange-50"
+                      : "border bg-gray-50"
                   }`}
                 >
                   <img
@@ -284,7 +282,7 @@ const ProductDisplayPageNew = () => {
                   {console.log("this", data)}
                   {data.category?.name}
                 </p>
-                <span className="text-4xl lg:text-4xl font-semibold text-gray-800 ">
+                <span className="text-3xl lg:text-4xl font-semibold text-gray-800 ">
                   {data.name}
                 </span>
               </div>
@@ -293,7 +291,7 @@ const ProductDisplayPageNew = () => {
             </button> */}
               <div className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md text-sm font-normal">
                 <FaStar className="text-yellow-500" />
-                {data.averageRating?.toFixed(1) || 4} 
+                {data.averageRating?.toFixed(1) || 4}
               </div>
             </div>
 
@@ -341,52 +339,8 @@ const ProductDisplayPageNew = () => {
               </div>
             </div>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 font-normal">
-              {/* <div className="flex items-center justify-between font-bold border rounded-full w-full md:w-fit px-3 py-2">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="text-xl px-6"
-                >
-                  −
-                </button>
-                <span className="px-4">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="text-xl px-6"
-                >
-                  +
-                </button>
-              </div> */}
-
-              {data.weightVariants[selectedVariant] &&
-              data.weightVariants[selectedVariant].qty > 0 ? (
-                <>
-                  {isAdded ? (
-                    // <DisplayCartItem  />
-                    <button
-                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 bg-orange-500 text-white rounded-full w-full sm:w-auto transition-all duration-200 active:scale-95"
-                      onClick={handleCartOpen}
-                    >
-                      <FaShoppingCart />
-                      Go To Cart
-                    </button>
-                  ) : (
-                    <button
-                      onClick={addCartItem}
-                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 bg-orange-500 text-white rounded-full w-full sm:w-auto transition-all duration-200 active:scale-95"
-                    >
-                      <FaShoppingCart />
-                      Add{" "}
-                    </button>
-                  )}
-                </>
-              ) : (
-                <p className="text-lg text-red-500 my-2">Out of Stock</p>
-              )}
-            </div>
-
-            <div className="mt-4 max-w-md">
-              <div className="flex gap-3 justify-between mt-20">
+            <div className="block md:hidden mt-10 max-w-md">
+              <div className="flex gap-3 justify-between ">
                 <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                   <div className="text-orange-600 text-4xl bg-gray-100 px-2 py-2 rounded-full w-fit">
                     <GiDuration />
@@ -406,10 +360,10 @@ const ProductDisplayPageNew = () => {
                 </div>
                 <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                   <div className="text-orange-600 text-4xl bg-gray-100 px-2 py-2 rounded-full w-fit">
-                    <GiIndiaGate />
+                    <FaLeaf />
                   </div>
                   <span className="text-xs font-semibold text-center">
-                    national <br /> Shipping
+                  No Preservatives
                   </span>
                 </div>
               </div>
@@ -442,11 +396,95 @@ const ProductDisplayPageNew = () => {
             </ul> */}
             </div>
 
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 font-normal">
+              {/* <div className="flex items-center justify-between font-bold border rounded-full w-full md:w-fit px-3 py-2">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="text-xl px-6"
+                >
+                  −
+                </button>
+                <span className="px-4">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="text-xl px-6"
+                >
+                  +
+                </button>
+              </div> */}
+
+              {data.weightVariants[selectedVariant] &&
+              data.weightVariants[selectedVariant].qty > 0 ? (
+                <>
+                  {isAdded ? (
+                    // <DisplayCartItem  />
+                    <button
+                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 border border-orange-500 text-orange-500 rounded-full w-full  transition-all duration-200 active:scale-95"
+                      onClick={handleCartOpen}
+                    >
+                      <FaShoppingCart className="text-lg" />
+                      Go To Cart
+                    </button>
+                  ) : (
+                    <button
+                      onClick={addCartItem}
+                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 bg-orange-500 text-white rounded-full w-full  transition-all duration-200 active:scale-95"
+                    >
+                      <FaShoppingCart className="text-lg"/>
+                      Add To Cart{" "}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="text-lg text-red-500 my-2">Sorry We're Out of Stock right now for {data.name} !</p>
+              )}
+            </div>
+
             {/* Quantity & Actions */}
           </div>
         </div>
-        <div></div>
+       
       </div>
+
+      <img src={shapegrey} alt="" className="mt-28  w-full"/>
+      <div className=" bg-[#FAF7F2] py-10 w-full flex justify-center">
+        <div className="flex gap-6 justify-between max-w-4xl w-full">
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <GiDuration />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              {data.shelf_life} Days Of
+              <br /> Shelf Life
+            </span>
+          </div>
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <FaTruckFast />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              Delivery Within <br /> 1-2 Days
+            </span>
+          </div>
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <GiIndiaGate />
+            </div>
+            <span className="text-xs font-semibold text-center">
+             Free <br /> Shipping
+            </span>
+          </div>
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <FaLeaf />
+            </div>
+            <span className="text-xs font-semibold text-center">
+            No any <br /> Preservatives
+            </span>
+          </div>
+        </div>
+      </div>
+      <img src={shapegrey} alt="" className="w-full rotate-180" />
 
       <div className="lg:mt-28 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm">
         <div className="flex justify-between items-center pl-5  lg:pl-7 pt-4 mb-2">
@@ -459,15 +497,17 @@ const ProductDisplayPageNew = () => {
         </div>
         <div className="flex gap-4 p-3 pb-4 px-4 lg:px-6 overflow-x-auto scrollbar-thumb-gray-300 scrollbar-thin">
           {suggestedproduct.map((product, index) => (
-            <ProductCard product={product} setCartProduct={setCartProduct}  className="rounded-[15px] min-w-[200px] max-w-[200px] md:min-w-[220px]" />
+            <ProductCard
+              product={product}
+              setCartProduct={setCartProduct}
+              className="rounded-[15px] min-w-[200px] max-w-[200px] md:min-w-[220px]"
+            />
           ))}
         </div>
       </div>
 
       <div className="lg:mx-20">
-        <ReviewDisplay
-        productId={productId}
-        />
+        <ReviewDisplay productId={productId} />
       </div>
       {cartProduct && (
         <AddToCartBottomBar

@@ -42,6 +42,7 @@ import MyProfile from "../pages/MyProfile";
 import Featured from "../pages/Featured";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import AuthSuccess from '../pages/AuthSuccess';
+import AboutUs from "../pages/AboutUs";
 
 
 const router = createBrowserRouter([
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
             {
                 path:"Privacy-Policy",
                 element: <PrivacyPolicy />
+            },
+            {
+                path:"About-Us",
+                element: <AboutUs />
             },
             {
                 path:"Category/:Category",
@@ -126,15 +131,15 @@ const router = createBrowserRouter([
                 element: <CheckoutPage />
             },
             {
-                path: "Ad",
-                element: <Ad />
+                path: "dashboard/address",
+                element: <Address />
             },
             {
-                path: "myorders",
+                path: "dashboard/myorders",
                 element: <MyOrders />
             },
             {
-                path: "Myprofile",
+                path: "dashboard/Myprofile",
                 element: <MyProfile />
             },
             {

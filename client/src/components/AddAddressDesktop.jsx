@@ -33,6 +33,7 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
   const pincodeValue = watch("pincode");
   const [markerPosition, setMarkerPosition] = useState(null);
   const [mapVisible, setMapVisible] = useState(false);
+  const [animateModal, setAnimateModal] = useState(false);
 
   const [isPincodeValid, setIsPincodeValid] = useState(false);
   const [pincodeTouched, setPincodeTouched] = useState(false);
@@ -42,6 +43,22 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     setPincodeChecked(false); // Reset check when user types again
     setShowCheckButton(true); // Show the button again
   }, [pincodeValue]);
+
+  setTimeout(() => setAnimateModal(true), 10);
+
+  
+
+  useEffect(() => {
+      if (open) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+  
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }, [open]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -177,10 +194,10 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
       <div
         className={`bg-white w-full max-w-lg lg:max-w-7xl transition-all duration-300 overflow-y-auto ease-in-out transform z-50
         ${
-          open
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-full lg:-translate-y-10"
-        }
+                          animateModal
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-full opacity-0"
+                        }
         fixed bottom-0 lg:relative
         h-[75%] lg:h-auto
         rounded-t-3xl lg:rounded-xl

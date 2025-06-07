@@ -1,11 +1,19 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-
+import { useEffect } from "react";
 const Success = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+    useEffect(() => {
+      
+    if (!location.state?.fromCheckout) {
+      navigate("/", { replace: true }); // Redirect to home or cart if invalid access
+    }
+    sessionStorage.setItem("orderCompleted", "true");
+  }, [location, navigate]);
 
-  console.log("location");
+
   return (
     <div className="h-screen flex flex-col justify-center items-center">
         <DotLottieReact

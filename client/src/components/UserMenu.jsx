@@ -29,6 +29,8 @@ const UserMenu = ({ close, open }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  
+
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "auto";
@@ -49,6 +51,28 @@ const UserMenu = ({ close, open }) => {
       AxiosToastError(error);
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) {
+        close(); // auto-close when on large screens
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Initial check too (just in case)
+    if (window.innerWidth > 1024) {
+      close();
+    }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Only render on small/medium devices
+  if (window.innerWidth > 1024) return null;
 
   return (
     <>
@@ -122,7 +146,7 @@ const UserMenu = ({ close, open }) => {
               className="hover:bg-green-200 bg-white p-5 rounded-2xl text-center text-xs font-medium md:text-lg shadow-md  flex flex-col md:flex-row justify-left items-center gap-4  transition duration-300 active:scale-90"
             >
               <img src={Tracking} alt="" className="h-8 md:h-10 w-8 md:w-10" />
-              Track Order
+              Your Cart
             </Link>
             <button
               onClick={handleLogout}

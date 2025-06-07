@@ -119,6 +119,16 @@ const CheckoutPage = () => {
   const promoRef = useRef(null);
   const promoRefAlt = useRef(null);
    
+  useEffect(() => {
+    const orderCompleted = sessionStorage.getItem("orderCompleted");
+    if (orderCompleted === "true") {
+      // Clear the flag
+      sessionStorage.removeItem("orderCompleted");
+      // Redirect to home
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
+
   const handleClick = () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -546,10 +556,9 @@ const CheckoutPage = () => {
         dispatch(updatedShoppingCart([]));
         setTotalQty(0);
         navigate("/success", {
-          state: {
-            text: "Order",
-          },
-        });
+          replace: true,            
+          state: { fromCheckout: true }  // Optional: Use to verify the route origin
+        });  
       }
     } catch (error) {
       toast.dismiss();
@@ -628,7 +637,11 @@ const CheckoutPage = () => {
             setTotalQty(0);
             toast.success("Payment verified successfully!");
 
-            navigate("/success");
+            navigate("/success", {
+              replace: true,            
+              state: { fromCheckout: true }  // Optional: Use to verify the route origin
+            });
+      
           }
         },
       };

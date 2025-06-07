@@ -19,7 +19,7 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaPencilAlt } from "react-icons/fa";
 import AddAddress from "./Address";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
@@ -44,6 +44,35 @@ const Profile = () => {
   const [showMobileSection, setShowMobileSection] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState("left"); // "left" or "right"
 
+  const navigate = useNavigate();
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  
+    useEffect(() => {
+      const handleResize = () => {
+        setScreenWidth(window.innerWidth);
+      };
+  
+      // Listen to resize
+      window.addEventListener("resize", handleResize);
+  
+      // Initial check
+      if (window.innerWidth > 1024) {
+        navigate("/dashboard"); // or home
+      }
+  
+      // Cleanup
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+  
+    // Also check after resize
+    useEffect(() => {
+      if (screenWidth > 1024) {
+        navigate("/dashboard");
+      }
+    }, [screenWidth]);
+  
+
+
   useEffect(() => {
     setUserData({
       name: user.name,
@@ -65,7 +94,7 @@ const Profile = () => {
     try {
       setLoading(true);
       const apiCall =
-        role === "USER"
+        role === "USER" 
           ? SummaryApi.updateUserDetails
           : SummaryApi.UpdateAdminDetails;
       const response = await Axios({ ...apiCall, data: userData });

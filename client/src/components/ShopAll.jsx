@@ -30,8 +30,8 @@ import SummaryApi from "../common/SummaryApi";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import RangeSlider from "./RangeSlider";
+import ShelfLifeSlider from "./ShelfLifeSlider";
 import Breadcrumbs from "./Breadcrumbs";
-
 
 const ShopAll = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -65,7 +65,7 @@ const ShopAll = () => {
       data: { id: Category },
     });
     console.log(response.data.data);
-    const newProducts = response.data.data || [];
+    const newProducts = response.data.data.product || [];
 
     const existingProducts = allProduct; // 👈 import store if needed
     const existingIds = new Set(existingProducts.map((item) => item._id));
@@ -89,8 +89,8 @@ const ShopAll = () => {
   }, [Category]);
 
   return (
-    <div className="bg-white lg:mt-20">
-            <style>
+    <div className="bg-white mt-20">
+      <style>
         {`
           @font-face {
             font-family: 'Bartex';
@@ -100,21 +100,21 @@ const ShopAll = () => {
           }
         `}
       </style>
-        <div className="mx-auto max-w-[100%] px-4 sm:px-2 lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
-          <div className="py-10 flex flex-col items-center text-center space-y-2">
-        <span
-          className="text-5xl md:text-7xl font-thin text-[#1e293b] flex justify-center items-center gap-2 tracking-wide"
-          style={{ fontFamily: "Bartex, sans-serif" }}
-        >
-          products
-        </span>
-        
-        <p className="flex gap-2 items-center text-gray-700">
-        <Breadcrumbs/>
-        </p>
-        {/* <p className="font-semibold text-lg">30 Products</p> */}
-      </div>
+      <div className="mx-auto max-w-[100%] px-4 sm:px-2 lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
+        <div className="py-10 flex flex-col items-center text-center space-y-2">
+          <span
+            className="text-5xl md:text-7xl font-thin text-[#1e293b] flex justify-center items-center gap-2 tracking-wide"
+            style={{ fontFamily: "Bartex, sans-serif" }}
+          >
+            products
+          </span>
+
+          <p className="flex gap-2 items-center text-gray-700">
+            <Breadcrumbs />
+          </p>
+          {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
+      </div>
       <div>
         {/* Mobile filter dialog */}
         <Dialog
@@ -173,91 +173,83 @@ const ShopAll = () => {
                   ))}
                 </ul>
 
-           
-                   <div className="px-4">
-                        {filters.map((section) => {
-                          return (
-                            <Disclosure
-                              key={section.id}
-                              as="div"
-                              className="py-2"
-                            >
-                              {({ open }) => (
-                                <>
-                                  <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
-                                    <div>
-                                      <span
-                                        className={`font-bold px-2 text-lg flex items-center gap-3 ${
-                                          open
-                                            ? "text-purple-600"
-                                            : "text-gray-800"
-                                        }`}
-                                      >
-                                        {section.icon} {section.name}
-                                      </span>
-                                    </div>
-                                    <span className="flex items-center">
-                                      {open ? (
-                                        <MinusIcon className="w-5 text-gray-500" />
-                                      ) : (
-                                        <PlusIcon className="w-5 text-gray-500" />
-                                      )}
-                                    </span>
-                                  </DisclosureButton>
+                <div className="px-4">
+                  {filters.map((section) => {
+                    return (
+                      <Disclosure key={section.id} as="div" className="py-2">
+                        {({ open }) => (
+                          <>
+                            <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                              <div>
+                                <span
+                                  className={`font-bold px-2 text-lg flex items-center gap-3 ${
+                                    open ? "text-purple-600" : "text-gray-800"
+                                  }`}
+                                >
+                                  {section.icon} {section.name}
+                                </span>
+                              </div>
+                              <span className="flex items-center">
+                                {open ? (
+                                  <MinusIcon className="w-5 text-gray-500" />
+                                ) : (
+                                  <PlusIcon className="w-5 text-gray-500" />
+                                )}
+                              </span>
+                            </DisclosureButton>
 
-                                  <DisclosurePanel className="pt-4">
-                                    {section.id === "Varients" ? (
-                                      // ✅ DEMO CHECKBOXES for Varients
-                                      <div className="space-y-2 pl-4">
-                                        <li>
-                                          <article className="checkbox-container flex items-center space-x-1">
-                                            <label className="checkbox">
-                                              <input
-                                                type="checkbox"
-                                                id="c"
-                                                className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                              />
-                                            </label>
-                                            <label
-                                              htmlFor="weight"
-                                              className="cursor-pointer"
-                                            >
-                                              500 Gm
-                                            </label>
-                                          </article>
-                                        </li>
-                                        <li>
-                                          <article className="checkbox-container flex items-center space-x-1">
-                                            <label className="checkbox">
-                                              <input
-                                                type="checkbox"
-                                                id="c"
-                                                className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                              />
-                                            </label>
-                                            <label
-                                              htmlFor="weight"
-                                              className="cursor-pointer"
-                                            >
-                                              1 Kg
-                                            </label>
-                                          </article>
-                                        </li>
-                                      </div>
-                                    ) : (
-                                      // ✅ Replaced range sliders with demo text
-                                      <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                        <RangeSlider />
-                                      </div>
-                                    )}
-                                  </DisclosurePanel>
-                                </>
+                            <DisclosurePanel className="pt-4">
+                              {section.id === "Varients" ? (
+                                // ✅ DEMO CHECKBOXES for Varients
+                                <div className="space-y-2 pl-4">
+                                  <li>
+                                    <article className="checkbox-container flex items-center space-x-1">
+                                      <label className="checkbox">
+                                        <input
+                                          type="checkbox"
+                                          id="c"
+                                          className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                        />
+                                      </label>
+                                      <label
+                                        htmlFor="weight"
+                                        className="cursor-pointer"
+                                      >
+                                        500 Gm
+                                      </label>
+                                    </article>
+                                  </li>
+                                  <li>
+                                    <article className="checkbox-container flex items-center space-x-1">
+                                      <label className="checkbox">
+                                        <input
+                                          type="checkbox"
+                                          id="c"
+                                          className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                        />
+                                      </label>
+                                      <label
+                                        htmlFor="weight"
+                                        className="cursor-pointer"
+                                      >
+                                        1 Kg
+                                      </label>
+                                    </article>
+                                  </li>
+                                </div>
+                              ) : (
+                                // ✅ Replaced range sliders with demo text
+                                <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
+                                  <RangeSlider />
+                                </div>
                               )}
-                            </Disclosure>
-                          );
-                        })}
-                      </div>
-                
+                            </DisclosurePanel>
+                          </>
+                        )}
+                      </Disclosure>
+                    );
+                  })}
+                </div>
               </form>
             </DialogPanel>
           </div>
@@ -267,7 +259,7 @@ const ShopAll = () => {
           <section aria-labelledby="products-heading" className="">
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
               {/* Filters */}
-             <div className="hidden lg:block lg:p-2 xl:p-4">
+              <div className="hidden lg:block lg:p-2 xl:p-4">
                 <div className="hidden lg:block lg:p-2 xl:p-4 sticky top-20">
                   <div className="h-[85vh] bg-white border border-gray-200 rounded-2xl shadow-md">
                     <div className="text-center bg-zinc-800 text-white p-3 rounded-t-xl">
@@ -331,93 +323,138 @@ const ShopAll = () => {
     </div> */}
 
                         <div>
-                          {filters.map((section) => {
-                            return (
-                              <Disclosure
-                                key={section.id}
-                                as="div"
-                                className="py-2"
-                              >
-                                {({ open }) => (
-                                  <>
-                                    <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
-                                      <div>
-                                        <span
-                                          className={`font-bold px-2 text-lg flex items-center gap-3 ${
-                                            open
-                                              ? "text-red-600"
-                                              : "text-gray-800"
-                                          }`}
-                                        >
-                                          {section.icon} {section.name}
-                                        </span>
-                                      </div>
-                                      <span className="flex items-center">
-                                        {open ? (
-                                          <MinusIcon className="w-5 text-gray-500" />
-                                        ) : (
-                                          <PlusIcon className="w-5 text-gray-500" />
-                                        )}
-                                      </span>
-                                    </DisclosureButton>
+                          {/* Varients Section */}
+                          <Disclosure as="div" className="py-2">
+                            {({ open }) => (
+                              <>
+                                <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                                  <div>
+                                    <span
+                                      className={`font-bold px-2 text-lg flex items-center gap-3 ${
+                                        open ? "text-red-600" : "text-gray-800"
+                                      }`}
+                                    >
+                                      <FaBagShopping /> Varients
+                                    </span>
+                                  </div>
+                                  <span className="flex items-center">
+                                    {open ? (
+                                      <MinusIcon className="w-5 text-gray-500" />
+                                    ) : (
+                                      <PlusIcon className="w-5 text-gray-500" />
+                                    )}
+                                  </span>
+                                </DisclosureButton>
 
-                                    <DisclosurePanel className="pt-4">
-                                      {section.id === "Varients" ? (
-                                        // ✅ DEMO CHECKBOXES for Varients
-                                        <div className="space-y-2 pl-4">
-                                          <li>
-                                            <article className="checkbox-container flex items-center space-x-1">
-                                              <label className="checkbox">
-                                                <input
-                                                  type="checkbox"
-                                                  id="c"
-                                                  className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                                />
-                                              </label>
-                                              <label
-                                                htmlFor="weight"
-                                                className="cursor-pointer"
-                                              >
-                                                500 Gm
-                                              </label>
-                                            </article>
-                                          </li>
-                                          <li>
-                                            <article className="checkbox-container flex items-center space-x-1">
-                                              <label className="checkbox">
-                                                <input
-                                                  type="checkbox"
-                                                  id="c"
-                                                  className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                                />
-                                              </label>
-                                              <label
-                                                htmlFor="weight"
-                                                className="cursor-pointer"
-                                              >
-                                                1 Kg
-                                              </label>
-                                            </article>
-                                          </li>
-                                        </div>
-                                      ) : (
-                                        // ✅ Replaced range sliders with demo text
-                                        <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                          <RangeSlider />
-                                        </div>
-                                      )}
-                                    </DisclosurePanel>
-                                  </>
-                                )}
-                              </Disclosure>
-                            );
-                          })}
+                                <DisclosurePanel className="pt-4">
+                                  <div className="space-y-2 pl-4">
+                                    <li>
+                                      <article className="checkbox-container flex items-center space-x-1">
+                                        <label className="checkbox">
+                                          <input
+                                            type="checkbox"
+                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                          />
+                                        </label>
+                                        <label
+                                          htmlFor="weight"
+                                          className="cursor-pointer"
+                                        >
+                                          500 Gm
+                                        </label>
+                                      </article>
+                                    </li>
+                                    <li>
+                                      <article className="checkbox-container flex items-center space-x-1">
+                                        <label className="checkbox">
+                                          <input
+                                            type="checkbox"
+                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                          />
+                                        </label>
+                                        <label
+                                          htmlFor="weight"
+                                          className="cursor-pointer"
+                                        >
+                                          1 Kg
+                                        </label>
+                                      </article>
+                                    </li>
+                                  </div>
+                                </DisclosurePanel>
+                              </>
+                            )}
+                          </Disclosure>
+
+                          {/* Price Section */}
+                          <Disclosure as="div" className="py-2">
+                            {({ open }) => (
+                              <>
+                                <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                                  <div>
+                                    <span
+                                      className={`font-bold px-2 text-lg flex items-center gap-3 ${
+                                        open ? "text-red-600" : "text-gray-800"
+                                      }`}
+                                    >
+                                      <AiOutlineProduct /> Price
+                                    </span>
+                                  </div>
+                                  <span className="flex items-center">
+                                    {open ? (
+                                      <MinusIcon className="w-5 text-gray-500" />
+                                    ) : (
+                                      <PlusIcon className="w-5 text-gray-500" />
+                                    )}
+                                  </span>
+                                </DisclosureButton>
+
+                                <DisclosurePanel className="pt-4">
+                                  <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
+                                    <RangeSlider />
+                                  </div>
+                                </DisclosurePanel>
+                              </>
+                            )}
+                          </Disclosure>
+
+                          {/* Shelf Life Section */}
+                          <Disclosure as="div" className="py-2">
+                            {({ open }) => (
+                              <>
+                                <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                                  <div>
+                                    <span
+                                      className={`font-bold px-2 text-lg flex items-center gap-3 ${
+                                        open ? "text-red-600" : "text-gray-800"
+                                      }`}
+                                    >
+                                      <FaHeartCircleCheck /> Shelf Life
+                                    </span>
+                                  </div>
+                                  <span className="flex items-center">
+                                    {open ? (
+                                      <MinusIcon className="w-5 text-gray-500" />
+                                    ) : (
+                                      <PlusIcon className="w-5 text-gray-500" />
+                                    )}
+                                  </span>
+                                </DisclosureButton>
+
+                                <DisclosurePanel className="pt-4">
+                                  <div className="space-y-2 pl-4">
+                                    <ShelfLifeSlider/>
+                                  </div>
+                                </DisclosurePanel>
+                              </>
+                            )}
+                          </Disclosure>
                         </div>
                       </form>
                     </div>
                   </div>
                 </div>
-                </div>
+              </div>
 
               {/* Product grid */}
               <div className="lg:col-span-3">
