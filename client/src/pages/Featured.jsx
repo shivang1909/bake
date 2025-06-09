@@ -35,6 +35,7 @@ const Featured = () => {
   const [FeaturedProduct, setFeaturedProduct]=useState([]);
   const [FeaturedId, setFeaturedId]=useState();
   const [cartProduct, setCartProduct] = useState(null);
+  const [totalPage, setTotalPage] = useState(null);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -60,9 +61,13 @@ const Featured = () => {
     console.log("above")
     setFeaturedProduct((prev)=>[...prev,...response.data.data])
     setPage((prevPage) => prevPage + 1);
+    setTotalPage(response.data.totalNoPage)
+
   };
 
   useEffect(() => {
+    setPage(1)
+    setFeaturedProduct([])
     setFeaturedId(fullFeaturedParam.split("-").slice(-1)[0])
   }, [fullFeaturedParam]);
 
@@ -72,7 +77,7 @@ const Featured = () => {
 
   const hasmoredata = async () => {
     console.log("Checking if more data is available for page:", page);
-    if (page > 2) {
+    if (page > totalPage) {
       return false;
     } else {
       return true;
@@ -122,7 +127,7 @@ const Featured = () => {
           ))}
         </div>
         <InfiniteScroll
-          dataLength={10}
+          dataLength={FeaturedProduct.length}
           hasMore={hasmoredata}
           next={FetchFeaturedProduct}
           className="py-3"

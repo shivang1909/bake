@@ -39,6 +39,7 @@ const ShopAll = () => {
   const [Category, setCategory] = useState([]);
   const dispatch = useDispatch();
   const allProduct = useSelector((state) => state.product.Allproduct);
+  const [WeightVarient, setWeightVarient] = useState([]);
 
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -55,8 +56,21 @@ const ShopAll = () => {
       console.error("Error fetching categories:", error);
     }
   };
+
+  const fetchWeightVarient = async () => {
+    try {
+      console.log("URL I'm passing:", SummaryApi.getallWeightVariant); // 👀 Check it
+      const response = await Axios.get(SummaryApi.getallWeightVariant.url);
+      setWeightVarient(response.data.data);
+      console.log("wweeeeiiigghhhttttt", response);
+    } catch (err) {
+      console.log("Error fetching weight variant:", err);
+    }
+  };
+
   useEffect(() => {
     fetchCategory();
+    fetchWeightVarient();
   }, []);
 
   const filterProductByCategory = async () => {
@@ -202,40 +216,25 @@ const ShopAll = () => {
                               {section.id === "Varients" ? (
                                 // ✅ DEMO CHECKBOXES for Varients
                                 <div className="space-y-2 pl-4">
-                                  <li>
-                                    <article className="checkbox-container flex items-center space-x-1">
-                                      <label className="checkbox">
-                                        <input
-                                          type="checkbox"
-                                          id="c"
-                                          className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                        />
-                                      </label>
-                                      <label
-                                        htmlFor="weight"
-                                        className="cursor-pointer"
-                                      >
-                                        500 Gm
-                                      </label>
-                                    </article>
-                                  </li>
-                                  <li>
-                                    <article className="checkbox-container flex items-center space-x-1">
-                                      <label className="checkbox">
-                                        <input
-                                          type="checkbox"
-                                          id="c"
-                                          className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                        />
-                                      </label>
-                                      <label
-                                        htmlFor="weight"
-                                        className="cursor-pointer"
-                                      >
-                                        1 Kg
-                                      </label>
-                                    </article>
-                                  </li>
+                                  {WeightVarient.map((varient, idx) => (
+                                    <li>
+                                      <article className="checkbox-container flex items-center space-x-1">
+                                        <label className="checkbox">
+                                          <input
+                                            type="checkbox"
+                                            id={`weight-${idx}`}
+                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                          />
+                                        </label>
+                                        <label
+                                          htmlFor={`weight-${idx}`}
+                                          className="cursor-pointer"
+                                        >
+                                          {varient.weight}
+                                        </label>
+                                      </article>
+                                    </li>
+                                  ))}
                                 </div>
                               ) : (
                                 // ✅ Replaced range sliders with demo text
@@ -443,7 +442,7 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
-                                    <ShelfLifeSlider/>
+                                    <ShelfLifeSlider />
                                   </div>
                                 </DisclosurePanel>
                               </>

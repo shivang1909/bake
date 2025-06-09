@@ -20,7 +20,7 @@ const ProductCard = ({ product, setCartProduct, className = "" }) => {
   return (
     <>
       <div
-        key={product._id}
+       
         className={`bg-white md:rounded-[20px]  border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
       >
         <div className="image-section overflow-hidden pt-4 p-2">

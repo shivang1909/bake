@@ -109,7 +109,7 @@ const createHomepageSection = async (req, res) => {
   }
 };
 
-export const getProductByHomePageSection = async (req, res) => {
+export const  getProductByHomePageSection = async (req, res) => {
   try {
     let { sectionId, page, limit } = req.body;
 

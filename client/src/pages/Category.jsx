@@ -35,6 +35,7 @@ const Category = () => {
   const [catproducts, setcatproducts] = useState([]);
   const [cartProduct, setCartProduct] = useState(null);
   const [categoryId, setcategoryId] = useState();
+  const [totalPage, settotalPage] = useState();
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -55,22 +56,33 @@ const Category = () => {
       data: { id: categoryId,page:page },
     });
     const data = response.data;
+    console.log(categoryId)
     console.log(response.data)
     setcatproducts((prev)=>[...prev,...response.data.data.product])
+    const TotalP = response.data.data.totalCount%10 !== 0?(response.data.data.totalCount/10)+1:response.data.data.totalCount/10
+    settotalPage(TotalP)
     setPage((prevPage) => prevPage + 1);
   };
 
   useEffect(() => {
-    setcategoryId(fullCategoryParam.split("-").slice(-1)[0])
+    setcatproducts([]);
+    setPage(1);
+
+    setcategoryId(fullCategoryParam.split("-").slice(-1)[0]);
   }, [fullCategoryParam]);
 
+
+  
+ 
+
   useEffect(()=>{
-    fetchproductbycategory();
+    console.log("before fetchproductbycategory functionnnn")
+    categoryId && fetchproductbycategory();
   },[categoryId])
 
-  const hasmoredata = async () => {
+  const hasmoredata =  () => {
     console.log("Checking if more data is available for page:", page);
-    if (page > 2) {
+    if (page > totalPage) {
       return false;
     } else {
       return true;
@@ -120,16 +132,16 @@ const Category = () => {
           ))}
         </div>
         <InfiniteScroll
-          dataLength={10}
+          dataLength={catproducts.length}
           hasMore={hasmoredata}
           next={fetchproductbycategory}
           className="py-3"
         >
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
-            {catproducts.map((product, index) => (
+            {catproducts.length>0&&catproducts.map((product, index) => (
               <>
               {console.log(allProduct)}
-              <ProductCard product={product} setCartProduct={setCartProduct} />
+              <ProductCard product={product} setCartProduct={setCartProduct} key={product._id} />
               </>
             ))}
           </div>

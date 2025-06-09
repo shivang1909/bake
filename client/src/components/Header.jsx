@@ -477,7 +477,7 @@ const Header = () => {
                                 <ul className="sub-menu">
                                   {categories.map((cat) => (
                                     <li key={cat._id}>
-                                      {console.log(cat)}
+                                      
                                       <Link
                                         to={`/Category/${valideURLConvert(
                                           cat.name
@@ -494,8 +494,7 @@ const Header = () => {
                                 <ul className="sub-menu">
                                 {Featured.map((featured) => (
                                     <li key={featured.sectionId}>
-                                      {console.log("Newwww Loggggg")}
-                                      {console.log(featured)}
+                                     
                                       <Link
                                       
                                         to={`/Featured/${valideURLConvert(

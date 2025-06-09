@@ -8,7 +8,7 @@ const weightvariantRouter = Router();
 
 
 weightvariantRouter.post('/addweight', auth,addWeightVariant);  
-weightvariantRouter.get('/listweight', auth, listWeightVariants); 
+weightvariantRouter.get('/listweight', listWeightVariants); 
 weightvariantRouter.put('/updateweight', auth,  updateWeightVariant);
 weightvariantRouter.delete('/deleteweight', auth,  deleteWeightVariant);
 export default weightvariantRouter;
