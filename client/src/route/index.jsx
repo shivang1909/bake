@@ -43,6 +43,7 @@ import Featured from "../pages/Featured";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import AuthSuccess from '../pages/AuthSuccess';
 import AboutUs from "../pages/AboutUs";
+import ContactUs from "../pages/ContactUs";
 
 
 const router = createBrowserRouter([
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
             {
                 path:"About-Us",
                 element: <AboutUs />
+            },
+            {
+                path:"Contact-Us",
+                element: <ContactUs />
             },
             {
                 path:"Category/:Category",
@@ -146,26 +151,26 @@ const router = createBrowserRouter([
                 path: "dashboard",
                 element: <Dashboard />,
                 children: [
-                    {
-                        path: "myorders",
-                        element: <MyOrders />
-                    },
-                    {
-                        path: "address",
-                        element: <Address />
-                    },
+                    // {
+                    //     path: "myorders",
+                    //     element: <MyOrders />
+                    // },
+                    // {
+                    //     path: "address",
+                    //     element: <Address />
+                    // },
                     {
                         path: "cart",
                         element: <CartMobile />
                     },
-                    {
-                        path: "checkout",
-                        element: <CheckoutPage />
-                    },
-                    {
-                        path: "Myprofile",
-                        element: <MyProfile />
-                    },
+                    // {
+                    //     path: "checkout",
+                    //     element: <CheckoutPage />
+                    // },
+                    // {
+                    //     path: "Myprofile",
+                    //     element: <MyProfile />
+                    // },
                 ]
             },
             {

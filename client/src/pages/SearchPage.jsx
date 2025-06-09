@@ -23,6 +23,7 @@ const SearchPage = () => {
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
     const [cartProduct, setCartProduct] = useState(null);
+    
  
 
 
@@ -78,12 +79,12 @@ const SearchPage = () => {
 
   return (
     <>
-    <section className="bg-white font-normal">
-      <div className="container mx-auto p-4">
+    <section className="bg-white font-normal mt-20">
+      <div className="container mx-auto p-4 justify-center">
         {searchText.trim() ? (
           <>
-            <p className="font-semibold text-lg">
-              Search Results: {data.length}
+            <p className="font-normal text-center text-lg py-5">
+               {data.length} Products
             </p>
 
 
@@ -92,12 +93,13 @@ const SearchPage = () => {
               hasMore={page < totalPage}
               next={handleFetchMore}
             >
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 py-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 justify-center px-28 items-center">
                 {data.map((p, index) => (
                   <ProductCard
                     setCartProduct={setCartProduct}
                     product={p}
                     key={p?._id + "searchProduct" + index}
+                    className="rounded-[15px] min-w-[200px] max-w-[200px] md:min-w-[220px]"
                   />
                 ))}
 

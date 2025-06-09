@@ -23,6 +23,11 @@ const SummaryApi = {
     url: `/api/product/getProductByHomePageSection/${id}`,
     method: "get",
   }),
+  getproductFilter: {
+    url: "/api/product/getfilterproduct",
+    method: "post", // or "POST"
+  },
+  
   getnotification: {
     url: "/api/notification/getnotifications",
     method: "get",

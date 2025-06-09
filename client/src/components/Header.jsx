@@ -626,7 +626,7 @@ const Header = () => {
                             {isDropdownOpen && (
                               <ul className="absolute right-0 mt-2 font-semibold bg-white border rounded-md shadow-md w-48 z-50 p-2">
                                 <li>
-                                  <Link to="/dashboard/profile">
+                                  <Link to="/dashboard/Myprofile">
                                     <a
                                       className=" px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
                                       onClick={closeDropdown}

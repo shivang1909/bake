@@ -30,12 +30,25 @@ const DisplayCartItem = ({ close, open }) => {
     setNotDiscountTotalPrice,
   } = useGlobalContext();
   const cartdata = useSelector((state) => state.user.shopping_cart);
-  console.log(cartdata);
+
   const user = useSelector((state) => state.user);
-  console.log(user);
+
   // console.log();
 
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
+
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  
+  useEffect(() => {
+    const stored = localStorage.getItem("lastViewedProducts");
+    if (stored) {
+      setRecentlyViewed(JSON.parse(stored));
+    }
+    else{
+      setRecentlyViewed([]);
+    }
+  }, [isCartOpen]);
+
 
   useEffect(() => {
     if (isCartOpen) {
@@ -175,8 +188,7 @@ const DisplayCartItem = ({ close, open }) => {
   useEffect(() => {
     const updateQuantity = async () => {
       try {
-        console.log(cartdata);
-        console.log(cartItems);
+
 
         // Make API call to update the cart in the database
         const response = await Axios({
@@ -185,7 +197,7 @@ const DisplayCartItem = ({ close, open }) => {
         });
         console.log("Cart updated in the database:", response.data);
       } catch (error) {
-        console.error("Error updating cart in the database:", error);
+      
       }
     };
     updateQuantity();
@@ -273,7 +285,7 @@ const DisplayCartItem = ({ close, open }) => {
             {/* HEADER */}
 
             {/* BODY - SCROLLABLE */}
-            {console.log(cartItems)}
+    
             <div className="flex-1 overflow-auto px-2 space-y-4">
               {Array.isArray(cartItems) && cartItems.length > 0 ? (
                 
@@ -430,12 +442,21 @@ const DisplayCartItem = ({ close, open }) => {
           </div>
         ) : (
           <div className="p-4">
-            <p>This is the Recently Viewed section with static data.</p>
-            <div className="mt-2">
-              <p>🍰 Chocolate Cake - ₹250</p>
-              <p>🧁 Vanilla Cupcake - ₹120</p>
-            </div>
+      <p className="font-semibold text-lg mb-2">Recently Viewed</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {recentlyViewed.map((item) => (
+          <div key={item._id} className="border p-2 rounded shadow">
+            <img
+              src={item.coverimage}
+              alt={item.name}
+              className="h-32 w-full object-cover rounded"
+            />
+            <h3 className="mt-2 font-medium">{item.name}</h3>
+            <p className="text-sm text-gray-600">₹{item.price}</p>
           </div>
+        ))}
+      </div>
+    </div>
         )}
       </div>
     </>

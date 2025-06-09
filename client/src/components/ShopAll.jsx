@@ -40,6 +40,10 @@ const ShopAll = () => {
   const dispatch = useDispatch();
   const allProduct = useSelector((state) => state.product.Allproduct);
   const [WeightVarient, setWeightVarient] = useState([]);
+  const [selectedWeight,setSelectedWeight] = useState([]);
+  const [values, setValues] = useState([10, 1000]);
+  const [value, setValue] = useState(0);
+  const [search,setSearch] = useState("");
 
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -174,6 +178,26 @@ const ShopAll = () => {
                             type="checkbox"
                             id={category.name}
                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                            onChange={(e) => {
+                              console.log(
+                                "Checkbox changed:",
+                                 e.target.checked
+                              );
+                              e.target.checked
+                                ? setCategory((prev) => [
+                                    ...prev,
+                                    category._id,
+                                  ])
+                                : setCategory((prev) =>
+                                    prev.filter(
+                                      (cat) => cat !== category._id
+                                    )
+                                  );
+                              console.log(
+                                "Current categories:",
+                                Category
+                              );
+                            }}
                           />
                         </label>
                         <label
@@ -224,6 +248,23 @@ const ShopAll = () => {
                                             type="checkbox"
                                             id={`weight-${idx}`}
                                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                            onChange={(e) => {
+                                              console.log(
+                                                "Checkbox changed:",
+                                                e.target.checked
+                                              );
+                                              e.target.checked
+                                                ? setSelectedWeight((prev) => [
+                                                    ...prev,
+                                                    varient.weight,
+                                                  ])
+                                                : setSelectedWeight((prev) =>
+                                                    prev.filter(
+                                                      (varientName) => varientName !== varient.weight
+                                                    )
+                                                  );
+
+                                            }}
                                           />
                                         </label>
                                         <label
@@ -347,38 +388,46 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
+                                  {WeightVarient.map((varient, idx) => (
                                     <li>
                                       <article className="checkbox-container flex items-center space-x-1">
                                         <label className="checkbox">
                                           <input
                                             type="checkbox"
+                                            id={`weight-${idx}`}
                                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                            onChange={(e) => {
+                                              console.log(
+                                                "Checkbox changed:",
+                                                e.target.checked
+                                              );
+                                              e.target.checked
+                                                ? setSelectedWeight((prev) => [
+                                                    ...prev,
+                                                    varient.weight,
+                                                  ])
+                                                : setSelectedWeight((prev) =>
+                                                    prev.filter(
+                                                      (varientName) => varientName !== varient.weight
+                                                    )
+                                                  );
+                                                  console.log(
+                                                    "Current weight:",
+                                                    selectedWeight
+                                                  );
+                                            }}
                                           />
                                         </label>
                                         <label
-                                          htmlFor="weight"
+                                          htmlFor={`weight-${idx}`}
                                           className="cursor-pointer"
                                         >
-                                          500 Gm
+                                          {varient.weight}
                                         </label>
                                       </article>
                                     </li>
-                                    <li>
-                                      <article className="checkbox-container flex items-center space-x-1">
-                                        <label className="checkbox">
-                                          <input
-                                            type="checkbox"
-                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                          />
-                                        </label>
-                                        <label
-                                          htmlFor="weight"
-                                          className="cursor-pointer"
-                                        >
-                                          1 Kg
-                                        </label>
-                                      </article>
-                                    </li>
+                                  ))}
+                                    
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -410,7 +459,7 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                    <RangeSlider />
+                                    <RangeSlider values={values} setValues={setValues}/>
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -442,7 +491,7 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
-                                    <ShelfLifeSlider />
+                                    <ShelfLifeSlider value={value} setValue={setValue}/>
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -460,6 +509,10 @@ const ShopAll = () => {
                 <ProductPage
                   category={Category}
                   setMobileFiltersOpen={setMobileFiltersOpen}
+                  weight={selectedWeight}
+                  priceRange={values}
+                  maxshelfLife={value}
+                  search={search}
                 />
               </div>
             </div>

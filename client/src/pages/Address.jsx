@@ -145,21 +145,45 @@ const Address = () => {
               ))}
 
             {/* Conditional Add Box */}
-            {addressList.filter((address) => address.status).length <= 2 && (
-              <>
-                <div
-                  onClick={handleOpenAddForm}
-                  className="hidden lg:block border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer md:flex items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
-                >
-                  <p className="text-gray-500">+ Add new address</p>
-                </div>
-
-                <div className="bloack lg:hidden border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer flex items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]">
-                  <Link to="/SaperateAddress">
-                    <p className="text-gray-500">+ Add new address</p>
-                  </Link>
-                </div>
-              </>
+           
+            {addressList.filter((address) => address.status).length == 0 && (
+             <>
+             <div
+               onClick={handleOpenAddForm}
+               className="w-full hidden lg:flex border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
+             >
+               <p className="text-gray-500 text-center px-5">
+               You don't have any address yet. Add Address now!
+               </p>
+             </div>
+           </>
+           
+            )}
+            {addressList.filter((address) => address.status).length == 1 && (
+             <>
+             <div
+               onClick={handleOpenAddForm}
+               className="hidden lg:flex border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
+             >
+               <p className="text-gray-500 text-center px-5">
+              Add Your Work Address
+               </p>
+             </div>
+           </>
+           
+            )}
+            {addressList.filter((address) => address.status).length == 2 && (
+             <>
+             <div
+               onClick={handleOpenAddForm}
+               className="hidden lg:flex border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
+             >
+               <p className="text-gray-500 text-center px-5">
+             Add Your Friend's Address 
+               </p>
+             </div>
+           </>
+           
             )}
           </div>
 

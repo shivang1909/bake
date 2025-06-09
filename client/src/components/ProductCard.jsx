@@ -21,14 +21,14 @@ const ProductCard = ({ product, setCartProduct, className = "" }) => {
     <>
       <div
        
-        className={`bg-white md:rounded-[20px]  border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
+        className={`bg-white md:rounded-[24px] min-h-full border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
       >
-        <div className="image-section overflow-hidden pt-4 p-2">
+        <div className="image-section overflow-hidden pt-4 md:pt-2 p-2">
           <Link to={url} className="rounded-lg" state={isloaded}>
-            <div className="flex justify-center rounded-lg items-center  mb-2 h-[100px] lg:h-[130px]">
+            <div className="flex justify-center rounded-xl items-center  mb-2 h-[100px] lg:h-[130px]">
               <LazyLoadImage
                 alt="Example"
-                wrapperClassName="h-[130px] lg:h-[130px] rounded-lg bg-zinc-50 w-full overflow-hidden"
+                wrapperClassName="h-[130px] lg:h-[130px] md:rounded-[24px] md:bg-zinc-50 w-full overflow-hidden"
                 className=" w-full h-full object-contain overflow-hidden rounded-lg transition-transform duration-500 ease-in-out scale-110 hover:scale-100"
                 effect="blur"
                 src={product.coverimage}

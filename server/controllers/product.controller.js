@@ -562,7 +562,6 @@ export const getproductfilter = async (request, response) => {
   try {
     let {
       page,
-      limit,
       search,
       priceSort,
       weight,
@@ -574,7 +573,7 @@ export const getproductfilter = async (request, response) => {
     } = request.body;
 
     page = parseInt(page) || 1;
-    limit = parseInt(limit) || 10;
+    let limit = 10;
     const skip = (page - 1) * limit;
     minPrice = parseInt(minPrice);
     maxPrice = parseInt(maxPrice);
@@ -584,11 +583,12 @@ export const getproductfilter = async (request, response) => {
 
     let matchStage = {};
 
+    if(maxshelfLife>0)
     matchStage.shelf_life = { $gte: maxshelfLife };
 
     if (category.length > 0) {
       const categoryIds = category.map((id) =>
-        ObjectId.createFromHexString(id)
+        new mongoose.Types.ObjectId(id)
       );
       matchStage.category = { $in: categoryIds };
     }
@@ -694,21 +694,68 @@ export const getproductfilter = async (request, response) => {
     }
 
     pipeline.push({
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category"
+      }
+    });
+
+    pipeline.push({
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true
+      }
+    });
+
+    pipeline.push({
       $project: {
         name: 1,
-        averageRating:1,
+        coverimage: 1,
+        image: 1,
+        category: {
+          _id: "$category._id",
+          name: "$category.name",
+          image: "$category.image",
+          createdAt: "$category.createdAt",
+          updatedAt: "$category.updatedAt"
+        },
+        description: 1,
+        publish: 1,
+        sku_code: 1,
         weightVariants: 1,
+        createdAt: 1,
+        updatedAt: 1
       },
     });
 
-    pipeline.push({ $skip: skip }, { $limit: limit });
+    const paginatedPipeline = [
+      ...pipeline,
+      { $skip: skip },
+      { $limit: limit }
+    ];
 
-    const data = await ProductModel.aggregate(pipeline);
+    const finalPipeline = [
+      {
+        $facet: {
+          data: paginatedPipeline,
+          totalCount: [
+            ...pipeline,
+            { $count: "count" }
+          ]
+        }
+      }
+    ];
+
+    const result = await ProductModel.aggregate(finalPipeline);
+    const data = result[0].data;
+    const totalCount = result[0].totalCount[0]?.count || 0;
     return response.json({
       message: "Product data",
       error: false,
       success: true,
-      // totalCount,
+      totalCount,
       // totalNoPage: Math.ceil(totalCount / limit),
       data,
     });

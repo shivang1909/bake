@@ -119,8 +119,9 @@ const ProductDisplayPageNew = () => {
           productId: productId,
         },
       });
-
+  
       const { data: responseData } = response;
+  
       if (responseData.success) {
         fetchproductbycategory(responseData.data.category._id);
         console.log(responseData);
@@ -129,11 +130,35 @@ const ProductDisplayPageNew = () => {
           ...prev,
           image: [responseData.data.coverimage, ...responseData.data.image],
         }));
+  
+        // ✅ Store to localStorage for Recently Viewed
+        const { _id, name, coverimage, weightVariants } = responseData.data;
+        const LAST_VIEWED_KEY = "lastViewedProducts";
+  
+        const stored = localStorage.getItem(LAST_VIEWED_KEY);
+        let lastViewed = stored ? JSON.parse(stored) : [];
+  
+        // Remove if already exists
+        lastViewed = lastViewed.filter((p) => p._id !== _id);
+  
+        // Add to front
+        lastViewed.unshift({
+          _id,
+          name,
+          coverimage,
+          price: weightVariants?.[0]?.price || 0,
+        });
+  
+        // Keep max 5 items
+        if (lastViewed.length > 10) {
+          lastViewed = lastViewed.slice(0, 10);
+        }
+  
+        localStorage.setItem(LAST_VIEWED_KEY, JSON.stringify(lastViewed));
       }
     } catch (error) {
       console.error("Error fetching product details:", error);
       AxiosToastError(error);
-    } finally {
     }
   };
   const handleCartOpen = () => {
