@@ -111,14 +111,17 @@ const createHomepageSection = async (req, res) => {
 
 export const  getProductByHomePageSection = async (req, res) => {
   try {
-    let { sectionId, page, limit } = req.body;
+    var { sectionId, page, limit } = req.body;
+ 
 
 
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
 
-
+    console.log('this is sectionId',sectionId)
     if (!sectionId) {
+      console.log(sectionId)
+     
       return res.status(400).json({
         message: "Section ID is required",
         error: true,

@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    alt_Mobile: {
+      type: Number,
+      default: null,
+    },
     refresh_token: {
       type: String,
       default: "",

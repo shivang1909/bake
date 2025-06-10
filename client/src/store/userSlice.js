@@ -1,12 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-
 const initialValue = {
     _id : "",
     name : "",
     email : "",
     avatar : "",
     mobile : "",
+    alt_Mobile : "",
     verify_email : "",
     last_login_date : "",
     status : "",
@@ -15,6 +14,7 @@ const initialValue = {
     orderHistory : [],
     role : "",
 }
+
 
 const userSlice  = createSlice({
     name : 'user',
@@ -26,6 +26,7 @@ const userSlice  = createSlice({
             state.email = action.payload?.email
             state.avatar = action.payload?.avatar
             state.mobile = action.payload?.mobile
+            state.alt_Mobile = action.payload?.alt_Mobile
             state.verify_email = action.payload?.verify_email
             state.last_login_date = action.payload?.last_login_date
             state.status = action.payload?.status
@@ -40,9 +41,10 @@ const userSlice  = createSlice({
         updatedShoppingCart : (state,action) => {
             console.log(action.payload);
 
+
             state.shopping_cart = action.payload
             console.log(state.shopping_cart);
-            
+           
         },
         logout : (state,action)=>{
             state._id = ""
@@ -50,6 +52,7 @@ const userSlice  = createSlice({
             state.email = ""
             state.avatar = ""
             state.mobile = ""
+            state.alt_Mobile = ""
             state.verify_email = ""
             state.last_login_date = ""
             state.status = ""
@@ -58,10 +61,12 @@ const userSlice  = createSlice({
             state.orderHistory = []
             state.role = ""
         },
-        
+       
     }
 })
 
+
 export const { setUserDetails, logout ,updatedAvatar, updatedShoppingCart} = userSlice.actions
+
 
 export default userSlice.reducer

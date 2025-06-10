@@ -28,6 +28,7 @@ import { FaAngleUp } from "react-icons/fa6";
 import { CiGift } from "react-icons/ci";
 import { CiEdit } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa6";
+import { AnimatePresence, motion } from "framer-motion";
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -43,45 +44,67 @@ const useMediaQuery = (query) => {
   return matches;
 };
 
-const Accordion = ({ title, children, isOpen, onToggle }) => {
-  const contentRef = useRef(null);
-  const [height, setHeight] = useState("0px");
+
+const Accordion = ({ title, children, isOpen, onToggle, footerButton }) => {
+  const accordionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let timer;
     if (isOpen) {
-      timer = setTimeout(() => {
-        if (contentRef.current) {
-          setHeight(`${contentRef.current.scrollHeight}px`);
-        }
-      }, 100); // Give DOM time to paint fully
+      setVisible(true); // show with animation
+      setTimeout(() => {
+        accordionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }, 50); // slight delay to let DOM catch up
     } else {
-      setHeight("0px");
+      setVisible(false); // reset animation when closed
     }
-
-    return () => clearTimeout(timer);
   }, [isOpen]);
 
+  // If accordion is active
+  if (isOpen) {
+    return (
+      <div
+        ref={accordionRef}
+        className={`fixed inset-0 z-50 bg-white flex flex-col transition-all duration-500 ease-in-out
+        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+      >
+        {/* Sticky Header */}
+        <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 mt-16">
+          <div className="flex justify-between items-center">
+            <span>{title}</span>
+            <button onClick={onToggle} className="text-xl">−</button>
+          </div>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto p-4">{children}</div>
+
+        {/* Sticky Footer */}
+        <div className="p-4 border-t bg-white sticky bottom-0 z-10">
+          {footerButton}
+        </div>
+      </div>
+    );
+  }
+
+  // If not active, render compact view
   return (
-    <div className="border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300">
+    <div className="border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300 mt-20">
       <button
         className="w-full text-left px-4 py-3 font-medium flex justify-between items-center bg-white"
         onClick={onToggle}
       >
         {title}
-        <span className="text-xl">{isOpen ? "−" : "+"}</span>
+        <span className="text-xl">+</span>
       </button>
-
-      <div
-        ref={contentRef}
-        style={{ height }}
-        className="transition-all duration-500 ease-in-out overflow-hidden"
-      >
-        <div className="p-2  border-t border-gray-200">{children}</div>
-      </div>
     </div>
   );
 };
+
+
 
 const CheckoutPage = () => {
   const [openAddress, setOpenAddress] = useState(false);
@@ -129,6 +152,13 @@ const CheckoutPage = () => {
     }
   }, [navigate]);
 
+  const vibrate = () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(200);
+    }
+  };
+
+
   const handleClick = () => {
     if (!isAnimating) {
       setIsAnimating(true);
@@ -136,6 +166,7 @@ const CheckoutPage = () => {
         setIsAnimating(false);
       }, 10000); // 10 seconds animation
     }
+    vibrate();
     if (selectedMethod === "cod") {
       handleCashOnDelivery();
     } else if (selectedMethod === "razorpay") {
@@ -1494,15 +1525,29 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      <div className="lg:hidden flex flex-col gap-4 p-4 px-0 mt-20">
+      <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2 mt-20">
         <Accordion
-          title="Address"
+          title={
+            <>
+            <span className="text-lg font-semibold">Confirm Address</span>
+            </>
+          }
           isOpen={openSection === "address"}
           onToggle={() =>
             setOpenSection(openSection === "address" ? null : "address")
           }
+          footerButton={
+            <>
+             <button
+              className="text-md font-semibold w-full bg-black text-white px-4 py-4 rounded-full"
+              onClick={handleAddressComplete}
+            >
+              Save Address & Continue
+            </button>
+            </>
+          }
         >
-          <div>
+          <div className="min-h-full overflow-y-auto">
             <div>
               {addressList.filter((a) => a.status).length === 0 ? (
                 // Empty State
@@ -1618,20 +1663,27 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
-            <button
-              className="mt-4 w-full bg-black text-white px-4 py-2 rounded-lg"
-              onClick={handleAddressComplete}
-            >
-              Save Address & Continue
-            </button>
+           
           </div>
         </Accordion>
 
         <Accordion
-          title="Product Checkout"
+          title={<>
+          <span className="text-lg font-semibold">Product Checkout</span>
+          </>}
           isOpen={openSection === "product"}
           onToggle={() =>
             setOpenSection(openSection === "product" ? null : "product")
+          }
+          footerButton={
+            <>
+              <button
+              className="font-semibold text-md w-full bg-black text-white px-4 py-4 rounded-full"
+              onClick={handleProductComplete}
+            >
+              Proceed to Billing
+            </button>
+            </>
           }
         >
           <div>
@@ -1959,20 +2011,27 @@ const CheckoutPage = () => {
                 </>
               )}
             </div>
-            <button
-              className="mt-4 w-full bg-black text-white px-4 py-2 rounded-lg"
-              onClick={handleProductComplete}
-            >
-              Proceed to Billing
-            </button>
+            
           </div>
         </Accordion>
 
         <Accordion
-          title="Promo & Billing"
+         title={
+          <>
+          <span className="text-lg font-semibold">Promo & Billing</span>
+          </>
+        }
           isOpen={openSection === "promo"}
           onToggle={() =>
             setOpenSection(openSection === "promo" ? null : "promo")
+          }
+          footerButton={
+              <button
+             className="text-md font-semibold w-full bg-black text-white px-4 py-4 rounded-full"
+              onClick={handlePromoComplete}
+            >
+              Proceed to Checkout
+            </button>
           }
         >
           <div>
@@ -2141,17 +2200,16 @@ const CheckoutPage = () => {
                 </div>
               </div>
             </div>
-            <button
-              className="mt-4 w-full bg-black text-white px-4 py-2 rounded-lg"
-              onClick={handlePromoComplete}
-            >
-              Proceed to Checkout
-            </button>
+          
           </div>
         </Accordion>
 
         <Accordion
-          title="Checkout"
+          title={
+            <>
+            <span className="text-lg font-semibold">Checkout</span>
+            </>
+          }
           isOpen={openSection === "checkout"}
           onToggle={() =>
             setOpenSection(openSection === "checkout" ? null : "checkout")

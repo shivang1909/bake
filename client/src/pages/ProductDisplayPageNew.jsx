@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { FaHeart, FaShoppingCart, FaStar,FaLeaf } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaStar, FaLeaf } from "react-icons/fa";
 import { VscDebugBreakpointLogUnverified } from "react-icons/vsc";
 import Kajukatri from "../../assets/images/Custom/Kajukatri.png";
 import laddo from "../../assets/images/Custom/laddo.png";
@@ -30,10 +30,10 @@ import shapegrey from "../../assets/images/Custom/shape-grey.png";
 
 const ProductDisplayPageNew = () => {
   const ref = useRef(null);
-   const { totalQty, setTotalQty, setIsSearchOpen  } = useGlobalContext();
-    useEffect(() => {
-      setIsSearchOpen(false);
-    }, []);
+  const { totalQty, setTotalQty, setIsSearchOpen } = useGlobalContext();
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, []);
   const user = useSelector((state) => state.user);
   const cartdata = useSelector((state) => state.user.shopping_cart);
   console.log(cartdata);
@@ -68,11 +68,10 @@ const ProductDisplayPageNew = () => {
     const handleResize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
     };
-  
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
 
   const containerRef = useRef(null);
   const dispatch = useDispatch();
@@ -119,9 +118,9 @@ const ProductDisplayPageNew = () => {
           productId: productId,
         },
       });
-  
+
       const { data: responseData } = response;
-  
+
       if (responseData.success) {
         fetchproductbycategory(responseData.data.category._id);
         console.log(responseData);
@@ -130,17 +129,17 @@ const ProductDisplayPageNew = () => {
           ...prev,
           image: [responseData.data.coverimage, ...responseData.data.image],
         }));
-  
+
         // ✅ Store to localStorage for Recently Viewed
         const { _id, name, coverimage, weightVariants } = responseData.data;
         const LAST_VIEWED_KEY = "lastViewedProducts";
-  
+
         const stored = localStorage.getItem(LAST_VIEWED_KEY);
         let lastViewed = stored ? JSON.parse(stored) : [];
-  
+
         // Remove if already exists
         lastViewed = lastViewed.filter((p) => p._id !== _id);
-  
+
         // Add to front
         lastViewed.unshift({
           _id,
@@ -148,12 +147,12 @@ const ProductDisplayPageNew = () => {
           coverimage,
           price: weightVariants?.[0]?.price || 0,
         });
-  
+
         // Keep max 5 items
         if (lastViewed.length > 10) {
           lastViewed = lastViewed.slice(0, 10);
         }
-  
+
         localStorage.setItem(LAST_VIEWED_KEY, JSON.stringify(lastViewed));
       }
     } catch (error) {
@@ -259,8 +258,7 @@ const ProductDisplayPageNew = () => {
             <div
               className="relative h-fit  w-full min-w-fit [@media(min-height:1366px)]:max-h-[25vh] lg:h-[58vh] mb-3 border rounded-2xl overflow-hidden"
               onMouseEnter={() => isLargeScreen && setZoom(true)}
-onMouseLeave={() => isLargeScreen && setZoom(false)}
-
+              onMouseLeave={() => isLargeScreen && setZoom(false)}
               onMouseMove={handleMouseMove}
               ref={containerRef}
             >
@@ -271,25 +269,24 @@ onMouseLeave={() => isLargeScreen && setZoom(false)}
               />
               {/* Zoom lens */}
               {zoom && isLargeScreen && (
-  <div
-    className="absolute pointer-events-none border border-gray-300 rounded-full shadow-lg overflow-hidden"
-    style={{
-      width: "250px",
-      height: "250px",
-      top: lensPosition.y - 100,
-      left: lensPosition.x - 100,
-      backgroundImage: `url(${data.coverimage})`,
-      backgroundSize: "300% 300%",
-      backgroundPosition: `${
-        (lensPosition.x / containerRef.current.offsetWidth) * 100
-      }% ${
-        (lensPosition.y / containerRef.current.offsetHeight) * 100
-      }%`,
-      zIndex: 20,
-    }}
-  ></div>
-)}
-
+                <div
+                  className="absolute pointer-events-none border border-gray-300 rounded-full shadow-lg overflow-hidden"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    top: lensPosition.y - 100,
+                    left: lensPosition.x - 100,
+                    backgroundImage: `url(${data.coverimage})`,
+                    backgroundSize: "300% 300%",
+                    backgroundPosition: `${
+                      (lensPosition.x / containerRef.current.offsetWidth) * 100
+                    }% ${
+                      (lensPosition.y / containerRef.current.offsetHeight) * 100
+                    }%`,
+                    zIndex: 20,
+                  }}
+                ></div>
+              )}
             </div>
 
             {/* Thumbnails */}
@@ -405,7 +402,7 @@ onMouseLeave={() => isLargeScreen && setZoom(false)}
                     <FaLeaf />
                   </div>
                   <span className="text-xs font-semibold text-center">
-                  No Preservatives
+                    No Preservatives
                   </span>
                 </div>
               </div>
@@ -472,67 +469,68 @@ onMouseLeave={() => isLargeScreen && setZoom(false)}
                       onClick={addCartItem}
                       className="flex items-center justify-center font-semibold gap-2 px-10 py-3 bg-orange-500 text-white rounded-full w-full  transition-all duration-200 active:scale-95"
                     >
-                      <FaShoppingCart className="text-lg"/>
+                      <FaShoppingCart className="text-lg" />
                       Add To Cart{" "}
                     </button>
                   )}
                 </>
               ) : (
-                <p className="text-lg text-red-500 my-2">Sorry We're Out of Stock right now for {data.name} !</p>
+                <p className="text-lg text-red-500 my-2">
+                  Sorry We're Out of Stock right now for {data.name} !
+                </p>
               )}
             </div>
 
             {/* Quantity & Actions */}
           </div>
         </div>
-       
       </div>
 
-      <img src={shapegrey} alt="" className="lg:mt-28  w-full"/>
+      <img src={shapegrey} alt="" className="lg:mt-28  w-full" />
       <div className="bg-[#FAF7F2] py-10 w-full flex justify-center">
-  <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
-    {/* Icon 1 */}
-    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-        <GiDuration />
-      </div>
-      <span className="text-xs font-semibold text-center">
-        {data.shelf_life} Days Of
-        <br /> Shelf Life
-      </span>
-    </div>
+        <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
+          {/* Icon 1 */}
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <GiDuration />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              {data.shelf_life} Days Of
+              <br /> Shelf Life
+            </span>
+          </div>
 
-    {/* Icon 2 */}
-    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-        <FaTruckFast />
-      </div>
-      <span className="text-xs font-semibold text-center">
-        Delivery Within <br /> 1-2 Days
-      </span>
-    </div>
+          {/* Icon 2 */}
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <FaTruckFast />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              Delivery Within <br /> 1-2 Days
+            </span>
+          </div>
 
-    {/* Icon 3 */}
-    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-        <GiIndiaGate />
-      </div>
-      <span className="text-xs font-semibold text-center">
-        Free <br /> Shipping
-      </span>
-    </div>
+          {/* Icon 3 */}
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <GiIndiaGate />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              Free <br /> Shipping
+            </span>
+          </div>
 
-    {/* Icon 4 */}
-    <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-      <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-        <FaLeaf />
+          {/* Icon 4 */}
+          <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+            <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+              <FaLeaf />
+            </div>
+            <span className="text-xs font-semibold text-center">
+              No any <br /> Preservatives
+            </span>
+          </div>
+        </div>
       </div>
-      <span className="text-xs font-semibold text-center">
-        No any <br /> Preservatives
-      </span>
-    </div>
-  </div>
-</div>
 
       <img src={shapegrey} alt="" className="w-full rotate-180" />
 

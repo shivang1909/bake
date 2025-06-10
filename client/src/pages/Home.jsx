@@ -234,7 +234,7 @@ const Home = () => {
         })
       } */}
 
-      <CookiesModel/>
+      {/* <CookiesModel/>  */}
 
       {/* <div className="recent-purchase">
         <img src="assets/images/product-image/111_1.jpg" alt="payment image"/>

@@ -38,10 +38,19 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// app.use(cors({
+//     credentials : true,
+//     origin : process.env.FRONTEND_URL
+// }))
+
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_URL
-}))
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // Allow curl/postman
+    callback(null, origin); // Reflect the origin
+  },
+  credentials: true
+}));
+
 app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }));  // To parse urlencoded data

@@ -218,7 +218,10 @@ const AddToCartBottomBar = ({ product, onClose }) => {
             {product.weightVariants.map((variant, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedVariant(index)}
+                onClick={() => {setSelectedVariant(index),
+                  setQty(1)
+                }
+                }
                 className={`px-4 py-1.5 font-semibold text-sm rounded-full border transition-all
                   ${
                     selectedVariant === index
@@ -232,6 +235,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
             ))}
           </div>
         )}
+
         <div className="hidden md:block flex justify-center items-center text-center gap-2 mt-4">
           {product.weightVariants[selectedVariant].discount > 0 ? (
             <span className="text-xs font-semibold text-green-600">

@@ -59,7 +59,7 @@ function App() {
       <main className=" bg-white">
         <Outlet />
       </main>
-      <Footer />
+      {/* <Footer /> */}
       <Toaster />
       {location.pathname !== '/checkout' && <CartMobileLink />}
     </GlobalProvider>

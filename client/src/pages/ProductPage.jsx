@@ -59,6 +59,27 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   const [isListView, setIsListView] = useState(false);
   const [totalPage,settotalPage] = useState();
   const [filterKey, setFilterKey] = useState(0); // triggers hard reset
+  const stickyRef = useRef(null);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting);
+      },
+      { threshold: 1, rootMargin: "-1px 0px 0px 0px" }
+    );
+
+    if (stickyRef.current) {
+      observer.observe(stickyRef.current);
+    }
+
+    return () => {
+      if (stickyRef.current) {
+        observer.unobserve(stickyRef.current);
+      }
+    };
+  }, []);
 
 
   //new
@@ -143,9 +164,11 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   return (
     <div className="py-4 bg-white flex-col items-center justify-center">
       {/* View Toggle Buttons */}
+      <div ref={stickyRef}></div>
+      <div className={`z-20 transition-all duration-300 ${isSticky ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b" : ""}`}>
       <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
         {/* apllied filters section start */}
-        <div className="flex gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0">
+        <div className="flex gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
           <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
             <RxCross2 className="text-sm cursor-pointer" />
             100GM
@@ -165,10 +188,10 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
         </div>
         {/* apllied filters section end  */}
 
-        <div className="flex justify-center items-center px-3">
-          <div className="flex items-center px-3">
+        <div className="flex justify-center items-center px-3 mt-5">
+          {/* <div className="flex items-center px-3">
            
-          </div>
+          </div> */}
           
           <div className="filters flex gap-3 w-full justify-between bg-gray-50 border border-gray-200 rounded-[24px] shadow-inner px-3 p-2 md:py-1">
             <div className="flex items-center">
@@ -255,6 +278,7 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Product Display Section */}

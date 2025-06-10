@@ -367,44 +367,66 @@ export async function loginController(request, response) {
   
   
 
-
-
   export const googleAuthCallbackHandler = async (req, res) => {
     try {
-      const user = req.user;
-      const accessToken = await generatedAccessToken(user._id);
-      const refreshToken = await genertedRefreshToken(user._id);
-  
-  
-      await UserModel.findByIdAndUpdate(user._id, {
-        last_login_date: new Date()
-      });
-  
-  
-      const cookiesOption = {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None'
-      };
-  
-  
-      res.cookie('accessToken', accessToken, cookiesOption);
-      res.cookie('refreshToken', refreshToken, cookiesOption);
-  
-  
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
-      );
+        const user = req.user;
+       
+        // Check if this is the user's first login (new registration via Google)
+        const isNewUser = !user.last_login_date;
+       
+        // Update last login date
+        await UserModel.findByIdAndUpdate(user._id, {
+            last_login_date: new Date(),
+            is_verified: true // Since Google authenticates the email
+        });
+
+
+        // Generate tokens
+        const accessToken = await generatedAccessToken(user._id);
+        const refreshToken = await genertedRefreshToken(user._id);
+
+
+        // Set cookies
+        const cookiesOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None'
+        };
+        res.cookie('accessToken', accessToken, cookiesOption);
+        res.cookie('refreshToken', refreshToken, cookiesOption);
+
+
+        // Send welcome email if new user (non-blocking)
+        if (isNewUser) {
+            try {
+                await sendEmail({
+                    sendTo: user.email,
+                    subject: "Welcome to Bake Flavours!",
+                    html: welcomeEmailTemplate({
+                        name: user.name
+                    }),
+                });
+                console.log(`Welcome email sent to ${user.email}`);
+            } catch (emailError) {
+                console.error('Failed to send welcome email:', emailError);
+                // Don't fail the request if email fails
+            }
+        }
+
+
+        return res.redirect(
+            `${process.env.FRONTEND_URL}/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+        );
     } catch (error) {
-      console.log('Error during Google login:', error);
-      
-      return res.status(500).json({
-        success: false,
-        error: error.message || 'Something went wrong during Google login'
-      });
+        console.log('Error during Google login:', error);
+       
+        return res.status(500).json({
+            success: false,
+            error: error.message || 'Something went wrong during Google login'
+        });
     }
-  };
-  
+};
+
   
 
 //logout controller
@@ -488,41 +510,46 @@ export async  function uploadAvatar(request,response){
 
 //update user details
 export async function updateUserDetails(request,response){
-    try {
-        const userId = request.userId //auth middleware
-        const { name, email, mobile, password } = request.body 
-
-        let hashPassword = ""
-       console.log("i am at update user ");
-       
-        if(password){
-            const salt = await bcryptjs.genSalt(10)
-            hashPassword = await bcryptjs.hash(password,salt)
-        }
-
-        const updateUser = await UserModel.updateOne({ _id : userId},{
-            ...(name && { name : name }),
-            ...(email && { email : email }),
-            ...(mobile && { mobile : mobile }),
-            ...(password && { password : hashPassword })
-        })
-
-        return response.json({
-            message : "Updated successfully",
-            error : false,
-            success : true,
-            data : updateUser
-        })
+  try {
+      const userId = request.userId //auth middleware
+      const { name, email, mobile, password,alt_Mobile } = request.body
+    console.log("update user details controller", request.body);
+   
+      let hashPassword = ""
+     
+      if(password){
+          const salt = await bcryptjs.genSalt(10)
+          hashPassword = await bcryptjs.hash(password,salt)
+      }
 
 
-    } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
-    }
+      const updateUser = await UserModel.updateOne({ _id : userId},{
+          ...(name && { name : name }),
+          ...(email && { email : email }),
+          ...(mobile && { mobile : mobile }),
+          ...(alt_Mobile !== undefined && { alt_Mobile: alt_Mobile }),
+          ...(password && { password : hashPassword })
+      })
+     
+      return response.json({
+          message : "Updated successfully",
+          error : false,
+          success : true,
+          data : updateUser
+      })
+
+
+
+
+  } catch (error) {
+      return response.status(500).json({
+          message : error.message || error,
+          error : true,
+          success : false
+      })
+  }
 }
+
 
 //forgot password not login
 export async function forgotPasswordController(request,response) {

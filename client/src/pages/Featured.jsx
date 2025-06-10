@@ -11,6 +11,10 @@ import Breadcrumbs from "../components/BreadCrumbs";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
+import shapegrey from "../../assets/images/Custom/shape-grey.png";
+import { GiDuration, GiIndiaGate } from "react-icons/gi";
+import { FaTruckFast } from "react-icons/fa6";
+
 
 const features = [
   {
@@ -53,6 +57,7 @@ const Featured = () => {
 
 
   const FetchFeaturedProduct = async () => {
+    console.log(FeaturedId)
     const response = await Axios({
       ...SummaryApi.getFeaturedProduct,
       data: { sectionId: FeaturedId , page:page},
@@ -72,6 +77,7 @@ const Featured = () => {
   }, [fullFeaturedParam]);
 
   useEffect(()=>{
+    if(!FeaturedId) return;
     FetchFeaturedProduct();
   },[FeaturedId])
 
@@ -113,19 +119,53 @@ const Featured = () => {
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
 
-        <div className="mt-10 mb-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-6 md:px-20">
-          {features.map((feature, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col items-center space-y-3 text-center"
-            >
-              <div className="bg-orange-400 text-white rounded-full p-4">
-                {feature.icon}
+         <img src={shapegrey} alt="" className="lg:mt-28  w-full" />
+              <div className="bg-[#FAF7F2] py-10 w-full flex justify-center">
+                <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
+                  {/* Icon 1 */}
+                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                      <GiDuration />
+                    </div>
+                    <span className="text-xs font-semibold text-center">
+                     Days Of
+                      <br /> Shelf Life
+                    </span>
+                  </div>
+        
+                  {/* Icon 2 */}
+                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                      <FaTruckFast />
+                    </div>
+                    <span className="text-xs font-semibold text-center">
+                      Delivery Within <br /> 1-2 Days
+                    </span>
+                  </div>
+        
+                  {/* Icon 3 */}
+                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                      <GiIndiaGate />
+                    </div>
+                    <span className="text-xs font-semibold text-center">
+                      Free <br /> Shipping
+                    </span>
+                  </div>
+        
+                  {/* Icon 4 */}
+                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                      <FaLeaf />
+                    </div>
+                    <span className="text-xs font-semibold text-center">
+                      No any <br /> Preservatives
+                    </span>
+                  </div>
+                </div>
               </div>
-              <p className="text-gray-800 font-medium">{feature.text}</p>
-            </div>
-          ))}
-        </div>
+        
+              <img src={shapegrey} alt="" className="w-full rotate-180" />
         <InfiniteScroll
           dataLength={FeaturedProduct.length}
           hasMore={hasmoredata}

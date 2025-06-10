@@ -378,7 +378,7 @@ const Header = () => {
                               )}
                         </div>
                         <a
-                          href="#ec-side-cart"
+                         
                           className="ec-header-btn ec-side-toggle"
                           onClick={handleOpenCart}
                         >

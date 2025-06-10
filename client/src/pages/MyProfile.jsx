@@ -32,7 +32,6 @@ const MyProfile = () => {
   const [openProfileAvatarEditMobile, setProfileAvatarEditMobile] =
     useState(false);
   //
-
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
@@ -42,14 +41,15 @@ const MyProfile = () => {
   });
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     setUserData({
       name: user.name,
       email: user.email,
       mobile: user.mobile,
       avatar: user.avatar,
-      altMobile: user.altMobile || "",
-    });
+      alt_Mobile: user.alt_Mobile || "",
+    });      
   }, [user]);
 
   useEffect(() => {}, []);
@@ -180,15 +180,15 @@ const MyProfile = () => {
             <div className="grid my-3">
               <div className="w-full relative flex rounded-xl">
                 <input
-                  name="altMobile"
-                  onChange={handleOnChange}
-                  value={userData.alt_Mobile}
                   type="text"
-                  id="AltMobile"
+                  name="alt_Mobile"
+                  value={userData.alt_Mobile}
+                  onChange={handleOnChange}
+                  id="alt_Mobile"
                   className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
                 />
                 <label
-                  htmlFor="mobile"
+                  htmlFor="alt_Mobile"
                   className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
                 >
                   Alternative Mobile No

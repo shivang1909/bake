@@ -418,7 +418,7 @@ const MyOrders = () => {
       <ProfileSideBar  activesection={"myorders"}/>
       </div>
     <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
-    <Link to="/dashboard" className="text-orange-500 flex gap-1 items-center justify-start px-2 py-3">
+    <Link to="/" className="text-orange-500 flex gap-1 items-center justify-start px-2 py-3">
     <IoCaretBackOutline/> Dashboard
     </Link>
       {/* <div className="bg-white shadow-md p-4 rounded-md font-semibold mb-4">

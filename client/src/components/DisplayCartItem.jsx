@@ -17,6 +17,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 
+
 const DisplayCartItem = ({ close, open }) => {
   const dispatch = useDispatch();
   const {
@@ -38,17 +39,16 @@ const DisplayCartItem = ({ close, open }) => {
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
 
   const [recentlyViewed, setRecentlyViewed] = useState([]);
-  
+
+
   useEffect(() => {
     const stored = localStorage.getItem("lastViewedProducts");
     if (stored) {
       setRecentlyViewed(JSON.parse(stored));
-    }
-    else{
+    } else {
       setRecentlyViewed([]);
     }
   }, [isCartOpen]);
-
 
   useEffect(() => {
     if (isCartOpen) {
@@ -65,13 +65,14 @@ const DisplayCartItem = ({ close, open }) => {
   const [activeTab, setActiveTab] = useState("cart");
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const decreaseQty = (qty, productIndex, variantIndex) => {
+  const decreaseQty =async (qty, productIndex, variantIndex) => {
     let updatedData;
     if (
       qty === 1 &&
       cartdata[productIndex].variants.length === 1 &&
       cartdata.length === 1
     ) {
+      updatedData = [];
       dispatch(updatedShoppingCart([])); // Make sure you have this action
       setCartItem([]);
     } else if (qty === 1 && cartdata[productIndex].variants.length === 1) {
@@ -144,9 +145,10 @@ const DisplayCartItem = ({ close, open }) => {
       notDiscountTotalPrice -
         cartItems[productIndex].variantPrices[variantIndex].price
     );
+    await updateQuantity(updatedData);
   };
 
-  const increaseQty = (qty, productIndex, variantIndex) => {
+  const increaseQty = async (qty, productIndex, variantIndex) => {
     // Step 1: Create a deep copy of the cart data
     let updatedData = cartdata.map((product) => ({
       ...product,
@@ -183,25 +185,23 @@ const DisplayCartItem = ({ close, open }) => {
       notDiscountTotalPrice +
         cartItems[productIndex].variantPrices[variantIndex].price
     );
+    await updateQuantity(updatedData);
   };
 
-  useEffect(() => {
-    const updateQuantity = async () => {
+      const updateQuantity = async (updatedData) => {
       try {
 
 
         // Make API call to update the cart in the database
         const response = await Axios({
           ...SummaryApi.updateCartDetails,
-          data: { cart: cartdata }, // Send the entire updated cart
+          data: { cart: updatedData }, // Send the entire updated cart
         });
         console.log("Cart updated in the database:", response.data);
       } catch (error) {
       
       }
     };
-    updateQuantity();
-  }, [cartdata]);
 
   // useEffect(() => {
   //   if (isCartOpen) {
@@ -238,7 +238,7 @@ const DisplayCartItem = ({ close, open }) => {
 
       <div
         className={`
-        bg-white w-full max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out 
+        bg-white w-full  max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out 
         ${isCartOpen ? "translate-x-0" : "translate-x-full"}
       `}
       >
@@ -281,14 +281,13 @@ const DisplayCartItem = ({ close, open }) => {
 
         {/* Cart Content */}
         {activeTab === "cart" ? (
-          <div className="flex flex-col h-[calc(100%-120px)]">
+          <div className="flex flex-col h-[calc(100vh-190px)] md:h-[calc(100vh-120px)]">
             {/* HEADER */}
 
             {/* BODY - SCROLLABLE */}
-    
+
             <div className="flex-1 overflow-auto px-2 space-y-4">
               {Array.isArray(cartItems) && cartItems.length > 0 ? (
-                
                 cartItems.map((item, productIndex) =>
                   item.variantPrices.map((variant, index) => (
                     <div
@@ -376,87 +375,94 @@ const DisplayCartItem = ({ close, open }) => {
             </div>
 
             {/* FOOTER - STICKY */}
-            {cartItems.length > 0 && 
-            <div
-              style={{ boxShadow: "0 -4px 8px rgba(0, 0, 0, 0.1)" }}
-              className="bg-white p-4 border-t font-normal text-black rounded-[35px] "
-            >
-              <h3 className="font-semibold text-lg text-center mb-3">
-                Bill Details
-              </h3>
+            {cartItems.length > 0 && (
+              <div
+                style={{ boxShadow: "0 -4px 8px rgba(0, 0, 0, 0.1)" }}
+                className={`bg-white p-4 border-t font-normal text-black rounded-[35px]  flex flex-col space-y-4`}
+              >
+                <h3 className="font-semibold text-lg text-center mb-3">
+                  Bill Details
+                </h3>
 
-              <div className="space-y-2">
-                <div className="flex gap-4 justify-between ml-1">
-                  <p>Items total</p>
-                  <p className="flex items-center gap-2">
-                    <span className="line-through text-neutral-400">
-                      {DisplayPriceInRupees(notDiscountTotalPrice)}
-                    </span>
-                    <span>{DisplayPriceInRupees(totalPrice)}</span>
-                  </p>
-                </div>
-
-
-                <div className="flex gap-4 justify-between ml-1">
-                  <p>Quantity total</p>
-                  <p>{totalQty} items</p>
-                </div>
-
-                <div className="flex gap-4 justify-between ml-1">
-                  <p>Delivery Charge</p>
-                  <p>Free</p>
-                </div>
-
-                <div className="my-4">
-                  <div className="flex items-center justify-between  py-1  font-semibold text-green-700 px-1">
-                    <p>Your total savings</p>
-                    <p>
-                      {DisplayPriceInRupees(notDiscountTotalPrice - totalPrice)}
+                <div className="space-y-2">
+                  <div className="flex gap-4 justify-between ml-1">
+                    <p>Items total</p>
+                    <p className="flex items-center gap-2">
+                      <span className="line-through text-neutral-400">
+                        {DisplayPriceInRupees(notDiscountTotalPrice)}
+                      </span>
+                      <span>{DisplayPriceInRupees(totalPrice)}</span>
                     </p>
+                  </div>
+
+                  <div className="flex gap-4 justify-between ml-1">
+                    <p>Quantity total</p>
+                    <p>{totalQty} items</p>
+                  </div>
+
+                  <div className="flex gap-4 justify-between ml-1">
+                    <p>Delivery Charge</p>
+                    <p>Free</p>
+                  </div>
+
+                  <div className="my-4">
+                    <div className="flex items-center justify-between  py-1  font-semibold text-green-700 px-1">
+                      <p>Your total savings</p>
+                      <p>
+                        {DisplayPriceInRupees(
+                          notDiscountTotalPrice - totalPrice
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="font-semibold text-[#008E97] flex items-center justify-between gap-4 ml-1">
+                    <p>Grand total</p>
+                    <p>{DisplayPriceInRupees(totalPrice)}</p>
                   </div>
                 </div>
 
-                
-                <div className="font-semibold text-[#008E97] flex items-center justify-between gap-4 ml-1">
-                  <p>Grand total</p>
-                  <p>{DisplayPriceInRupees(totalPrice)}</p>
-                </div>
-              </div>
-
-              <div className="p-2">
-                <div  onClick={redirectToCheckoutPage} className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer">
-                  <div>{DisplayPriceInRupees(totalPrice)}</div>
-                  <button
+                <div className=" px-2 p-2 bg-white ">
+                  <div
                     onClick={redirectToCheckoutPage}
-                    className="flex items-center gap-1"
+                    className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer"
                   >
-                    Proceed
-                    <span>
-                      <FaCaretRight />
-                    </span>
-                  </button>
+                    <div>{DisplayPriceInRupees(totalPrice)}</div>
+                    <button
+                      onClick={redirectToCheckoutPage}
+                      className="flex items-center gap-1"
+                    >
+                      Proceed
+                      <span>
+                        <FaCaretRight />
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            }
+            )}
           </div>
         ) : (
-          <div className="p-4">
-      <p className="font-semibold text-lg mb-2">Recently Viewed</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {recentlyViewed.map((item) => (
-          <div key={item._id} className="border p-2 rounded shadow">
-            <img
-              src={item.coverimage}
-              alt={item.name}
-              className="h-32 w-full object-cover rounded"
-            />
-            <h3 className="mt-2 font-medium">{item.name}</h3>
-            <p className="text-sm text-gray-600">₹{item.price}</p>
+          <div className="p-4 flex flex-col overflow-y-auto">
+            <p className="font-semibold text-lg mb-4">Recently Viewed</p>
+            <div className="divide-y divide-gray-200">
+              {recentlyViewed.map((item) => (
+                <div key={item._id} className="flex gap-4 py-4 items-center">
+                  <img
+                    src={item.coverimage}
+                    alt={item.name}
+                    className="h-24 w-24 object-cover rounded border"
+                  />
+                  <div className="flex-1">
+                    <h3 className="text-md font-semibold text-gray-800">
+                      {item.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">₹{item.price}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
-      </div>
-    </div>
         )}
       </div>
     </>
