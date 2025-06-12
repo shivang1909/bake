@@ -30,9 +30,10 @@ const MyDeliveries = ({ filterDelivered }) => {
   
     if (!filterDelivered) {
       console.log("inside if event source", filterDelivered);
-      eventSource = new EventSource("http://localhost:5000/events", {
-        withCredentials: true,
-      });
+      eventSource = new EventSource(
+        `${import.meta.env.VITE_API_URL}/events`,
+        { withCredentials: true }
+      );
       console.log("filterDelivered", filterDelivered);
       console.log(eventSource);
       eventSource.onmessage = (event) => {

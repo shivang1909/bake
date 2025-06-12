@@ -31,12 +31,12 @@ const Search = () => {
     }
 
   return (
-    <div className='w-full [@media(min-height:1366px)]:min-w-[30px] min-w-[300px] lg:min-w-[250px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text mt-20 lg:mt-0'>
+    <div className='md:w-full [@media(min-height:1366px)]:min-w-[30px]  lg:min-w-[200px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text mt-20 lg:mt-0 mx-5 lg:mx-0'>
         <div>
             {
                 (isMobile && isSearchPage ) ? (
-                    <Link to={"/"} className='flex justify-center items-center h-full p-2 m-1 group-focus-within:text-primary-200 bg-white rounded-full shadow-md'>
-                        <FaArrowLeft size={20}/>
+                    <Link to={"/"} className='flex justify-center items-center h-full p-2 m-1 group-focus-within:text-primary-200 bg-white rounded-full '>
+                        <FaArrowLeft size={18}/>
                     </Link>
                 ) :(
                     <button className='flex justify-center items-center h-full p-3 group-focus-within:text-primary-200'>
@@ -49,7 +49,7 @@ const Search = () => {
             {
                 !isSearchPage ? (
                      //not in search page
-                     <div onClick={redirectToSearchPage} className='w-full h-full flex items-center font-normal'>
+                     <div onClick={redirectToSearchPage} className='w-full h-full flex items-center font-normal '>
                         <TypeAnimation
                                 sequence={[
                                     // Same substring at the start will only be typed out once, initially
@@ -59,7 +59,7 @@ const Search = () => {
                                     500,
                                     '"Rajwadi Dalmuth"',
                                     500,
-                                    '"Anjir Dry Fruit Halvo"',
+                                    '"Anjir Dry Fruit"',
                                     500,
                                     '"Badam Barfi"',
                                     500,
@@ -69,7 +69,7 @@ const Search = () => {
                                     500,
                                     '"Kaju Maisoor"',
                                     500,
-                                    '"Dry Fruit Suki Kachori "',
+                                    '"Dry Fruit kachori "',
                                 ]}
                                 wrapper="span"
                                 speed={50}
@@ -81,7 +81,7 @@ const Search = () => {
                     <div className='w-full h-full font-normal'>
                         <input
                             type='text'
-                            placeholder='Search for Sweet, Namkeen, Bakery, Cookies, Dry Fruite.'
+                            placeholder='Search..'
                             autoFocus
                             defaultValue={searchText}
                             className='bg-transparent w-full h-full outline-none'

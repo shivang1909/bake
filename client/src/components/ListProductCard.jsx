@@ -3,9 +3,14 @@ import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import renderStars from "./RenderStars";
+import { valideURLConvert } from "../utils/valideURLConvert";
+import { Link } from "react-router-dom";
 
 const ListProductCard = ({ product, setCartProduct }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isloaded, setloaded] = useState(true);
+
+  const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
 
   const handleAddToCart = (product) => {
     setCartProduct(product);
@@ -20,7 +25,10 @@ const ListProductCard = ({ product, setCartProduct }) => {
         className="bg-white border shadow-sm rounded-2xl mb-3 m-0 md:m-4  md:min-h-[200px] relative  duration-200 transition-all flex"
       >
         {/* Product Image */}
-        <div className="justify-center w-2/5 items-center flex bg-gray-50 rounded-l-2xl">
+        <Link to={url}
+        className="justify-center w-2/5 items-center flex bg-gray-50 rounded-l-2xl"
+state={isloaded}>
+        <div className="">
          <div className="h-32 w-32">
             <img
               src={product.coverimage}
@@ -31,6 +39,7 @@ const ListProductCard = ({ product, setCartProduct }) => {
           
          </div>
         </div>
+        </Link>
 
         {/* Product Details */}
         <div className="flex flex-col py-3 px-3 justify-between w-3/5 space-y-4 ">
@@ -38,6 +47,8 @@ const ListProductCard = ({ product, setCartProduct }) => {
             className="cursor-pointer active:scale-95 space-y-2"
             onClick={() => onView(product)}
           >
+            <Link to={url}
+state={isloaded}>
             <div className="text-left">
               <div
                 className="relative inline-block"
@@ -72,6 +83,7 @@ const ListProductCard = ({ product, setCartProduct }) => {
               </p>
               {/* <p className="text-[12px] text-zinc-700 font-semibold italic mb-2">{product.weight}</p> */}
             </div>
+            </Link>
 
             {/* Star Rating */}
             <div className="flex gap-1 mt-1">

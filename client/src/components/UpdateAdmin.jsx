@@ -19,7 +19,7 @@ const UpdateUserPage = ({userdetail,isRedirect,updateData,uindex}) => {
     e.preventDefault();
     try {
       // const token = localStorage.getItem('authToken'); // Get the token from localStorage
-      await axios.put(`http://localhost:5000/api/admin/update/${userdetail._id}`, user, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/update/${userdetail._id}`, user, {
         withCredentials: true,
       });
       isRedirect(false);

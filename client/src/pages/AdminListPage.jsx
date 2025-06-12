@@ -29,7 +29,7 @@ const AdminListPage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/delete/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/delete/${id}`, {
         withCredentials: true,
       });
 

@@ -7,7 +7,7 @@ import SummaryApi from "../common/SummaryApi";
 import ProductCard from "../components/ProductCard";
 import ProductLoader from "../components/ProductLoader";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
-import Breadcrumbs from "../components/BreadCrumbs";
+import Breadcrumbs from "../components/Breadcrumbs";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -92,7 +92,7 @@ const Featured = () => {
 
   return (
     <>
-      <div className="bg-gray-50 min-h-screen py-8 lg:mt-20">
+      <div className=" min-h-screen py-8 mt-20">
         <style>
           {`
           @font-face {
@@ -103,7 +103,7 @@ const Featured = () => {
           }
         `}
         </style>
-        <div className=" flex flex-col items-center text-center space-y-2">
+        <div className=" flex flex-col items-center text-center space-y-2 mb-10">
           <span
             className="text-5xl md:text-7xl font-thin text-[#1e293b] flex justify-center items-center gap-2"
             style={{ fontFamily: "Bartex, sans-serif" }}

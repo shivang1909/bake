@@ -379,7 +379,7 @@ const ProductDisplayPageNew = () => {
             </div>
 
             <div className="block md:hidden mt-10 max-w-md">
-              <div className="flex gap-3 justify-between ">
+              {/* <div className="flex gap-3 justify-between ">
                 <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                   <div className="text-orange-600 text-4xl bg-gray-100 px-2 py-2 rounded-full w-fit">
                     <GiDuration />
@@ -405,15 +405,15 @@ const ProductDisplayPageNew = () => {
                     No Preservatives
                   </span>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="samplebanner mt-4">
+              {/* <div className="samplebanner mt-4">
                 <img
                   src={SampleBanner}
                   alt=""
                   className="rounded-xl block md:hidden"
                 />
-              </div>
+              </div> */}
 
               {/* <ul className="mt-4 grid grid-cols-2 w-full list-disc list-inside text-gray-800 font-semibold space-y-2">
               <li className="flex gap-2 items-center">
@@ -534,7 +534,7 @@ const ProductDisplayPageNew = () => {
 
       <img src={shapegrey} alt="" className="w-full rotate-180" />
 
-      <div className="lg:mt-28 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm">
+      <div className="lg:mt-28 mt-8 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm">
         <div className="flex justify-between items-center pl-5  lg:pl-7 pt-4 mb-2">
           <span className="text-lg lg:text-2xl font-semibold">
             We Think You'll Like These Too!

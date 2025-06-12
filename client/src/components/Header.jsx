@@ -34,10 +34,12 @@ import { SiZomato } from "react-icons/si";
 import { RiCustomerServiceLine } from "react-icons/ri";
 import { logout } from "../store/userSlice";
 import { valideURLConvert } from "../utils/valideURLConvert.js";
+import UserDefault from "../../assets/images/Custom/user.png";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { fetchCartDetails, totalQty, isSearchOpen, setIsSearchOpen } = useGlobalContext();
+  const { fetchCartDetails, totalQty, isSearchOpen, setIsSearchOpen } =
+    useGlobalContext();
   const [isMobile] = useMobile();
   // const isCartOpen = useSelector((state) => state.loading.isCartOpen);
   const location = useLocation();
@@ -62,7 +64,7 @@ const Header = () => {
   // const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [Featured, setFeatured] = useState([
-    { sectionName: "", sectionId: null }
+    { sectionName: "", sectionId: null },
   ]);
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileHeader, setShowMobileHeader] = useState(true);
@@ -74,7 +76,7 @@ const Header = () => {
     } else {
       document.body.style.overflow = "";
     }
-  
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = "";
@@ -87,14 +89,13 @@ const Header = () => {
         setIsMenuOpen(false); // close menu on large devices
       }
     };
-  
+
     // Initial check
     handleResize();
-  
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,9 +122,9 @@ const Header = () => {
   const fetchAllFeatured = async () => {
     try {
       const response = await Axios(SummaryApi.getallHomepageSection);
-      const simplified = response.data.map(item => ({
+      const simplified = response.data.map((item) => ({
         sectionName: item.sectionName,
-        sectionId: item._id
+        sectionId: item._id,
       }));
       setFeatured(simplified);
     } catch (err) {
@@ -266,8 +267,11 @@ const Header = () => {
       <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
 
       <header className="ec-header">
-        <div className={`header-top d-md-block d-lg-none text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm ${
-          showMobileHeader ? "translate-y-0" : "-translate-y-full"}`}> 
+        <div
+          className={`header-top d-md-block d-lg-none text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm ${
+            showMobileHeader ? "translate-y-0" : "-translate-y-full"
+          }`}
+        >
           <div className="container">
             <div className="row align-items-center">
               <div className="col text-left header-top-left d-none d-lg-block">
@@ -347,39 +351,29 @@ const Header = () => {
                   <i className="fi-rr-menu-burger"></i>
                 </a>
                 <Link to="/">
-                <img
-                  src={Logo}
-                  alt="Site Logo"
-                  className="mx-auto w-20 h-auto"
-                />
-                  </Link>
+                  <img
+                    src={Logo}
+                    alt="Site Logo"
+                    className="mx-auto w-20 h-auto"
+                  />
+                </Link>
                 <div className="col d-lg-none ">
-                  <div className="ec-header-bottons">
+                  <div className="ec-header-bottons flex items-center">
+                    <Link to="/search">
+                    <span
+                      className="text-3xl -mb-1 flex justify-center items-center  transition-all duration-300 active:scale-95 cursor-pointer"
+                     
+                    >
+                      
+                        <IoIosSearch />
+                     
+                    </span>
+                    </Link>
+                    
                     {user._id ? (
                       <>
-                        <div
-                          className="ec-header-user dropdown"
-                          onClick={() => setOpenUserMenu((prev) => !prev)}
-                        >
-                          {user.avatar ? (
-                                <div className="h-10 w-10">
-                                  <img
-                                    src={user.avatar}
-                                    className="h-full w-full object-cover border border-gray-300 rounded-full"
-                                    alt="user"
-                                  />
-                                </div>
-                              ) : (
-                                <img
-                                  src="../../assets/images/Custom/user.png"
-                                  className="h-10 w-10 border border-gray-300 rounded-full"
-                                  alt="user"
-                                />
-                              )}
-                        </div>
                         <a
-                         
-                          className="ec-header-btn ec-side-toggle"
+                          className="ec-header-btn ec-side-toggle -mb-2"
                           onClick={handleOpenCart}
                         >
                           <div className="header-icon">
@@ -393,6 +387,29 @@ const Header = () => {
                             ``
                           )}
                         </a>
+
+                        <div
+                          className="ec-header-user dropdown"
+                          onClick={() => setOpenUserMenu((prev) => !prev)}
+                        >
+                          {user.avatar ? (
+                            <div className="h-8 w-8 ml-3 mx-2">
+                              <img
+                                src={user.avatar}
+                                className="h-full w-full object-cover border border-gray-300 rounded-full"
+                                alt="user"
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-8 w-8 ml-3 mx-2">
+                              <img
+                                src={UserDefault}
+                                className="h-full w-full border-2 border-gray-300 rounded-full"
+                                alt="user"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </>
                     ) : (
                       <>
@@ -404,16 +421,6 @@ const Header = () => {
                         </button>
                       </>
                     )}
-                    <span
-                      className="text-3xl ml-2 flex justify-center items-center mb-1 transition-all duration-300 active:scale-95 cursor-pointer"
-                      onClick={handleOpenSearch}
-                    >
-                      {isSearchOpen ? (
-                        <RxCross2 className="text-red-400" />
-                      ) : (
-                        <IoIosSearch />
-                      )}
-                    </span>
 
                     {/* <a href="wishlist.html" className="ec-header-btn ec-header-wishlist">
                                 <div className="header-icon"><i className="fi-rr-heart"></i></div>
@@ -427,25 +434,24 @@ const Header = () => {
         </div>
 
         <div
-        className={`ec-header-bottom d-none d-lg-block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 ${
-          showHeader ? "translate-y-0" : "-translate-y-full"
-        }`}
-      >
+          className={`ec-header-bottom d-none d-lg-block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 ${
+            showHeader ? "translate-y-0" : "-translate-y-full"
+          }`}
+        >
           <div className="container position-relative">
             <div className="row">
               <div className="ec-flex">
                 <div className="align-self-center flex">
                   <div className="header-logo">
                     <a href="/">
-                    <Link to="/">
-                    
-                      <img src={Logo} alt="Site Logo" />
-                      <img
-                        className="dark-logo"
-                        src={Logo}
-                        alt={Logo}
-                        style={{ display: "none" }}
-                      />
+                      <Link to="/">
+                        <img src={Logo} alt="Site Logo" />
+                        <img
+                          className="dark-logo"
+                          src={Logo}
+                          alt={Logo}
+                          style={{ display: "none" }}
+                        />
                       </Link>
                     </a>
                   </div>
@@ -477,7 +483,6 @@ const Header = () => {
                                 <ul className="sub-menu">
                                   {categories.map((cat) => (
                                     <li key={cat._id}>
-                                      
                                       <Link
                                         to={`/Category/${valideURLConvert(
                                           cat.name
@@ -492,11 +497,9 @@ const Header = () => {
                               <li className="dropdown">
                                 <a href="javascript:void(0)">Featured</a>
                                 <ul className="sub-menu">
-                                {Featured.map((featured) => (
+                                  {Featured.map((featured) => (
                                     <li key={featured.sectionId}>
-                                     
                                       <Link
-                                      
                                         to={`/Featured/${valideURLConvert(
                                           featured.sectionName
                                         )}-${featured.sectionId}`}
@@ -559,7 +562,7 @@ const Header = () => {
 
                 <div className="">
                   <div className="ec-header-bottons">
-                    <div className="mt-1 overflow-hidden">
+                    <div className="mt-1 px-3 overflow-hidden">
                       <Search />
                     </div>
                     <div className="ec-header-user dropdown">
@@ -748,7 +751,17 @@ const Header = () => {
           </div>
         </div>
 
-        <div class="ec-menu-overlay"></div>
+        {isMenuOpen && (
+          <div
+            className={`fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${
+              isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+            onClick={() => {
+              setIsMenuOpen(false);
+              setSubmenuOpen(false);
+            }}
+          ></div>
+        )}
 
         <div
           id="ec-mobile-menu"
@@ -758,14 +771,19 @@ const Header = () => {
         >
           <div className="ec-menu-title">
             <span className="menu_title">Explore Flavours</span>
-            <button className="ec-close" onClick={() => setIsMenuOpen(false)}>
+            <button
+              className="ec-close"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setSubmenuOpen(false);
+              }}
+            >
               ×
             </button>
           </div>
           <div class="ec-menu-inner">
             <div class="ec-menu-content">
               <ul className="flex flex-col space-y-2 text-[15px] tracking-wider gap-2 font-bold ">
-                {/* offers */}
                 <Link to="/" onClick={() => setIsMenuOpen(false)}>
                   <li>
                     <div className="flex justify-between items-center cursor-pointer">
@@ -781,7 +799,7 @@ const Header = () => {
                   </li>
                 </Link>
                 {/* Categories */}
-                <li>
+                <li className="">
                   <div
                     className="flex justify-between items-center cursor-pointer"
                     onClick={() => toggleSubmenu("categories")}
@@ -792,81 +810,63 @@ const Header = () => {
 
                   {/* Submenu under Categories */}
                   <ul
-                    className={`pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "categories"
-                        ? "max-h-[300px] overflow-y-auto"
-                        : "max-h-0"
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2 mt-2 justify-center">
-                      {categories.map((cat) => (
-                        <li key={cat._id} className="rounded-2xl">
-                          <Link
-                            to={`/Category/${valideURLConvert(cat.name)}-${
-                              cat._id
-                            }`}
-                          >
-                            <a>{cat.name}</a>
-                          </Link>
-                        </li>
-                      ))}
-                    </div>
-                  </ul>
-                  <ul class="sub-menu">
-                    <li>
-                      <a class="p-0" href="shop-left-sidebar-col-3.html">
-                        <img
-                          class="img-responsive"
-                          src="assets/images/menu-banner/1.jpg"
-                          alt=""
-                        />
-                      </a>
-                    </li>
-                  </ul>
+  className={`pl-2 mt-1 overflow-hidden transition-all duration-300 ease-in-out
+    scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100
+    ${submenuOpen === "categories" ? "max-h-[200px] overflow-y-auto" : "max-h-0"}
+  `}
+>
+  {categories.map((cat) => (
+    <li key={cat._id} className="mt-2">
+      <Link
+        onClick={() => {
+          setIsMenuOpen(false);
+          setSubmenuOpen(false);
+        }}
+        to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`}
+        className="block border-b border-gray-300 hover:text-orange-500"
+      >
+        {cat.name}
+      </Link>
+    </li>
+  ))}
+</ul>
+
                 </li>
 
                 <li>
                   <div
                     className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleSubmenu("Offers")}
+                    onClick={() => toggleSubmenu("featured")}
                   >
-                    <span>Offers</span>
-                    <span>{submenuOpen === "Offers" ? "−" : "+"}</span>
+                    <span>Featured New</span>
+                    <span>{submenuOpen === "featured" ? "−" : "+"}</span>
                   </div>
 
                   {/* Submenu under Categories */}
                   <ul
                     className={`pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "Offers" ? "max-h-[500px]" : "max-h-0"
+                      submenuOpen === "featured"
+                        ? "max-h-[200px] overflow-y-auto"
+                        : "max-h-0"
                     }`}
                   >
-                    <div className="mt-2 gap-2 flex flex-wrap">
-                      <li>
-                        <a class="p-0" href="shop-left-sidebar-col-3.html">
-                          <img
-                            class="img-responsive rounded-lg"
-                            src={SampleOffer}
-                            alt=""
-                          />
-                        </a>
-                      </li>
-                      <li>
-                        <a class="p-0" href="shop-left-sidebar-col-3.html">
-                          <img
-                            class="img-responsive rounded-lg"
-                            src={SampleOffer}
-                            alt=""
-                          />
-                        </a>
-                      </li>
+                    <div className="flex flex-col gap-2 mt-2 justify-center">
+                      {Featured.map((featured) => (
+                        <li key={featured._id} className="rounded-2xl">
+                          <Link
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              setSubmenuOpen(false);
+                            }}
+                            to={`/Featured/${valideURLConvert(
+                              featured.sectionName
+                            )}-${featured.sectionId}`}
+                          >
+                            {featured.sectionName}
+                          </Link>
+                        </li>
+                      ))}
                     </div>
-                  </ul>
-                  <ul class="sub-menu">
-                    <li>
-                      <a class="p-0" href="shop-left-sidebar-col-3.html">
-                        <img class="img-responsive" src={SampleOffer} alt="" />
-                      </a>
-                    </li>
                   </ul>
                 </li>
                 {/* Account */}
@@ -950,7 +950,7 @@ const Header = () => {
             </div>
           </div>
           {/* Bottom Section: Help Center + Social Icons */}
-          <div className="flex flex-col mt-auto px-4 space-y-4">
+          <div className="flex flex-col mt-auto z-50 fixed bottom-5 space-y-4">
             {/* Help Center */}
             <div className="border-b pb-3 pt-4 ">
               <ul className="text-[15px] font-bold">

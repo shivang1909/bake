@@ -303,7 +303,7 @@ const OrderListPage = () => {
   
     // Set up the EventSource for real-time updates
     try {
-      eventSource = new EventSource("http://localhost:5000/eventsadmin", { withCredentials: true });
+      eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/eventsadmin`, { withCredentials: true });
     } catch (error) {
       console.log(error);
     }

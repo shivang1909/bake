@@ -144,7 +144,7 @@ const ShopAll = () => {
 
           <div className="fixed inset-0 z-40 flex">
             <DialogPanel
-              className={`relative ml-auto flex h-full w-60 flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl transform transition-transform duration-300 ease-in-out ${
+              className={`relative ml-auto flex h-full w-60 flex-col  bg-white py-4 pb-12 shadow-xl transform transition-transform duration-300 ease-in-out ${
                 mobileFiltersOpen ? "translate-x-0" : "translate-x-full"
               }`}
             >
@@ -163,7 +163,7 @@ const ShopAll = () => {
               </div>
 
               {/* Filters */}
-              <form className="mt-4 border-t border-gray-200">
+              <form className="mt-4 border-t overflow-y-auto border-gray-200">
                 {/* <h3 className="sr-only">Categories</h3> */}
                 <span className="font-bold text-xl flex items-center gap-2 px-4 py-3">
                   <AiOutlineProduct />
@@ -171,13 +171,13 @@ const ShopAll = () => {
                 </span>
                 <ul role="list" className="px-6 py-3 font-medium text-gray-900">
                   {allCatagory.map((category) => (
-                    <li key={category.name}>
+                    <li key={category._id}>
                       <article className="checkbox-container flex items-center space-x-1">
                         <label className="checkbox">
                           <input
                             type="checkbox"
-                            id={category.name}
-                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                            id={category._id}
+                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
                             onChange={(e) => {
                               console.log(
                                 "Checkbox changed:",
@@ -193,15 +193,12 @@ const ShopAll = () => {
                                       (cat) => cat !== category._id
                                     )
                                   );
-                              console.log(
-                                "Current categories:",
-                                Category
-                              );
+                              
                             }}
                           />
                         </label>
                         <label
-                          htmlFor={category.name}
+                          htmlFor={category._id}
                           className="cursor-pointer"
                         >
                           {category.name}
@@ -345,7 +342,7 @@ const ShopAll = () => {
                                       );
                                     }}
                                     id={category.name}
-                                    className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                    className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
                                   />
                                 </label>
                                 <label

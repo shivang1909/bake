@@ -14311,10 +14311,7 @@ li {
       -ms-flex-pack: end;
           justify-content: flex-end;
 }
-.ec-header-bottons > * + * {
-  padding-right: 9px;
-  margin-left: 27px;
-}
+
 .ec-header-bottons .ec-header-btn {
   position: relative;
   display: -webkit-box;

@@ -13,7 +13,7 @@ import { BsChevronRight } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { TbTruckDelivery } from "react-icons/tb";
 import { LuBox } from "react-icons/lu";
-import { IoChatboxEllipsesOutline } from "react-icons/io5";
+import { IoCaretBackOutline, IoChatboxEllipsesOutline } from "react-icons/io5";
 import { AiOutlineLogout } from "react-icons/ai";
 // import "./Profile.css";
 import { IoArrowBackOutline } from "react-icons/io5";
@@ -22,6 +22,7 @@ import AddAddress from "./Address";
 import { Link } from "react-router-dom";
 import ProfileSideBar from "../components/ProfileSideBar";
 import { FaPencilAlt } from "react-icons/fa";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const MyProfile = () => {
   const user = useSelector((state) => state.user);
@@ -41,7 +42,6 @@ const MyProfile = () => {
   });
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
     setUserData({
       name: user.name,
@@ -49,7 +49,7 @@ const MyProfile = () => {
       mobile: user.mobile,
       avatar: user.avatar,
       alt_Mobile: user.alt_Mobile || "",
-    });      
+    });
   }, [user]);
 
   useEffect(() => {}, []);
@@ -83,12 +83,30 @@ const MyProfile = () => {
   };
   return (
     <>
-      <div className="mt-10 md:mt-20 lg:mt-20 mb-10 flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
+      <div className="mt-10 md:mt-20 lg:mt-20 mb-10 flex flex-col md:flex-row md:gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
+
+        {/* <div className="sm:block md:hidden flex justify-between items-center ">
+          <Link
+          to="/"
+          className="text-gray-500 flex gap-1 items-center justify-start px-2 py-3 mt-5"
+        >
+          <IoCaretBackOutline /> Go Back
+        </Link>
+
+        <div className="px-2 py-3 mt-5 flex items-center gap-1">
+         <span className="text-gray-700"> My Profile</span>
+        </div>
+        </div> */}
+        
+        {/* <div className="border w-full">
+
+        </div> */}
+        
         <div>
           <ProfileSideBar activesection={"Myprofile"} />
         </div>
 
-        <div className="md:w-3/4 w-full bg-white  rounded-xl border p-6 h-full  mt-5 relative">
+        <div className="md:w-3/4 w-full bg-white  rounded-xl p-6 h-full mt-5 relative">
           <div className="flex flex-col items-center mb-8 relative">
             <div className="relative w-24 h-24">
               <div className="w-full h-full rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">

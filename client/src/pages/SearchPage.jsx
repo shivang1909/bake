@@ -13,6 +13,7 @@ import OfferBanner3 from "../../assets/images/Custom/Offer_banner_3.gif";
 import OfferBanner4 from "../../assets/images/Custom/Offer_banner_4.webp";
 import SelectFood from "../../assets/images/Custom/SelectFood.gif";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
+import Search from "../components/Search";
 // import Lottie from "lottie-react";
 // import SearchJson from "../../assets/images/Custom/SearchFood.json";
 
@@ -79,8 +80,11 @@ const SearchPage = () => {
 
   return (
     <>
-    <section className="bg-white font-normal mt-20">
-      <div className="container mx-auto p-4 justify-center">
+    <section className="bg-white font-normal ">
+      <span className="block md:hidden">
+       <Search/>
+      </span>
+      <div className="container mx-auto px-0 py-4 justify-center lg:mt-10">
         {searchText.trim() ? (
           <>
             <p className="font-normal text-center text-lg py-5">
@@ -93,13 +97,13 @@ const SearchPage = () => {
               hasMore={page < totalPage}
               next={handleFetchMore}
             >
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 justify-center px-28 items-center">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 lg:mx-2 gap-0 md:gap-4 lg:gap-4 justify-center lg:px-28 items-center">
                 {data.map((p, index) => (
                   <ProductCard
                     setCartProduct={setCartProduct}
                     product={p}
                     key={p?._id + "searchProduct" + index}
-                    className="rounded-[15px] min-w-[200px] max-w-[200px] md:min-w-[220px]"
+                    className="md:rounded-[15px] min-w-[150px] max-w-[200px] md:min-w-[220px] rounded-none"
                   />
                 ))}
 

@@ -28,7 +28,8 @@ import { FaAngleUp } from "react-icons/fa6";
 import { CiGift } from "react-icons/ci";
 import { CiEdit } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa6";
-import { AnimatePresence, motion } from "framer-motion";
+
+import { IoCaretBackOutline } from "react-icons/io5";
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -44,8 +45,14 @@ const useMediaQuery = (query) => {
   return matches;
 };
 
-
-const Accordion = ({ title, children, isOpen, onToggle, footerButton }) => {
+const Accordion = ({
+  title,
+  children,
+  isOpen,
+  onToggle,
+  footerButton,
+  onPrevious,
+}) => {
   const accordionRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -75,7 +82,14 @@ const Accordion = ({ title, children, isOpen, onToggle, footerButton }) => {
         <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 mt-16">
           <div className="flex justify-between items-center">
             <span>{title}</span>
-            <button onClick={onToggle} className="text-xl">−</button>
+            {onPrevious && (
+              <button
+                onClick={onPrevious}
+                className="text-sm flex items-center font-medium text-indigo-600 "
+              >
+                <IoCaretBackOutline /> Previous
+              </button>
+            )}
           </div>
         </div>
 
@@ -103,8 +117,6 @@ const Accordion = ({ title, children, isOpen, onToggle, footerButton }) => {
     </div>
   );
 };
-
-
 
 const CheckoutPage = () => {
   const [openAddress, setOpenAddress] = useState(false);
@@ -136,12 +148,13 @@ const CheckoutPage = () => {
   const handleAddressComplete = () => setOpenSection("product");
   const handleProductComplete = () => setOpenSection("promo");
   const handlePromoComplete = () => setOpenSection("checkout");
-  const [isAnimating, setIsAnimating] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const promoRef = useRef(null);
   const promoRefAlt = useRef(null);
-   
+
   useEffect(() => {
     const orderCompleted = sessionStorage.getItem("orderCompleted");
     if (orderCompleted === "true") {
@@ -153,19 +166,12 @@ const CheckoutPage = () => {
   }, [navigate]);
 
   const vibrate = () => {
-    if ('vibrate' in navigator) {
+    if ("vibrate" in navigator) {
       navigator.vibrate(200);
     }
   };
 
-
   const handleClick = () => {
-    if (!isAnimating) {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 10000); // 10 seconds animation
-    }
     vibrate();
     if (selectedMethod === "cod") {
       handleCashOnDelivery();
@@ -185,9 +191,9 @@ const CheckoutPage = () => {
       return () => clearTimeout(timeout);
     }
   }, [openAddress]);
- useEffect(() => {
-  console.log("useeffect for check out items",checkoutItems)
- },[checkoutItems]);
+  useEffect(() => {
+    console.log("useeffect for check out items", checkoutItems);
+  }, [checkoutItems]);
   useEffect(() => {
     if (appliedPromocode && promoRef.current) {
       // Trigger smooth iPhone-style vibration
@@ -335,104 +341,103 @@ const CheckoutPage = () => {
   // };
 
   // Apply promocode
- const handleGiftWrapChange = (
-  productIndex,
-  variantIndex,
-  weight,
-  isChecked
-) => {
-  const quantity =
-    checkoutItems[productIndex].variantPrices[variantIndex].quantity;
-  const pricePerWrap = giftWrapChargesList[weight];
+  const handleGiftWrapChange = (
+    productIndex,
+    variantIndex,
+    weight,
+    isChecked
+  ) => {
+    const quantity =
+      checkoutItems[productIndex].variantPrices[variantIndex].quantity;
+    const pricePerWrap = giftWrapChargesList[weight];
 
-  if (isChecked) {
-    // Set number of gift notes
-    setGiftNoteQtys((prev) => ({
-      ...prev,
-      [`${productIndex}-${variantIndex}`]: quantity,
-    }));
+    if (isChecked) {
+      // Set number of gift notes
+      setGiftNoteQtys((prev) => ({
+        ...prev,
+        [`${productIndex}-${variantIndex}`]: quantity,
+      }));
 
-    // Initialize notes
-    const initialNotes = {};
-    for (let i = 0; i < quantity; i++) {
-      initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
+      // Initialize notes
+      const initialNotes = {};
+      for (let i = 0; i < quantity; i++) {
+        initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
+      }
+      setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
+
+      // Add to total charge
+      setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
+
+      // ✅ Update checkout items with isGiftWrap and giftWrapCharge
+      setcheckoutItems((prev) => {
+        const updated = [...prev];
+        updated[productIndex] = {
+          ...updated[productIndex],
+          variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
+            i === variantIndex
+              ? {
+                  ...variant,
+                  isGiftWrap: true,
+                  giftWrapCharge: quantity * pricePerWrap,
+                }
+              : variant
+          ),
+        };
+        return updated;
+      });
+    } else {
+      // Remove notes
+      setGiftNotes((prev) => {
+        const updated = { ...prev };
+        for (let i = 0; i < quantity; i++) {
+          delete updated[`${productIndex}-${variantIndex}-${i}`];
+        }
+        return updated;
+      });
+
+      // Remove editables
+      setGiftNoteEditable((prev) => {
+        const updated = { ...prev };
+        for (let i = 0; i < quantity; i++) {
+          delete updated[`${productIndex}-${variantIndex}-${i}`];
+        }
+        return updated;
+      });
+
+      // Remove qty
+      setGiftNoteQtys((prev) => {
+        const updated = { ...prev };
+        delete updated[`${productIndex}-${variantIndex}`];
+        return updated;
+      });
+
+      // Deduct gift wrap charges
+      setGiftWrapCharges(
+        (prev) =>
+          prev -
+          pricePerWrap *
+            (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
+      );
+
+      // ✅ Update checkout items: remove giftWrapCharge
+      setcheckoutItems((prev) => {
+        const updated = [...prev];
+        updated[productIndex] = {
+          ...updated[productIndex],
+          variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
+            i === variantIndex
+              ? {
+                  ...variant,
+                  isGiftWrap: false,
+                  giftWrapCharge: 0,
+                }
+              : variant
+          ),
+        };
+        return updated;
+      });
     }
-    setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
-
-    // Add to total charge
-    setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
-
-    // ✅ Update checkout items with isGiftWrap and giftWrapCharge
-    setcheckoutItems((prev) => {
-      const updated = [...prev];
-      updated[productIndex] = {
-        ...updated[productIndex],
-        variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
-          i === variantIndex
-            ? {
-                ...variant,
-                isGiftWrap: true,
-                giftWrapCharge: quantity * pricePerWrap,
-              }
-            : variant
-        ),
-      };
-      return updated;
-    });
-  } else {
-    // Remove notes
-    setGiftNotes((prev) => {
-      const updated = { ...prev };
-      for (let i = 0; i < quantity; i++) {
-        delete updated[`${productIndex}-${variantIndex}-${i}`];
-      }
-      return updated;
-    });
-
-    // Remove editables
-    setGiftNoteEditable((prev) => {
-      const updated = { ...prev };
-      for (let i = 0; i < quantity; i++) {
-        delete updated[`${productIndex}-${variantIndex}-${i}`];
-      }
-      return updated;
-    });
-
-    // Remove qty
-    setGiftNoteQtys((prev) => {
-      const updated = { ...prev };
-      delete updated[`${productIndex}-${variantIndex}`];
-      return updated;
-    });
-
-    // Deduct gift wrap charges
-    setGiftWrapCharges(
-      (prev) =>
-        prev -
-        pricePerWrap *
-          (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
-    );
-
-    // ✅ Update checkout items: remove giftWrapCharge
-    setcheckoutItems((prev) => {
-      const updated = [...prev];
-      updated[productIndex] = {
-        ...updated[productIndex],
-        variantPrices: updated[productIndex].variantPrices.map((variant, i) =>
-          i === variantIndex
-            ? {
-                ...variant,
-                isGiftWrap: false,
-                giftWrapCharge: 0,
-              }
-            : variant
-        ),
-      };
-      return updated;
-    });
-  }
- 
-};
+  };
 
   const applyPromocode = async () => {
     if (!selectedPromocode) {
@@ -453,7 +458,7 @@ const CheckoutPage = () => {
 
       if (response.data.success) {
         setAppliedPromocode(selectedPromocode);
-       
+
         setPromocodeDiscount(response.data.data.discountAmount);
         toast.success("Promocode applied successfully!");
         setShowPromocodes(false);
@@ -537,12 +542,11 @@ const CheckoutPage = () => {
   //     AxiosToastError(error);
   //   }
   // };
-  
 
   const handleCashOnDelivery = async () => {
     try {
       toast.loading("Processing order...");
-      console.log("checkoutitems",checkoutItems);
+      console.log("checkoutitems", checkoutItems);
 
       // Prepare items with gift notes
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
@@ -564,7 +568,6 @@ const CheckoutPage = () => {
       }));
       console.log("itemwithgiftdetailss", itemsWithGiftDetails);
 
-
       const response = await Axios({
         ...SummaryApi.CashOnDeliveryOrder,
         data: {
@@ -582,14 +585,24 @@ const CheckoutPage = () => {
 
       if (responseData.success) {
         toast.success(responseData.message);
+
+        // Reset cart data
         setGiftWrapCharges(0);
         setCartItem([]);
         dispatch(updatedShoppingCart([]));
         setTotalQty(0);
-        navigate("/success", {
-          replace: true,            
-          state: { fromCheckout: true }  // Optional: Use to verify the route origin
-        });  
+
+        // Trigger animation and navigate after 10s
+        if (!isAnimating) {
+          setIsAnimating(true);
+          setTimeout(() => {
+            setIsAnimating(false);
+            navigate("/success", {
+              replace: true,
+              state: { fromCheckout: true },
+            });
+          }, 7000); // 10 second delay for animation
+        }
       }
     } catch (error) {
       toast.dismiss();
@@ -599,7 +612,9 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
+      setIsProcessingOrder(true); // 🚨 Start blocking user
+
+      const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
         ...item,
         variantPrices: item.variantPrices.map((variant, vIndex) => {
           const notes = [];
@@ -616,15 +631,14 @@ const CheckoutPage = () => {
           };
         }),
       }));
+
       const response = await Axios({
         ...SummaryApi.payment_url,
-        data: {
-          amount: grandTotal,
-        },
+        data: { amount: grandTotal },
       });
-      console.log(response);
+
       const order = response.data;
-      console.log("order", order);
+
       const options = {
         key: "rzp_test_SXcix9cPDGx5eU",
         amount: order.amount,
@@ -633,46 +647,58 @@ const CheckoutPage = () => {
         description: "Test Transaction",
         order_id: order.id,
         handler: async (response) => {
-          console.log("Razorpay Response:", response);
+          try {
+            console.log("Razorpay Response:", response);
 
-          const verifyRes = await fetch(
-            "http://localhost:5000/api/order/verifyPayment",
-            {
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json", // Important!
-              },
-              method: "POST",
-              body: JSON.stringify({
-                ...response,
-                list_items: itemsWithGiftDetails,
-                addressId: addressList[selectAddress]?._id,
-                special_Gift_packing: GiftWrapCharges,
-                total:
-                  finalTotal -
-                  discountedPrice -
-                  promocodeDiscount +
-                  GiftWrapCharges,
-                promocodeId: appliedPromocode?._id || null,
-                promocodeDiscount: promocodeDiscount || 0,
-                
-                amount: order.amount, // Include `amount` in verification
-              }),
+            const verifyRes = await fetch(
+              `${import.meta.env.VITE_API_URL}/api/order/verifyPayment`,
+              {
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({
+                  ...response,
+                  list_items: itemsWithGiftDetails,
+                  addressId: addressList[selectAddress]?._id,
+                  special_Gift_packing: GiftWrapCharges,
+                  total:
+                    finalTotal -
+                    discountedPrice -
+                    promocodeDiscount +
+                    GiftWrapCharges,
+                  promocodeId: appliedPromocode?._id || null,
+                  promocodeDiscount: promocodeDiscount || 0,
+                  amount: order.amount,
+                }),
+              }
+            );
+
+            const verifyData = await verifyRes.json();
+            console.log(verifyData);
+
+            if (verifyData.success) {
+              setCartItem([]);
+              dispatch(updatedShoppingCart([]));
+              setTotalQty(0);
+              toast.success("Payment verified successfully!");
+
+              if (!isAnimating) {
+                setIsAnimating(true);
+                setTimeout(() => {
+                  setIsAnimating(false);
+                  setIsProcessingOrder(false); // ✅ Allow access again
+                  navigate("/success", {
+                    replace: true,
+                    state: { fromCheckout: true },
+                  });
+                }, 10000); // wait 10 seconds
+              }
             }
-          );
-          const verifyData = await verifyRes.json();
-          console.log(verifyData);
-          if (verifyData.success) {
-            setCartItem([]);
-            dispatch(updatedShoppingCart([]));
-            setTotalQty(0);
-            toast.success("Payment verified successfully!");
-
-            navigate("/success", {
-              replace: true,            
-              state: { fromCheckout: true }  // Optional: Use to verify the route origin
-            });
-      
+          } catch (err) {
+            console.error("Verification failed:", err);
+            setIsProcessingOrder(false); // 🔓 unblock even if error
           }
         },
       };
@@ -681,10 +707,10 @@ const CheckoutPage = () => {
       rzp.open();
     } catch (error) {
       console.log(error);
+      setIsProcessingOrder(false); // 🔓 unblock on error
       // AxiosToastError(error);
     }
   };
-
 
   const { finalTotal, quantity, discountedPrice } = useMemo(() => {
     let finalTotal = 0;
@@ -790,17 +816,18 @@ const CheckoutPage = () => {
       }
 
       // Update checkout items (only update the charge for the actually wrapped items)
-      setcheckoutItems(prevItems => {
+      setcheckoutItems((prevItems) => {
         const updatedItems = [...prevItems];
         updatedItems[productIndex] = {
           ...updatedItems[productIndex],
-          variantPrices: updatedItems[productIndex].variantPrices.map((variant, vIndex) =>
-            vIndex === variantIndex
-              ? {
-                  ...variant,
-                  giftWrapCharge: newQty * pricePerWrap
-                }
-              : variant
+          variantPrices: updatedItems[productIndex].variantPrices.map(
+            (variant, vIndex) =>
+              vIndex === variantIndex
+                ? {
+                    ...variant,
+                    giftWrapCharge: newQty * pricePerWrap,
+                  }
+                : variant
           ),
         };
         return updatedItems;
@@ -1138,6 +1165,11 @@ const CheckoutPage = () => {
                                     {isEditable ? (
                                       <>
                                         <textarea
+                                          ref={(element) => {
+                                            if (element) {
+                                              element.focus();
+                                            }
+                                          }}
                                           value={currentNote}
                                           onChange={(e) =>
                                             handleGiftNoteChange(
@@ -1147,7 +1179,7 @@ const CheckoutPage = () => {
                                               e.target.value
                                             )
                                           }
-                                          maxLength={200}
+                                          maxLength={70}
                                           className="w-full p-2 border rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
                                           placeholder="Write something special here..."
                                         />
@@ -1160,18 +1192,16 @@ const CheckoutPage = () => {
                                                 giftIndex
                                               )
                                             }
-                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-md transition"
+                                            className="bg-red-600 hover:bg-red-700 text-white w-full px-4 py-1.5 rounded-md transition"
                                           >
-                                            <FaCheck />
+                                            Save Changes
                                           </button>
                                         </div>
                                       </>
                                     ) : (
                                       <div className="flex items-start justify-between gap-2">
-                                        <div className="flex-grow bg-gray-100 text-gray-700 p-2 rounded-md min-h-[2.5rem]">
-                                          {currentNote || "No message yet"}
-                                        </div>
-                                        <button
+                                        <div
+                                          className="flex-grow bg-gray-100 text-gray-700 p-2 rounded-md min-h-[2.5rem]"
                                           onClick={() =>
                                             handleGiftNoteEdit(
                                               productIndex,
@@ -1179,10 +1209,14 @@ const CheckoutPage = () => {
                                               giftIndex
                                             )
                                           }
+                                        >
+                                          {currentNote || "No message yet"}
+                                        </div>
+                                        {/* <button
                                           className="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-3 rounded-md transition"
                                         >
                                           <CiEdit />
-                                        </button>
+                                        </button> */}
                                       </div>
                                     )}
                                   </div>
@@ -1311,7 +1345,7 @@ const CheckoutPage = () => {
                   </div>
                   <button
                     onClick={() => setShowPromocodes(!showPromocodes)}
-                    className="text-blue-500 bg-white w-full px-2 py-1 rounded-lg border border-blue-200 text-sm mt-2 font-medium"
+                    className="text-green-500 bg-white w-full px-2 py-1 rounded-lg  text-sm mt-2 font-medium"
                   >
                     {showPromocodes ? (
                       <>
@@ -1527,24 +1561,18 @@ const CheckoutPage = () => {
 
       <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2 mt-20">
         <Accordion
-          title={
-            <>
-            <span className="text-lg font-semibold">Confirm Address</span>
-            </>
-          }
+          title={<span className="text-lg font-semibold">Confirm Address</span>}
           isOpen={openSection === "address"}
           onToggle={() =>
             setOpenSection(openSection === "address" ? null : "address")
           }
           footerButton={
-            <>
-             <button
+            <button
               className="text-md font-semibold w-full bg-black text-white px-4 py-4 rounded-full"
               onClick={handleAddressComplete}
             >
               Save Address & Continue
             </button>
-            </>
           }
         >
           <div className="min-h-full overflow-y-auto">
@@ -1637,21 +1665,20 @@ const CheckoutPage = () => {
                     })}
 
                     {/* Add Another Address only when one address is active */}
-                    {addressList.filter((a) => a.status).length === 1 && (
-                      <div className="flex-1 flex items-stretch">
-                        <div
-                          onClick={() => setOpenAddress(true)}
-                          className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
-                        >
-                          <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
-                            <MdOutlineAddHomeWork className="text-4xl" />
-                            Add Another Address
-                          </span>
-                        </div>
-                      </div>
-                    )}
                   </div>
-
+                  {addressList.filter((a) => a.status).length === 1 && (
+                    <div className="flex-1 flex items-stretch">
+                      <div
+                        onClick={() => setOpenAddress(true)}
+                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
+                      >
+                        <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
+                          <MdOutlineAddHomeWork className="text-4xl" />
+                          Add Another Address
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {addressList.filter((a) => a.status).length > 1 && (
                     <div
                       onClick={() => setOpenAddress(true)}
@@ -1663,35 +1690,33 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
-           
           </div>
         </Accordion>
 
         <Accordion
-          title={<>
-          <span className="text-lg font-semibold">Product Checkout</span>
-          </>}
+          title={
+            <span className="text-lg font-semibold">Product Checkout</span>
+          }
           isOpen={openSection === "product"}
           onToggle={() =>
             setOpenSection(openSection === "product" ? null : "product")
           }
+          onPrevious={() => setOpenSection("address")} // 👈 New
           footerButton={
-            <>
-              <button
+            <button
               className="font-semibold text-md w-full bg-black text-white px-4 py-4 rounded-full"
               onClick={handleProductComplete}
             >
               Proceed to Billing
             </button>
-            </>
           }
         >
           <div>
-            <div className="w-full  bg-white py-4 px-2 overflow-y-auto h-full max-h-[75vh]">
+            <div className="w-full  bg-white  px-2 overflow-y-auto h-full max-h-fit">
               {/**summary**/}
               {checkoutItems.length > 0 ? (
                 <>
-                  <div className="flex items-center justify-between px-4 py-2 font-semibold bg-green-100 text-green-600 rounded-lg">
+                  <div className="flex items-center justify-between px-4 py-2 mb-3 font-semibold bg-green-100 text-green-600 rounded-lg">
                     <p>Your total savings</p>
                     <p>
                       {DisplayPriceInRupees(
@@ -1699,7 +1724,7 @@ const CheckoutPage = () => {
                       )}
                     </p>
                   </div>
-                  <div className="bg-white rounded-lg py-2 grid gap-5 overflow-auto w-full h-full max-h-[75vh]">
+                  <div className="bg-white rounded-lg  grid gap-5 overflow-auto w-full h-full max-h-fit">
                     {checkoutItems.map((item, productIndex) =>
                       item.variantPrices.map((variant, index) => {
                         const isDetailsVisible =
@@ -1707,7 +1732,6 @@ const CheckoutPage = () => {
                           true;
 
                         return (
-                         
                           <div
                             key={`${item.productId}_product_${index}`}
                             className={`flex flex-col w-full gap-4 border-b pb-4 border rounded-xl px-3 transition-colors duration-300 ${
@@ -1901,6 +1925,11 @@ const CheckoutPage = () => {
                                       {isEditable ? (
                                         <>
                                           <textarea
+                                            ref={(element) => {
+                                              if (element) {
+                                                element.focus();
+                                              }
+                                            }}
                                             value={currentNote}
                                             onChange={(e) =>
                                               handleGiftNoteChange(
@@ -1910,7 +1939,7 @@ const CheckoutPage = () => {
                                                 e.target.value
                                               )
                                             }
-                                            maxLength={200}
+                                            maxLength={70}
                                             className="w-full p-2 border rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
                                             placeholder="Write something special here..."
                                           />
@@ -1923,18 +1952,16 @@ const CheckoutPage = () => {
                                                   giftIndex
                                                 )
                                               }
-                                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-md transition"
+                                              className="bg-red-500 font-semibold hover:bg-red-700 text-white w-full px-4 py-1.5 rounded-md transition"
                                             >
-                                              <FaCheck />
+                                              Save Changes
                                             </button>
                                           </div>
                                         </>
                                       ) : (
                                         <div className="flex items-start justify-between gap-2">
-                                          <div className="flex-grow bg-gray-100 text-gray-700 p-2 rounded-md min-h-[2.5rem]">
-                                            {currentNote || "No message yet"}
-                                          </div>
-                                          <button
+                                          <div
+                                            className="flex-grow bg-gray-100 text-gray-700 p-2 rounded-md min-h-[2.5rem]"
                                             onClick={() =>
                                               handleGiftNoteEdit(
                                                 productIndex,
@@ -1942,10 +1969,15 @@ const CheckoutPage = () => {
                                                 giftIndex
                                               )
                                             }
+                                          >
+                                            {currentNote || "No message yet"}
+                                          </div>
+                                          {/* <button
+                                           
                                             className="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-3 rounded-md transition"
                                           >
                                             <CiEdit />
-                                          </button>
+                                          </button> */}
                                         </div>
                                       )}
                                     </div>
@@ -1955,7 +1987,7 @@ const CheckoutPage = () => {
                             </div>
 
                             {/* Product Display */}
-                            
+
                             <div className="flex gap-4 items-start">
                               <div className="w-20 h-20 rounded-lg bg-gray-200">
                                 <img
@@ -1996,7 +2028,6 @@ const CheckoutPage = () => {
                               </div>
                             </div>
                           </div>
-                         
                         );
                       })
                     )}
@@ -2011,23 +2042,23 @@ const CheckoutPage = () => {
                 </>
               )}
             </div>
-            
           </div>
         </Accordion>
 
         <Accordion
-         title={
-          <>
-          <span className="text-lg font-semibold">Promo & Billing</span>
-          </>
-        }
+          title={
+            <>
+              <span className="text-lg font-semibold">Promo & Billing</span>
+            </>
+          }
           isOpen={openSection === "promo"}
           onToggle={() =>
             setOpenSection(openSection === "promo" ? null : "promo")
           }
+          onPrevious={() => setOpenSection("product")}
           footerButton={
-              <button
-             className="text-md font-semibold w-full bg-black text-white px-4 py-4 rounded-full"
+            <button
+              className="text-md font-semibold w-full bg-black text-white px-4 py-4 rounded-full"
               onClick={handlePromoComplete}
             >
               Proceed to Checkout
@@ -2097,7 +2128,7 @@ const CheckoutPage = () => {
                     </div>
                     <button
                       onClick={() => setShowPromocodes(!showPromocodes)}
-                      className="text-blue-500 bg-white w-full px-2 py-1 rounded-lg border border-blue-200 text-sm mt-2 font-medium"
+                      className="text-green-500 bg-white w-full px-2 py-1 rounded-lg text-sm mt-2 font-semibold"
                     >
                       {showPromocodes ? (
                         <>
@@ -2118,7 +2149,7 @@ const CheckoutPage = () => {
 
                     {showPromocodes && (
                       <div
-                        className={`transition-all duration-500 ease-in-out overflow-y-auto overflow-hidden mt-2 ${
+                        className={`transition-all border-2 border-gray-100 p-2 rounded-[15px] duration-500 ease-in-out overflow-y-auto overflow-hidden mt-2 ${
                           showPromocodes ? "max-h-60" : "max-h-0"
                         }`}
                       >
@@ -2128,22 +2159,25 @@ const CheckoutPage = () => {
                             .map((code) => (
                               <div
                                 key={code._id}
-                                className="border-2 border-dotted rounded-lg mb-3 p-2 cursor-pointer hover:bg-gray-50"
+                                className="border-b-2 border-dotted mb-1 mt-1 py-1 cursor-pointer hover:bg-gray-100"
                                 onClick={() => handleSelectPromocode(code)}
                               >
                                 <div className="flex justify-between">
                                   <p className="font-semibold">{code.code}</p>
-                                  <p className="text-sm">
+                                  <p className="text-md font-semibold">
                                     {code.discountType === "percentage"
-                                      ? `${code.discountValue}% off`
-                                      : `₹${code.discountValue} off`}
+                                      ? `${code.discountValue}% OFF`
+                                      : `₹${code.discountValue} OFF`}
                                   </p>
                                 </div>
-                                <p className="text-xs text-gray-500">
-                                  Min order: ₹{code.minOrderValue} | Expires:{" "}
-                                  {new Date(
-                                    code.expiryDate
-                                  ).toLocaleDateString()}
+                                <p className="text-xs flex flex-col justify-between  text-gray-500">
+                                  <span>Min order: ₹{code.minOrderValue}</span>
+                                  <span>
+                                    Expires:{" "}
+                                    {new Date(
+                                      code.expiryDate
+                                    ).toLocaleDateString()}
+                                  </span>
                                 </p>
                               </div>
                             ))
@@ -2200,19 +2234,47 @@ const CheckoutPage = () => {
                 </div>
               </div>
             </div>
-          
           </div>
         </Accordion>
 
         <Accordion
           title={
             <>
-            <span className="text-lg font-semibold">Checkout</span>
+              <span className="text-lg font-semibold">Checkout</span>
             </>
           }
           isOpen={openSection === "checkout"}
           onToggle={() =>
             setOpenSection(openSection === "checkout" ? null : "checkout")
+          }
+          onPrevious={() => setOpenSection("promo")}
+          footerButton={
+            <>
+              <div className="flex items-center justify-center">
+                <button
+                  className={`order ${isAnimating ? "animate" : ""}`}
+                  onClick={handleClick}
+                >
+                  <span className="default">Complete Order</span>
+                  <span className="success">
+                    Order Placed
+                    <svg viewBox="0 0 12 10">
+                      <polyline points="1.5 6 4.5 9 10.5 1" />
+                    </svg>
+                  </span>
+                  <div className="box"></div>
+                  <div className="truck">
+                    <div className="back"></div>
+                    <div className="front">
+                      <div className="window"></div>
+                    </div>
+                    <div className="light top"></div>
+                    <div className="light bottom"></div>
+                  </div>
+                  <div className="lines"></div>
+                </button>
+              </div>
+            </>
           }
         >
           <div>
@@ -2298,47 +2360,66 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
+                 { console.log("this is selected Address",addressList[selectAddress])}
+                  
+                  {/* {addressList[selectAddress] } */}
                   <div className="text-sm text-gray-600">
-                    John Doe
+                    {addressList[selectAddress].name}
                     <br />
-                    123 Main Street, Near Central Mall
+                    {addressList[selectAddress].address_line1}
                     <br />
-                    Mumbai, Maharashtra - 400001
+                    {addressList[selectAddress].address_line2}
                     <br />
-                    Phone: +91 98765 43210
+                    {addressList[selectAddress].city}
+                    <br />
+                    {addressList[selectAddress].country}
+                    <br />
+                    {addressList[selectAddress].mobile}
+                    
                   </div>
                 </div>
               </div>
 
               {/* Place Order Button */}
-              <div className="flex items-center justify-center">
-                <button
-                  className={`order ${isAnimating ? "animate" : ""}`}
-                  onClick={handleClick}
-                >
-                  <span className="default">Complete Order</span>
-                  <span className="success">
-                    Order Placed
-                    <svg viewBox="0 0 12 10">
-                      <polyline points="1.5 6 4.5 9 10.5 1" />
-                    </svg>
-                  </span>
-                  <div className="box"></div>
-                  <div className="truck">
-                    <div className="back"></div>
-                    <div className="front">
-                      <div className="window"></div>
-                    </div>
-                    <div className="light top"></div>
-                    <div className="light bottom"></div>
-                  </div>
-                  <div className="lines"></div>
-                </button>
-              </div>
             </div>
           </div>
         </Accordion>
       </div>
+
+      {isProcessingOrder && (
+      <div className="fixed inset-0 z-[1000] bg-black bg-opacity-20 backdrop-blur-sm overflow-hidden">
+        {/* Bottom sheet container */}
+        <div
+          className={`absolute bottom-0 left-0 w-full bg-white rounded-t-2xl shadow-lg px-6 py-8 text-center transition-all duration-500 ease-in-out h-1/2
+      ${isProcessingOrder ? "h-1/2" : "h-0"}
+    `}
+          style={{ transitionProperty: "height" }}
+        >
+          <div
+            className={`overflow-hidden transition-opacity duration-500 ${
+              isProcessingOrder ? "opacity-100" : "opacity-100"
+            }`}
+          >
+            <h2 className="text-xl font-bold mb-4">Processing Payment</h2>
+            <p className="text-gray-600 text-sm mb-4">
+              Please don’t refresh or close this tab while we’re verifying your
+              payment. <br />
+               This may take a few seconds.
+            </p>
+            {/* <div className="flex justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
+      </div> */}
+
+            <div class="flex-col gap-4 w-full flex items-center justify-center mt-12">
+              <div class="w-20 h-20 border-4 border-transparent text-[#008E97] text-4xl animate-spin flex items-center justify-center border-t-[#008E97] rounded-full">
+                <div class="w-16 h-16 border-4 border-transparent text-orange-400 text-2xl animate-spin flex items-center justify-center border-t-orange-400 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       )} 
 
       {showModal && (
         <AddAddressDesktop

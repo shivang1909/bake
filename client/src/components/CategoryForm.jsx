@@ -21,9 +21,10 @@ const CategoryForm = ({ close, isEdit = false, categoryData = {} }) => {
     // Set initial image preview when editing
     useEffect(() => {
         if (isEdit && typeof data.image === 'string') {
-            setPreview("http://localhost:5000/" + data.image);
+          setPreview(`${import.meta.env.VITE_API_URL}/${data.image}`);
         }
-    }, [isEdit, data.image]);
+      }, [isEdit, data.image]);
+      
 
     const handleOnChange = (e) => {
         const { name, value } = e.target;
