@@ -29,7 +29,7 @@ productRouter.delete('/delete-product',auth,admin,deleteProductDetails)
 //search product 
 productRouter.post('/search-product',searchProduct)
 productRouter.post('/addreview',auth,addreview);
-productRouter.get('/getreviewproduct/:id',auth,getreviewsofproduct);
+productRouter.get('/getreviewproduct/:id',getreviewsofproduct);
 productRouter.get('/get-all-product',auth,admin,getallProduct)
 productRouter.get('/get-HomepageSection',getHomepageSections)
 productRouter.get('/getProductByHomePageSection/:sectionId',GetHomePageSectionProducts)

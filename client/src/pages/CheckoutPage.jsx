@@ -30,6 +30,7 @@ import { CiEdit } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa6";
 
 import { IoCaretBackOutline } from "react-icons/io5";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -79,7 +80,7 @@ const Accordion = ({
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
         {/* Sticky Header */}
-        <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 mt-16">
+        <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 ">
           <div className="flex justify-between items-center">
             <span>{title}</span>
             {onPrevious && (
@@ -145,7 +146,13 @@ const CheckoutPage = () => {
 
   const [selectedMethod, setSelectedMethod] = useState("razorpay");
 
-  const handleAddressComplete = () => setOpenSection("product");
+  const handleAddressComplete = () => {
+    if (addressList.length === 0) {
+      toast.error("Please add an address to proceed");
+      return;
+    }
+    setOpenSection("product");
+  }
   const handleProductComplete = () => setOpenSection("promo");
   const handlePromoComplete = () => setOpenSection("checkout");
   const [checked, setChecked] = useState(false);
@@ -484,69 +491,14 @@ const CheckoutPage = () => {
     setSelectedPromocode(code);
   };
 
-  //for updated code - will use it later on
-  // const handleCashOnDelivery = async () => {
-  //   try {
-  //     toast.loading("Processing order...");
-
-  //     // Prepare items with gift notes
-  //     const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
-  //       ...item,
-  //       variantPrices: item.variantPrices.map((variant, vIndex) => {
-  //         const notes = [];
-  //         const noteQty =
-  //           giftNoteQtys[${pIndex}-${vIndex}] || variant.quantity;
-
-  //         for (let i = 0; i < noteQty; i++) {
-  //           notes.push(giftNotes[${pIndex}-${vIndex}-${i}] || "");
-  //         }
-
-  //         return {
-  //           ...variant,
-  //           giftNotes: variant.isGiftWrap ? notes : undefined,
-
-  //         };
-  //       }),
-  //     }));
-  //     console.log('itemwithgiftdetailss',itemsWithGiftDetails)
-
-  //     const response = await Axios({
-  //       ...SummaryApi.CashOnDeliveryOrder,
-  //       data: {
-  //         list_items: itemsWithGiftDetails,
-  //         addressId: addressList[selectAddress]?._id,
-  //         total: grandTotal,
-  //         special_Gift_packing: GiftWrapCharges,
-  //         promocodeId: appliedPromocode?._id || null,
-  //         promocodeDiscount: promocodeDiscount || 0,
-  //       },
-  //     });
-
-  //     toast.dismiss();
-  //     const { data: responseData } = response;
-
-  //     if (responseData.success) {
-  //       toast.success(responseData.message);
-  //       setGiftWrapCharges(0);
-  //       setCartItem([]);
-  //       dispatch(updatedShoppingCart([]));
-  //       setTotalQty(0);
-  //       navigate("/success", {
-  //         state: {
-  //           text: "Order",
-  //         },
-  //       });
-  //     }
-  //   } catch (error) {
-  //     toast.dismiss();
-  //     AxiosToastError(error);
-  //   }
-  // };
 
   const handleCashOnDelivery = async () => {
     try {
+      if(!addressList[selectAddress]) {
+        toast.error("Please select a delivery address");
+        return;
+      }
       toast.loading("Processing order...");
-      console.log("checkoutitems", checkoutItems);
 
       // Prepare items with gift notes
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
@@ -612,7 +564,10 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-      setIsProcessingOrder(true); // 🚨 Start blocking user
+      if(!addressList[selectAddress]) {
+        toast.error("Please select a delivery address");
+        return;
+      }
 
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
         ...item,
@@ -648,8 +603,8 @@ const CheckoutPage = () => {
         order_id: order.id,
         handler: async (response) => {
           try {
-            console.log("Razorpay Response:", response);
-
+            setIsProcessingOrder(true);
+             // 🚨 Start blocking user
             const verifyRes = await fetch(
               `${import.meta.env.VITE_API_URL}/api/order/verifyPayment`,
               {
@@ -697,7 +652,7 @@ const CheckoutPage = () => {
               }
             }
           } catch (err) {
-            console.error("Verification failed:", err);
+            toast.error("Payment verification failed. Please Wait.");
             setIsProcessingOrder(false); // 🔓 unblock even if error
           }
         },
@@ -842,7 +797,12 @@ const CheckoutPage = () => {
   };
 
   return (
-    <section className="bg-white text-black font-normal lg:mt-16">
+    <section className="bg-white text-black font-normal ">
+      <div className="flex flex-col items-center justify-center pt-10 pb-5">
+       <h2 className="text-4xl font-semibold">CheckOut</h2> 
+       <Breadcrumbs/>
+      </div>
+     
       <div className="hidden  container lg:p-8 lg:px-0 xl:px-3 lg:flex flex-col lg:flex-row w-full 2xl:gap-10 lg:gap-5 [@media(min-width:1600px)]:gap-8 justify-center">
         {/* First column : for address */}
         <div className="w-full max-w-md">
@@ -1158,7 +1118,7 @@ const CheckoutPage = () => {
                                           : `Shoutout ${giftIndex + 1}`}
                                       </label>
                                       <span className="text-xs text-gray-500">
-                                        {currentNote.length}/200
+                                        {currentNote.length}/70
                                       </span>
                                     </div>
 
@@ -1517,16 +1477,26 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
-                  <div className="text-sm text-gray-600">
-                    John Doe
-                    <br />
-                    123 Main Street, Near Central Mall
-                    <br />
-                    Mumbai, Maharashtra - 400001
-                    <br />
-                    Phone: +91 98765 43210
-                  </div>
+                  {addressList[selectAddress] ? (
+                    <div className="text-sm text-gray-600">
+                      {addressList[selectAddress].name || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line1 || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line2 || "NA"}
+                      <br />
+                      {addressList[selectAddress].city || "NA"}
+                      <br />
+                      {addressList[selectAddress].country || "NA"}
+                      <br />
+                      {addressList[selectAddress].mobile || "NA"}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">No address selected</div>
+                  )}
                 </div>
+                  
+          
 
                 {/* Place Order Button */}
                 <div className="flex items-center justify-center">
@@ -1559,7 +1529,7 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2 mt-20">
+      <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2">
         <Accordion
           title={<span className="text-lg font-semibold">Confirm Address</span>}
           isOpen={openSection === "address"}
@@ -1579,7 +1549,7 @@ const CheckoutPage = () => {
             <div>
               {addressList.filter((a) => a.status).length === 0 ? (
                 // Empty State
-                <div className="m-3 max-w-sm w-full p-4 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
+                <div className="m-3  p-4 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
                   <div className="text-4xl text-gray-400 mb-2">
                     <FaLocationDot />
                   </div>
@@ -1612,7 +1582,7 @@ const CheckoutPage = () => {
                         // <div key={index} className="mx-3">
                         <>
                           <div
-                            className={`border rounded-xl p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                            className={`border rounded-[20px] p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
                               isActive
                                 ? "border-orange-400 border-2 bg-orange-50"
                                 : "border-gray-300 bg-white"
@@ -1667,10 +1637,10 @@ const CheckoutPage = () => {
                     {/* Add Another Address only when one address is active */}
                   </div>
                   {addressList.filter((a) => a.status).length === 1 && (
-                    <div className="flex-1 flex items-stretch">
+                    <div className="flex-1 px-4  flex items-stretch">
                       <div
                         onClick={() => setOpenAddress(true)}
-                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
+                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm h-full py-32 max-h-full cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
                       >
                         <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
                           <MdOutlineAddHomeWork className="text-4xl" />
@@ -1680,12 +1650,15 @@ const CheckoutPage = () => {
                     </div>
                   )}
                   {addressList.filter((a) => a.status).length > 1 && (
-                    <div
+                    <div className="flex px-4 items-center justify-center">
+                       <div
                       onClick={() => setOpenAddress(true)}
-                      className="py-4 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
+                      className="py-4 w-full text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
                     >
                       <MdMyLocation className="text-lg" /> Add Another Address
                     </div>
+                    </div>
+                   
                   )}
                 </div>
               )}
@@ -1918,7 +1891,7 @@ const CheckoutPage = () => {
                                             : `Shoutout ${giftIndex + 1}`}
                                         </label>
                                         <span className="text-xs text-gray-500">
-                                          {currentNote.length}/200
+                                          {currentNote.length}/70
                                         </span>
                                       </div>
 
@@ -2360,23 +2333,24 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
-                 { console.log("this is selected Address",addressList[selectAddress])}
                   
-                  {/* {addressList[selectAddress] } */}
+                 {addressList[selectAddress] ? (
                   <div className="text-sm text-gray-600">
-                    {addressList[selectAddress].name}
+                    {addressList[selectAddress].name || "NA"}
                     <br />
-                    {addressList[selectAddress].address_line1}
+                    {addressList[selectAddress].address_line1 || "NA"}
                     <br />
-                    {addressList[selectAddress].address_line2}
+                    {addressList[selectAddress].address_line2 || "NA"}
                     <br />
-                    {addressList[selectAddress].city}
+                    {addressList[selectAddress].city || "NA"}
                     <br />
-                    {addressList[selectAddress].country}
+                    {addressList[selectAddress].country || "NA"}
                     <br />
-                    {addressList[selectAddress].mobile}
-                    
+                    {addressList[selectAddress].mobile || "NA"}
                   </div>
+                ) : (
+                  <div className="text-sm text-gray-600">No address selected</div>
+                )}
                 </div>
               </div>
 
@@ -2436,3 +2410,4 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+  

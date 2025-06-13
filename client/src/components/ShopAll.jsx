@@ -22,7 +22,7 @@ import {
 import ProductPage from "../pages/ProductPage";
 import "./ProductsLeftBar.css";
 import { AiOutlineProduct } from "react-icons/ai";
-import { FaBagShopping } from "react-icons/fa6";
+import { FaArrowUp, FaBagShopping } from "react-icons/fa6";
 import { FaHeartCircleCheck } from "react-icons/fa6";
 import { FaChevronRight } from "react-icons/fa";
 import Axios from "../utils/Axios";
@@ -44,6 +44,20 @@ const ShopAll = () => {
   const [values, setValues] = useState([10, 1000]);
   const [value, setValue] = useState(0);
   const [search,setSearch] = useState("");
+    const [showScrollTop, setShowScrollTop] = useState(false);
+  
+    useEffect(() => {
+      const handleScroll = () => {
+        setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+  
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -516,6 +530,14 @@ const ShopAll = () => {
           </section>
         </main>
       </div>
+      <button
+              onClick={scrollToTop}
+                className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
+                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+              }`}
+            >
+              <FaArrowUp className="w-full h-full" />
+            </button>
     </div>
   );
 };

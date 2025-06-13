@@ -18,12 +18,19 @@ import { FaCartShopping } from "react-icons/fa6";
 import CartMobileLink from './components/CartMobile';
 import ProductPage from './pages/ProductPage';
 import BottomToolBar from './components/BottomToolBar.jsx'
+import SignUp from './pages/SignUp.jsx';
+import Login from './pages/Login.jsx';
+import checkout from './pages/CheckoutPage.jsx';
 
 
 function App() {
   const dispatch = useDispatch()
   const location = useLocation()
   const navigate = useNavigate()  
+
+  const hideLayoutRoutes = ["/register","/login","/dashboard/checkout","/forgot-password","/verification-otp"];
+
+  const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
   const fetchUser = async () => {
     try {
@@ -55,11 +62,11 @@ function App() {
 
   return (
     <GlobalProvider>
-      <Header />
+      {!hideLayout && <Header />}
       <main className=" bg-white">
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      {!hideLayout && <Footer />}
       <Toaster />
       {location.pathname !== '/checkout' && <CartMobileLink />}
     </GlobalProvider>

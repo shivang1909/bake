@@ -13,8 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
 import shapegrey from "../../assets/images/Custom/shape-grey.png";
 import { GiDuration, GiIndiaGate } from "react-icons/gi";
-import { FaTruckFast } from "react-icons/fa6";
-
+import { FaArrowUp, FaTruckFast } from "react-icons/fa6";
 
 const features = [
   {
@@ -36,12 +35,26 @@ const features = [
 ];
 
 const Featured = () => {
-  const [FeaturedProduct, setFeaturedProduct]=useState([]);
-  const [FeaturedId, setFeaturedId]=useState();
+  const [FeaturedProduct, setFeaturedProduct] = useState([]);
+  const [FeaturedId, setFeaturedId] = useState();
   const [cartProduct, setCartProduct] = useState(null);
   const [totalPage, setTotalPage] = useState(null);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
+  };
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const [page, setPage] = useState(1);
@@ -51,35 +64,32 @@ const Featured = () => {
 
   const params = useParams();
   const fullFeaturedParam = params?.Featured || "";
- 
+
   const FeaturedNameSlug = fullFeaturedParam.split("-").slice(0, -1).join("-");
 
-
-
   const FetchFeaturedProduct = async () => {
-    console.log(FeaturedId)
+    console.log(FeaturedId);
     const response = await Axios({
       ...SummaryApi.getFeaturedProduct,
-      data: { sectionId: FeaturedId , page:page},
+      data: { sectionId: FeaturedId, page: page },
     });
-    console.log(response.data)
-    console.log("above")
-    setFeaturedProduct((prev)=>[...prev,...response.data.data])
+    console.log(response.data);
+    console.log("above");
+    setFeaturedProduct((prev) => [...prev, ...response.data.data]);
     setPage((prevPage) => prevPage + 1);
-    setTotalPage(response.data.totalNoPage)
-
+    setTotalPage(response.data.totalNoPage);
   };
 
   useEffect(() => {
-    setPage(1)
-    setFeaturedProduct([])
-    setFeaturedId(fullFeaturedParam.split("-").slice(-1)[0])
+    setPage(1);
+    setFeaturedProduct([]);
+    setFeaturedId(fullFeaturedParam.split("-").slice(-1)[0]);
   }, [fullFeaturedParam]);
 
-  useEffect(()=>{
-    if(!FeaturedId) return;
+  useEffect(() => {
+    if (!FeaturedId) return;
     FetchFeaturedProduct();
-  },[FeaturedId])
+  }, [FeaturedId]);
 
   const hasmoredata = async () => {
     console.log("Checking if more data is available for page:", page);
@@ -119,53 +129,42 @@ const Featured = () => {
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
 
-         <img src={shapegrey} alt="" className="lg:mt-28  w-full" />
-              <div className="bg-[#FAF7F2] py-10 w-full flex justify-center">
-                <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
-                  {/* Icon 1 */}
-                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-                      <GiDuration />
-                    </div>
-                    <span className="text-xs font-semibold text-center">
-                     Days Of
-                      <br /> Shelf Life
-                    </span>
-                  </div>
-        
-                  {/* Icon 2 */}
-                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-                      <FaTruckFast />
-                    </div>
-                    <span className="text-xs font-semibold text-center">
-                      Delivery Within <br /> 1-2 Days
-                    </span>
-                  </div>
-        
-                  {/* Icon 3 */}
-                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-                      <GiIndiaGate />
-                    </div>
-                    <span className="text-xs font-semibold text-center">
-                      Free <br /> Shipping
-                    </span>
-                  </div>
-        
-                  {/* Icon 4 */}
-                  <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
-                    <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
-                      <FaLeaf />
-                    </div>
-                    <span className="text-xs font-semibold text-center">
-                      No any <br /> Preservatives
-                    </span>
-                  </div>
-                </div>
+        {/* <img src={shapegrey} alt="" className="lg:mt-28  w-full" /> */}
+        <div className="bg-white py-3 w-full flex justify-center">
+          <div className="flex md:flex-row md:flex gap-6 justify-between  max-w-4xl w-full px-4">
+            {/* Icon 2 */}
+            <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+              <div className="text-orange-600 text-4xl md:text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                <FaTruckFast />
               </div>
-        
-              <img src={shapegrey} alt="" className="w-full rotate-180" />
+              <span className="text-xs font-semibold text-center">
+                Delivery <br /> within 1-2 Days
+              </span>
+            </div>
+
+            {/* Icon 3 */}
+            <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+              <div className="text-orange-600 text-4xl md:text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                <GiIndiaGate />
+              </div>
+              <span className="text-xs font-semibold text-center">
+                Free <br /> Shipping
+              </span>
+            </div>
+
+            {/* Icon 4 */}
+            <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
+              <div className="text-orange-600 text-4xl md:text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
+                <FaLeaf />
+              </div>
+              <span className="text-xs font-semibold text-center">
+                No any <br /> Preservatives
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* <img src={shapegrey} alt="" className="w-full rotate-180" /> */}
         <InfiniteScroll
           dataLength={FeaturedProduct.length}
           hasMore={hasmoredata}
@@ -173,15 +172,26 @@ const Featured = () => {
           className="py-3"
         >
           {console.log(allProduct)}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center px-5 lg:px-32  lg:gap-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center md:px-5 lg:px-32  lg:gap-10">
             {FeaturedProduct.map((product, index) => (
               <>
-              {console.log(allProduct)}
-              <ProductCard product={product} setCartProduct={setCartProduct} />
+                {console.log(allProduct)}
+                <ProductCard
+                  product={product}
+                  setCartProduct={setCartProduct}
+                />
               </>
             ))}
           </div>
         </InfiniteScroll>
+        <button
+          onClick={scrollToTop}
+          className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
+            showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
+        >
+          <FaArrowUp className="w-full h-full" />
+        </button>
       </div>
       {cartProduct && (
         <AddToCartBottomBar

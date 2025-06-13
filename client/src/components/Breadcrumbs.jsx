@@ -10,7 +10,7 @@ const Breadcrumbs = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1  py-1 rounded-full text-gray-500 text-sm px-4 ">
+    <div className="flex flex-wrap items-center justify-center gap-1  py-1 rounded-full text-gray-500 text-sm px-1 ">
       <Link to="/">
         <IoHomeOutline className="text-lg mr-1" />
       </Link>

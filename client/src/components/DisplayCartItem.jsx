@@ -16,6 +16,7 @@ import SummaryApi from "../common/SummaryApi";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 
 const DisplayCartItem = ({ close, open }) => {
@@ -357,16 +358,16 @@ const DisplayCartItem = ({ close, open }) => {
                   ))
                 )
               ) : (
-                <div className="flex flex-col justify-center items-center mt-10">
-                  <img
-                    src={imageEmpty}
-                    className="w-48 h-48 object-scale-down"
-                    alt="Cart is empty"
-                  />
+                <div className="flex flex-col justify-center items-center mt-20">
+                 <DotLottieReact
+      src="https://lottie.host/ac492bf8-6965-427b-9140-0c3af6233a30/g6j2FqfGL8.lottie"
+      loop
+      autoplay
+    />
                   <Link
                     onClick={close}
-                    to={"/"}
-                    className="block mt-4 font-semibold text-md bg-green-600 px-4 py-2 text-white rounded-full transition-all duration-300 hover:bg-green-700 active:scale-95 cursor-pointer"
+                    to="/shopall"
+                    className="block mt-4 font-semibold text-md bg-orange-500 px-4 py-2 text-white rounded-full transition-all duration-300  active:scale-95 cursor-pointer"
                   >
                     Shop Now
                   </Link>

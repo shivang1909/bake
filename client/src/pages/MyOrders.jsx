@@ -277,6 +277,8 @@ import { Link, useNavigate } from "react-router-dom";
 import NoOrder from "../../assets/images/Custom/basket.png";
 import ProfileSideBar from "../components/ProfileSideBar";
 import { IoCaretBackOutline } from "react-icons/io5";
+import React from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]); // Ensuring orders is always an array
@@ -448,11 +450,11 @@ const MyOrders = () => {
           {orders.length === 0 ? (
             <div className="bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto  h-[85vh] lg:h-auto">
               <div className="flex justify-center pb-5">
-                <img
-                  src={NoOrder}
-                  alt="No Orders"
-                  className="h-44 w-44 grayscale"
-                />
+              <DotLottieReact
+      src="https://lottie.host/3258c9bd-f493-4779-b94e-8871be687c25/GAws36NdeI.lottie"
+      loop
+      autoplay
+    />
               </div>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
                 No Orders Yet
@@ -462,7 +464,7 @@ const MyOrders = () => {
               </p>
               <button
                 onClick={() => navigate("/shopall")}
-                className="bg-yellow-500 w-full hover:bg-yellow-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+                className="bg-gray-800 w-full text-white font-semibold py-2 px-6 rounded-full transition duration-300"
               >
                 Shop Now
               </button>

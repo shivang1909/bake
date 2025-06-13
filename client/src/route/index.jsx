@@ -44,6 +44,8 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import AuthSuccess from '../pages/AuthSuccess';
 import AboutUs from "../pages/AboutUs";
 import ContactUs from "../pages/ContactUs";
+import SignUp from "../pages/SignUp";
+import Terms_Condition from "../pages/Terms_Condition";
 
 
 const router = createBrowserRouter([
@@ -58,6 +60,10 @@ const router = createBrowserRouter([
             {
                 path:"Privacy-Policy",
                 element: <PrivacyPolicy />
+            },
+            {
+                path:"Terms-conditions",
+                element: <Terms_Condition />
             },
             {
                 path:"About-Us",
@@ -110,6 +116,10 @@ const router = createBrowserRouter([
             {
                 path: "register",
                 element: <Register />
+            },
+            {
+                path: "signup",
+                element: <SignUp />
             },
             {
                 path: "forgot-password",

@@ -26,6 +26,18 @@ const AddToCartBottomBar = ({ product, onClose }) => {
   const user = useSelector((state) => state.user);
   const [isAdded, setCart] = useState(false);
 
+    useEffect(() => {
+        if (open) {
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "";
+        }
+    
+        return () => {
+          document.body.style.overflow = "";
+        };
+      }, [open]);
+
   const addCartItem = async () => {
     if (user._id === undefined) {
       // If toast is already active, dismiss it
@@ -155,7 +167,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
       {/* Backdrop */}
       <div
         className={`
-          fixed inset-0 bg-zinc-800/60 z-40 transition-opacity duration-300
+          fixed inset-0 bg-zinc-800/60 z-50 transition-opacity duration-300
           ${
             isVisible
               ? "opacity-100 pointer-events-auto"

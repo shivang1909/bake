@@ -1,9 +1,9 @@
 import React from 'react';
 
-const PrivacyPolicy = () => {
+const Terms_Condition = () => {
   return (
     <section className="mt-8 lg:mt-20 max-w-4xl mx-auto px-6 py-14 text-base text-gray-800 leading-loose font-sans">
-      <h1 className="text-5xl font-bold mb-5">Privacy Policy</h1>
+      <h1 className="text-5xl font-bold mb-5">Terms & Conditions</h1>
 
       <p className="mb-8 font-medium">Effective Date: June 5, 2025</p>
 
@@ -106,4 +106,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default Terms_Condition;

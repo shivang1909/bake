@@ -240,7 +240,7 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
         </div>
 
 
-        <div className="addresscontent flex flex-col lg:flex-row-reverse gap-2 overflow-y-auto h-[80vh]">
+        <div className="addresscontent flex flex-col lg:flex-row-reverse gap-2 overflow-y-auto max-h-[60vh] md:max-h-[70vh] lg:max-h-[80vh]">
           <div className="w-full lg:w-2/5 sm:overflow-y-auto lg:overflow-hidden">
             {!mapVisible && (
               <div className="m-0 lg:m-3 max-w-md h-[50vh] lg:h-fit w-full p-4 border-gray-400 rounded-xl flex flex-col justify-center items-center text-center">

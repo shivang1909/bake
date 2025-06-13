@@ -81,7 +81,7 @@ const Login = () => {
     }
   };
   return (
-    <section className="w-full container mt-16 mx-auto px-2 font-normal">
+    <section className="w-full container h-screen mx-auto px-2 font-normal">
       <div className="bg-white my-4 w-full max-w-lg mx-auto rounded p-7">
         <div className="flex items-center justify-center lg:mt-10">
           <img src={Logo} alt="logo" className="w-44" />
@@ -90,7 +90,7 @@ const Login = () => {
           <hr className="border-dashed border-gray-500 w-28" />
         </div>
         <div className="text-center">
-          <p>Login To Your Account</p>
+          <p className="font-semibold">Login To Your Account</p>
         </div>
         <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
           <div className="grid my-3">
@@ -102,7 +102,7 @@ const Login = () => {
                 name="email"
                 value={data.email}
                 onChange={handleChange}
-                className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+                className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-[24px] leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:border-none focus:ring-orange-300"
               />
               <label
                 htmlFor="email"
@@ -114,20 +114,23 @@ const Login = () => {
           </div>
 
           <div className="grid gap-1">
-            <div className="flex items-center my-3">
+            <div className="flex items-center my-2">
               <div className="w-full relative flex rounded-xl">
                 <input
                   required
                   type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
+                  autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                   value={data.password}
                   onChange={handleChange}
-                  className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-l-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+                  className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-l-[24px] leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:border-none focus:outline-none focus:ring-1 focus:ring-orange-300"
                 />
                 <div
                   onClick={() => setShowPassword((preve) => !preve)}
-                  className=" flex items-center border border-2 border-gray-200 px-2 rounded-r-lg cursor-pointer"
+                  className=" flex items-center border-t-b-r border-2 border-gray-200 px-2 rounded-r-[24px] cursor-pointer"
                 >
                   {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
                 </div>
@@ -170,9 +173,9 @@ const Login = () => {
             disabled={!valideValue}
             className={` ${
               valideValue
-                ? "bg-green-600 hover:bg-green-700"
+                ? "bg-orange-500 hover:bg-orange-500 "
                 : "bg-gray-500 disabled opacity-50"
-            }    text-white py-3 rounded-lg font-semibold  tracking-wide`}
+            }    text-white py-3 rounded-[24px] font-semibold  tracking-wide`}
           >
             Login
           </button>
@@ -279,11 +282,11 @@ const Login = () => {
         
         </form>
 
-        <p>
-          Don't have account?{" "}
+        <p className="flex items-center justify-center gap-1 ">
+          Don't have account ?{" "}
           <Link
             to={"/register"}
-            className="font-semibold text-green-700 hover:text-green-800"
+            className="font-semibold text-orange-500 hover:text-orange-600"
           >
             Register
           </Link>
