@@ -240,6 +240,7 @@ const Category = () => {
                       product={product}
                       setCartProduct={setCartProduct}
                       key={product._id}
+                      className="min-w-[200px] max-w-[200px] md:min-w-[220px]"
                     />
                   </>
                 )

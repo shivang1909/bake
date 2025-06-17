@@ -16,7 +16,7 @@ const ProfileSideBar =({activesection})=> {
 
   return (
     <>
-     <aside className="hidden md:block w-full bg-white  rounded-xl border h-full max-h-[75vh] sticky mt-5 ">
+     <aside className="hidden md:block w-fit bg-white  rounded-xl border h-full max-h-[75vh] sticky mt-5 ">
             <h2 className="text-lg lg:text-xl font-semibold mb-4 border-b pb-5 pt-5">Hello, {user.name}</h2>
             <ul className="space-y-2 p-4">
               <li>

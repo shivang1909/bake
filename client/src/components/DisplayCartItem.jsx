@@ -6,6 +6,7 @@ import { DisplayPriceInRupees } from "../utils/DisplayPriceInRupees";
 import { FaCaretRight } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 
+
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import imageEmpty from "../assets/empty_cart.webp";
 import toast from "react-hot-toast";
@@ -17,6 +18,9 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { valideURLConvert } from "../utils/valideURLConvert";
+
+
 
 
 const DisplayCartItem = ({ close, open }) => {
@@ -33,16 +37,23 @@ const DisplayCartItem = ({ close, open }) => {
   } = useGlobalContext();
   const cartdata = useSelector((state) => state.user.shopping_cart);
 
+
   const user = useSelector((state) => state.user);
+
 
   // console.log();
 
+
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
+
 
   const [recentlyViewed, setRecentlyViewed] = useState([]);
 
 
+
+
   useEffect(() => {
+    setActiveTab("cart")
     const stored = localStorage.getItem("lastViewedProducts");
     if (stored) {
       setRecentlyViewed(JSON.parse(stored));
@@ -50,6 +61,7 @@ const DisplayCartItem = ({ close, open }) => {
       setRecentlyViewed([]);
     }
   }, [isCartOpen]);
+
 
   useEffect(() => {
     if (isCartOpen) {
@@ -59,12 +71,15 @@ const DisplayCartItem = ({ close, open }) => {
     }
   }, [isCartOpen]);
 
+
   const handleclose = () => {
     close();
   };
 
+
   const [activeTab, setActiveTab] = useState("cart");
   const [selectedTab, setSelectedTab] = useState(0);
+
 
   const decreaseQty =async (qty, productIndex, variantIndex) => {
     let updatedData;
@@ -79,7 +94,9 @@ const DisplayCartItem = ({ close, open }) => {
     } else if (qty === 1 && cartdata[productIndex].variants.length === 1) {
       updatedData = cartdata.filter((_, index) => index !== productIndex);
 
+
       dispatch(updatedShoppingCart(updatedData)); // Make sure you have this action
+
 
       // Update cartItems
       setCartItem((prevCartItems) => {
@@ -94,6 +111,7 @@ const DisplayCartItem = ({ close, open }) => {
         variants: [...product.variants],
       }));
 
+
       updatedData[productIndex].variants.splice(variantIndex, 1);
       dispatch(updatedShoppingCart(updatedData));
       setCartItem((prevCartItems) => {
@@ -102,6 +120,7 @@ const DisplayCartItem = ({ close, open }) => {
           variantPrices: [...item.variantPrices],
         }));
         updatedCartItems[productIndex].variantPrices.splice(variantIndex, 1);
+
 
         return updatedCartItems;
       });
@@ -112,11 +131,14 @@ const DisplayCartItem = ({ close, open }) => {
         variants: product.variants.map((variant) => ({ ...variant })), // Ensure deep copy of variants
       }));
 
+
       // Step 2: Decrease the quantity
       updatedData[productIndex].variants[variantIndex].cartQty = qty - 1;
 
+
       // Step 3: Dispatch the updated cart data
       dispatch(updatedShoppingCart(updatedData));
+
 
       // Step 4: Update local cart items if managed separately
       setCartItem((prevCartItems) => {
@@ -125,8 +147,10 @@ const DisplayCartItem = ({ close, open }) => {
           variantPrices: [...item.variantPrices],
         }));
 
+
         updatedCartItems[productIndex].variantPrices[variantIndex].quantity =
           qty - 1;
+
 
         return updatedCartItems;
       });
@@ -149,6 +173,7 @@ const DisplayCartItem = ({ close, open }) => {
     await updateQuantity(updatedData);
   };
 
+
   const increaseQty = async (qty, productIndex, variantIndex) => {
     // Step 1: Create a deep copy of the cart data
     let updatedData = cartdata.map((product) => ({
@@ -156,11 +181,14 @@ const DisplayCartItem = ({ close, open }) => {
       variants: product.variants.map((variant) => ({ ...variant })), // Ensure deep copy of variants
     }));
 
+
     // Step 2: Update the cart quantity for the specific product and variant
     updatedData[productIndex].variants[variantIndex].cartQty = qty + 1;
 
+
     // Step 3: Dispatch the updated cart data to the state
     dispatch(updatedShoppingCart(updatedData));
+
 
     // Step 4: Optionally update local cart items if managed separately
     setCartItem((prevCartItems) => {
@@ -168,6 +196,7 @@ const DisplayCartItem = ({ close, open }) => {
         ...item,
         variantPrices: [...item.variantPrices],
       }));
+
 
       // Update the cart quantity in the local state
       updatedCartItems[productIndex].variantPrices[variantIndex].quantity =
@@ -189,8 +218,11 @@ const DisplayCartItem = ({ close, open }) => {
     await updateQuantity(updatedData);
   };
 
+
       const updateQuantity = async (updatedData) => {
       try {
+
+
 
 
         // Make API call to update the cart in the database
@@ -200,9 +232,10 @@ const DisplayCartItem = ({ close, open }) => {
         });
         console.log("Cart updated in the database:", response.data);
       } catch (error) {
-      
+     
       }
     };
+
 
   // useEffect(() => {
   //   if (isCartOpen) {
@@ -212,11 +245,13 @@ const DisplayCartItem = ({ close, open }) => {
   //   }
   // }, [isCartOpen]);
 
+
   const navigate = useNavigate();
   const redirectToCheckoutPage = () => {
     if (user?._id) {
-    
+   
       navigate("/dashboard/checkout", { state: { fromCart: true } });
+
 
       if (close) {
         close();
@@ -239,9 +274,10 @@ const DisplayCartItem = ({ close, open }) => {
         onClick={handleclose}
       />
 
+
       <div
         className={`
-        bg-white w-full  max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out 
+        bg-white w-full  max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out
         ${isCartOpen ? "translate-x-0" : "translate-x-full"}
       `}
       >
@@ -252,6 +288,7 @@ const DisplayCartItem = ({ close, open }) => {
             <IoClose size={25} />
           </button>
         </div>
+
 
         {/* Toggle buttons */}
         <div className="relative flex justify-between items-center w-full max-w-md mx-auto bg-white p-2 rounded-[25px] shadow-md ">
@@ -272,6 +309,7 @@ const DisplayCartItem = ({ close, open }) => {
             <FaCartShopping />
           </button>
 
+
           <button
             onClick={() => setActiveTab("recent")}
             className={`z-10 flex justify-center items-center w-1/2 py-3 text-2xl font-semibold transition-colors rounded-full ${
@@ -282,12 +320,15 @@ const DisplayCartItem = ({ close, open }) => {
           </button>
         </div>
 
+
         {/* Cart Content */}
         {activeTab === "cart" ? (
           <div className="flex flex-col h-[calc(100vh-190px)] md:h-[calc(100vh-120px)]">
             {/* HEADER */}
 
+
             {/* BODY - SCROLLABLE */}
+
 
             <div className="flex-1 overflow-auto px-2 space-y-4">
               {Array.isArray(cartItems) && cartItems.length > 0 ? (
@@ -323,6 +364,7 @@ const DisplayCartItem = ({ close, open }) => {
                                 )}
                               </p>
                             </div>
+
 
                             <div className="flex h-full">
                               <button
@@ -366,7 +408,6 @@ const DisplayCartItem = ({ close, open }) => {
       loop
       autoplay
     />
-    <span className="font-semibold">Your Cart is Empty</span>
                   <Link
                     onClick={close}
                     to="/shopall"
@@ -378,6 +419,7 @@ const DisplayCartItem = ({ close, open }) => {
               )}
             </div>
 
+
             {/* FOOTER - STICKY */}
             {cartItems.length > 0 && (
               <div
@@ -387,6 +429,7 @@ const DisplayCartItem = ({ close, open }) => {
                 <h3 className="font-semibold text-lg text-center mb-3">
                   Bill Details
                 </h3>
+
 
                 <div className="space-y-2">
                   <div className="flex gap-4 justify-between ml-1">
@@ -399,15 +442,18 @@ const DisplayCartItem = ({ close, open }) => {
                     </p>
                   </div>
 
+
                   <div className="flex gap-4 justify-between ml-1">
                     <p>Quantity total</p>
                     <p>{totalQty} items</p>
                   </div>
 
+
                   <div className="flex gap-4 justify-between ml-1">
                     <p>Delivery Charge</p>
                     <p>Free</p>
                   </div>
+
 
                   <div className="my-4">
                     <div className="flex items-center justify-between  py-1  font-semibold text-green-700 px-1">
@@ -420,11 +466,13 @@ const DisplayCartItem = ({ close, open }) => {
                     </div>
                   </div>
 
+
                   <div className="font-semibold text-[#008E97] flex items-center justify-between gap-4 ml-1">
                     <p>Grand total</p>
                     <p>{DisplayPriceInRupees(totalPrice)}</p>
                   </div>
                 </div>
+
 
                 <div className=" px-2 p-2 bg-white ">
                   <div
@@ -451,6 +499,9 @@ const DisplayCartItem = ({ close, open }) => {
             <p className="font-semibold text-lg mb-4">Recently Viewed</p>
             <div className="divide-y divide-gray-200">
               {recentlyViewed.map((item) => (
+                <Link to={`/product/${valideURLConvert(item.name)}-${item._id}`}
+                onClick={close}
+                >
                 <div key={item._id} className="flex gap-4 py-4 items-center">
                   <img
                     src={item.coverimage}
@@ -464,6 +515,7 @@ const DisplayCartItem = ({ close, open }) => {
                     <p className="text-sm text-gray-600 mt-1">₹{item.price}</p>
                   </div>
                 </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -472,5 +524,6 @@ const DisplayCartItem = ({ close, open }) => {
     </>
   );
 };
+
 
 export default DisplayCartItem;

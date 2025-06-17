@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config()
+import sitemapRoute from './route/sitemap.route.js';
+
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import connectDB from './config/connectDB.js'
@@ -107,6 +109,8 @@ app.use('/api/homebanner',homeBannerRouter)
 
 
 app.use('/api/', promocodeRouter);
+app.use('/', sitemapRoute);
+
 connectDB().then(()=>{
     app.listen(PORT,()=>{
         console.log("Server is running",PORT)

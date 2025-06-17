@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import scrollbar from 'tailwind-scrollbar';
+
 export default {
   content: [
     "./index.html",
@@ -6,20 +8,18 @@ export default {
   ],
   theme: {
     extend: {
-      colors : {
-        "primary-200" : "#ffbf00",
-        "primary-100" : "#ffc929",
-        "secondary-200" : "#00b050",
-        "secondary-100" : "#0b1a78"
+      colors: {
+        "primary-200": "#ffbf00",
+        "primary-100": "#ffc929",
+        "secondary-200": "#00b050",
+        "secondary-100": "#0b1a78"
       },
       animation: {
-        spinSlow: "spin 5s linear infinite", // you can change speed here
+        spinSlow: "spin 5s linear infinite",
       },
     },
   },
   plugins: [
-    require('@tailwindcss/line-clamp'),
-    require('tailwind-scrollbar'),
+    scrollbar,
   ],
-}
-
+};

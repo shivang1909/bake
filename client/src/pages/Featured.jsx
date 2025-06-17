@@ -232,6 +232,7 @@ const Featured = () => {
                 <ProductCard
                   product={product}
                   setCartProduct={setCartProduct}
+                    className="min-w-[200px] max-w-[200px] md:min-w-[220px]"
                 />
                 </>
             ))}

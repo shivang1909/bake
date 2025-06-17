@@ -468,6 +468,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
                         setCartProduct={setCartProduct}
                         activeIndex = {selectedIndex}
                         setActiveVariant = {setActiveVariant}
+                          className="min-w-[200px] max-w-[200px] md:min-w-[220px]"
                       />
                     );
                   }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from 'react-helmet-async';
 import {
   Dialog,
   DialogBackdrop,
@@ -80,6 +81,19 @@ const ShopAll = () => {
 
   return (
     <div className="bg-white mt-20">
+      <Helmet>
+        <title>Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad</title>
+        <meta
+          name="description"
+          content="Explore and shop delicious sweets, cakes, cookies, dry fruit sweets, and namkeen from Bake Flavour – your favorite Ahmedabad bakery."
+        />
+        <meta
+          name="keywords"
+          content="shop sweets Ahmedabad, buy namkeen online, cakes, cookies, dry fruit sweets, chavana, bake flavour shop"
+        />
+        <link rel="canonical" href="https://bakeflavours.com/shopall" />
+      </Helmet>
+
       <style>
         {`
           @font-face {
