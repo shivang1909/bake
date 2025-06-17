@@ -2060,3 +2060,213 @@ export const sendResetOTP = async (email, otp) => {
     console.error("❌ Error sending password reset OTP:", error);
   }
 };
+
+// payment verification fail to Admin
+export const sendPaymentVerificationFailedEmailToAdmin = async (adminEmail, user,details) => {
+  try {
+    const {
+     
+      deliveryAddress,
+      list_items,
+      razorpay_order_id,
+      razorpay_payment_id,
+      total
+    } = details;
+      console.log('this is',JSON.stringify(details))
+    const orderDate = new Date().toLocaleString("en-IN", {
+      year: "numeric",
+      month: "long",  
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+
+    const productTable = list_items.map(item =>
+      item.variantPrices.map(variant => `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.itemname}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${variant.weight}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${variant.quantity}</td>
+        </tr>
+      `).join("")
+    ).join("");
+
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Roboto, sans-serif; color: #333; line-height: 1.6; }
+          .container { max-width: 600px; margin: auto; padding: 20px; }
+          .header { border-bottom: 3px solid #e74c3c; margin-bottom: 20px; }
+          .header h2 { color: #e74c3c; }
+          .info-box { background: #fceeee; padding: 15px; border-left: 4px solid #e74c3c; margin-bottom: 20px; }
+          .info-box p { margin: 5px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
+          th { background-color: #f7f7f7; }
+          .footer { font-size: 12px; color: #777; margin-top: 30px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>⚠️ Payment Captured but Verification Failed</h2>
+            <p>${orderDate}</p>
+          </div>
+          <div class="info-box">
+            <p><strong>User:</strong> ${user?.name || "N/A"} (${user?.email || "No Email"})</p>
+            <p><strong>Mobile:</strong> ${deliveryAddress?.mobile || "N/A"}</p>
+            <p><strong>Razorpay Order ID:</strong> ${razorpay_order_id}</p>
+            <p><strong>Razorpay Payment ID:</strong> ${razorpay_payment_id}</p>
+            <p><strong>Total:</strong> ₹${total}</p>
+          </div>
+
+
+          <h3>Order Items</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variant</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productTable}
+            </tbody>
+          </table>
+
+
+          <div class="footer">
+            <p>This payment was received but failed signature verification. Manual investigation is required.</p>
+            <p>© ${new Date().getFullYear()} Bake Flavours Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+
+    await transporter.sendMail({
+      from: `Bake Flavours <${process.env.EMAIL}>`,
+      to: adminEmail,
+      subject: "⚠️ Payment Captured but Verification Failed",
+      html,
+    });
+
+
+  } catch (error) {
+    console.log("❌ Error sending failed payment email to admin:", error);
+  }
+};
+
+
+
+
+//  payment verification fail mail to user
+export const sendPaymentVerificationFailedEmailToUser = async (userEmail, details) => {
+  try {
+    const {
+      user,
+      deliveryAddress,
+      list_items,
+      razorpay_order_id,
+      razorpay_payment_id,
+      total
+    } = details;
+
+
+    const orderDate = new Date().toLocaleString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+
+    const productTable = list_items.map(item =>
+      item.variantPrices.map(variant => `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.itemname}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${variant.weight}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${variant.quantity}</td>
+        </tr>
+      `).join("")
+    ).join("");
+
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Roboto, sans-serif; color: #333; line-height: 1.6; }
+          .container { max-width: 600px; margin: auto; padding: 20px; }
+          .header { border-bottom: 3px solid #f39c12; margin-bottom: 20px; }
+          .header h2 { color: #f39c12; }
+          .info-box { background: #fff9e6; padding: 15px; border-left: 4px solid #f39c12; margin-bottom: 20px; }
+          .info-box p { margin: 5px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
+          th { background-color: #f7f7f7; }
+          .footer { font-size: 12px; color: #777; margin-top: 30px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>🔔 Payment Received, Order Being Reviewed</h2>
+            <p>${orderDate}</p>
+          </div>
+          <div class="info-box">
+            <p>Dear ${user?.name || "Customer"},</p>
+            <p>We have received your payment, but we encountered a verification issue. Our team will review it and get back to you shortly.</p>
+            <p><strong>Razorpay Order ID:</strong> ${razorpay_order_id}</p>
+            <p><strong>Razorpay Payment ID:</strong> ${razorpay_payment_id}</p>
+            <p><strong>Total Paid:</strong> ₹${total}</p>
+          </div>
+
+
+          <h3>Your Order Summary</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variant</th>
+                <th>Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productTable}
+            </tbody>
+          </table>
+
+
+          <div class="footer">
+            <p>If you have questions, feel free to contact our support team.</p>
+            <p>Thank you for choosing Bake Flavours!</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+
+    await transporter.sendMail({
+      from: `Bake Flavours <${process.env.EMAIL}>`,
+      to: userEmail,
+      subject: "🔔 Payment Received, Order Under Review",
+      html,
+    });
+
+
+  } catch (error) {
+    console.error("❌ Error sending failed payment email to user:", error.message);
+  }
+};

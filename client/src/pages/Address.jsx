@@ -97,7 +97,7 @@ const Address = () => {
           </div>
 
           {/* Address List */}
-          <div className="bg-gray-50 p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
+          <div className="bg-white p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
             {addressList
               .filter((address) => address.status)
               .map((address, index) => (

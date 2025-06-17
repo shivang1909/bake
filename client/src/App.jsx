@@ -1,17 +1,18 @@
+import { useEffect, useState } from 'react'
 import { Outlet, useLocation,useNavigate } from 'react-router-dom'
 import './App.css'
 // import Header from './components/Header'
 import Header from  './components/Header.jsx'
 import Footer from './components/Footer'
 import toast, { Toaster } from 'react-hot-toast';
-import { useEffect } from 'react';
 import fetchUserDetails from './utils/fetchUserDetails';
 import { setUserDetails } from './store/userSlice';
 import { setAllCategory,setLoadingCategory } from './store/productSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import Axios from './utils/Axios';
 import { setDataLoading } from './store/loadingSlice';
-
+import { AnimatePresence, motion } from 'framer-motion'
+import Loader from './pages/Loader.jsx'
 import SummaryApi from './common/SummaryApi';
 import GlobalProvider from './provider/GlobalProvider';
 import { FaCartShopping } from "react-icons/fa6";
@@ -24,12 +25,16 @@ import checkout from './pages/CheckoutPage.jsx';
 
 
 function App() {
-  const dispatch = useDispatch()
-  const location = useLocation()
-  const navigate = useNavigate()  
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const hideLayoutRoutes = ["/register","/login","/dashboard/checkout","/forgot-password","/verification-otp"];
+  const [isLoading, setIsLoading] = useState(true);
 
+  const hideLayoutRoutes = [
+    "/register", "/login", "/dashboard/checkout", "/forgot-password",
+    "/verification-otp", "/success"
+  ];
   const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
   const fetchUser = async () => {
@@ -55,23 +60,41 @@ function App() {
     fetchUser();
   }, []);
 
-  // 👇 ADD THIS to fix scroll issue
+  // ⚡ Trigger loader every time the route changes
   useEffect(() => {
-    window.scrollTo(0, 0);
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      window.scrollTo(0, 0);
+    }, 2000); // ⏳ minimum 2 seconds loader
+
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   return (
     <GlobalProvider>
-      {!hideLayout && <Header />}
-      <main className=" bg-white">
-        <Outlet />
-      </main>
-      {!hideLayout && <Footer />}
-      <Toaster />
-      {location.pathname !== '/checkout' && <CartMobileLink />}
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          {!hideLayout && <Header />}
+          <main className="bg-white">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Outlet />
+            </motion.div>
+          </main>
+          {!hideLayout && <Footer />}
+          <Toaster />
+          {location.pathname !== "/checkout" && <CartMobileLink />}
+        </>
+      )}
     </GlobalProvider>
   );
 }
 
-
-export default App
+export default App;

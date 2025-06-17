@@ -5,7 +5,7 @@ const videoNames = ['reel1', 'reel2', 'reel3', 'reel4', 'reel5'];
 const VideoSection = () => {
   return (
     <div className="video-section px-4 py-8">
-      <div className="video-container flex gap-6 overflow-x-auto scrollbar-hide md:justify-left md:items-center lg:justify-center">
+      <div className="video-container flex gap-6 overflow-x-auto scrollbar-hide md:justify-center md:items-center lg:justify-center">
         {videoNames.map((name, index) => (
           <div
             key={index}

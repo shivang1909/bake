@@ -16,14 +16,14 @@ const ProfileSideBar =({activesection})=> {
 
   return (
     <>
-     <aside className="hidden md:block w-full bg-white  rounded-xl border h-full sticky mt-5">
+     <aside className="hidden md:block w-full bg-white  rounded-xl border h-full max-h-[75vh] sticky mt-5 ">
             <h2 className="text-lg lg:text-xl font-semibold mb-4 border-b pb-5 pt-5">Hello, {user.name}</h2>
             <ul className="space-y-2 p-4">
               <li>
                 <Link
                   to="/dashboard/Myprofile"
                  
-                  className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full  md:p-5 ${
+                  className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-xl  md:p-5 ${
                     activesection === "Myprofile"
                       ? "bg-orange-100 text-orange-600 font-semibold"
                       : "hover:bg-gray-100"
@@ -39,7 +39,7 @@ const ProfileSideBar =({activesection})=> {
                 <Link
                   to="/dashboard/myorders"
                   
-                  className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full  md:p-5 ${
+                  className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-xl  md:p-5 ${
                     activesection === "myorders"
                       ? "bg-orange-100 text-orange-600 font-semibold"
                       : "hover:bg-gray-100"
@@ -55,7 +55,7 @@ const ProfileSideBar =({activesection})=> {
                 <Link
                  to="/dashboard/address"
                  
-                 className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-full  md:p-5 ${
+                 className={`w-full text-left text-md lg:text-lg  px-4 py-5 rounded-lg md:rounded-xl  md:p-5 ${
                   activesection === "address"
                     ? "bg-orange-100 text-orange-600 font-semibold"
                     : "hover:bg-gray-100"

@@ -14,9 +14,9 @@ import toast from "react-hot-toast";
 import { BiLogInCircle } from "react-icons/bi";
 
 
-const AddToCartBottomBar = ({ product, onClose }) => {
+const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
   const errorToastId = useRef(null);
-  const [selectedVariant, setSelectedVariant] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState(activeIndex);
   const [qty, setQty] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   const { totalQty, setTotalQty } = useGlobalContext();
@@ -26,18 +26,17 @@ const AddToCartBottomBar = ({ product, onClose }) => {
   const user = useSelector((state) => state.user);
   const [isAdded, setCart] = useState(false);
 
-    useEffect(() => {
-        if (open) {
-          document.body.style.overflow = "hidden";
-        } else {
-          document.body.style.overflow = "";
-        }
-    
-        return () => {
-          document.body.style.overflow = "";
-        };
-      }, [open]);
-
+  useEffect(() => {
+     if (open) {
+       document.body.style.overflow = "hidden";
+     } else {
+       document.body.style.overflow = "";
+     }
+ 
+     return () => {
+       document.body.style.overflow = "";
+     };
+   }, [open]);
   const addCartItem = async () => {
     if (user._id === undefined) {
       // If toast is already active, dismiss it
@@ -130,6 +129,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
 
   useEffect(() => {
     console.log(user.shopping_cart);
+    console.log(selectedVariant)
 
     if (user._id != undefined) {
       console.log("inside if ");
@@ -167,7 +167,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
       {/* Backdrop */}
       <div
         className={`
-          fixed inset-0 bg-zinc-800/60 z-50 transition-opacity duration-300
+          fixed inset-0 bg-zinc-800/60 z-40 transition-opacity duration-300
           ${
             isVisible
               ? "opacity-100 pointer-events-auto"
@@ -254,7 +254,7 @@ const AddToCartBottomBar = ({ product, onClose }) => {
               {product.weightVariants[selectedVariant].discount}% Off
             </span>
           ) : (
-            <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
+            <span className="text-xs font-semibold text-yellow-600 flex items-center justify-center gap-1">
               <AiFillInfoCircle /> Select Bigger Size for Discount
             </span>
           )}

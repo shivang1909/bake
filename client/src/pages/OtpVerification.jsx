@@ -119,7 +119,7 @@ const OtpVerification = () => {
               </button>
             </form>
       
-            <p className='flex gap-2'>
+            <p className='flex items-center justify-center gap-2'>
               Already have an account ?{" "}
               <Link to="/login" className="font-semibold text-orange-500 hover:text-orange-500">
                 Login

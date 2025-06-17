@@ -14,6 +14,9 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import shapegrey from "../../assets/images/Custom/shape-grey.png";
 import { GiDuration, GiIndiaGate } from "react-icons/gi";
 import { FaArrowUp, FaTruckFast } from "react-icons/fa6";
+import { IoGrid } from "react-icons/io5";
+import { TfiLayoutListThumbAlt } from "react-icons/tfi";
+import ListProductCardComponent from "../components/ListProductCard";
 
 const features = [
   {
@@ -39,6 +42,20 @@ const Featured = () => {
   const [FeaturedId, setFeaturedId] = useState();
   const [cartProduct, setCartProduct] = useState(null);
   const [totalPage, setTotalPage] = useState(null);
+   const [isListView, setIsListView] = useState(false);
+    useEffect(() => {
+      const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
+    
+      // Set initial value
+      setIsListView(mediaQuery.matches); // true for md/sm, false for lg+
+    
+      // Listener for resize
+      const handler = (e) => setIsListView(e.matches);
+      mediaQuery.addEventListener("change", handler);
+    
+      // Cleanup
+      return () => mediaQuery.removeEventListener("change", handler);
+    }, []);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -164,24 +181,61 @@ const Featured = () => {
           </div>
         </div>
 
+             <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
+                      <div className="filters flex gap-3 w-full justify-between items-center bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
+                        <div>
+                          <span className="text-gray-700 text-sm font-semibold">
+                            Special Moment, Sweeter Bites ♥️
+                          </span>
+                        </div>
+                        <div className="grid-list-buttons">
+                          <button
+                            onClick={() => setIsListView(!isListView)}
+                            title={
+                              isListView ? "Switch to Card View" : "Switch to List View"
+                            }
+                          >
+                            {isListView ? (
+                              <IoGrid className="text-2xl text-gray-700  transition-all duration-300 active:scale-95" />
+                            ) : (
+                              <TfiLayoutListThumbAlt className="text-2xl text-gray-700 transition-all duration-300 active:scale-95" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
         {/* <img src={shapegrey} alt="" className="w-full rotate-180" /> */}
         <InfiniteScroll
           dataLength={FeaturedProduct.length}
           hasMore={hasmoredata}
           next={FetchFeaturedProduct}
-          className="py-3"
+          className="lg:py-3"
         >
           {console.log(allProduct)}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center md:px-5 lg:px-32  lg:gap-10">
-            {FeaturedProduct.map((product, index) => (
-              <>
-                {console.log(allProduct)}
+          <div className={
+            isListView
+              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3"
+              :
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center md:px-5 lg:px-44 lg:gap-10`}>
+            
+            {FeaturedProduct.map((product, index) => 
+              isListView ? (
+                <ListProductCardComponent
+                  key={product._id}
+                  product={product}
+                  setCartProduct={setCartProduct}
+                />
+              ) : (
+                <>
+                 {console.log(allProduct)}
                 <ProductCard
                   product={product}
                   setCartProduct={setCartProduct}
                 />
-              </>
+                </>
             ))}
+
           </div>
         </InfiniteScroll>
         <button

@@ -426,7 +426,7 @@ const MyOrders = () => {
   };
   return (
     <>
-      <div className=" md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
+      <div className="mb-20 md:mt-20 lg:mt-20 lg:h-[80vh]  flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
         <div>
           <ProfileSideBar activesection={"myorders"} />
         </div>

@@ -6,7 +6,7 @@ import AxiosToastError from "../utils/AxiosToastError";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { updatedShoppingCart } from "../store/userSlice";
@@ -22,15 +22,17 @@ import "./CheckoutPage.css";
 import SkeletonCardLoader from "./SkeletonCardLoader";
 import Razorpay from "../../assets/images/Custom/razorpay.png";
 import COD from "../../assets/images/Custom/COD.png";
+import Logo from "../../assets/images/Custom/BakeFlavors.png";
 import AddAddressDesktop from "../components/AddAddressDesktop";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
 import { FaAngleUp } from "react-icons/fa6";
 import { CiGift } from "react-icons/ci";
 import { CiEdit } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa6";
-
+import ProcesspaymentModal from "../components/ProcesspaymentModal";
 import { IoCaretBackOutline } from "react-icons/io5";
 import Breadcrumbs from "../components/Breadcrumbs";
+import { GiShoppingBag } from "react-icons/gi";
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -53,25 +55,25 @@ const Accordion = ({
   onToggle,
   footerButton,
   onPrevious,
+  customHeaderButton, // 👈 new prop
 }) => {
   const accordionRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setVisible(true); // show with animation
+      setVisible(true);
       setTimeout(() => {
         accordionRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
         });
-      }, 50); // slight delay to let DOM catch up
+      }, 50);
     } else {
-      setVisible(false); // reset animation when closed
+      setVisible(false);
     }
   }, [isOpen]);
 
-  // If accordion is active
   if (isOpen) {
     return (
       <div
@@ -79,25 +81,39 @@ const Accordion = ({
         className={`fixed inset-0 z-50 bg-white flex flex-col transition-all duration-500 ease-in-out
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
+        
         {/* Sticky Header */}
-        <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 ">
-          <div className="flex justify-between items-center">
+        <div className=" font-semibold border-b bg-white sticky top-0 z-10">
+        <div className="flex justify-center items-center py-3 px-3 gap-2 mb-2 border-b">
+       
+            <img src={Logo} alt="" className="mx-auto w-24 h-auto" />
+            </div>
+            
+          
+          <div className="px-4 py-3">
+            <div className="flex justify-between items-center">
             <span>{title}</span>
-            {onPrevious && (
+
+            {/* 🧠 Conditional logic for header button */}
+            {customHeaderButton ? (
+              customHeaderButton
+            ) : onPrevious ? (
               <button
                 onClick={onPrevious}
-                className="text-sm flex items-center font-medium text-indigo-600 "
+                className="text-sm flex items-center font-medium text-indigo-600"
               >
                 <IoCaretBackOutline /> Previous
               </button>
-            )}
+            ) : null}
           </div>
+          </div>
+          
         </div>
 
-        {/* Scrollable content */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">{children}</div>
 
-        {/* Sticky Footer */}
+        {/* Footer */}
         <div className="p-4 border-t bg-white sticky bottom-0 z-10">
           {footerButton}
         </div>
@@ -105,9 +121,8 @@ const Accordion = ({
     );
   }
 
-  // If not active, render compact view
   return (
-    <div className="border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300 mt-20">
+    <div className="hidden border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300 mt-20">
       <button
         className="w-full text-left px-4 py-3 font-medium flex justify-between items-center bg-white"
         onClick={onToggle}
@@ -120,6 +135,13 @@ const Accordion = ({
 };
 
 const CheckoutPage = () => {
+  const [paymentStatus, setPaymentStatus] = useState({
+    isProcessing: false, // true when payment is being processed
+    method: null, // 'online' or 'cod'
+    hasFailed: false,
+    paymentcancel: false, // true if payment failed
+  });
+  const user = useSelector((state) => state.user);
   const [openAddress, setOpenAddress] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [GiftWrapCharges, setGiftWrapCharges] = useState(0);
@@ -152,20 +174,24 @@ const CheckoutPage = () => {
       return;
     }
     setOpenSection("product");
-  }
+  };
   const handleProductComplete = () => setOpenSection("promo");
   const handlePromoComplete = () => setOpenSection("checkout");
   const [checked, setChecked] = useState(false);
-  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  // const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const promoRef = useRef(null);
   const promoRefAlt = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
+    const fromCart = location.state?.fromCart;
+    console.log("this is ", fromCart);
     const orderCompleted = sessionStorage.getItem("orderCompleted");
-    if (orderCompleted === "true") {
-      // Clear the flag
+    console.log("this is orderCompleted", orderCompleted);
+    console.log("this is user", user);
+    if (fromCart === undefined || user.shopping_cart.length === 0) {
       sessionStorage.removeItem("orderCompleted");
       // Redirect to home
       navigate("/", { replace: true });
@@ -222,6 +248,18 @@ const CheckoutPage = () => {
       });
     }
   }, [appliedPromocode]);
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "warning dont close"; // Required for Chrome to show the confirmation dialog
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(() => {
     if (appliedPromocode && promoRefAlt.current) {
@@ -491,14 +529,18 @@ const CheckoutPage = () => {
     setSelectedPromocode(code);
   };
 
-
   const handleCashOnDelivery = async () => {
     try {
-      if(!addressList[selectAddress]) {
+      setPaymentStatus({
+        isProcessing: true,
+        method: "cod",
+        hasFailed: false,
+        paymentcancel: false,
+      });
+      if (!addressList[selectAddress]) {
         toast.error("Please select a delivery address");
         return;
       }
-      toast.loading("Processing order...");
 
       // Prepare items with gift notes
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
@@ -549,6 +591,12 @@ const CheckoutPage = () => {
           setIsAnimating(true);
           setTimeout(() => {
             setIsAnimating(false);
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: false,
+            });
             navigate("/success", {
               replace: true,
               state: { fromCheckout: true },
@@ -564,11 +612,16 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-      if(!addressList[selectAddress]) {
+      if (!addressList[selectAddress]) {
         toast.error("Please select a delivery address");
         return;
       }
-
+      setPaymentStatus({
+        isProcessing: true,
+        method: "online",
+        hasFailed: false,
+        paymentcancel: false,
+      });
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
         ...item,
         variantPrices: item.variantPrices.map((variant, vIndex) => {
@@ -601,10 +654,24 @@ const CheckoutPage = () => {
         name: "Bake Flavour",
         description: "Test Transaction",
         order_id: order.id,
+        modal: {
+          ondismiss: () => {
+            console.log("Razorpay popup closed by user");
+
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: true,
+            });
+
+            toast.error("Payment was cancelled.");
+          },
+        },
+
         handler: async (response) => {
           try {
-            setIsProcessingOrder(true);
-             // 🚨 Start blocking user
+            // 🚨 Start blocking user
             const verifyRes = await fetch(
               `${import.meta.env.VITE_API_URL}/api/order/verifyPayment`,
               {
@@ -643,17 +710,36 @@ const CheckoutPage = () => {
                 setIsAnimating(true);
                 setTimeout(() => {
                   setIsAnimating(false);
-                  setIsProcessingOrder(false); // ✅ Allow access again
+                  setPaymentStatus({
+                    isProcessing: false,
+                    method: null,
+                    hasFailed: false,
+                    paymentcancel: false,
+                  });
+
                   navigate("/success", {
                     replace: true,
                     state: { fromCheckout: true },
                   });
                 }, 10000); // wait 10 seconds
               }
+            } else if (!verifyData.success) {
+              setPaymentStatus({
+                isProcessing: false,
+                method: null,
+                hasFailed: true,
+                paymentcancel: false,
+              });
             }
           } catch (err) {
+            console.error("this is", err);
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: true,
+              paymentcancel: false,
+            });
             toast.error("Payment verification failed. Please Wait.");
-            setIsProcessingOrder(false); // 🔓 unblock even if error
           }
         },
       };
@@ -662,7 +748,13 @@ const CheckoutPage = () => {
       rzp.open();
     } catch (error) {
       console.log(error);
-      setIsProcessingOrder(false); // 🔓 unblock on error
+      setPaymentStatus({
+        isProcessing: false,
+        method: null,
+        hasFailed: true,
+        paymentcancel: false,
+      });
+
       // AxiosToastError(error);
     }
   };
@@ -798,11 +890,11 @@ const CheckoutPage = () => {
 
   return (
     <section className="bg-white text-black font-normal ">
-      <div className="flex flex-col items-center justify-center pt-10 pb-5">
-       <h2 className="text-4xl font-semibold">CheckOut</h2> 
-       <Breadcrumbs/>
+      <div className="hidden lg:block md:flex flex-col items-center justify-center pt-10 pb-5">
+        <h2 className="text-4xl font-semibold">CheckOut</h2>
+        <Breadcrumbs />
       </div>
-     
+
       <div className="hidden  container lg:p-8 lg:px-0 xl:px-3 lg:flex flex-col lg:flex-row w-full 2xl:gap-10 lg:gap-5 [@media(min-width:1600px)]:gap-8 justify-center">
         {/* First column : for address */}
         <div className="w-full max-w-md">
@@ -1247,7 +1339,7 @@ const CheckoutPage = () => {
           <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-[#008E97] to-[#00a0abe1] text-white pb-3 p-4 rounded-t-xl mb-3 text-md">
             <IoBagCheckOutline className="text-lg" /> Checkout
           </div>
-          <div className="contentarea px-2 overflow-y-auto max-h-[75vh] lg:min-h-[75vh]">
+          <div className="contentarea px-2 overflow-y-auto max-h-[75vh] lg:min-h-[75vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
             {/* Promocode Section */}
             <div className="bg-white p-4">
               <h3 className="font-semibold mb-2">Apply Promocode</h3>
@@ -1492,16 +1584,16 @@ const CheckoutPage = () => {
                       {addressList[selectAddress].mobile || "NA"}
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-600">No address selected</div>
+                    <div className="text-sm text-gray-600">
+                      No address selected
+                    </div>
                   )}
                 </div>
-                  
-          
 
                 {/* Place Order Button */}
                 <div className="flex items-center justify-center">
                   <button
-                    className={`order ${isAnimating ? "animate" : ""}`}
+                    className={`order mb-2 ${isAnimating ? "animate" : ""}`}
                     onClick={handleClick}
                   >
                     <span className="default">Complete Order</span>
@@ -1530,11 +1622,21 @@ const CheckoutPage = () => {
       </div>
 
       <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2">
+        
         <Accordion
           title={<span className="text-lg font-semibold">Confirm Address</span>}
           isOpen={openSection === "address"}
           onToggle={() =>
             setOpenSection(openSection === "address" ? null : "address")
+          }
+          customHeaderButton={
+            <button
+              onClick={() => navigate("/shopall")}
+              className="flex  gap-1 items-center text-sm font-semibold bg-gray-100 border border-gray-300 p-1 px-2 rounded-xl text-black hover:bg-gray-100 transition-all duration-300 active:scale-95"
+            >
+              Shop More
+              <GiShoppingBag />
+            </button>
           }
           footerButton={
             <button
@@ -1651,14 +1753,13 @@ const CheckoutPage = () => {
                   )}
                   {addressList.filter((a) => a.status).length > 1 && (
                     <div className="flex px-4 items-center justify-center">
-                       <div
-                      onClick={() => setOpenAddress(true)}
-                      className="py-4 w-full text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
-                    >
-                      <MdMyLocation className="text-lg" /> Add Another Address
+                      <div
+                        onClick={() => setOpenAddress(true)}
+                        className="py-4 w-full text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
+                      >
+                        <MdMyLocation className="text-lg" /> Add Another Address
+                      </div>
                     </div>
-                    </div>
-                   
                   )}
                 </div>
               )}
@@ -2333,24 +2434,26 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
-                  
-                 {addressList[selectAddress] ? (
-                  <div className="text-sm text-gray-600">
-                    {addressList[selectAddress].name || "NA"}
-                    <br />
-                    {addressList[selectAddress].address_line1 || "NA"}
-                    <br />
-                    {addressList[selectAddress].address_line2 || "NA"}
-                    <br />
-                    {addressList[selectAddress].city || "NA"}
-                    <br />
-                    {addressList[selectAddress].country || "NA"}
-                    <br />
-                    {addressList[selectAddress].mobile || "NA"}
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-600">No address selected</div>
-                )}
+
+                  {addressList[selectAddress] ? (
+                    <div className="text-sm text-gray-600">
+                      {addressList[selectAddress].name || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line1 || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line2 || "NA"}
+                      <br />
+                      {addressList[selectAddress].city || "NA"}
+                      <br />
+                      {addressList[selectAddress].country || "NA"}
+                      <br />
+                      {addressList[selectAddress].mobile || "NA"}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">
+                      No address selected
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2359,40 +2462,20 @@ const CheckoutPage = () => {
           </div>
         </Accordion>
       </div>
-
-      {isProcessingOrder && (
-      <div className="fixed inset-0 z-[1000] bg-black bg-opacity-20 backdrop-blur-sm overflow-hidden">
-        {/* Bottom sheet container */}
-        <div
-          className={`absolute bottom-0 left-0 w-full bg-white rounded-t-2xl shadow-lg px-6 py-8 text-center transition-all duration-500 ease-in-out h-1/2
-      ${isProcessingOrder ? "h-1/2" : "h-0"}
-    `}
-          style={{ transitionProperty: "height" }}
-        >
-          <div
-            className={`overflow-hidden transition-opacity duration-500 ${
-              isProcessingOrder ? "opacity-100" : "opacity-100"
-            }`}
-          >
-            <h2 className="text-xl font-bold mb-4">Processing Payment</h2>
-            <p className="text-gray-600 text-sm mb-4">
-              Please don’t refresh or close this tab while we’re verifying your
-              payment. <br />
-               This may take a few seconds.
-            </p>
-            {/* <div className="flex justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
-      </div> */}
-
-            <div class="flex-col gap-4 w-full flex items-center justify-center mt-12">
-              <div class="w-20 h-20 border-4 border-transparent text-[#008E97] text-4xl animate-spin flex items-center justify-center border-t-[#008E97] rounded-full">
-                <div class="w-16 h-16 border-4 border-transparent text-orange-400 text-2xl animate-spin flex items-center justify-center border-t-orange-400 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {(paymentStatus.isProcessing ||
+        paymentStatus.hasFailed ||
+        paymentStatus.paymentcancel) && (
+        <ProcesspaymentModal
+          status={paymentStatus}
+          onClose={() =>
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: false,
+            })
+          }
+        />
        )} 
 
       {showModal && (
@@ -2410,4 +2493,3 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
-  

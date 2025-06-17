@@ -215,7 +215,9 @@ const DisplayCartItem = ({ close, open }) => {
   const navigate = useNavigate();
   const redirectToCheckoutPage = () => {
     if (user?._id) {
-      navigate("/dashboard/checkout");
+    
+      navigate("/dashboard/checkout", { state: { fromCart: true } });
+
       if (close) {
         close();
       }
@@ -364,6 +366,7 @@ const DisplayCartItem = ({ close, open }) => {
       loop
       autoplay
     />
+    <span className="font-semibold">Your Cart is Empty</span>
                   <Link
                     onClick={close}
                     to="/shopall"

@@ -13,7 +13,6 @@ import Address from "../../assets/images/Custom/address.svg";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { MdOutlineAddLocationAlt } from "react-icons/md";
 
-
 const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
   const isEdit = mode === "edit";
   const { register, handleSubmit, reset, setValue, watch } = useForm({
@@ -37,7 +36,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
   const [animateModal, setAnimateModal] = useState(false);
   const [showCheckButton, setShowCheckButton] = useState(!isEdit);
 
-
   useEffect(() => {
     if (!isEdit) {
       setPincodeChecked(false);
@@ -47,20 +45,17 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
 
   setTimeout(() => setAnimateModal(true), 10);
 
-  
-
   useEffect(() => {
-      if (open) {
-        document.body.style.overflow = "hidden";
-      } else {
-        document.body.style.overflow = "";
-      }
-  
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }, [open]);
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
 
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   // useEffect(() => {
   //   if (isEdit) {
@@ -69,11 +64,9 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
   //   }
   // }, [isEdit]);
 
-
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
   });
-
 
   const reverseGeocode = async (lat, lng) => {
     try {
@@ -83,16 +76,13 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
         }`
       );
 
-
       const data = await res.json();
       if (data.status === "OK") {
         const result = data.results[0];
         const components = result.address_components;
 
-
         const getComponent = (type) =>
           components.find((c) => c.types.includes(type))?.long_name || "";
-
 
         setValue("address_line1", result.formatted_address);
         setValue("city", getComponent("locality"));
@@ -111,13 +101,11 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     }
   };
 
-
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation not supported.");
       return;
     }
-
 
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
@@ -127,7 +115,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     });
   };
 
-
   const handleMapClick = (event) => {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
@@ -135,13 +122,11 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     reverseGeocode(lat, lng);
   };
 
-
   const onSubmit = async (formData) => {
     if (!pincodeChecked) {
       toast.error("Please validate the pincode before submitting.");
       return;
     }
-
 
     try {
       const apiConfig = isEdit
@@ -149,7 +134,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
         : SummaryApi.createAddress;
       const response = await Axios({ ...apiConfig, data: formData });
       const { data: responseData } = response;
-
 
       if (responseData.success) {
         toast.success(responseData.message);
@@ -162,13 +146,11 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     }
   };
 
-
   const checkPincode = async () => {
     if (pincodeValue.length !== 6) {
       toast.error("Please enter a valid 6-digit pincode.");
       return;
     }
-
 
     try {
       const response = await fetch(
@@ -176,9 +158,7 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
       );
       const data = await response.json();
 
-
       const postOffice = data[0]?.PostOffice?.[0];
-
 
       if (postOffice && postOffice.District.toLowerCase() === "ahmedabad") {
         setValue("city", "Ahmedabad");
@@ -199,37 +179,33 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     }
   };
 
-
   return (
     <section
-    className={`fixed inset-0 z-50 bg-black bg-opacity-70 transition-opacity duration-300 ease-in-out
+      className={`fixed inset-0 z-50 bg-black bg-opacity-70 transition-opacity duration-300 ease-in-out
     ${
-      open
-        ? "opacity-100 pointer-events-auto"
-        : "opacity-0 pointer-events-none"
+      open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
     }
     flex lg:items-center lg:justify-center
   `}
-  >
-    <div
-      className={`bg-white w-full max-w-lg lg:max-w-7xl transition-all duration-300 overflow-y-auto ease-in-out transform z-50
+    >
+      <div
+        className={`bg-white w-full max-w-lg lg:max-w-7xl transition-all duration-300 overflow-y-auto ease-in-out transform z-50
       ${
-                        animateModal
-                          ? "translate-y-0 opacity-100"
-                          : "translate-y-full opacity-0"
-                      }
+        animateModal
+          ? "translate-y-0 opacity-100"
+          : "translate-y-full opacity-0"
+      }
       fixed bottom-0 lg:relative
       h-[75%] lg:h-auto
       rounded-t-3xl lg:rounded-xl
       shadow-lg
     `}
-    >
+      >
         <div className="sticky top-0 z-10 flex justify-between items-center gap-4 bg-[#ff8a23] text-white pb-3 p-4 rounded-t-xl">
           <span className="font-semibold flex items-center gap-2 px-2 text-lg">
             <MdOutlineAddLocationAlt className="text-xl" />{" "}
             {isEdit ? "Edit Address" : "Add Address"}
           </span>
-
 
           <button
             onClick={close}
@@ -238,7 +214,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
             <IoClose size={28} />
           </button>
         </div>
-
 
         <div className="addresscontent flex flex-col lg:flex-row-reverse gap-2 overflow-y-auto max-h-[60vh] md:max-h-[70vh] lg:max-h-[80vh]">
           <div className="w-full lg:w-2/5 sm:overflow-y-auto lg:overflow-hidden">
@@ -289,7 +264,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                 </GoogleMap>
               </div>
             )}
-
 
             <div className="hidden lg:block h-full shadow-md overflow-hidden mb-5">
               {isLoaded && mapVisible && (
@@ -361,7 +335,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                 </div>
               </div>
 
-
               <div className="grid my-3">
                 <div className="w-full relative flex rounded-xl">
                   <input
@@ -397,28 +370,26 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                 </div>
               </div>
 
-
               <div className="grid grid-cols-2 my-3 items-center justify-center gap-3">
                 <div className="w-full relative flex items-center rounded-xl bg-white border border-2 border-gray-200 focus-within:ring-1 focus-within:ring-orange-300">
-                 <input
-  required
-  type="text"
-  id="pincode"
-  {...register("pincode", {
-    required: true,
-    onChange: (e) => {
-      const newPincode = e.target.value;
+                  <input
+                    required
+                    type="text"
+                    id="pincode"
+                    {...register("pincode", {
+                      required: true,
+                      onChange: (e) => {
+                        const newPincode = e.target.value;
 
-
-      // Clear other fields using setValue
-      setPincodeChecked(false);
-      setValue("city", "");
-      setValue("state", "");
-      setValue("country", "");
-    },
-  })}
-  className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight"
-/>
+                        // Clear other fields using setValue
+                        setPincodeChecked(false);
+                        setValue("city", "");
+                        setValue("state", "");
+                        setValue("country", "");
+                      },
+                    })}
+                    className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight"
+                  />
                   <label
                     htmlFor="pincode"
                     className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
@@ -442,67 +413,79 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
                   </div>
                 </div>
                 <div className="grid my-3">
-                  <div className="w-full relative flex rounded-xl">
-                    <input
-                      required
-                      type="text"
-                      id="city"
-                      readOnly
-                      {...register("city", { required: true })}
-                      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                    />
-                    <label
-                      htmlFor="city"
-                      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                    >
-                      City
-                    </label>
-                  </div>
-                </div>
-              </div>
+  <div className="w-full relative flex rounded-xl">
+    <input
+      required
+      type="text"
+      id="city"
+      readOnly
+      placeholder=" " // Invisible placeholder helps with label positioning
+      value={watch("city") || ""} // controlled input to reflect changes
+      {...register("city", { required: true })}
+      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+    />
+    <label
+      htmlFor="city"
+      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 left-4 px-2 font-normal text-sm duration-150 top-1/4 
+        peer-focus:top-0 peer-focus:text-xs peer-focus:left-3 peer-focus:text-orange-500 peer-focus::mt-0
+        peer-[&:not(:placeholder-shown)]:top-0 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:mt-0"
+    > 
+      City
+    </label>
+  </div>
+</div>
 
+              </div>
 
               <div className="grid grid-cols-2 gap-5">
-                <div className="grid my-3">
-                  <div className="w-full relative flex rounded-xl">
-                    <input
-                      required
-                      type="text"
-                      id="state"
-                      readOnly
-                      {...register("state", { required: true })}
-                      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                    />
-                    <label
-                      htmlFor="state"
-                      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                    >
-                      State
-                    </label>
-                  </div>
-                </div>
+              <div className="grid my-3">
+  <div className="w-full relative flex rounded-xl">
+    <input
+      required
+      type="text"
+      id="state"
+      readOnly
+      placeholder=" "
+      value={watch("state") || ""}
+      {...register("state", { required: true })}
+      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+    />
+    <label
+      htmlFor="state"
+      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 left-4 px-2 font-normal text-sm duration-150 top-1/4 
+        peer-focus:top-0 peer-focus:text-xs peer-focus:left-3 peer-focus:text-orange-500 peer-focus::mt-0
+        peer-[&:not(:placeholder-shown)]:top-0 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:mt-0"
+    >
+      State
+    </label>
+  </div>
+</div>
 
 
-                <div className="grid my-3">
-                  <div className="w-full relative flex rounded-xl">
-                    <input
-                      required
-                      type="text"
-                      id="country"
-                      readOnly
-                      {...register("country", { required: true })}
-                      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                    />
-                    <label
-                      htmlFor="country"
-                      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                    >
-                      Country
-                    </label>
-                  </div>
-                </div>
+<div className="grid my-3">
+  <div className="w-full relative flex rounded-xl">
+    <input
+      required
+      type="text"
+      id="country"
+      readOnly
+      placeholder=" "
+      value={watch("country") || ""}
+      {...register("country", { required: true })}
+      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+    />
+    <label
+      htmlFor="country"
+      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 left-4 px-2 font-normal text-sm duration-150 top-1/4 
+        peer-focus:top-0 peer-focus:text-xs peer-focus:left-3 peer-focus:text-orange-500 peer-focus::mt-0
+        peer-[&:not(:placeholder-shown)]:top-0 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:mt-0"
+    >
+      Country
+    </label>
+  </div>
+</div>
+
               </div>
-
 
               <button
                 type="submit"
@@ -518,6 +501,5 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     </section>
   );
 };
-
 
 export default AddAddressDesktop;

@@ -629,60 +629,81 @@ export const getproductfilter = async (request, response) => {
       });
     }
 
-    pipeline.push({
-      $addFields: {
-        variantsWithDiscountedPrice: {
-          $map: {
+pipeline.push({
+  $addFields: {
+    variantsWithDiscountedPrice: {
+      $map: {
+        input: {
+          $filter: {
             input: "$tempFilteredVariants",
             as: "variant",
-            in: {
-              discounted_price: {
-                $subtract: [
-                  "$$variant.price",
-                  {
-                    $divide: [
-                      { $multiply: ["$$variant.price", "$$variant.discount"] },
-                      100,
+            cond: {
+              $let: {
+                vars: {
+                  discountedPrice: {
+                    $subtract: [
+                      "$$variant.price",
+                      {
+                        $divide: [
+                          { $multiply: ["$$variant.price", "$$variant.discount"] },
+                          100,
+                        ],
+                      },
                     ],
                   },
-                ],
+                },
+                in: {
+                  $and: [
+                    { $gte: ["$$discountedPrice", minPrice] },
+                    { $lte: ["$$discountedPrice", maxPrice] },
+                  ],
+                },
               },
             },
           },
         },
-      },
-    });
-
-    pipeline.push({
-      $match: {
-        variantsWithDiscountedPrice: {
-          $elemMatch: {
-            discounted_price: { $gte: minPrice, $lte: maxPrice },
-          },
+        as: "variant",
+        in: {
+          $subtract: [
+            "$$variant.price",
+            {
+              $divide: [
+                { $multiply: ["$$variant.price", "$$variant.discount"] },
+                100,
+              ],
+            },
+          ],
         },
       },
-    });
+    },
+  },
+});
+
+
+pipeline.push({
+  $match: {
+    variantsWithDiscountedPrice: { $ne: [] }
+  }
+});
 
     // Compute maxPrice from filtered or original
-    pipeline.push({
-      $addFields: {
-        maxPrice: {
-          $max: {
-            $map: {
-              input:
-                weight.length > 0 ? "$tempFilteredVariants" : "$weightVariants",
-              as: "v",
-              in: { $toInt: "$$v.price" },
-            },
-          },
-        },
-      },
-    });
+pipeline.push({
+  $addFields: {
+    minPrice: { $min: "$variantsWithDiscountedPrice" },
+    maxPrice: { $max: "$variantsWithDiscountedPrice" },
+  },
+});
+
+
 
     const sortStage = {};
 
-    if (priceSort === "asc" || priceSort === "desc") {
-      sortStage.maxPrice = priceSort === "asc" ? 1 : -1;
+    if (priceSort === "desc") {
+      sortStage.maxPrice = -1;
+    }
+
+    if(priceSort === "asc"){
+      sortStage.minPrice = 1;
     }
 
     if (rating) {
@@ -725,6 +746,8 @@ export const getproductfilter = async (request, response) => {
         publish: 1,
         sku_code: 1,
         weightVariants: 1,
+        minPrice:1,
+        maxPrice:1,
         createdAt: 1,
         updatedAt: 1
       },

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactSlider from 'react-slider';
 import './ShelfLifeSlider.css'; // Optional styles — no direction flip here
 
-const ShelfLifeSlider = ({value,setValue}) => {
+const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   
   const [tempPrice, setTempPrice] = useState(value);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -35,8 +35,13 @@ const ShelfLifeSlider = ({value,setValue}) => {
             }
           }
         };
-    
         document.addEventListener("mousedown", handleClickOutside);
+        if(isDirect)
+        {
+          setTempPrice(value)
+          setShowConfirmDialog(false);  
+          setDirect(false)
+        }
         return () => {
           document.removeEventListener("mousedown", handleClickOutside);
         };
@@ -50,12 +55,12 @@ const ShelfLifeSlider = ({value,setValue}) => {
       
 
   return (
-    <div className="relative">
+    <div className="relative px-2">
     <div ref={containerRef} className="range-slider-container">
       <form onSubmit={handleSubmit}>
         <div className='flex items-center justify-between'>
         <span className="block font-semibold text-gray-700">
-          Shelf Life - in Days
+          Days 
         </span>
 
     <button className='border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs' onClick={handleSubmit}>
@@ -81,7 +86,7 @@ const ShelfLifeSlider = ({value,setValue}) => {
             type="text"
             value={`Shelf Life: ${tempPrice} days`}
             readOnly
-            className="border rounded-full w-full text-center bg-orange-50 font-medium"
+            className="border rounded-full w-full text-center bg-gray-50 shadow-inner font-medium"
           />
         </div>
       </form>

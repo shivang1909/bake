@@ -14,6 +14,12 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import shapegrey from "../../assets/images/Custom/shape-grey.png";
 import { GiDuration, GiIndiaGate } from "react-icons/gi";
 import { FaArrowUp, FaTruckFast } from "react-icons/fa6";
+import { TfiLayoutListThumbAlt } from "react-icons/tfi";
+import { IoGrid } from "react-icons/io5";
+import ListProductCardComponent from "../components/ListProductCard";
+import { IoHeart } from "react-icons/io5";
+
+
 
 const features = [
   {
@@ -39,6 +45,20 @@ const Category = () => {
   const [cartProduct, setCartProduct] = useState(null);
   const [categoryId, setcategoryId] = useState();
   const [totalPage, settotalPage] = useState();
+  const [isListView, setIsListView] = useState(false);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
+  
+    // Set initial value
+    setIsListView(mediaQuery.matches); // true for md/sm, false for lg+
+  
+    // Listener for resize
+    const handler = (e) => setIsListView(e.matches);
+    mediaQuery.addEventListener("change", handler);
+  
+    // Cleanup
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -74,6 +94,7 @@ const Category = () => {
     });
     const data = response.data;
     console.log(categoryId);
+    console.log("total products number checkujngneiowndiue");
     console.log(response.data);
     setcatproducts((prev) => [...prev, ...response.data.data.product]);
     const TotalP =
@@ -169,24 +190,60 @@ const Category = () => {
           </div>
         </div>
 
+        <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
+          <div className="filters flex gap-3 w-full justify-between items-center bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
+            <div>
+              <span className="flex gap-2 items-center text-gray-700 text-sm font-semibold">
+               A Box of joy is just scroll away 💌
+              </span>
+            </div>
+            <div className="grid-list-buttons">
+              <button
+                onClick={() => setIsListView(!isListView)}
+                title={
+                  isListView ? "Switch to Card View" : "Switch to List View"
+                }
+              >
+                {isListView ? (
+                  <IoGrid className="text-2xl text-gray-700  transition-all duration-300 active:scale-95" />
+                ) : (
+                  <TfiLayoutListThumbAlt className="text-2xl text-gray-700 transition-all duration-300 active:scale-95" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <InfiniteScroll
           dataLength={catproducts.length}
           hasMore={hasmoredata}
           next={fetchproductbycategory}
-          className="py-3"
+          className="lg:py-5"
         >
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-5 justify-center items-center md:px-5 lg:px-32  lg:gap-10">
+          <div className={
+            isListView
+              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3"
+              :
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center md:px-5 lg:px-44 lg:gap-10`}>
             {catproducts.length > 0 &&
-              catproducts.map((product, index) => (
-                <>
-                  {console.log(allProduct)}
-                  <ProductCard
+              catproducts.map((product, index) =>
+                isListView ? (
+                  <ListProductCardComponent
+                    key={product._id}
                     product={product}
                     setCartProduct={setCartProduct}
-                    key={product._id}
                   />
-                </>
-              ))}
+                ) : (
+                  <>
+                    {console.log(allProduct)}
+                    <ProductCard
+                      product={product}
+                      setCartProduct={setCartProduct}
+                      key={product._id}
+                    />
+                  </>
+                )
+              )}
           </div>
         </InfiniteScroll>
         <button

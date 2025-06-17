@@ -922,11 +922,11 @@ const Header = () => {
             {/* Help Center */}
             <div className="border-b pb-3 pt-4 ">
               <ul className="text-[15px] font-bold">
-                <li className="cursor-pointer hover:text-blue-500 flex items-center gap-2">
-                <RiCustomerServiceLine className="text-xl" onClick={() => {
+                <li className="cursor-pointer hover:text-blue-500 flex items-center gap-2" onClick={() => {
                               setIsMenuOpen(false);
                               setSubmenuOpen(false);
-                            }} /> <Link to="/Contact-Us"> Contact Us</Link> 
+                            }} >
+                <RiCustomerServiceLine className="text-xl"  /> <Link to="/Contact-Us"> Contact Us</Link> 
                 </li>
               </ul>
             </div>
@@ -945,7 +945,7 @@ const Header = () => {
                 href="https://www.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-blue-600 text-blue-600 hover:text-white transition-colors"
+                className="bg-gray-200 p-3 rounded-full hover:bg-orange-600 text-orange-600 hover:text-white transition-colors"
               >
                 <FaFacebook size={20} />
               </a>

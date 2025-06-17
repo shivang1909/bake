@@ -136,7 +136,7 @@ const Register = () => {
   };
   return (
     <div className="bg-white md:min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-[1200px] bg-white rounded-3xl overflow-hidden  flex flex-col md:flex-row">
+      <div className="w-full h-full md:max-h-[90vh] max-w-[1200px] md:border md:border-gray-200 md:shadow-inner bg-white rounded-3xl overflow-hidden  flex flex-col md:flex-row">
         <div className="w-full md:w-1/2 relative overflow-hidden">
           <a
             href="/"
@@ -149,7 +149,7 @@ const Register = () => {
             {images.map((img, index) => (
               <img
                 key={index}
-                src={img}
+                src={img.src}
                 alt={`Slide ${index}`}
                 className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   currentIndex === index ? "opacity-100" : "opacity-0"
@@ -173,15 +173,15 @@ const Register = () => {
         </div>
 
         {/* Right Section */}
-        <div className="w-full md:w-1/2 px-6 py-4 md:p-12">
-          <div className="flex items-center justify-center ">
+        <div className="w-full md:w-1/2 px-6 py-4 md:py-2 md:p-12">
+          <div className="sm:block lg:hidden flex items-center justify-center ">
             <Link to="/">
               <img src={Logo} alt="logo" className="w-44" />
             </Link>
           </div>
-          <div className="border border-gray-50 my-3" />
-          <div className="max-w-md mx-auto">
-            <h1 className="text-black text-2xl text-center md:text-4xl font-semibold pyy-3">
+          
+          <div className="max-w-md mx-auto mt-2">
+            <h1 className="text-black text-2xl text-center md:text-3xl font-semibold mt-2">
               Create an account
             </h1>
 
@@ -460,7 +460,7 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col  gap-4">
                 <button
                   type="button"
                   onClick={() => {

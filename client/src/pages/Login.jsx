@@ -81,19 +81,19 @@ const Login = () => {
     }
   };
   return (
-    <section className="w-full container h-screen mx-auto px-2 font-normal">
-      <div className="bg-white my-4 w-full max-w-lg mx-auto rounded p-7">
-        <div className="flex items-center justify-center lg:mt-10">
-          <img src={Logo} alt="logo" className="w-44" />
+    <section className="bg-white md:min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-[280px] md:max-w-[800px] lg:max-w-[400px] bg-white rounded-3xl overflow-hidden mt-20 ">
+        <div className="flex items-center justify-center lg:mt-10 xl:mt-0">
+         <Link to="/">
+         <img src={Logo} alt="logo" className="w-44" />
+         </Link> 
         </div>
-        <div className="py-3 flex justify-center items-center">
-          <hr className="border-dashed border-gray-500 w-28" />
+        
+        <div className="text-center mt-4">
+          <p className="text-black text-xl text-center md:text-2xl font-semibold">Login To Your Account</p>
         </div>
-        <div className="text-center">
-          <p className="font-semibold">Login To Your Account</p>
-        </div>
-        <form className="grid gap-4 py-4" onSubmit={handleSubmit}>
-          <div className="grid my-3">
+        <form className="grid gap-4 px-1 py-4" onSubmit={handleSubmit}>
+          <div className="grid mt-2">
             <div className="w-full relative flex rounded-xl">
               <input
                 required
@@ -138,7 +138,7 @@ const Login = () => {
                   htmlFor="password"
                   className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
                 >
-                  password
+                  Password
                 </label>
               </div>
             </div>
@@ -165,7 +165,7 @@ const Login = () => {
               to={"/forgot-password"}
               className="block ml-auto hover:text-primary-200"
             >
-              Forgot password ?
+              Forgot Password ?
             </Link>
           </div>
 
@@ -175,7 +175,7 @@ const Login = () => {
               valideValue
                 ? "bg-orange-500 hover:bg-orange-500 "
                 : "bg-gray-500 disabled opacity-50"
-            }    text-white py-3 rounded-[24px] font-semibold  tracking-wide`}
+            }    text-white py-3 rounded-[24px] font-semibold transition-all active:scale-95 duration-300 tracking-wide`}
           >
             Login
           </button>
@@ -187,7 +187,7 @@ const Login = () => {
                   import.meta.env.VITE_API_URL
                 }/api/user/google`;
               }}
-              class="px-4 py-2 w-full justify-center border flex gap-2 border-slate-200  rounded-lg text-slate-700  hover:border-slate-400  hover:text-slate-900  hover:shadow transition duration-150"
+              class="px-4 py-2 w-full justify-center border flex gap-2 border-slate-200  rounded-[24px] text-slate-700  hover:border-slate-400  hover:text-slate-900  hover:shadow transition duration-150"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -283,7 +283,7 @@ const Login = () => {
         </form>
 
         <p className="flex items-center justify-center gap-1 ">
-          Don't have account ?{" "}
+          Don't have an account ?{" "}
           <Link
             to={"/register"}
             className="font-semibold text-orange-500 hover:text-orange-600"
