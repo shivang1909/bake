@@ -22,19 +22,23 @@ const Login = () => {
 
   const location = useLocation();
 
-  useEffect(() => {
+   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const msg = params.get("msg");
 
-    if (msg === "verified") {
-      console.log("inside ifff");
+    if (msg) {
+      // Show toast once
+      setTimeout(() => {
+        if (msg === "verified") toast.success("Email Verified Successfully!");
+        else if (msg === "already_verified") toast("⚠️ Email Already Verified!");
+      }, 300);
 
-      toast.success("✅ Email Verified Successfully!");
-    } else if (msg === "already_verified") {
-      console.log("inside else");
-      toast("⚠️ Email Already Verified!");
+      // 🧼 Clean URL so message won't show again on refresh
+      const newUrl = location.pathname;
+      navigate(newUrl, { replace: true }); // replace = don't add to history
     }
-  }, [location]);
+  }, [location, navigate]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

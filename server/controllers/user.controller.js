@@ -148,8 +148,9 @@ for (const item of cartDetails) {
 
 export async function registerUserController(request, response) {
     try {
-      const { name, email, password } = request.body;
-  
+      let { name, email, password } = request.body;
+      email = email.toLowerCase();
+
   
       if (!name || !email || !password) {
         return response.status(400).json({

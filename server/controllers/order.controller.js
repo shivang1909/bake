@@ -31,6 +31,7 @@ import {
   deliveryPartnerNotification,
 } from "./sseHandler.controller.js";
 import sendnotification from "../utils/sendnotification.js";
+import { getNextSequence } from '../redis.js';
 
 
 async function GetOlddeliverypartner(oid) {
@@ -365,11 +366,15 @@ export const verifyPayment = async (req, res) => {
         .json({ success: false, message: "Payment verification failed" });
     }
 
+    const today = new Date().toISOString().slice(0,10).replace(/-/g, '');
+const orderSeq = await getNextSequence(); // from Redis
+const padded = String(orderSeq).padStart(3, '0');
+const generatedOrderId = `ORD-${today}${padded}`;
 
     // Build order payload
     const payload = {
       userId: userId,
-      orderId : `ORD-${nanoid(6)}`,
+      orderId : generatedOrderId,
       products: list_items,
 
 
@@ -498,11 +503,14 @@ export async function CashOnDeliveryOrderController(request, response) {
       country: selectedAddress.country,
       mobile: selectedAddress.mobile
     };
-
+ const today = new Date().toISOString().slice(0,10).replace(/-/g, '');
+const orderSeq = await getNextSequence(); // from Redis
+const padded = String(orderSeq).padStart(3, '0');
+const generatedOrderId = `ORD-${today}${padded}`;
     // Create the base order payload
     const payload = {
       userId: userId,
-      orderId : `ORD-${nanoid(6)}`,
+      orderId : generatedOrderId,
 
       products: list_items,
       paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
@@ -513,9 +521,7 @@ export async function CashOnDeliveryOrderController(request, response) {
       orderStatus: "Not Assigned", // Default status
     };
     payload.special_Gift_packing = special_Gift_packing;
-    console.log("********************************");
     
-console.log(JSON.stringify(payload));
 
     // If promocode is provided, verify and apply it
     if (promocodeId) {

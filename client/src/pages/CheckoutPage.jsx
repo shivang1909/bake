@@ -206,6 +206,7 @@ const CheckoutPage = () => {
 
   const handleClick = () => {
     vibrate();
+    
     if (selectedMethod === "cod") {
       handleCashOnDelivery();
     } else if (selectedMethod === "razorpay") {

@@ -11,8 +11,8 @@ import ProfileSideBar from "../components/ProfileSideBar";
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showCancelMobileModal, setShowCancelMobileModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [animateModal, setAnimateModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ const MyOrders = () => {
   return (
     <div className="md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium overflow-hidden">
       <ProfileSideBar activesection={"myorders"} />
-     
+
       <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
         {orders.slice().reverse().map((order) => {
           const totalQuantity = order.products.reduce((acc, product) => {
@@ -157,58 +157,59 @@ const MyOrders = () => {
           return (
             <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 mb-4">
               {/* Header */}
-              <div className="p-6 pb-4">
-                <div className="  mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16  rounded-xl flex items-center justify-center  overflow-hidden">
-                      <img
-                        src={order.products[0]?.coverimage}
-                        alt={order.products[0]?.itemname}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="w-full">
-                      <div className="flex items-center gap-2 mb-1 justify-between">
+                                      <div className="flex items-center p-3 justify-between">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
                           {statusText}
                         </span>
-                        {/*  */}
-                             <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => downloadInvoice(order)}
-                      className="p-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                    >
-                      <MdDownload className="w-4 h-4" />
-                    </button>
-                   
-                    {!['Out for delivery', 'Delivered', 'Cancelled'].includes(order.orderStatus) && (
-                      <button
-                        onClick={() => window.innerWidth > 768 ? openModal(order._id) : openMobileModal(order._id)}
-                        className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                      >
-                        <RxCross2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => downloadInvoice(order)}
+                            className="p-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                          >
+                            <MdDownload className="w-4 h-4" />
+                          </button>
+
+                          {!['Out for delivery', 'Delivered', 'Cancelled'].includes(order.orderStatus) && (
+                            <button
+                              onClick={() => window.innerWidth > 768 ? openModal(order._id) : openMobileModal(order._id)}
+                              className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                              <RxCross2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="text-md font-bold text-gray-900 mb-1">
+              <div className="px-6 pb-4">
+                <div className="  mb-4">
+                  <div className="flex items-center gap-4">
+                    
+                    <div className="w-24 h-16  rounded-xl flex items-center justify-center  overflow-hidden">
+                      <img
+                        src={order.products[0]?.coverimage}
+                        alt={order.products[0]?.itemname}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="w-full">
+
+                      <div className="text-[13px] font-bold text-gray-900">
                         Order ID: {order.orderId}
-                      </h3>
+                      </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
-                       
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">Payment:</span>
+
+                        <div className="flex items-center gap-1 text-[13px]">
+                          <span className="font-medium"> Payment:</span>
                           {order.payment_status.toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ')}
+                            .split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ')}
                         </div>
                       </div>
                     </div>
                   </div>
-                 
+
                   {/* Action Buttons */}
-             
+
                 </div>
 
 
@@ -219,7 +220,7 @@ const MyOrders = () => {
                     Total Products: <span className=" text-gray-900">{totalQuantity}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-bold text-gray-900">₹{order.finalOrderTotal || 0}</div>
+                    <div className="text-[16px] font-bold text-gray-900">₹{order.finalOrderTotal || 0}</div>
                     <div className="text-xs text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString('en-GB', {
                         day: 'numeric',
@@ -253,34 +254,40 @@ const MyOrders = () => {
                     {order.products?.length > 0 ? (
                       order.products.map((product, index) => (
                         <div key={index} className="bg-gray-50 rounded-xl p-4">
-                          <div className="flex items-start gap-4">
-                            <div className="w-16 h-16  rounded-lg flex-shrink-0 overflow-hidden">
+                          <div className="">
+                            <div className="w-16 h-16 absolute  rounded-lg flex-shrink-0 overflow-hidden">
                               <img
                                 src={product.coverimage}
+
                                 alt={product.itemname}
                                 className="w-full h-full object-cover"
                               />
                             </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900 mb-2">{product.itemname}</h4>
+                            <div className="">
+
+                              <h4 className="ml-20 font-semibold text-gray-900 mb-2 ">{product.itemname}</h4>
                               {product.variantPrices?.map((variant, i) => {
                                 const discountAmount = (variant.price * variant.discount) / 100;
                                 return (
-                                  <div key={i} className="grid grid-cols-2 gap-4 text-sm mb-3">
-                                    <div>
-                                      <div className="text-gray-600 flex gap-2">Weight: <span className="text-gray-900">{variant.weight}</span></div>
-                                      <div className="text-gray-600 flex gap-2">Qty: <span className="text-gray-900">{variant.quantity}</span></div>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className="text-gray-600 flex justify-end gap-2">Price: <span className="font-semibold text-gray-900">₹{variant.price}</span></div>
-                                      <div className="text-green-600 text-xs">
-                                        {variant.discount}% (₹{discountAmount}/item)
+                                  <div key={i} className="grid grid-cols-1  text-sm ">
+                                    <div className="ml-20">
+                                      <div className="flex flex-col ">
+                                        <div>
+                                          <div className="text-gray-600 flex gap-2">Weight: <span className="text-gray-900">{variant.weight}</span></div>
+                                          <div className="text-gray-600 flex gap-2">Qty: <span className="text-gray-900">{variant.quantity}</span></div>
+                                        </div>
+                                        <div className="">
+                                          <div className="text-gray-600 flex gap-2">Price: <span className="font-semibold text-gray-900">₹{variant.price}</span></div>
+
+                                        </div>
                                       </div>
                                     </div>
                                     {variant.giftNotes.map((note, idx) => (
-                                      <div key={idx} className="col-span-2 mt-2 bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
-                                        <span className="font-medium">Gift Note:</span> "{note}"
+                                      <div key={idx} className="flex mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
+                                        <div className="font-medium whitespace-nowrap mr-2">Gift Note:</div>
+                                        <div className="break-all">{note}</div>
                                       </div>
+
                                     ))}
                                   </div>
                                 );
@@ -303,7 +310,7 @@ const MyOrders = () => {
                       </div>
                       <h3 className="font-semibold text-gray-900">Billing Summary</h3>
                     </div>
-                   
+
                     <div className="space-y-3">
                       {(() => {
                         const totalOrderPrice = order.products?.reduce(
@@ -399,17 +406,14 @@ const MyOrders = () => {
 
         {/* Mobile Cancel Order Modal */}
         {showCancelMobileModal && (
-          <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-500 ease-in-out ${
-            showCancelMobileModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          }`}>
-            <div className={`absolute inset-0 bg-black transition-all duration-500 ease-in-out ${
-              showCancelMobileModal ? 'bg-opacity-15' : 'bg-opacity-0 backdrop-blur-0'
-            }`} onClick={closeMobileModel}></div>
-
-
-            <div className={`fixed bottom-0 left-0 right-0 bg-white w-full max-w-md mx-auto rounded-t-2xl p-5 shadow-xl text-center transform transition-all duration-500 ease-in-out ${
-              animateModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+          <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-500 ease-in-out ${showCancelMobileModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             }`}>
+            <div className={`absolute inset-0 bg-black transition-all duration-500 ease-in-out ${showCancelMobileModal ? 'bg-opacity-15' : 'bg-opacity-0 backdrop-blur-0'
+              }`} onClick={closeMobileModel}></div>
+
+
+            <div className={`fixed bottom-0 left-0 right-0 bg-white w-full max-w-md mx-auto rounded-t-2xl p-5 shadow-xl text-center transform transition-all duration-500 ease-in-out ${animateModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+              }`}>
               <h2 className="text-lg font-semibold text-gray-800 mb-2">Cancel this order?</h2>
               <p className="text-sm text-gray-500 mb-6">
                 Are you sure you want to cancel this order? This action can't be undone.

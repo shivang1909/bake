@@ -92,7 +92,7 @@ function App() {
           <Toaster />
           {location.pathname !== "/checkout" && <CartMobileLink />}
         </>
-      )}
+       )} 
     </GlobalProvider>
   );
 }
