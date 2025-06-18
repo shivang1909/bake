@@ -33,7 +33,7 @@ function App() {
 
   const hideLayoutRoutes = [
     "/register", "/login", "/dashboard/checkout", "/forgot-password",
-    "/verification-otp", "/success"
+    "/verification-otp", "/success","/reset-password"
   ];
   const hideLayout = hideLayoutRoutes.includes(location.pathname);
 

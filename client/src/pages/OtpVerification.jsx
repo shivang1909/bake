@@ -8,24 +8,23 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from "../../assets/images/Custom/BakeFlavors.png";
 
+
 const OtpVerification = () => {
     const [data, setData] = useState(["","","","","",""])
     const navigate = useNavigate()
     const inputRef = useRef([])
     const location = useLocation()
-
-    console.log("location",location)
+console.log("this is mail",location.state.email);
 
     useEffect(()=>{
         if(!location?.state?.email){
             navigate("/forgot-password")
         }
     },[])
-
     const valideValue = data.every(el => el)
-
     const handleSubmit = async(e)=>{
         e.preventDefault()
+
 
         try {
             const response = await Axios({
@@ -40,10 +39,12 @@ const OtpVerification = () => {
                 toast.error(response.data.message)
             }
 
+
             if(response.data.success){
                 toast.success(response.data.message)
                 setData(["","","","","",""])
                 navigate("/reset-password",{
+                  replace:true,
                     state : {
                         data : response.data,
                         email : location?.state?.email
@@ -51,22 +52,22 @@ const OtpVerification = () => {
                 })
             }
 
+
         } catch (error) {
             console.log('error',error)
             AxiosToastError(error)
         }
-
-
-
     }
 
+
     return (
-        <section className="w-full container mx-auto px-2 flex justify-center items-center h-screen md:bg-gray-50">
-          <div className="bg-white my-4 w-full max-w-lg mx-auto rounded-[20px] md:shadow-sm md:border p-7">
+        <section className="w-full container mx-auto px-2 flex justify-center items-center h-screen">
+          <div className="bg-white my-4 w-full max-w-lg mx-auto rounded-[20px]   p-7">
             <div className="flex items-center justify-center">
-              <Link to="/">
-                <img src={Logo} alt="logo" className="w-44" />
-              </Link>
+              <span className='hover:cursor-pointer' onClick={
+                              () => {navigate("/", { replace: true });}}>
+                              <img src={Logo} alt="logo" className="w-44" />
+                            </span>
             </div>
             <div className="border border-gray-50 my-3" />
       
@@ -103,6 +104,7 @@ const OtpVerification = () => {
                       maxLength={1}
                       className="bg-gray-50 md:w-16 w-10 md:h-16 h-10 border border-gray-300 rounded-xl text-xl outline-none focus:border-orange-200 text-center font-semibold"
 
+
                     />
                   ))}
                 </div>
@@ -130,7 +132,9 @@ const OtpVerification = () => {
       )      
 }
 
+
 export default OtpVerification
+
 
 
 

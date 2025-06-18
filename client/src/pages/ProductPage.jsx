@@ -129,7 +129,6 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   useEffect(() => {
     const fetchFirstPage = async () => {
       try {
-        
         const response = await Axios({
           ...SummaryApi.getproductFilter,
           data: {
@@ -311,7 +310,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
       <div className={`z-20 transition-all duration-300 ${isSticky ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b" : ""}`}>
       <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
         {/* apllied filters section start */}
-        <div className="flex flex-row-reverse gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
+        <div className="flex flex-row gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
           {
             filter.map((f)=>(
           <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">

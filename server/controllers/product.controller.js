@@ -743,6 +743,7 @@ pipeline.push({
           updatedAt: "$category.updatedAt"
         },
         description: 1,
+        averageRating:1,
         publish: 1,
         sku_code: 1,
         weightVariants: 1,

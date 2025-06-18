@@ -659,11 +659,11 @@ export async function verifyForgotPasswordOtp(request,response){
 //reset the password
 export async function resetpassword(request,response){
     try {
-        const { email , newPassword, confirmPassword } = request.body 
+        const { email , password, confirmPassword } = request.body 
 
-        if(!email || !newPassword || !confirmPassword){
+        if(!email || !password || !confirmPassword){
             return response.status(400).json({
-                message : "provide required fields email, newPassword, confirmPassword"
+                message : "provide required fields email, password, confirmPassword"
             })
         }
 
@@ -677,16 +677,16 @@ export async function resetpassword(request,response){
             })
         }
 
-        if(newPassword !== confirmPassword){
+        if(password !== confirmPassword){
             return response.status(400).json({
-                message : "newPassword and confirmPassword must be same.",
+                message : "password and confirmPassword must be same.",
                 error : true,
                 success : false,
             })
         }
 
         const salt = await bcryptjs.genSalt(10)
-        const hashPassword = await bcryptjs.hash(newPassword,salt)
+        const hashPassword = await bcryptjs.hash(password,salt)
 
         const update = await UserModel.findOneAndUpdate(user._id,{
             password : hashPassword

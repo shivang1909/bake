@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import NoOrder from "../../assets/images/Custom/basket.png";
 import ProfileSideBar from "../components/ProfileSideBar";
 
-
+import blobimage from '../assets/blob.webp'
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
@@ -108,9 +108,36 @@ const MyOrders = () => {
   };
 
 
-  if (orders.length === 0) {
-    return (
-      <div className="bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
+  // if (orders.length === 0) {
+  //   return (
+  //     <div className="mt-20 bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
+  //       {/* <div>My Orders</div> */}
+  //       <div className="flex justify-center pb-5">
+  //         <img src={NoOrder} alt="No Orders" className="h-44 w-44 grayscale" />
+  //       </div>
+  //       <h2 className="text-2xl font-semibold mb-4 text-gray-800">No Orders Yet</h2>
+  //       <p className="text-gray-600 mb-6">
+  //         Looks like you haven't placed <br /> any orders yet.
+  //       </p>
+  //       <button
+  //         onClick={() => navigate("/shopall")}
+  //         className="bg-orange-500 w-full hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+  //       >
+  //         Shop Now
+  //       </button>
+  //     </div>
+  //   );
+  // }
+
+
+  return (
+    <>
+    <div className="md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium overflow-hidden">
+      <ProfileSideBar activesection={"myorders"} />
+
+      <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
+       { orders.length === 0 && 
+        <div className=" bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
         <div className="flex justify-center pb-5">
           <img src={NoOrder} alt="No Orders" className="h-44 w-44 grayscale" />
         </div>
@@ -120,20 +147,16 @@ const MyOrders = () => {
         </p>
         <button
           onClick={() => navigate("/shopall")}
-          className="bg-yellow-500 w-full hover:bg-yellow-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+          className="bg-orange-500 w-full hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
         >
           Shop Now
         </button>
       </div>
-    );
-  }
-
-
-  return (
-    <div className="md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium overflow-hidden">
-      <ProfileSideBar activesection={"myorders"} />
-
-      <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
+}
+      
+       {orders.length > 0 &&
+       <>
+        <div className="text-xl font-semibold text-center w-full mb-4 mt-8 md:mt-0  ">My Orders</div>
         {orders.slice().reverse().map((order) => {
           const totalQuantity = order.products.reduce((acc, product) => {
             return acc + product.variantPrices.reduce((sum, variant) => sum + variant.quantity, 0);
@@ -157,7 +180,7 @@ const MyOrders = () => {
           return (
             <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 mb-4">
               {/* Header */}
-                                      <div className="flex items-center p-3 justify-between">
+                    <div className="flex items-center p-3 justify-between border border-b-1">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
                           {statusText}
                         </span>
@@ -183,7 +206,7 @@ const MyOrders = () => {
                 <div className="  mb-4">
                   <div className="flex items-center gap-4">
                     
-                    <div className="w-24 h-16  rounded-xl flex items-center justify-center  overflow-hidden">
+                    <div className="w-24 h-16 mt-4 rounded-xl flex items-center justify-center  overflow-hidden">
                       <img
                         src={order.products[0]?.coverimage}
                         alt={order.products[0]?.itemname}
@@ -254,23 +277,22 @@ const MyOrders = () => {
                     {order.products?.length > 0 ? (
                       order.products.map((product, index) => (
                         <div key={index} className="bg-gray-50 rounded-xl p-4">
-                          <div className="">
-                            <div className="w-16 h-16 absolute  rounded-lg flex-shrink-0 overflow-hidden">
+                          <div className="md:flex">
+                            <div className="w-16 h-16 absolute md:relative rounded-lg flex-shrink-0 overflow-hidden">
                               <img
-                                src={product.coverimage}
-
+                                src={blobimage}
                                 alt={product.itemname}
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="">
 
-                              <h4 className="ml-20 font-semibold text-gray-900 mb-2 ">{product.itemname}</h4>
+                              <h4 className="ml-20 md:ml-4 font-semibold text-gray-900 mb-2 ">{product.itemname}</h4>
                               {product.variantPrices?.map((variant, i) => {
                                 const discountAmount = (variant.price * variant.discount) / 100;
                                 return (
                                   <div key={i} className="grid grid-cols-1  text-sm ">
-                                    <div className="ml-20">
+                                    <div className="ml-20 md:ml-4">
                                       <div className="flex flex-col ">
                                         <div>
                                           <div className="text-gray-600 flex gap-2">Weight: <span className="text-gray-900">{variant.weight}</span></div>
@@ -283,7 +305,7 @@ const MyOrders = () => {
                                       </div>
                                     </div>
                                     {variant.giftNotes.map((note, idx) => (
-                                      <div key={idx} className="flex mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
+                                      <div key={idx} className="flex mt-4  bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
                                         <div className="font-medium whitespace-nowrap mr-2">Gift Note:</div>
                                         <div className="break-all">{note}</div>
                                       </div>
@@ -370,6 +392,8 @@ const MyOrders = () => {
             </div>
           );
         })}
+        </>
+      }
 
 
         {/* Cancel Order Modal */}
@@ -440,6 +464,7 @@ const MyOrders = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

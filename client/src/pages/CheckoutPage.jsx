@@ -33,6 +33,8 @@ import ProcesspaymentModal from "../components/ProcesspaymentModal";
 import { IoCaretBackOutline } from "react-icons/io5";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { GiShoppingBag } from "react-icons/gi";
+import { BsCart3 } from "react-icons/bs";
+
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -892,16 +894,31 @@ const CheckoutPage = () => {
   return (
     <section className="bg-white text-black font-normal ">
       <div className="hidden lg:block md:flex flex-col items-center justify-center pt-10 pb-5">
-        <h2 className="text-4xl font-semibold">CheckOut</h2>
+        <style>
+        {`
+          @font-face {
+            font-family: 'Bartex';
+            src: url('/Fonts/Bartex-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+        `}
+      </style>
+        <h2 style={{ fontFamily: "Bartex, sans-serif" }} className="text-4xl font-semibold">CheckOut</h2>
         <Breadcrumbs />
       </div>
 
       <div className="hidden  container lg:p-8 lg:px-0 xl:px-3 lg:flex flex-col lg:flex-row w-full 2xl:gap-10 lg:gap-5 [@media(min-width:1600px)]:gap-8 justify-center">
         {/* First column : for address */}
-        <div className="w-full max-w-md">
+        
+        <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
           {addressList.filter((a) => a.status).length === 0 ? (
-            // Empty State
-            <div className="max-w-md w-full h-full  border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
+            <>
+           <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white pb-3 p-4 rounded-t-xl">
+                  <FaLocationDot className="text-lg" /> Choose your address
+                </div>
+            <div className="h-full mt-3 max-h-[70vh] lg:min-h-[70vh]  rounded-xl flex flex-col justify-center items-center">
+              <div className="border-2 border-dashed border-gray-400 rounded-xl  p-3 flex flex-col justify-center items-center text-center">
               <div className="text-4xl text-gray-400 mb-2">
                 <FaLocationDot />
               </div>
@@ -917,17 +934,19 @@ const CheckoutPage = () => {
               >
                 Add Address
               </button>
+                </div>
             </div>
+            </>
           ) : (
             <>
-              <div className="w-full h-full max-w-md bg-white rounded-xl border-1">
+              <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
                 <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white pb-3 p-4 rounded-t-xl">
                   <FaLocationDot /> Choose your address
                 </div>
 
-                <div className="rounded-xl overflow-hidden h-full max-h-[75vh] flex flex-col pt-3 px-5">
+                <div className="rounded-xl overflow-auto h-[70vh] flex flex-col pb-3 mt-3 ">
                   {/* Scrollable Address Cards */}
-                  <div className="overflow-y-auto flex-1 gap-4 flex flex-col items-center">
+                  <div className="overflow-y-auto flex-1  px-4 gap-4 flex flex-col items-center scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                     {addressList.map((address, index) => {
                       const isActive = selectAddress === index;
                       if (!address.status) return null;
@@ -935,7 +954,7 @@ const CheckoutPage = () => {
                       return (
                         <div
                           key={index}
-                          className={`border rounded-xl p-4 flex flex-col gap-2 w-full max-w-md h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                          className={`border  rounded-xl p-4 flex flex-col gap-2 w-full max-w-md h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
                             isActive
                               ? "border-orange-400 border-2 bg-orange-50"
                               : "border-gray-300 bg-white"
@@ -1005,7 +1024,7 @@ const CheckoutPage = () => {
                   {addressList.filter((a) => a.status).length > 1 && (
                     <div
                       onClick={() => setOpenAddress(true)}
-                      className="py-4 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 bg-white mt-3"
+                      className="py-4 mx-3 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 bg-white mt-3"
                     >
                       <MdMyLocation className="text-lg" /> Add Another Address
                     </div>
@@ -1017,12 +1036,15 @@ const CheckoutPage = () => {
         </div>
 
         {/* second column : for product checkout */}
-        <div className="w-full max-w-md border-1 rounded-xl bg-white py-4 px-2">
+        <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
+          <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-[#607D8B] to-[#607D8B] text-white pb-3 p-4 rounded-t-xl">
+                  <BsCart3 className="text-lg" /> Your cart
+                </div>
           {/**summary**/}
-          <div className="overflow-y-auto max-h-[75vh] lg:min-h-[75vh]">
+          <div className="rounded-xl overflow-y-auto max-h-[70vh] mt-3 lg:min-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent" >
             {checkoutItems.length > 0 ? (
               <>
-                <div className="flex items-center justify-between px-4 py-2 font-semibold border border-green-200 bg-green-100 text-green-700 rounded-lg">
+                <div className="flex items-center justify-between mx-4 px-4 py-2 font-semibold border border-green-200 bg-green-100 text-green-700 rounded-lg">
                   <p>Your total savings</p>
                   <p>
                     {DisplayPriceInRupees(discountedPrice + promocodeDiscount)}
@@ -1336,11 +1358,11 @@ const CheckoutPage = () => {
         </div>
 
         {/* Third column : for promo code and  Bill details*/}
-        <div className="w-full max-w-md bg-white border-1  rounded-xl">
+        <div className="w-full max-h-[80vh] max-w-md bg-white border-1  rounded-xl">
           <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-[#008E97] to-[#00a0abe1] text-white pb-3 p-4 rounded-t-xl mb-3 text-md">
             <IoBagCheckOutline className="text-lg" /> Checkout
           </div>
-          <div className="contentarea px-2 overflow-y-auto max-h-[75vh] lg:min-h-[75vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+          <div className="contentarea px-2 overflow-y-auto max-h-[70vh] lg:min-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
             {/* Promocode Section */}
             <div className="bg-white p-4">
               <h3 className="font-semibold mb-2">Apply Promocode</h3>
@@ -1675,7 +1697,7 @@ const CheckoutPage = () => {
               <FaLocationDot /> Choose your address
             </div> */}
 
-                  <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[60vh] lg:min-h-[60vh]">
+                  <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[72vh] lg:h-[60vh]">
                     {/* // Address Cards */}
                     {addressList.map((address, index) => {
                       const isActive = selectAddress === index;
@@ -1740,7 +1762,7 @@ const CheckoutPage = () => {
                     {/* Add Another Address only when one address is active */}
                   </div>
                   {addressList.filter((a) => a.status).length === 1 && (
-                    <div className="flex-1 px-4  flex items-stretch">
+                    <div className="flex-1 px-4 mt-5 flex items-stretch">
                       <div
                         onClick={() => setOpenAddress(true)}
                         className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm h-full py-32 max-h-full cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
@@ -1753,14 +1775,27 @@ const CheckoutPage = () => {
                     </div>
                   )}
                   {addressList.filter((a) => a.status).length > 1 && (
-                    <div className="flex px-4 items-center justify-center">
-                      <div
-                        onClick={() => setOpenAddress(true)}
-                        className="py-4 w-full text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
-                      >
-                        <MdMyLocation className="text-lg" /> Add Another Address
-                      </div>
-                    </div>
+<div className="fixed right-2 bottom-24 z-50 flex flex-col items-center  animate-bounce">
+  {/* Tooltip with arrow */}
+  <div className="relative mb-2 animate-pulse ">
+    <div className="z-20 border border-orange-400 border-dotted backdrop:blur-sm bg-white text-orange-400 text-sm font-semibold px-3 py-1 rounded-lg shadow-md">
+      Add Address
+    </div>
+    {/* Arrow */}
+<div className="absolute left-1/2 -bottom-2 transform -translate-x-1/2 w-0 h-0 
+  border-l-8 border-l-transparent 
+  border-r-8 border-r-transparent 
+  border-t-8 border-t-orange-400">
+</div>
+  </div>
+
+  {/* Floating Button */}
+  <div className=" text-white text-lg rounded-full bg-orange-500 p-4 hover:scale-110 transition-transform duration-300 shadow-lg">
+    <MdMyLocation  onClick={() => setOpenAddress(true)} />
+  </div>
+</div>
+
+
                   )}
                 </div>
               )}

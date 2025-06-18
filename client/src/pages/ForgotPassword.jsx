@@ -55,8 +55,8 @@ const ForgotPassword = () => {
   };
 
   return (
-    <section className=" w-full container mx-auto px-2 flex justify-center items-center h-screen md:bg-gray-100">
-      <div className="bg-white  my-4 w-full md:w-xl max-w-xl mx-auto rounded-[20px] md:border p-7">
+    <section className=" w-full container mx-auto px-2 flex justify-center items-center h-screen ">
+      <div className="bg-white  my-4 w-full md:w-xl max-w-md mx-auto rounded-[20px]  p-7">
         <div className="flex items-center justify-center">
           <Link to="/">
             <img src={Logo} alt="logo" className="w-44" />

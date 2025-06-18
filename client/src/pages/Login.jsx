@@ -78,7 +78,7 @@ const Login = () => {
           email: "",
           password: "",
         });
-        navigate("/");
+        navigate("/",{replace:true});
       }
     } catch (error) {
       AxiosToastError(error);
@@ -167,7 +167,7 @@ const Login = () => {
             </div> */}
             <Link
               to={"/forgot-password"}
-              className="block ml-auto hover:text-primary-200"
+              className="block ml-auto hover:text-orange-500"
             >
               Forgot Password ?
             </Link>

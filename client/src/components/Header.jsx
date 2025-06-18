@@ -651,11 +651,11 @@ const Header = () => {
                                 </li>
                                 <li>
                                   <a
-                                    href="/settings"
+                                    href="/dashboard/address"
                                     className="px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
                                     onClick={closeDropdown}
                                   >
-                                    <FaMapMarkerAlt /> Track Orders
+                                    <FaMapMarkerAlt />Address
                                   </a>
                                 </li>
                                 <li>
