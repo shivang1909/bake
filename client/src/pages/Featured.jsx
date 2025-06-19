@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaShippingFast, FaGlobe, FaLeaf } from "react-icons/fa";
 import { BiTimeFive } from "react-icons/bi";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import ProductCard from "../components/ProductCard";
@@ -38,24 +38,14 @@ const features = [
 ];
 
 const Featured = () => {
+      const navigate = useNavigate();
+  
   const [FeaturedProduct, setFeaturedProduct] = useState([]);
   const [FeaturedId, setFeaturedId] = useState();
   const [cartProduct, setCartProduct] = useState(null);
   const [totalPage, setTotalPage] = useState(null);
    const [isListView, setIsListView] = useState(false);
-    useEffect(() => {
-      const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
     
-      // Set initial value
-      setIsListView(mediaQuery.matches); // true for md/sm, false for lg+
-    
-      // Listener for resize
-      const handler = (e) => setIsListView(e.matches);
-      mediaQuery.addEventListener("change", handler);
-    
-      // Cleanup
-      return () => mediaQuery.removeEventListener("change", handler);
-    }, []);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -84,8 +74,9 @@ const Featured = () => {
 
   const FeaturedNameSlug = fullFeaturedParam.split("-").slice(0, -1).join("-");
 
-  const FetchFeaturedProduct = async () => {
-    console.log(FeaturedId);
+const FetchFeaturedProduct = async () => {
+    try
+    {
     const response = await Axios({
       ...SummaryApi.getFeaturedProduct,
       data: { sectionId: FeaturedId, page: page },
@@ -95,7 +86,24 @@ const Featured = () => {
     setFeaturedProduct((prev) => [...prev, ...response.data.data]);
     setPage((prevPage) => prevPage + 1);
     setTotalPage(response.data.totalNoPage);
+    }
+    catch(error)
+    {
+       const message = error?.response?.data?.message;
+       console.log("this is error",message);
+       
+       
+      if(message === "No products found for this section")
+      {
+       
+          navigate("/NotFound", { replace: true });
+      }
+      console.log(error);
+
+
+    }
   };
+
 
   useEffect(() => {
     setPage(1);
@@ -130,7 +138,7 @@ const Featured = () => {
           }
         `}
         </style>
-        <div className=" flex flex-col items-center text-center space-y-2 mb-10">
+        <div className=" flex flex-col items-center text-center space-y-2 mb-5">
           <span
             className="text-5xl md:text-7xl font-thin text-[#1e293b] flex justify-center items-center gap-2"
             style={{ fontFamily: "Bartex, sans-serif" }}
@@ -181,8 +189,8 @@ const Featured = () => {
           </div>
         </div>
 
-             <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
-                      <div className="filters flex gap-3 w-full justify-between items-center bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
+             <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between px-3  md:gap-3 md:mb-5 md:mx-4 py-5">
+                      <div className="filters flex gap-3 w-full justify-between items-center rounded-full bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
                         <div>
                           <span className="text-gray-700 text-sm font-semibold">
                             Special Moment, Sweeter Bites ♥️
@@ -215,9 +223,9 @@ const Featured = () => {
           {console.log(allProduct)}
           <div className={
             isListView
-              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3"
+              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3 px-3"
               :
-            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center md:px-5 lg:px-44 lg:gap-10`}>
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center px-3 md:px-5 lg:px-44 lg:gap-10`}>
             
             {FeaturedProduct.map((product, index) => 
               isListView ? (
@@ -239,14 +247,14 @@ const Featured = () => {
 
           </div>
         </InfiniteScroll>
-        <button
-          onClick={scrollToTop}
-          className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
-            showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        >
-          <FaArrowUp className="w-full h-full" />
-        </button>
+      <button
+                  onClick={scrollToTop}
+                  className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                    showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                  }`}
+                >
+                  <FaArrowUp className="w-full h-full text-orange-500" />
+                </button>
       </div>
       {cartProduct && (
         <AddToCartBottomBar

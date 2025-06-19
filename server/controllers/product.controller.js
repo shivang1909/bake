@@ -231,13 +231,29 @@ export const getProductByCategory = async (request, response) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
     
-    if (!id) {
+     if (!id) {
       return response.status(400).json({
         message: "provide category id",
         error: true,
         success: false,
       });
     }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+         return response.status(404).json({
+           message: "Category not found",
+           error: true,
+           success: false,
+         });
+       }
+ const categoryExists = await CategoryModel.findById(id);
+     if (!categoryExists) {
+         return response.status(404).json({
+           message: "Category not found",
+           error: true,
+           success: false,
+         });
+       }
+
 
     const totalCount =await ProductModel.countDocuments({
       category:{
@@ -331,12 +347,25 @@ export const getProductByCategoryName = async (request, response) => {
 export const getProductDetails = async (request, response) => {
   try {
     const { productId } = request.body;
-    console.log("this is productId", productId);
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return response.status(404).json({
+          message: "Product not found",
+          error: true,
+          success: false,
+        });
+      }
     const product = await ProductModel.findOne({ _id: productId }).populate(
       "category"
     );
 
-    // console.log(product);
+
+     if (!product) {
+         return response.status(404).json({
+           message: "Product not found",
+           error: true,
+           success: false,
+         });
+       }
 
     return response.json({
       message: "product details",

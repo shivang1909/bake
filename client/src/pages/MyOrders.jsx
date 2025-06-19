@@ -6,10 +6,15 @@ import { RxCross2 } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 import NoOrder from "../../assets/images/Custom/basket.png";
 import ProfileSideBar from "../components/ProfileSideBar";
+import ContentLoader from "../components/ContentLoader";
+import { FaArrowUp } from "react-icons/fa";
 
-import blobimage from '../assets/blob.webp'
+
+
+
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [showCancelMobileModal, setShowCancelMobileModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -18,6 +23,20 @@ const MyOrders = () => {
   const navigate = useNavigate();
 
 
+
+  const [showScrollTop, setShowScrollTop] = useState(false);
+useEffect(() => {
+      const handleScroll = () => {
+        setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+  
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -25,6 +44,7 @@ const MyOrders = () => {
           method: SummaryApi.getMyorderItems.method,
           url: SummaryApi.getMyorderItems.url,
         });
+        setLoadingOrders(false);
         setOrders(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -33,7 +53,6 @@ const MyOrders = () => {
     };
     fetchOrders();
   }, []);
-
 
   useEffect(() => {
     if (showCancelMobileModal) {
@@ -45,7 +64,6 @@ const MyOrders = () => {
       document.body.style.overflow = "";
     };
   }, [showCancelMobileModal]);
-
 
   const toggleMoreInfo = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
@@ -59,11 +77,15 @@ const MyOrders = () => {
   };
 
 
+
+
   const openMobileModal = (orderId) => {
     setSelectedOrderId(orderId);
     setShowCancelMobileModal(true);
     setTimeout(() => setAnimateModal(true), 10);
   };
+
+
 
 
   const closeModal = () => {
@@ -72,10 +94,14 @@ const MyOrders = () => {
   };
 
 
+
+
   const closeMobileModel = () => {
     setAnimateModal(false);
     setTimeout(() => setShowCancelMobileModal(false), 300);
   };
+
+
 
 
   const handleCancelOrder = async (orderId) => {
@@ -95,6 +121,8 @@ const MyOrders = () => {
   };
 
 
+
+
   const downloadInvoice = async (order) => {
     const res = await Axios({
       ...SummaryApi.getInvoice,
@@ -106,37 +134,16 @@ const MyOrders = () => {
     window.open(url, "_blank");
     window.URL.revokeObjectURL(url);
   };
+ 
 
 
-  // if (orders.length === 0) {
-  //   return (
-  //     <div className="mt-20 bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
-  //       {/* <div>My Orders</div> */}
-  //       <div className="flex justify-center pb-5">
-  //         <img src={NoOrder} alt="No Orders" className="h-44 w-44 grayscale" />
-  //       </div>
-  //       <h2 className="text-2xl font-semibold mb-4 text-gray-800">No Orders Yet</h2>
-  //       <p className="text-gray-600 mb-6">
-  //         Looks like you haven't placed <br /> any orders yet.
-  //       </p>
-  //       <button
-  //         onClick={() => navigate("/shopall")}
-  //         className="bg-orange-500 w-full hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
-  //       >
-  //         Shop Now
-  //       </button>
-  //     </div>
-  //   );
-  // }
-
-
-  return (
+ return (
     <>
     <div className="md:mt-20 lg:mt-20 lg:h-[100vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium overflow-hidden">
       <ProfileSideBar activesection={"myorders"} />
 
       <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
-       { orders.length === 0 && 
+       { orders.length === 0 && !loadingOrders && (
         <div className=" bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
         <div className="flex justify-center pb-5">
           <img src={NoOrder} alt="No Orders" className="h-44 w-44 grayscale" />
@@ -152,8 +159,14 @@ const MyOrders = () => {
           Shop Now
         </button>
       </div>
-}
-      
+)}
+
+       {/* <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0"> */}
+       {
+         loadingOrders && (
+             <ContentLoader />
+         )
+       }
        {orders.length > 0 &&
        <>
         <div className="text-xl font-semibold text-center w-full mb-4 mt-8 md:mt-0  ">My Orders</div>
@@ -161,6 +174,8 @@ const MyOrders = () => {
           const totalQuantity = order.products.reduce((acc, product) => {
             return acc + product.variantPrices.reduce((sum, variant) => sum + variant.quantity, 0);
           }, 0);
+
+
 
 
           const statusColor = {
@@ -172,15 +187,19 @@ const MyOrders = () => {
           }[order.orderStatus] || 'bg-gray-100 text-gray-800';
 
 
+
+
           const statusText = ['Assigned', 'Not Assigned'].includes(order.orderStatus)
             ? 'Order Placed'
             : order.orderStatus;
 
 
+
+
           return (
             <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 mb-4">
               {/* Header */}
-                    <div className="flex items-center p-3 justify-between border border-b-1">
+                                      <div className="flex items-center p-3 justify-between">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
                           {statusText}
                         </span>
@@ -191,6 +210,7 @@ const MyOrders = () => {
                           >
                             <MdDownload className="w-4 h-4" />
                           </button>
+
 
                           {!['Out for delivery', 'Delivered', 'Cancelled'].includes(order.orderStatus) && (
                             <button
@@ -205,8 +225,8 @@ const MyOrders = () => {
               <div className="px-6 pb-4">
                 <div className="  mb-4">
                   <div className="flex items-center gap-4">
-                    
-                    <div className="w-24 h-16 mt-4 rounded-xl flex items-center justify-center  overflow-hidden">
+                   
+                    <div className="w-24 h-16  rounded-xl flex items-center justify-center  overflow-hidden">
                       <img
                         src={order.products[0]?.coverimage}
                         alt={order.products[0]?.itemname}
@@ -215,10 +235,12 @@ const MyOrders = () => {
                     </div>
                     <div className="w-full">
 
+
                       <div className="text-[13px] font-bold text-gray-900">
                         Order ID: {order.orderId}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
+
 
                         <div className="flex items-center gap-1 text-[13px]">
                           <span className="font-medium"> Payment:</span>
@@ -231,9 +253,13 @@ const MyOrders = () => {
                     </div>
                   </div>
 
+
                   {/* Action Buttons */}
 
+
                 </div>
+
+
 
 
                 {/* Order Summary */}
@@ -256,6 +282,8 @@ const MyOrders = () => {
               </div>
 
 
+
+
               {/* Expandable Content */}
               <div className="px-6">
                 <button
@@ -270,6 +298,8 @@ const MyOrders = () => {
               </div>
 
 
+
+
               {expandedOrder === order._id && (
                 <div className="px-6 pb-6 space-y-6">
                   {/* Items List */}
@@ -277,22 +307,25 @@ const MyOrders = () => {
                     {order.products?.length > 0 ? (
                       order.products.map((product, index) => (
                         <div key={index} className="bg-gray-50 rounded-xl p-4">
-                          <div className="md:flex">
-                            <div className="w-16 h-16 absolute md:relative rounded-lg flex-shrink-0 overflow-hidden">
+                          <div className="">
+                            <div className="w-16 h-16 absolute  rounded-lg flex-shrink-0 overflow-hidden">
                               <img
-                                src={blobimage}
+                                src={product.coverimage}
+
+
                                 alt={product.itemname}
                                 className="w-full h-full object-cover"
                               />
                             </div>
                             <div className="">
 
-                              <h4 className="ml-20 md:ml-4 font-semibold text-gray-900 mb-2 ">{product.itemname}</h4>
+
+                              <h4 className="ml-20 font-semibold text-gray-900 mb-2 ">{product.itemname}</h4>
                               {product.variantPrices?.map((variant, i) => {
                                 const discountAmount = (variant.price * variant.discount) / 100;
                                 return (
                                   <div key={i} className="grid grid-cols-1  text-sm ">
-                                    <div className="ml-20 md:ml-4">
+                                    <div className="ml-20">
                                       <div className="flex flex-col ">
                                         <div>
                                           <div className="text-gray-600 flex gap-2">Weight: <span className="text-gray-900">{variant.weight}</span></div>
@@ -301,14 +334,16 @@ const MyOrders = () => {
                                         <div className="">
                                           <div className="text-gray-600 flex gap-2">Price: <span className="font-semibold text-gray-900">₹{variant.price}</span></div>
 
+
                                         </div>
                                       </div>
                                     </div>
                                     {variant.giftNotes.map((note, idx) => (
-                                      <div key={idx} className="flex mt-4  bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
+                                      <div key={idx} className="flex mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs">
                                         <div className="font-medium whitespace-nowrap mr-2">Gift Note:</div>
                                         <div className="break-all">{note}</div>
                                       </div>
+
 
                                     ))}
                                   </div>
@@ -324,6 +359,8 @@ const MyOrders = () => {
                   </div>
 
 
+
+
                   {/* Billing Summary */}
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-4">
@@ -332,6 +369,7 @@ const MyOrders = () => {
                       </div>
                       <h3 className="font-semibold text-gray-900">Billing Summary</h3>
                     </div>
+
 
                     <div className="space-y-3">
                       {(() => {
@@ -342,6 +380,8 @@ const MyOrders = () => {
                         );
 
 
+
+
                         const totalDiscount = order.products?.reduce(
                           (acc, product) => acc + product.variantPrices.reduce(
                             (sum, variant) => sum + ((variant.price * variant.discount) / 100) * variant.quantity, 0
@@ -349,9 +389,13 @@ const MyOrders = () => {
                         );
 
 
+
+
                         const finalAmount = (totalOrderPrice || 0) - (totalDiscount || 0) -
                           (order.promocodeDiscount || 0) + (order.delivery_charges || 0) +
                           (order.special_Gift_packing || 0);
+
+
 
 
                         return (
@@ -396,6 +440,8 @@ const MyOrders = () => {
       }
 
 
+
+
         {/* Cancel Order Modal */}
         {showCancelModal && (
           <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 transition-opacity duration-300">
@@ -428,13 +474,14 @@ const MyOrders = () => {
         )}
 
 
+
+
         {/* Mobile Cancel Order Modal */}
         {showCancelMobileModal && (
           <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-500 ease-in-out ${showCancelMobileModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             }`}>
             <div className={`absolute inset-0 bg-black transition-all duration-500 ease-in-out ${showCancelMobileModal ? 'bg-opacity-15' : 'bg-opacity-0 backdrop-blur-0'
               }`} onClick={closeMobileModel}></div>
-
 
             <div className={`fixed bottom-0 left-0 right-0 bg-white w-full max-w-md mx-auto rounded-t-2xl p-5 shadow-xl text-center transform transition-all duration-500 ease-in-out ${animateModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
               }`}>
@@ -464,10 +511,20 @@ const MyOrders = () => {
         )}
       </div>
     </div>
+    <button
+                              onClick={scrollToTop}
+                              className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                                showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                              }`}
+                            >
+                              <FaArrowUp className="w-full h-full text-orange-500" />
+                            </button>
+    {/* </div> */}
     </>
   );
 };
 
 
-export default MyOrders;
 
+
+export default MyOrders;

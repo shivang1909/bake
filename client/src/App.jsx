@@ -24,23 +24,17 @@
   import checkout from './pages/CheckoutPage.jsx';
 
 
-
-
   function App() {
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
 
-
+const pathname = window.location.pathname;
     const [isLoading, setIsLoading] = useState();
     const excludedRoutesForLoader = [
     "/login", "/register", "/checkout", "/dashboard/checkout", "/forgot-password", "/success"
-    ,"/search","/about-us", "/Privacy-Policy","/dashboard/myorders", "/dashboard/Myprofile",
+    ,"/search","/about-us", "/Privacy-Policy", "/Terms-conditions", "/Contact-Us","/dashboard/myorders", "/dashboard/Myprofile",
     "/dashboard/address","/verification-otp","/reset-password"
-
-
-
-
   ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
@@ -76,7 +70,7 @@
 
     // ⚡ Trigger loader every time the route changes
     useEffect(() => {
-        if (excludedRoutesForLoader.includes(location.pathname)) {
+        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")) {
       setIsLoading(false);
       return;
     }

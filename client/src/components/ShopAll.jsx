@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 import {
   Dialog,
   DialogBackdrop,
@@ -11,7 +11,9 @@ import {
   MenuButton,
   MenuItem,
   MenuItems,
+  Transition
 } from "@headlessui/react";
+import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -21,11 +23,11 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import ProductPage from "../pages/ProductPage";
-import "./ProductsLeftBar.css";
+import "../assets/styles/ProductsLeftBar.css";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FaBagShopping } from "react-icons/fa6";
 import { FaHeartCircleCheck } from "react-icons/fa6";
-import { FaChevronRight } from "react-icons/fa";
+import { FaArrowUp, FaChevronRight } from "react-icons/fa";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
@@ -41,12 +43,24 @@ const ShopAll = () => {
   const dispatch = useDispatch();
   const allProduct = useSelector((state) => state.product.Allproduct);
   const [WeightVarient, setWeightVarient] = useState([]);
-  const [selectedWeight,setSelectedWeight] = useState([]);
+  const [selectedWeight, setSelectedWeight] = useState([]);
   const [values, setValues] = useState([10, 1000]);
   const [value, setValue] = useState(0);
-  const [search,setSearch] = useState("");
-  const [isDirect,setDirect] = useState(false);
+  const [search, setSearch] = useState("");
+  const [isDirect, setDirect] = useState(false);
+const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+    };
 
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
     { id: "Price", name: "Price", icon: <AiOutlineProduct /> },
@@ -82,7 +96,9 @@ const ShopAll = () => {
   return (
     <div className="bg-white mt-20">
       <Helmet>
-        <title>Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad</title>
+        <title>
+          Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad
+        </title>
         <meta
           name="description"
           content="Explore and shop delicious sweets, cakes, cookies, dry fruit sweets, and namkeen from Bake Flavour – your favorite Ahmedabad bakery."
@@ -121,169 +137,176 @@ const ShopAll = () => {
       </div>
       <div>
         {/* Mobile filter dialog */}
-        <Dialog
-          open={mobileFiltersOpen}
-          onClose={setMobileFiltersOpen}
-          className="relative z-40 lg:hidden"
-        >
-          <DialogBackdrop className="fixed inset-0 bg-black/50 transition-opacity duration-300 ease-linear" />
+        <Transition show={mobileFiltersOpen} as={Fragment}>
+  <Dialog
+    as="div"
+    className="relative z-40 lg:hidden"
+    onClose={setMobileFiltersOpen}
+  >
+    {/* Backdrop */}
+    <Transition.Child
+      as={Fragment}
+      enter="transition-opacity ease-linear duration-300"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition-opacity ease-linear duration-300"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+    >
+      <div className="fixed inset-0 bg-black/50" />
+    </Transition.Child>
 
-          <div className="fixed inset-0 z-40 flex">
-            <DialogPanel
-              className={`relative ml-auto flex h-full w-60 flex-col  bg-white py-4 pb-12 shadow-xl transform transition-transform duration-300 ease-in-out ${
-                mobileFiltersOpen ? "translate-x-0" : "translate-x-full"
-              }`}
+    {/* Slide Panel Container */}
+    <div className="fixed inset-0 z-40 flex">
+      <Transition.Child
+        as={Fragment}
+        enter="transition-transform duration-300 ease-in-out"
+        enterFrom="translate-x-full"
+        enterTo="translate-x-0"
+        leave="transition-transform duration-300 ease-in-out"
+        leaveFrom="translate-x-0"
+        leaveTo="translate-x-full"
+      >
+        <Dialog.Panel className="ml-auto flex h-full w-60 flex-col bg-white py-4 pb-12 shadow-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4">
+            <span className="text-lg font-medium text-gray-900">Filters</span>
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen(false)}
+              className="-mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
             >
-              <div className="flex items-center justify-between px-4">
-                <span className="text-lg font-medium text-gray-900">
-                  Filters
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setMobileFiltersOpen(false)}
-                  className="-mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                >
-                  <span className="sr-only">Close menu</span>
-                  <XMarkIcon aria-hidden="true" className="size-6" />
-                </button>
-              </div>
-
-              {/* Filters */}
-              <form className="mt-4 border-t overflow-y-auto border-gray-200">
-                {/* <h3 className="sr-only">Categories</h3> */}
-                <span className="font-bold text-xl flex items-center gap-2 px-4 py-3">
-                  <AiOutlineProduct />
-                  Category
-                </span>
-                <ul role="list" className="px-6 py-3 font-medium text-gray-900">
-                  {allCatagory.map((category) => (
-                    <li key={category._id}>
-                      <article className="checkbox-container flex items-center space-x-1">
-                        <label className="checkbox">
-                          <input
-                            type="checkbox"
-                            id={category._id}
-                             checked={Category.includes(category._id)} 
-                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
-                            onChange={(e) => {
-                              console.log(
-                                "Checkbox changed:",
-                                 e.target.checked
-                              );
-                              e.target.checked
-                                ? setCategory((prev) => [
-                                    ...prev,
-                                    category._id,
-                                  ])
-                                : setCategory((prev) =>
-                                    prev.filter(
-                                      (cat) => cat !== category._id
-                                    )
-                                  );
-                              
-                            }}
-                          />
-                        </label>
-                        <label
-                          htmlFor={category._id}
-                          className="cursor-pointer"
-                        >
-                          {category.name}
-                        </label>
-                      </article>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="px-4">
-                  {filters.map((section) => {
-                    return (
-                      <Disclosure key={section.id} as="div" className="py-2">
-                        {({ open }) => (
-                          <>
-                            <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
-                              <div>
-                                <span
-                                  className={`font-bold px-2 text-lg flex items-center gap-3 ${
-                                    open ? "text-orange-600" : "text-gray-800"
-                                  }`}
-                                >
-                                  {section.icon} {section.name}
-                                </span>
-                              </div>
-                              <span className="flex items-center">
-                                {open ? (
-                                  <MinusIcon className="w-5 text-gray-500" />
-                                ) : (
-                                  <PlusIcon className="w-5 text-gray-500" />
-                                )}
-                              </span>
-                            </DisclosureButton>
-
-                            <DisclosurePanel className="pt-4">
-                              {section.id === "Varients" ? (
-                                // ✅ DEMO CHECKBOXES for Varients
-                                <div className="space-y-2 pl-4">
-                                  {WeightVarient.map((varient, idx) => (
-                                    <li>
-                                      <article className="checkbox-container flex items-center space-x-1">
-                                        <label className="checkbox">
-                                          <input
-                                            type="checkbox"
-                                            id={`weight-${idx}`}
-                                             checked={selectedWeight.includes(varient.weight)} 
-                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-600 checked:border-transparent focus:outline-none"
-                                            onChange={(e) => {
-                                              console.log(
-                                                "Checkbox changed:",
-                                                e.target.checked
-                                              );
-                                              e.target.checked
-                                                ? setSelectedWeight((prev) => [
-                                                    ...prev,
-                                                    varient.weight,
-                                                  ])
-                                                : setSelectedWeight((prev) =>
-                                                    prev.filter(
-                                                      (varientName) => varientName !== varient.weight
-                                                    )
-                                                  );
-
-                                            }}
-                                          />
-                                        </label>
-                                        <label
-                                          htmlFor={`weight-${idx}`}
-                                          className="cursor-pointer"
-                                        >
-                                          {varient.weight}
-                                        </label>
-                                      </article>
-                                    </li>
-                                  ))}
-                                </div>
-                              ) : section.id==="Price"?(
-                                // ✅ Replaced range sliders with demo text
-                                <div className=" rounded-lg  bg-white text-center text-gray-700">
-                                   <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
-                                </div>
-                              ):(
-                                <div className=" rounded-lg  bg-white text-center text-gray-700">
-                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
-                                </div>
-                              )}
-                            </DisclosurePanel>
-                          </>
-                        )}
-                      </Disclosure>
-                    );
-                  })}
-                </div>
-              </form>
-            </DialogPanel>
+              <span className="sr-only">Close menu</span>
+              <XMarkIcon aria-hidden="true" className="size-6" />
+            </button>
           </div>
-        </Dialog>
 
+          {/* Filters */}
+          <form className="mt-4 border-t overflow-y-auto border-gray-200">
+            <span className="font-bold text-xl flex items-center gap-2 px-4 py-3">
+              <AiOutlineProduct />
+              Category
+            </span>
+            <ul role="list" className="px-6 py-3 font-medium text-gray-900">
+              {allCatagory.map((category) => (
+                <li key={category._id}>
+                  <article className="checkbox-container flex items-center space-x-1">
+                    <label className="checkbox">
+                      <input
+                        type="checkbox"
+                        id={category._id}
+                        checked={Category.includes(category._id)}
+                        className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
+                        onChange={(e) => {
+                          e.target.checked
+                            ? setCategory((prev) => [...prev, category._id])
+                            : setCategory((prev) =>
+                                prev.filter((cat) => cat !== category._id)
+                              );
+                        }}
+                      />
+                    </label>
+                    <label htmlFor={category._id} className="cursor-pointer">
+                      {category.name}
+                    </label>
+                  </article>
+                </li>
+              ))}
+            </ul>
+
+            <div className="px-4">
+              {filters.map((section) => (
+                <Disclosure key={section.id} as="div" className="py-2">
+                  {({ open }) => (
+                    <>
+                      <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                        <span
+                          className={`font-bold px-2 text-lg flex items-center gap-3 ${
+                            open ? "text-orange-600" : "text-gray-800"
+                          }`}
+                        >
+                          {section.icon} {section.name}
+                        </span>
+                        <span className="flex items-center">
+                          {open ? (
+                            <MinusIcon className="w-5 text-gray-500" />
+                          ) : (
+                            <PlusIcon className="w-5 text-gray-500" />
+                          )}
+                        </span>
+                      </DisclosureButton>
+
+                      <DisclosurePanel className="pt-4">
+                        {section.id === "Varients" ? (
+                          <div className="space-y-2 pl-4">
+                            {WeightVarient.map((varient, idx) => (
+                              <li key={idx}>
+                                <article className="checkbox-container flex items-center space-x-1">
+                                  <label className="checkbox">
+                                    <input
+                                      type="checkbox"
+                                      id={`weight-${idx}`}
+                                      checked={selectedWeight.includes(
+                                        varient.weight
+                                      )}
+                                      className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-600 checked:border-transparent focus:outline-none"
+                                      onChange={(e) => {
+                                        e.target.checked
+                                          ? setSelectedWeight((prev) => [
+                                              ...prev,
+                                              varient.weight,
+                                            ])
+                                          : setSelectedWeight((prev) =>
+                                              prev.filter(
+                                                (varientName) =>
+                                                  varientName !==
+                                                  varient.weight
+                                              )
+                                            );
+                                      }}
+                                    />
+                                  </label>
+                                  <label
+                                    htmlFor={`weight-${idx}`}
+                                    className="cursor-pointer"
+                                  >
+                                    {varient.weight}
+                                  </label>
+                                </article>
+                              </li>
+                            ))}
+                          </div>
+                        ) : section.id === "Price" ? (
+                          <div className="rounded-lg bg-white text-center text-gray-700">
+                            <RangeSlider
+                              values={values}
+                              setValues={setValues}
+                              isDirect={isDirect}
+                              setDirect={setDirect}
+                            />
+                          </div>
+                        ) : (
+                          <div className="rounded-lg bg-white text-center text-gray-700">
+                            <ShelfLifeSlider
+                              value={value}
+                              setValue={setValue}
+                              isDirect={isDirect}
+                              setDirect={setDirect}
+                            />
+                          </div>
+                        )}
+                      </DisclosurePanel>
+                    </>
+                  )}
+                </Disclosure>
+              ))}
+            </div>
+          </form>
+        </Dialog.Panel>
+      </Transition.Child>
+    </div>
+  </Dialog>
+</Transition>
         <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
           <section aria-labelledby="products-heading" className="">
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
@@ -313,7 +336,7 @@ const ShopAll = () => {
                                   <input
                                     name="category"
                                     type="checkbox"
-                                    checked={Category.includes(category._id)} 
+                                    checked={Category.includes(category._id)}
                                     onChange={(e) => {
                                       console.log(
                                         "Checkbox changed:",
@@ -378,47 +401,52 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
-                                  {WeightVarient.map((varient, idx) => (
-                                    <li>
-                                      <article className="checkbox-container flex items-center space-x-1">
-                                        <label className="checkbox">
-                                          <input
-                                            type="checkbox"
-                                            id={`weight-${idx}`}
-                                             checked={selectedWeight.includes(varient.weight)} 
-                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                            onChange={(e) => {
-                                              console.log(
-                                                "Checkbox changed:",
+                                    {WeightVarient.map((varient, idx) => (
+                                      <li>
+                                        <article className="checkbox-container flex items-center space-x-1">
+                                          <label className="checkbox">
+                                            <input
+                                              type="checkbox"
+                                              id={`weight-${idx}`}
+                                              checked={selectedWeight.includes(
+                                                varient.weight
+                                              )}
+                                              className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                              onChange={(e) => {
+                                                console.log(
+                                                  "Checkbox changed:",
+                                                  e.target.checked
+                                                );
                                                 e.target.checked
-                                              );
-                                              e.target.checked
-                                                ? setSelectedWeight((prev) => [
-                                                    ...prev,
-                                                    varient.weight,
-                                                  ])
-                                                : setSelectedWeight((prev) =>
-                                                    prev.filter(
-                                                      (varientName) => varientName !== varient.weight
+                                                  ? setSelectedWeight(
+                                                      (prev) => [
+                                                        ...prev,
+                                                        varient.weight,
+                                                      ]
                                                     )
-                                                  );
-                                                  console.log(
-                                                    "Current weight:",
-                                                    selectedWeight
-                                                  );
-                                            }}
-                                          />
-                                        </label>
-                                        <label
-                                          htmlFor={`weight-${idx}`}
-                                          className="cursor-pointer"
-                                        >
-                                          {varient.weight}
-                                        </label>
-                                      </article>
-                                    </li>
-                                  ))}
-                                    
+                                                  : setSelectedWeight((prev) =>
+                                                      prev.filter(
+                                                        (varientName) =>
+                                                          varientName !==
+                                                          varient.weight
+                                                      )
+                                                    );
+                                                console.log(
+                                                  "Current weight:",
+                                                  selectedWeight
+                                                );
+                                              }}
+                                            />
+                                          </label>
+                                          <label
+                                            htmlFor={`weight-${idx}`}
+                                            className="cursor-pointer"
+                                          >
+                                            {varient.weight}
+                                          </label>
+                                        </article>
+                                      </li>
+                                    ))}
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -450,7 +478,12 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className=" rounded-lg  bg-white text-center text-gray-700">
-                                    <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
+                                    <RangeSlider
+                                      values={values}
+                                      setValues={setValues}
+                                      isDirect={isDirect}
+                                      setDirect={setDirect}
+                                    />
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -482,7 +515,12 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 ">
-                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
+                                    <ShelfLifeSlider
+                                      value={value}
+                                      setValue={setValue}
+                                      isDirect={isDirect}
+                                      setDirect={setDirect}
+                                    />
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -504,11 +542,11 @@ const ShopAll = () => {
                   priceRange={values}
                   maxshelfLife={value}
                   search={search}
-                  weightVariants = {WeightVarient}
-                  setShelf= {setValue}
-                  setPrice = {setValues}
-                  setCategory = {setCategory}
-                  setWeight = {setSelectedWeight}
+                  weightVariants={WeightVarient}
+                  setShelf={setValue}
+                  setPrice={setValues}
+                  setCategory={setCategory}
+                  setWeight={setSelectedWeight}
                   setDirect={setDirect}
                 />
               </div>
@@ -516,6 +554,14 @@ const ShopAll = () => {
           </section>
         </main>
       </div>
+      <button
+              onClick={scrollToTop}
+              className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+              }`}
+            >
+              <FaArrowUp className="w-full h-full text-orange-500" />
+            </button>
     </div>
   );
 };

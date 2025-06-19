@@ -294,8 +294,6 @@ export const createPaymentOrder = async (req, res) => {
 export const verifyPayment = async (req, res) => {
   try {
     const userId = req.userId;
-
-
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -308,8 +306,7 @@ export const verifyPayment = async (req, res) => {
       promocodeDiscount,
     } = req.body;
   const selectedAddress = await  AddressModel.findById(addressId);
-  console.log("this is order id",razorpay_order_id);
-  console.log("this is payment id",razorpay_payment_id);
+
     if (!selectedAddress) {
       return response.status(404).json({
         message: "Address not found",
@@ -344,10 +341,6 @@ export const verifyPayment = async (req, res) => {
     const user = await UserModel.findById(userId);
     const adminEmail = process.env.ADMIN_EMAIL;
 
-
-      console.log("this is user id",user);
-      console.log("this is Admin id",adminEmail);
-     
     if (adminEmail) {
       console.log("Admin mail send");
       req.body.deliveryAddress = deliveryAddress;
@@ -357,8 +350,6 @@ export const verifyPayment = async (req, res) => {
 
     if (user?.email) {
       console.log("User mail send");
-
-
       await sendPaymentVerificationFailedEmailToUser(user.email, req.body);
     }
       return res
@@ -407,7 +398,6 @@ const generatedOrderId = `ORD-${today}${padded}`;
       const { productId, variantPrices } = item;
       if (!productId || !Array.isArray(variantPrices)) continue;
 
-
       const product = await ProductModel.findById(productId);
       if (!product) continue;
 
@@ -441,29 +431,22 @@ const generatedOrderId = `ORD-${today}${padded}`;
       payload.special_Gift_packing = giftPackingTotal;
     }
 
-
     // Create order
     const generatedOrder = await OrderModel.create(payload);
     newordersseHandler(generatedOrder);
     // Clear user cart
     await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
 
-
     // Email notifications
     const user = await UserModel.findById(userId);
     const adminEmail = process.env.ADMIN_EMAIL;
 
-
     if (user?.email) {
       await sendOrderConfirmationEmail(user.email, generatedOrder);
     }
-
-
     if (adminEmail) {
       await sendNewOrderNotificationEmail(adminEmail, generatedOrder);
     }
-
-
     return res.status(200).json({ success: true, data: generatedOrder });
   } catch (error) {
     console.log("Payment verification error:", error);

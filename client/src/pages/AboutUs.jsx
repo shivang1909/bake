@@ -1,6 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { FaArrowUp } from "react-icons/fa";
 
 const AboutUs = () => {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+        const handleScroll = () => {
+          setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, []);
+    
+      const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
   return (
     <>
       <div className="mt-10 lg:mt-20">
@@ -482,6 +496,14 @@ const AboutUs = () => {
           </section>
         </div>
       </div>
+       <button
+                                onClick={scrollToTop}
+                                className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                                }`}
+                              >
+                                <FaArrowUp className="w-full h-full text-orange-500" />
+                              </button>
     </>
   );
 };

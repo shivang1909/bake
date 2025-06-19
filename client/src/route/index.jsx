@@ -48,6 +48,7 @@ import AboutUs from "../pages/AboutUs";
 import ContactUs from "../pages/ContactUs";
 import SignUp from "../pages/SignUp";
 import Terms_Condition from "../pages/Terms_Condition";
+import NotFoundPage from "../components/NotFound";
 
 
 const router = createBrowserRouter([
@@ -272,10 +273,6 @@ const router = createBrowserRouter([
             //     ]
             // },
             {
-                path: ":category",
-                element: <ProductListPage />
-            },
-            {
                 path: "product/:product",
                 element: <ProductDisplayPageNew />
             },
@@ -293,7 +290,12 @@ const router = createBrowserRouter([
                 element: <Cancel />
             }
         ]
+    },
+    {
+        path: "*",
+        element: <NotFoundPage/>
     }
+
 ]);
 
 export default router;

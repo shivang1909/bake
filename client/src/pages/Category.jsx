@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaShippingFast, FaGlobe, FaLeaf } from "react-icons/fa";
 import { BiTimeFive } from "react-icons/bi";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import ProductCard from "../components/ProductCard";
@@ -41,24 +41,14 @@ const features = [
 ];
 
 const Category = () => {
+    const navigate = useNavigate();
+  
   const [catproducts, setcatproducts] = useState([]);
   const [cartProduct, setCartProduct] = useState(null);
   const [categoryId, setcategoryId] = useState();
   const [totalPage, settotalPage] = useState();
   const [isListView, setIsListView] = useState(false);
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
   
-    // Set initial value
-    setIsListView(mediaQuery.matches); // true for md/sm, false for lg+
-  
-    // Listener for resize
-    const handler = (e) => setIsListView(e.matches);
-    mediaQuery.addEventListener("change", handler);
-  
-    // Cleanup
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
@@ -87,23 +77,41 @@ const Category = () => {
 
   const categoryNameSlug = fullCategoryParam.split("-").slice(0, -1).join("-");
 
-  const fetchproductbycategory = async () => {
-    const response = await Axios({
-      ...SummaryApi.getProductByCategory,
-      data: { id: categoryId, page: page },
-    });
-    const data = response.data;
-    console.log(categoryId);
-    console.log("total products number checkujngneiowndiue");
-    console.log(response.data);
-    setcatproducts((prev) => [...prev, ...response.data.data.product]);
-    const TotalP =
-      response.data.data.totalCount % 10 !== 0
-        ? response.data.data.totalCount / 10 + 1
-        : response.data.data.totalCount / 10;
-    settotalPage(TotalP);
-    setPage((prevPage) => prevPage + 1);
+ const fetchproductbycategory = async () => {
+    try
+    {
+
+
+      const response = await Axios({
+        ...SummaryApi.getProductByCategory,
+        data: { id: categoryId, page: page },
+      });
+      const data = response.data;
+      console.log(categoryId);
+     
+      console.log(response.data);
+      setcatproducts((prev) => [...prev, ...response.data.data.product]);
+      const TotalP =
+        response.data.data.totalCount % 10 !== 0
+          ? response.data.data.totalCount / 10 + 1
+          : response.data.data.totalCount / 10;
+      settotalPage(TotalP);
+      setPage((prevPage) => prevPage + 1);
+    }
+    catch(err)
+    {
+        const message = err?.response?.data?.message;
+        console.log("this is messgae",message);
+       
+      if(message === "Category not found" || message === "provide category id")
+      {
+       
+          navigate("/NotFound", { replace: true });
+      }
+       
+    }
   };
+
 
   useEffect(() => {
     setcatproducts([]);
@@ -154,7 +162,7 @@ const Category = () => {
           </p>
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
-        <div className="mt-10">
+        <div className="mt-5">
           <div className="bg-white py-3 w-full flex justify-center">
             <div className="flex md:flex-row md:flex gap-6 justify-between  max-w-4xl w-full px-4">
               {/* Icon 2 */}
@@ -190,8 +198,8 @@ const Category = () => {
           </div>
         </div>
 
-        <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
-          <div className="filters flex gap-3 w-full justify-between items-center bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
+        <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between px-3 md:gap-3 md:mb-5 md:mx-4 py-5">
+          <div className="filters flex gap-3 w-full justify-between items-center rounded-full bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
             <div>
               <span className="flex gap-2 items-center text-gray-700 text-sm font-semibold">
                A Box of joy is just scroll away 💌
@@ -222,9 +230,9 @@ const Category = () => {
         >
           <div className={
             isListView
-              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3"
+              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3 px-3"
               :
-            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center md:px-5 lg:px-44 lg:gap-10`}>
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center md:px-5 lg:px-44 lg:gap-10 px-3`}>
             {catproducts.length > 0 &&
               catproducts.map((product, index) =>
                 isListView ? (
@@ -247,14 +255,14 @@ const Category = () => {
               )}
           </div>
         </InfiniteScroll>
-        <button
-          onClick={scrollToTop}
-          className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
-            showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        >
-          <FaArrowUp className="w-full h-full" />
-        </button>
+       <button
+                   onClick={scrollToTop}
+                   className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                     showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                   }`}
+                 >
+                   <FaArrowUp className="w-full h-full text-orange-500" />
+                 </button>
       </div>
       {cartProduct && (
         <AddToCartBottomBar

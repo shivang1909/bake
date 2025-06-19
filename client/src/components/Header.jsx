@@ -16,8 +16,7 @@ import SummaryApi from "../common/SummaryApi";
 import Axios from "../utils/Axios";
 import Logo from "../../assets/images/Custom/BakeFlavors.png";
 import SampleOffer from "../../assets/images/Custom/bnnerNew.png";
-import "./Header.css"; // Import your custom CSS file
-import "./Header.js";
+import "../assets/js/Header.js";
 import { IoLogInOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { IoPerson } from "react-icons/io5";
@@ -25,7 +24,6 @@ import { FaCartShopping } from "react-icons/fa6";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { HiOutlineLogout } from "react-icons/hi";
 import { IoIosSearch } from "react-icons/io";
-import { RxCross2 } from "react-icons/rx";
 import SideMenu from "./SideMenu";
 import { BsInstagram } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
@@ -514,41 +512,24 @@ const Header = () => {
                                 <a href="javascript:void(0)">About us</a>
                                 <ul className="sub-menu">
                                   <li>
-                                    <a href="about-us.html">About Us</a>
+                                    <Link to={'/about-us'}>
+                                     <a > About Us </a>
+                                    </Link>
                                   </li>
                                   <li>
-                                    <a href="contact-us.html">Contact Us</a>
+                                    <Link to={'/Contact-Us'}>
+                                     <a> Contact Us</a>
+                                    </Link>
                                   </li>
                                   <li>
-                                    <a href="cart.html">Cart</a>
+                                    <Link to={'/Terms-conditions'}>
+                                     <a> Terms Condition</a>
+                                    </Link>
                                   </li>
                                   <li>
-                                    <a href="checkout.html">Checkout</a>
-                                  </li>
-                                  <li>
-                                    <a href="compare.html">Compare</a>
-                                  </li>
-                                  <li>
-                                    <a href="faq.html">FAQ</a>
-                                  </li>
-                                  <li>
-                                    <a href="login.html">Login</a>
-                                  </li>
-                                  <li>
-                                    <a href="register.html">Register</a>
-                                  </li>
-                                  <li>
-                                    <a href="track-order.html">Track Order</a>
-                                  </li>
-                                  <li>
-                                    <a href="terms-condition.html">
-                                      Terms Condition
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a href="privacy-policy.html">
-                                      Privacy Policy
-                                    </a>
+                                    <Link to={'/Privacy-Policy'}>
+                                     <a> Privacy Policy</a>
+                                    </Link>
                                   </li>
                                 </ul>
                               </li>

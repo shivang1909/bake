@@ -113,7 +113,7 @@ const Home = () => {
             {activeLaptopBanners.length > 0 ? (
               activeLaptopBanners.map((banner, index) => (
                 <SwiperSlide key={index}>
-                  <div className="h-[300px] md:h-[400px] px-2">
+                  <div className="lg:h-fit md:h-[400px] px-2">
                     <img
                       src={`${import.meta.env.VITE_API_URL}/${banner.imageUrl}`}
                       loading="lazy"
@@ -193,10 +193,10 @@ const Home = () => {
           Taste The Legacy Today !
         </h2>
         <p className="text-sm text-gray-600 text-center px-3">
-          <span className="font-bold">Since 2020</span> , our Indian brand has
-          been delighting customers with an exquisite mithai, spice powders,
-          namkeens, and tangy pickles.
-        </p>
+    <b className="font-bold">Since 2020,</b> Bake Flavours has served <br />
+    authentic sweets, rich spice blends,<br />  crunchy namkeens,  and zesty pickles
+    with love and tradition.
+  </p>
       </div>
 
       <VideoSection />
@@ -260,14 +260,14 @@ const Home = () => {
         </div>
         <a href="javascript:void(0)" className="icon-btn recent-close">×</a>
     </div> */}
-      <button
-        onClick={scrollToTop}
-          className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
-            showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
-        <FaArrowUp className="w-full h-full" />
-      </button>
+     <button
+                onClick={scrollToTop}
+                className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                <FaArrowUp className="w-full h-full text-orange-500" />
+              </button>
     </section>
   );
 };
