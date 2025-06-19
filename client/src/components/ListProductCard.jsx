@@ -6,7 +6,7 @@ import renderStars from "./RenderStars";
 import { valideURLConvert } from "../utils/valideURLConvert";
 import { Link } from "react-router-dom";
 
-const ListProductCard = ({ product, setCartProduct }) => {
+const ListProductCard = ({ product, setCartProduct , activeIndex = 0, setActiveVariant = null}) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [isloaded, setloaded] = useState(true);
 
@@ -14,6 +14,8 @@ const ListProductCard = ({ product, setCartProduct }) => {
 
   const handleAddToCart = (product) => {
     setCartProduct(product);
+    if (typeof setActiveVariant === 'function' ) 
+      setActiveVariant(activeIndex)
   };
 
   return (
@@ -92,16 +94,16 @@ state={isloaded}>
 
             {/* Price Section */}
             <div className="flex items-center gap-2 mt-2">
-              {product.weightVariants[0].discount > 0 && (
+              {product.weightVariants[activeIndex].discount > 0 && (
                 <span className="text-sm text-gray-400 line-through">
-                  ₹{product.weightVariants[0].price}
+                  ₹{product.weightVariants[activeIndex].price}
                 </span>
               )}
               <span className="text-base font-bold text-gray-900">
                 ₹
                 {pricewithDiscount(
-                  product.weightVariants[0].price,
-                  product.weightVariants[0].discount
+                  product.weightVariants[activeIndex].price,
+                  product.weightVariants[activeIndex].discount
                 )}
               </span>
               {/* {product.discount && (
@@ -111,9 +113,9 @@ state={isloaded}>
                   )} */}
             </div>
 
-            {product.weightVariants[0].discount > 0 && (
+            {product.weightVariants[activeIndex].discount > 0 && (
               <span className="text-xs text-green-600 font-normal">
-                {product.weightVariants[0].discount + "% Off"}
+                {product.weightVariants[activeIndex].discount + "% Off"}
               </span>
             )}
           </div>

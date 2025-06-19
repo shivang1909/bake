@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactSlider from "react-slider";
 import "./RangeSlider.css"; // Optional styling
 
-const RangeSlider = ({values,setValues}) => {
+const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
 
   const [tempPriceRange, setTempPriceRange] = useState(values);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -37,6 +37,12 @@ const RangeSlider = ({values,setValues}) => {
       };
   
       document.addEventListener("mousedown", handleClickOutside);
+      if(isDirect)
+      {
+        setTempPriceRange(values);
+        setShowConfirmDialog(false); 
+        setDirect(false)
+      }
       return () => {
         document.removeEventListener("mousedown", handleClickOutside);
       };

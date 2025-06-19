@@ -191,6 +191,7 @@ const Category = () => {
           reference={ref}
           product={cartProduct}
           onClose={handleCloseBottomBar}
+          activeIndex={0}
         />
       )}
     </>

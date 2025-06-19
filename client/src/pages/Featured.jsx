@@ -188,6 +188,7 @@ const Featured = () => {
           reference={ref}
           product={cartProduct}
           onClose={handleCloseBottomBar}
+          activeIndex={0}
         />
       )}
     </>

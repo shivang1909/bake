@@ -562,6 +562,7 @@ const ProductDisplayPageNew = () => {
           reference={ref}
           product={cartProduct}
           onClose={handleCloseBottomBar}
+          activeIndex={0}
         />
       )}
     </>

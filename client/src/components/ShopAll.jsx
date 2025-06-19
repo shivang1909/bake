@@ -44,6 +44,7 @@ const ShopAll = () => {
   const [values, setValues] = useState([10, 1000]);
   const [value, setValue] = useState(0);
   const [search,setSearch] = useState("");
+  const [isDirect,setDirect] = useState(false);
 
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -76,35 +77,6 @@ const ShopAll = () => {
     fetchCategory();
     fetchWeightVarient();
   }, []);
-
-  const filterProductByCategory = async () => {
-    const response = await Axios({
-      ...SummaryApi.getProductByCategory,
-      data: { id: Category },
-    });
-    console.log(response.data.data);
-    const newProducts = response.data.data.product || [];
-
-    const existingProducts = allProduct; // 👈 import store if needed
-    const existingIds = new Set(existingProducts.map((item) => item._id));
-    const filteredNewData = newProducts.filter(
-      (item) => !existingIds.has(item._id)
-    );
-
-    console.log(allProduct);
-
-    dispatch(setAllProduct([...existingProducts, ...filteredNewData]));
-    // Assuming response.data.data contains the filtered products
-    // Implement your filtering logic here
-    // For example, you can filter products based on the selected category
-    // setItems(filteredProducts);
-  };
-  useEffect(() => {
-    if (Category.length === 0) {
-      return;
-    }
-    filterProductByCategory();
-  }, [Category]);
 
   return (
     <div className="bg-white mt-20">
@@ -177,6 +149,7 @@ const ShopAll = () => {
                           <input
                             type="checkbox"
                             id={category._id}
+                             checked={Category.includes(category._id)} 
                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
                             onChange={(e) => {
                               console.log(
@@ -244,6 +217,7 @@ const ShopAll = () => {
                                           <input
                                             type="checkbox"
                                             id={`weight-${idx}`}
+                                             checked={selectedWeight.includes(varient.weight)} 
                                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
                                             onChange={(e) => {
                                               console.log(
@@ -274,10 +248,14 @@ const ShopAll = () => {
                                     </li>
                                   ))}
                                 </div>
-                              ) : (
+                              ) : section.id==="Price"?(
                                 // ✅ Replaced range sliders with demo text
                                 <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                  <RangeSlider />
+                                   <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
+                                </div>
+                              ):(
+                                <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
+                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
                                 </div>
                               )}
                             </DisclosurePanel>
@@ -321,6 +299,7 @@ const ShopAll = () => {
                                   <input
                                     name="category"
                                     type="checkbox"
+                                    checked={Category.includes(category._id)} 
                                     onChange={(e) => {
                                       console.log(
                                         "Checkbox changed:",
@@ -392,6 +371,7 @@ const ShopAll = () => {
                                           <input
                                             type="checkbox"
                                             id={`weight-${idx}`}
+                                             checked={selectedWeight.includes(varient.weight)} 
                                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
                                             onChange={(e) => {
                                               console.log(
@@ -456,7 +436,7 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                    <RangeSlider values={values} setValues={setValues}/>
+                                    <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -488,7 +468,7 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
-                                    <ShelfLifeSlider value={value} setValue={setValue}/>
+                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -510,6 +490,12 @@ const ShopAll = () => {
                   priceRange={values}
                   maxshelfLife={value}
                   search={search}
+                  weightVariants = {WeightVarient}
+                  setShelf= {setValue}
+                  setPrice = {setValues}
+                  setCategory = {setCategory}
+                  setWeight = {setSelectedWeight}
+                  setDirect={setDirect}
                 />
               </div>
             </div>

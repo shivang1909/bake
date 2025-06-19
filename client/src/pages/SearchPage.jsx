@@ -213,6 +213,7 @@ const SearchPage = () => {
         <AddToCartBottomBar
           product={cartProduct}
           onClose={handleCloseBottomBar}
+          activeIndex={0}
         />
       )}
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactSlider from 'react-slider';
 import './ShelfLifeSlider.css'; // Optional styles — no direction flip here
 
-const ShelfLifeSlider = ({value,setValue}) => {
+const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   
   const [tempPrice, setTempPrice] = useState(value);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -35,8 +35,13 @@ const ShelfLifeSlider = ({value,setValue}) => {
             }
           }
         };
-    
         document.addEventListener("mousedown", handleClickOutside);
+        if(isDirect)
+        {
+          setTempPrice(value)
+          setShowConfirmDialog(false);  
+          setDirect(false)
+        }
         return () => {
           document.removeEventListener("mousedown", handleClickOutside);
         };

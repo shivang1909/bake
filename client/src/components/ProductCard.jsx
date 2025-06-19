@@ -8,13 +8,15 @@ import renderStars from "./RenderStars";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 
-const ProductCard = ({ product, setCartProduct, className = "" }) => {
+const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0 , setActiveVariant = null}) => {
   const [isloaded, setloaded] = useState(true);
 
   const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
 
   const handleAddToCart = (product) => {
     setCartProduct(product);
+    if (typeof setActiveVariant === 'function' ) 
+      setActiveVariant(activeIndex)
   };
 
   return (
@@ -59,9 +61,9 @@ const ProductCard = ({ product, setCartProduct, className = "" }) => {
             </div>
 
             <div>
-              {product.weightVariants[0].discount > 0 && (
+              {product.weightVariants[activeIndex].discount > 0 && (
                 <span className="text-green-600 tracking-widest font-semibold text-[9px] md:text-[10px] px-2 py-1 rounded-full bg-green-50 w-fit">
-                  {product.weightVariants[0].discount + "% Off"}
+                  {product.weightVariants[activeIndex].discount + "% Off"}
                 </span>
               )}
             </div>
@@ -70,16 +72,16 @@ const ProductCard = ({ product, setCartProduct, className = "" }) => {
           <div className="flex flex-col items-start">
             <div className="w-full flex items-center justify-between mt-2">
               <div className="flex items-center gap-2">
-                {product.weightVariants[0].discount > 0 && (
+                {product.weightVariants[activeIndex].discount > 0 && (
                   <span className="line-through text-[12px] text-gray-400">
-                    ₹{product.weightVariants[0].price}
+                    ₹{product.weightVariants[activeIndex].price}
                   </span>
                 )}
                 <span className="text-[14px] font-bold text-black">
                   ₹
                   {pricewithDiscount(
-                    product.weightVariants[0].price,
-                    product.weightVariants[0].discount
+                    product.weightVariants[activeIndex].price,
+                    product.weightVariants[activeIndex].discount
                   )}
                 </span>
               </div>

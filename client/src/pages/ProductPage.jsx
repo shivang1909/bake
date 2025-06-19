@@ -36,6 +36,7 @@ import { BsSearch } from "react-icons/bs";
 
 
 const sortOptions = [
+  {name : "Sorting", value: "no"},
   { name: "Best Rating", icon: <MdStarRate />,  value: "rating"},
   {
     name: "Price: Low to High",
@@ -51,8 +52,8 @@ const sortOptions = [
 
 
 
-const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxshelfLife , search }) => {
-  const [selectedSort, setSelectedSort] = useState("Sort");
+const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxshelfLife , search, weightVariants, setShelf, setPrice,setCategory, setWeight, setDirect }) => {
+  const [selectedSort, setSelectedSort] = useState(0);
   const ref = useRef(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cartProduct, setCartProduct] = useState(null);
@@ -61,6 +62,9 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   const [filterKey, setFilterKey] = useState(0); // triggers hard reset
   const stickyRef = useRef(null);
   const [isSticky, setIsSticky] = useState(false);
+  const [activeVariant,setActiveVariant] = useState(0);
+    const [filter, setFilter] = useState([]); 
+      const allCategory = useSelector((state) => state.product.allCategory);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -86,25 +90,49 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   const [page, setPage] = useState(1);
   const [allProduct,setAllProduct]= useState([]);
 
+  const removeFilter = (value) => {
+    if( /^\d+\s*Day$/.test(value))
+    {
+      setShelf(0)
+      setDirect(true)
+    }
+    else if(/(\d+)[^\d\-]*-[^\d\-]*(\d+)/.test(value))
+    {
+      setPrice([10,1000])
+      setDirect(true)
+    }
+    else if(weight.includes(value))
+    {
+      setWeight(prev=>prev.filter((wt)=>wt!==value))
+    }
+    else
+    {
+      let uniqueId=allCategory.find(cat=>cat.name===value)._id;
+      setCategory(prev=>prev.filter((c)=>c!==uniqueId))
+    }
+  }
+
   useEffect(() => {
     const fetchFirstPage = async () => {
       try {
+        
         const response = await Axios({
           ...SummaryApi.getproductFilter,
           data: {
             page: 1,
             search,
-            priceSort: selectedSort === "lowToHigh" ? "asc" : selectedSort === "highToLow" ? "desc" : null,
+            priceSort: sortOptions[selectedSort].value === "lowToHigh" ? "asc" : sortOptions[selectedSort].value === "highToLow" ? "desc" : null,
             weight,
             maxshelfLife,
             category,
-            rating: selectedSort === "rating",
+            rating: sortOptions[selectedSort].value === "rating",
             minPrice: priceRange[0],
             maxPrice: priceRange[1],
           },
         });
   
         const data = response.data;
+        console.log(data)
         setAllProduct(data.data);
         setPage(2); // Next page to load
         const totalCount = data.totalCount;
@@ -115,9 +143,109 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
         console.error("Error fetching filters:", err);
       }
     };
+
+      const updateFilterOnce = () => {
+
+    const oldShelfLife = filter.find(item => /^\d+\s*Day$/.test(item));
+
+    console.log(oldShelfLife)
+
+    if(oldShelfLife)
+      {
+        if(oldShelfLife!==maxshelfLife)
+          {
+            setFilter(prev => {
+              const withoutOldShelfLife = prev.filter(item => item !== oldShelfLife);
+              if(maxshelfLife>0)
+              return [...withoutOldShelfLife, `${maxshelfLife} Day`]; // Add new shelf life
+              else
+              return withoutOldShelfLife;
+            });
+            return;
+          }
+        }
+        
+        else if(maxshelfLife>0)
+        {
+          const shelf = maxshelfLife+" Day"
+          setFilter(prev => [...prev,shelf ]);
+          return;
+        }
+        const oldPriceRange = filter.find(item => item.includes('-'));
+
+    console.log(oldPriceRange)
+
+    if(oldPriceRange)
+    {
+      const match = oldPriceRange.match(/(\d+)[^\d\-]*-[^\d\-]*(\d+)/);
+      const num1 = parseInt(match[1]);
+      const num2 = parseInt(match[2]);
+      if(priceRange[0]!==num1||priceRange[1]!==num2)
+      {
+        setFilter(prev => {
+    const withoutOldPriceRange = prev.filter(item => item !== oldPriceRange);
+    if(priceRange[0]!==10||priceRange[1]!==1000)
+    return [...withoutOldPriceRange,`${priceRange[0]}₹-${priceRange[1]}₹`]
+    else
+    return withoutOldPriceRange;
+  })
+  return;
+};
+}
+else if(priceRange[0]!==10||priceRange[1]!==1000)
+{
+  const price = `${priceRange[0]}₹-${priceRange[1]}₹`;
+  setFilter(prev => [...prev,price]);
+  return;
+}
+
+
+    const weights = filter.flatMap(f=>{const weight = weightVariants.find(weight =>  weight.weight === f); return weight? weight.weight : []});
+    console.log(weights)
+    
+    if(weights.length>weight.length)
+    {
+        let uniqueId = weights.filter(w=>!weight.includes(w));
+        console.log(uniqueId)
+        setFilter((prev)=>prev.filter(p=>p!==uniqueId[0]))
+        return;
+    }
+    else if(weight.length)
+    {
+        let uniqueId = weight.filter(w=>!weights.includes(w)) ;
+        if(uniqueId.length)
+        {
+          setFilter((prev)=>[...prev,uniqueId[0]])
+          return;
+        }
+    }
   
+      const catIds = filter.flatMap(f=>{const cat = allCategory.find(cat => cat.name === f); return  cat ? cat._id : []});
+      console.log(catIds)
+      if (catIds.length>category.length)
+      {
+        let uniqueId = catIds.filter(c=>!category.includes(c));
+        const cat = allCategory.find(cat => cat._id === uniqueId[0]).name;
+        setFilter((prev)=>prev.filter(p=>p!==cat))
+        return;
+      }
+      else if(category.length){
+        let uniqueId = category.filter(c=>!catIds.includes(c)) ;
+        if(uniqueId.length)
+        {
+        const cat = allCategory.find(cat => cat._id === uniqueId[0]).name;
+        setFilter((prev)=>[...prev,cat])
+        return;
+        }
+      }   
+      }
     fetchFirstPage();
+    updateFilterOnce();
   }, [weight, category, maxshelfLife, priceRange, search, selectedSort]);
+
+    useEffect(()=>{
+      console.log("this is filters",filter)
+    },[filter])
 
   const loadMore = async () => {
     try {
@@ -126,17 +254,18 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
         data: {
           page,
           search,
-          priceSort: selectedSort === "lowToHigh" ? "asc" : selectedSort === "highToLow" ? "desc" : null,
+          priceSort: sortOptions[selectedSort].value === "lowToHigh" ? "asc" : sortOptions[selectedSort].value === "highToLow" ? "desc" : null,
           weight,
           maxshelfLife,
           category,
-          rating: selectedSort === "rating",
+          rating: sortOptions[selectedSort].value === "rating",
           minPrice: priceRange[0],
           maxPrice: priceRange[1],
         },
       });
   
       const data = response.data;
+      console.log(data)
       setAllProduct((prev) => [...prev, ...data.data]);
       setPage((prev) => prev + 1);
     } catch (err) {
@@ -168,23 +297,15 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
       <div className={`z-20 transition-all duration-300 ${isSticky ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b" : ""}`}>
       <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
         {/* apllied filters section start */}
-        <div className="flex gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
+        <div className="flex flex-row-reverse gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
+          {
+            filter.map((f)=>(
           <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
-            <RxCross2 className="text-sm cursor-pointer" />
-            100GM
+            <RxCross2 className="text-sm cursor-pointer" onClick={()=>{removeFilter(f)}} />
+            {f}
           </span>
-          <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
-            <RxCross2 className="text-sm cursor-pointer" />
-            Sweets
-          </span>
-          <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
-            <RxCross2 className="text-sm cursor-pointer" />
-            5-7 Days
-          </span>
-          <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
-            <RxCross2 className="text-sm cursor-pointer" />
-            5-7 Days
-          </span>
+            ))
+          }
         </div>
         {/* apllied filters section end  */}
 
@@ -200,7 +321,7 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
                   <>
                     <div>
                       <Menu.Button className="group inline-flex justify-center text-sm font-medium text-black hover:text-gray-900 items-center">
-                      {selectedSort}
+                      {sortOptions[selectedSort].name}
                         {open ? (
                           <ChevronUpIcon
                             aria-hidden="true"
@@ -216,25 +337,27 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
                     </div>
 
                     <Transition
-                      as={Fragment}
-                      show={open}
-                      enter="transition-all duration-200 ease-out"
-                      enterFrom="opacity-0 h-0"
-                      enterTo="opacity-100 h-[135px]" // adjust height accordingly
-                      leave="transition-all duration-150 ease-in"
-                      leaveFrom="opacity-100 h-[135px]"
-                      leaveTo="opacity-0 h-0"
+                     as={Fragment}
+                        show={open}
+                        enter="transition-all duration-200 ease-out"
+                        enterFrom="opacity-0 h-0"
+                        enterTo="opacity-100 h-[180px]" // adjust height accordingly
+                        leave="transition-all duration-150 ease-in"
+                        leaveFrom="opacity-100 h-[180px]"
+                        leaveTo="opacity-0 h-0"
+                      
                     >
                       <Menu.Items
                         static
-                        className="overflow-hidden absolute font-medium right-0 z-10 mt-2 w-60 origin-top-right rounded-lg bg-white shadow-2xl"
-                      >
+                         className={`overflow-hidden md:absolute  font-medium md:right-0 z-10 mt-2 md:w-60 origin-top-right rounded-lg bg-white shadow-2xl
+    fixed w-3/4 max-w-xs sm:relative sm:translate-x-0  focus:outline-none focus:ring-0 focus:border-none`}
+                        >
                         <div className="py-1">
-                          {sortOptions.map((option) => (
+                          {sortOptions.map((option,index) => (
                             <Menu.Item key={option.name}>
                               {({ active }) => (
       <button
-      onClick={() => setSelectedSort(option.value)}
+      onClick={() => setSelectedSort(index)}
       className={`${
         active ? "bg-gray-100 text-black" : "text-gray-500"
       } flex items-center gap-2 w-full px-4 py-2 text-sm`}
@@ -300,20 +423,40 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
           >
            {
             allProduct
-                  .map((product) =>
-                    isListView ? (
+                  .map((product) =>{
+                     const { minPrice, maxPrice, weightVariants } = product;
+                     let selectedIndex = 0;
+                      if (sortOptions[selectedSort].value==="highToLow") {
+                        selectedIndex = weightVariants.findIndex(
+                          (variant) =>{
+                            return variant.price - (variant.price * variant.discount) / 100 === maxPrice
+                          }
+                        );
+                      } else {
+      selectedIndex = weightVariants.findIndex(
+        (variant) =>{
+          return variant.price - (variant.price * variant.discount) / 100 === minPrice
+        }
+      );
+    }
+                   return isListView ? (
                       <ListProductCardComponent
                         key={product._id}
                         product={product}
                         setCartProduct={setCartProduct}
+                        activeIndex = {selectedIndex}
+                        setActiveVariant = {setActiveVariant}
                       />
                     ) : (
                       <ProductCard
                         key={product._id}
                         product={product}
                         setCartProduct={setCartProduct}
+                        activeIndex = {selectedIndex}
+                        setActiveVariant = {setActiveVariant}
                       />
-                    )
+                    );
+                  }
                   )}
           </div>
         </InfiniteScroll>
@@ -321,6 +464,7 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
 
       {cartProduct && (
         <AddtoCartBottomBar
+          activeIndex={activeVariant}
           refeernce={ref}
           product={cartProduct}
           onClose={handleCloseBottomBar}
