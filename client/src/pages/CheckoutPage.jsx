@@ -918,7 +918,7 @@ const CheckoutPage = () => {
                   <FaLocationDot className="text-lg" /> Choose your address
                 </div>
             <div className="h-full mt-3 max-h-[70vh] lg:min-h-[70vh]  rounded-xl flex flex-col justify-center items-center">
-              <div className="border-2 border-dashed border-gray-400 rounded-xl  p-3 flex flex-col justify-center items-center text-center">
+              <div className=" rounded-xl  p-3 flex flex-col justify-center items-center text-center">
               <div className="text-4xl text-gray-400 mb-2">
                 <FaLocationDot />
               </div>
