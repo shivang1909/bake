@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactSlider from "react-slider";
 import "./RangeSlider.css"; // Optional styling
 
@@ -17,36 +18,48 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setValues(tempPriceRange);
-    setShowConfirmDialog(false); 
+    showConfirmDialog && setShowConfirmDialog(false); 
+    setHasInteracted(false);
   };
 
+    useEffect(() => {
+      if (showConfirmDialog) {
+        document.body.style.overflow = "hidden"; // Disable scrolling
+      } else {
+        document.body.style.overflow = "auto"; // Enable scrolling
+      }
+    }, [showConfirmDialog]);
+
+    useEffect(()=>{
+            if(isDirect)
+      {
+        setTempPriceRange(values);
+        setDirect(false)
+      }
+    },[values])
+
+    
     // 👇 Detect focus-out from slider
     useEffect(() => {
+      if(hasInteracted)
+      {
       const handleClickOutside = (event) => {
         if (
           containerRef.current &&
           !containerRef.current.contains(event.target)
         ) {
           if (
-            hasInteracted &&
             (tempPriceRange[0] !== values[0] || tempPriceRange[1] !== values[1])
           ) {
             setShowConfirmDialog(true);
+            document.removeEventListener("mousedown", handleClickOutside);
           }
         }
       };
   
       document.addEventListener("mousedown", handleClickOutside);
-      if(isDirect)
-      {
-        setTempPriceRange(values);
-        setShowConfirmDialog(false); 
-        setDirect(false)
-      }
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [tempPriceRange, values, hasInteracted]);
+    }
+    }, [hasInteracted]);
   
     const handleRevert = () => {
       setTempPriceRange(values);
@@ -63,7 +76,6 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
               <button
                 type="submit"
                 className="border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs"
-                onClick={handleSubmit}
               >
                 Apply
               </button>
@@ -100,7 +112,7 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
           </form>
         </div>
   
-        {showConfirmDialog && (
+        {showConfirmDialog && createPortal(
   <div className="fixed inset-0 z-[99999999] bg-slate-900 bg-opacity-50 flex items-center justify-center transition-all duration-300">
     <div className="bg-white p-6 rounded-2xl shadow-2xl text-center space-y-4 w-[300px]">
       <p className="text-gray-800 font-semibold text-lg">
@@ -121,7 +133,8 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
         </button>
       </div>
     </div>
-  </div>
+  </div>,
+    document.body 
 )}
 
       </div>

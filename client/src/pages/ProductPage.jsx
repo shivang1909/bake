@@ -66,6 +66,10 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
     const [filter, setFilter] = useState([]); 
       const allCategory = useSelector((state) => state.product.allCategory);
 
+      useEffect (()=>{
+        console.log("this is price",priceRange)
+      },[priceRange])
+
         // useEffect(() => {
         //   const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
         
@@ -165,8 +169,9 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
 
     if(oldShelfLife)
       {
-        if(oldShelfLife!==maxshelfLife)
+        if(oldShelfLife!==maxshelfLife+" Day")
           {
+            console.log("hi")
             setFilter(prev => {
               const withoutOldShelfLife = prev.filter(item => item !== oldShelfLife);
               if(maxshelfLife>0)
@@ -190,6 +195,7 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
 
     if(oldPriceRange)
     {
+      console.log(oldPriceRange)
       const match = oldPriceRange.match(/(\d+)[^\d\-]*-[^\d\-]*(\d+)/);
       const num1 = parseInt(match[1]);
       const num2 = parseInt(match[2]);

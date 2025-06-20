@@ -9,16 +9,25 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   const containerRef = useRef(null);
   const [hasInteracted, setHasInteracted] = useState(false); // To avoid popup on mount
   
-  const handleSliderChange = (newValues) => {
-    setTempPrice(newValues)  
+  const handleSliderChange = (newValue) => {
+    setTempPrice(newValue)  
     setHasInteracted(true);
   };
   
   const handleSubmit = (e) => {
     e.preventDefault();
     setValue(tempPrice);
-    setShowConfirmDialog(false); 
+    showConfirmDialog && setShowConfirmDialog(false); 
+    setHasInteracted(false);
     };
+
+        useEffect(()=>{
+                if(isDirect)
+          {
+            setTempPrice(value);
+            setDirect(false)
+          }
+        },[value])
     
     // 👇 Detect focus-out from slider
     useEffect(() => {
@@ -32,20 +41,12 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
               (tempPrice !== value)
             ) {
               setShowConfirmDialog(true);
+              document.removeEventListener("mousedown", handleClickOutside);
             }
           }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        if(isDirect)
-        {
-          setTempPrice(value)
-          setShowConfirmDialog(false);  
-          setDirect(false)
-        }
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, [tempPrice, value, hasInteracted]);
+      }, [hasInteracted]);
       
       const handleRevert = () => {
         setTempPrice(value);
@@ -63,7 +64,7 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
           Days 
         </span>
 
-    <button className='border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs' onClick={handleSubmit}>
+    <button className='border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs'>
         Apply
     </button>
         </div>

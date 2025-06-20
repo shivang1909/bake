@@ -13,7 +13,7 @@ import {
   MenuItems,
   Transition
 } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment } from "react";~
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -93,6 +93,16 @@ const [showScrollTop, setShowScrollTop] = useState(false);
     fetchWeightVarient();
   }, []);
 
+  useEffect(() => {
+     if (mobileFiltersOpen) {
+       document.body.style.overflow = "hidden";
+     } else {
+       document.body.style.overflow = "auto";
+     }
+   }, [mobileFiltersOpen]);
+
+      const handleClose = () => setMobileFiltersOpen(false);
+
   return (
     <div className="bg-white mt-20">
       <Helmet>
@@ -136,148 +146,149 @@ const [showScrollTop, setShowScrollTop] = useState(false);
         </div>
       </div>
       <div>
+       <div
+        className={`
+          fixed inset-0 bg-black/50 z-50 transition-opacity duration-300
+          ${mobileFiltersOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+        `}
+        onClick={handleClose}
+      />
         {/* Mobile filter dialog */}
-        <Transition show={mobileFiltersOpen} as={Fragment}>
-  <Dialog
-    as="div"
-    className="relative z-40 lg:hidden"
-    onClose={setMobileFiltersOpen}
-  >
-    {/* Backdrop */}
-    <Transition.Child
-      as={Fragment}
-      enter="transition-opacity ease-linear duration-300"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      leave="transition-opacity ease-linear duration-300"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-    >
-      <div className="fixed inset-0 bg-black/50" />
-    </Transition.Child>
-
-    {/* Slide Panel Container */}
-    <div className="fixed inset-0 z-40 flex">
-      <Transition.Child
-        as={Fragment}
-        enter="transition-transform duration-300 ease-in-out"
-        enterFrom="translate-x-full"
-        enterTo="translate-x-0"
-        leave="transition-transform duration-300 ease-in-out"
-        leaveFrom="translate-x-0"
-        leaveTo="translate-x-full"
+ <div
+        className={`
+          fixed top-0 bottom-0 right-0 w-60 pb-12  bg-white z-50 transition-transform duration-300 ease-in-out
+          ${mobileFiltersOpen ? "translate-x-0" : "translate-x-full"}
+        `}
       >
-        <Dialog.Panel className="ml-auto flex h-full w-60 flex-col bg-white py-4 pb-12 shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4">
-            <span className="text-lg font-medium text-gray-900">Filters</span>
-            <button
-              type="button"
-              onClick={() => setMobileFiltersOpen(false)}
-              className="-mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-            >
-              <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="size-6" />
-            </button>
-          </div>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <span className="text-lg font-semibold text-gray-900">Filters</span>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
 
-          {/* Filters */}
-          <form className="mt-4 border-t overflow-y-auto border-gray-200">
-            <span className="font-bold text-xl flex items-center gap-2 px-4 py-3">
-              <AiOutlineProduct />
-              Category
+        {/* Body */}
+        <div className="overflow-y-auto px-4 py-4 h-full">
+          <form>
+            {/* Category Filter */}
+            <span className="font-bold text-xl flex items-center gap-2 py-3 px-2">
+              <AiOutlineProduct /> Category
             </span>
-            <ul role="list" className="px-6 py-3 font-medium text-gray-900">
+            <ul className="space-y-2 pl-4">
               {allCatagory.map((category) => (
-                <li key={category._id}>
-                  <article className="checkbox-container flex items-center space-x-1">
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        id={category._id}
-                        checked={Category.includes(category._id)}
-                        className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
-                        onChange={(e) => {
-                          e.target.checked
-                            ? setCategory((prev) => [...prev, category._id])
-                            : setCategory((prev) =>
-                                prev.filter((cat) => cat !== category._id)
-                              );
-                        }}
-                      />
-                    </label>
-                    <label htmlFor={category._id} className="cursor-pointer">
-                      {category.name}
-                    </label>
-                  </article>
-                </li>
+                                            <li key={category._id}>
+                              <article className="checkbox-container flex items-center space-x-2">
+                                <label className="checkbox">
+                                  <input
+                                    name="category"
+                                    type="checkbox"
+                                    checked={Category.includes(category._id)} 
+                                    onChange={(e) => {
+                                      console.log(
+                                        "Checkbox changed:",
+                                        e.target.checked
+                                      );
+                                      e.target.checked
+                                        ? setCategory((prev) => [
+                                            ...prev,
+                                            category._id,
+                                          ])
+                                        : setCategory((prev) =>
+                                            prev.filter(
+                                              (cat) => cat !== category._id
+                                            )
+                                          );
+                                      console.log(
+                                        "Current categories:",
+                                        Category
+                                      );
+                                    }}
+                                    id={category.name}
+                                    className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
+                                  />
+                                </label>
+                                <label
+                                  htmlFor={category.name}
+                                  className="cursor-pointer"
+                                >
+                                  {category.name}
+                                </label>
+                              </article>
+                            </li>
               ))}
             </ul>
 
-            <div className="px-4">
+            {/* Other Filters (Variants, Price, Shelf Life) */}
+            <div className="pt-4">
               {filters.map((section) => (
                 <Disclosure key={section.id} as="div" className="py-2">
                   {({ open }) => (
                     <>
                       <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
                         <span
-                          className={`font-bold px-2 text-lg flex items-center gap-3 ${
-                            open ? "text-orange-600" : "text-gray-800"
-                          }`}
+                          className={`font-bold px-2 text-lg flex items-center gap-3 ${open ? "text-orange-600" : "text-gray-800"}`}
                         >
                           {section.icon} {section.name}
                         </span>
                         <span className="flex items-center">
                           {open ? (
-                            <MinusIcon className="w-5 text-gray-500" />
+                            <span className="text-gray-500">-</span>
                           ) : (
-                            <PlusIcon className="w-5 text-gray-500" />
+                            <span className="text-gray-500">+</span>
                           )}
                         </span>
                       </DisclosureButton>
-
-                      <DisclosurePanel className="pt-4">
+                      <DisclosurePanel className="pt-2">
                         {section.id === "Varients" ? (
-                          <div className="space-y-2 pl-4">
+                          <ul className="space-y-2 pl-4">
                             {WeightVarient.map((varient, idx) => (
-                              <li key={idx}>
-                                <article className="checkbox-container flex items-center space-x-1">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      id={`weight-${idx}`}
-                                      checked={selectedWeight.includes(
-                                        varient.weight
-                                      )}
-                                      className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-600 checked:border-transparent focus:outline-none"
-                                      onChange={(e) => {
-                                        e.target.checked
-                                          ? setSelectedWeight((prev) => [
-                                              ...prev,
-                                              varient.weight,
-                                            ])
-                                          : setSelectedWeight((prev) =>
-                                              prev.filter(
-                                                (varientName) =>
-                                                  varientName !==
-                                                  varient.weight
-                                              )
-                                            );
-                                      }}
-                                    />
-                                  </label>
-                                  <label
-                                    htmlFor={`weight-${idx}`}
-                                    className="cursor-pointer"
-                                  >
-                                    {varient.weight}
-                                  </label>
-                                </article>
-                              </li>
+                                    <li key={idx}>
+                                      <article className="checkbox-container flex items-center space-x-1">
+                                        <label className="checkbox">
+                                          <input
+                                            type="checkbox"
+                                            id={`weight-${idx}`}
+                                             checked={selectedWeight.includes(varient.weight)} 
+                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                            onChange={(e) => {
+                                              console.log(
+                                                "Checkbox changed:",
+                                                e.target.checked
+                                              );
+                                              e.target.checked
+                                                ? setSelectedWeight((prev) => [
+                                                    ...prev,
+                                                    varient.weight,
+                                                  ])
+                                                : setSelectedWeight((prev) =>
+                                                    prev.filter(
+                                                      (varientName) => varientName !== varient.weight
+                                                    )
+                                                  );
+                                                  console.log(
+                                                    "Current weight:",
+                                                    selectedWeight
+                                                  );
+                                            }}
+                                          />
+                                        </label>
+                                        <label
+                                          htmlFor={`weight-${idx}`}
+                                          className="cursor-pointer"
+                                        >
+                                          {varient.weight}
+                                        </label>
+                                      </article>
+                                    </li>
                             ))}
-                          </div>
+                          </ul>
                         ) : section.id === "Price" ? (
-                          <div className="rounded-lg bg-white text-center text-gray-700">
+                          <div className="pt-2">
                             <RangeSlider
                               values={values}
                               setValues={setValues}
@@ -286,7 +297,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                             />
                           </div>
                         ) : (
-                          <div className="rounded-lg bg-white text-center text-gray-700">
+                          <div className="pt-2">
                             <ShelfLifeSlider
                               value={value}
                               setValue={setValue}
@@ -302,12 +313,9 @@ const [showScrollTop, setShowScrollTop] = useState(false);
               ))}
             </div>
           </form>
-        </Dialog.Panel>
-      </Transition.Child>
-    </div>
-  </Dialog>
-</Transition>
-        <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
+        </div>
+      </div>
+        <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20 ">
           <section aria-labelledby="products-heading" className="">
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
               {/* Filters */}
