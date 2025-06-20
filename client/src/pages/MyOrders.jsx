@@ -473,9 +473,6 @@ useEffect(() => {
           </div>
         )}
 
-
-
-
         {/* Mobile Cancel Order Modal */}
         {showCancelMobileModal && (
           <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-500 ease-in-out ${showCancelMobileModal ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'

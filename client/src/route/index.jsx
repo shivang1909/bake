@@ -10,13 +10,12 @@ import ForgotPassword from "../pages/ForgotPassword";
 import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
 import UserMenuMobile from "../pages/UserMenuMobile";
-import Dashboard from "../layouts/Dashboard";
+import AdminDashboard from "../layouts/AdminDashboard";
 import Profile from "../pages/Profile";
 import MyOrders from "../pages/MyOrders";
 import Address from "../pages/Address";
 import CategoryPage from "../pages/CategoryPage";
 import ProductAdmin from "../pages/ProductAdmin";
-import AdminPermision from "../layouts/AdminPermision";
 import ProductListPage from "../pages/ProductListPage";
 import ProductDisplayPage from "../pages/ProductDisplayPage";
 import ProductDisplayPageNew from "../pages/ProductDisplayPageNew";
@@ -160,35 +159,14 @@ const router = createBrowserRouter([
                 path: "dashboard/Myprofile",
                 element: <MyProfile />
             },
-            {
-                path: "dashboard",
-                element: <Dashboard />,
-                children: [
-                    // {
-                    //     path: "myorders",
-                    //     element: <MyOrders />
-                    // },
-                    // {
-                    //     path: "address",
-                    //     element: <Address />
-                    // },
-                    {
-                        path: "cart",
-                        element: <CartMobile />
-                    },
-                    // {
-                    //     path: "checkout",
-                    //     element: <CheckoutPage />
-                    // },
-                    // {
-                    //     path: "Myprofile",
-                    //     element: <MyProfile />
-                    // },
-                ]
-            },
-            {
+             {
                 path: "admin/dashboard",
-                element: <Dashboard />,
+                element: <AdminDashboard />
+            },
+           
+            {
+                path: "admin/dashboard/",
+                element: <AdminDashboard />,
                 children: [
                     {
                         path: "profile",

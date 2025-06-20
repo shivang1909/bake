@@ -22,12 +22,14 @@
   import SignUp from './pages/SignUp.jsx';
   import Login from './pages/Login.jsx';
   import checkout from './pages/CheckoutPage.jsx';
-
+import AdminHeader from './components/AdminHeader.jsx'
 
   function App() {
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
+    const user = useSelector((state) => state.user);
+    
 
 const pathname = window.location.pathname;
     const [isLoading, setIsLoading] = useState();
@@ -38,9 +40,10 @@ const pathname = window.location.pathname;
   ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
-      "/verification-otp", "/success",
+      "/verification-otp", "/success" ,"/admin/login"
     ];
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
+
 
 
     const fetchUser = async () => {
@@ -48,6 +51,7 @@ const pathname = window.location.pathname;
         dispatch(setDataLoading(false));
         const userData = await fetchUserDetails();
         dispatch(setUserDetails(userData.data));
+        
         dispatch(setDataLoading(true));
         if (userData === "Provide  token") {
           const pathParts = location.pathname.split("/").filter(Boolean);
@@ -62,10 +66,36 @@ const pathname = window.location.pathname;
       }
     };
 
+    const fetchCategory = async()=>{
+    try {
+        const response = await Axios({
+            ...SummaryApi.getCategory
+        })   
+        const { data : responseData } = response;
+        console.log(`this is response of category ${JSON.stringify(responseData.data)}`);
+        
+        if(responseData.success){
+           dispatch(setAllCategory(responseData.data)) 
+        }
+        console.log(`this is category `,responseData.data);
+        
+    } catch (error) {
+      console.log("Error fetching categories:", error);
+      
+    }finally{
+      dispatch(setLoadingCategory(false))
+    }
+  }
+
 
     useEffect(() => {
       fetchUser();
+      fetchCategory();
     }, []);
+
+    useEffect(()=>{
+      console.log(user)
+    },[user])
 
 
     // ⚡ Trigger loader every time the route changes
@@ -91,7 +121,7 @@ const pathname = window.location.pathname;
           <Loader />
         ) : (
           <>
-            {!hideLayout && <Header />}
+            {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
             <main className="bg-white">
               <motion.div
                 initial={{ opacity: 0 }}
