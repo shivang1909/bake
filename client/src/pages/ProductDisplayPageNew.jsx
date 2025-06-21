@@ -7,7 +7,7 @@ import kajuroll from "../../assets/images/Custom/kajuroll.png";
 import farsan from "../../assets/images/Custom/farsan.png";
 import SampleBanner from "../../assets/images/Custom/bnnerNew.png";
 import { GiDuration } from "react-icons/gi";
-import { FaTruckFast } from "react-icons/fa6";
+import { FaArrowUp, FaTruckFast } from "react-icons/fa6";
 import { GiIndiaGate } from "react-icons/gi";
 import OtherProducts from "../components/OtherProducts";
 import ReviewDisplay from "../components/ReviewDisplay";
@@ -27,6 +27,7 @@ import { useGlobalContext } from "../provider/GlobalProvider";
 import ProductCard from "../components/ProductCard";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
 import shapegrey from "../../assets/images/Custom/shape-grey.png";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const ProductDisplayPageNew = () => {
   const ref = useRef(null);
@@ -63,6 +64,20 @@ const ProductDisplayPageNew = () => {
   const [zoom, setZoom] = useState(false);
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+  
+    useEffect(() => {
+      const handleScroll = () => {
+        setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+  
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
   useEffect(() => {
     const handleResize = () => {
@@ -252,6 +267,9 @@ const ProductDisplayPageNew = () => {
   return (
     <>
       <div className="mt-10 max-w-7xl mx-auto px-4 py-10 bg-white lg:mt-20">
+        <div className="flex  space-y-2 mb-5">
+        <Breadcrumbs/>
+        </div>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left: Images */}
           <div className="w-full lg:w-1/2 h-full [@media(min-height:1366px)]:max-h-[25vh] max-h-[75vh] lg:max-h-[60vh]">
@@ -458,7 +476,7 @@ const ProductDisplayPageNew = () => {
                   {isAdded ? (
                     // <DisplayCartItem  />
                     <button
-                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 border border-orange-500 text-orange-500 rounded-full w-full  transition-all duration-200 active:scale-95"
+                      className="flex items-center justify-center font-semibold gap-2 px-10 py-3 border bg-orange-500 text-white rounded-full w-full  transition-all duration-200 active:scale-95"
                       onClick={handleCartOpen}
                     >
                       <FaShoppingCart className="text-lg" />
@@ -557,6 +575,14 @@ const ProductDisplayPageNew = () => {
       <div className="lg:mx-20">
         <ReviewDisplay productId={productId} />
       </div>
+       <button
+                onClick={scrollToTop}
+                className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
+                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                <FaArrowUp className="w-full h-full" />
+              </button>
       {cartProduct && (
         <AddToCartBottomBar
           reference={ref}

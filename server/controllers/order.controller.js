@@ -31,6 +31,7 @@ import {
   deliveryPartnerNotification,
 } from "./sseHandler.controller.js";
 import sendnotification from "../utils/sendnotification.js";
+import { getNextSequence } from '../redis.js';
 
 
 async function GetOlddeliverypartner(oid) {
@@ -294,6 +295,7 @@ export const verifyPayment = async (req, res) => {
   try {
     const userId = req.userId;
 
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -306,6 +308,8 @@ export const verifyPayment = async (req, res) => {
       promocodeDiscount,
     } = req.body;
   const selectedAddress = await  AddressModel.findById(addressId);
+  console.log("this is order id",razorpay_order_id);
+  console.log("this is payment id",razorpay_payment_id);
     if (!selectedAddress) {
       return response.status(404).json({
         message: "Address not found",
@@ -313,9 +317,10 @@ export const verifyPayment = async (req, res) => {
         success: false,
       });
     }
-    
+   
 
-   const deliveryAddress = {
+
+  const deliveryAddress = {
       name: selectedAddress.name,
       address_line1: selectedAddress.address_line1,
       address_line2: selectedAddress.address_line2,
@@ -326,23 +331,52 @@ export const verifyPayment = async (req, res) => {
       mobile: selectedAddress.mobile
     };
 
+
     // Verify payment signature
     const hmac = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
+
+      console.log(hmac)
     if (hmac !== razorpay_signature) {
+    const user = await UserModel.findById(userId);
+    const adminEmail = process.env.ADMIN_EMAIL;
+
+
+      console.log("this is user id",user);
+      console.log("this is Admin id",adminEmail);
+     
+    if (adminEmail) {
+      console.log("Admin mail send");
+      req.body.deliveryAddress = deliveryAddress;
+      await sendPaymentVerificationFailedEmailToAdmin(adminEmail, user, req.body);
+    }
+
+
+    if (user?.email) {
+      console.log("User mail send");
+
+
+      await sendPaymentVerificationFailedEmailToUser(user.email, req.body);
+    }
       return res
         .status(400)
         .json({ success: false, message: "Payment verification failed" });
     }
 
+    const today = new Date().toISOString().slice(0,10).replace(/-/g, '');
+const orderSeq = await getNextSequence(); // from Redis
+const padded = String(orderSeq).padStart(3, '0');
+const generatedOrderId = `ORD-${today}${padded}`;
+
     // Build order payload
     const payload = {
       userId: userId,
-      orderId : `ORD-${nanoid(6)}`,
+      orderId : generatedOrderId,
       products: list_items,
+
 
       paymentId: razorpay_payment_id,
       payment_status: "ONLINE PAYMENT",
@@ -352,14 +386,13 @@ export const verifyPayment = async (req, res) => {
       orderStatus: "Not Assigned",
       isPaymentDone: true,
     };
-    console.log(payload);
     payload.special_Gift_packing = special_Gift_packing;
     // Handle promocode
     if (promocodeId) {
       try {
         const promocode = await PromocodeModel.findById(promocodeId);
         payload.promo_code = promocode.code;
-         payload.promocodeDiscount = promocodeDiscount;
+        payload.promocodeDiscount = promocodeDiscount;
         await PromocodeModel.findByIdAndUpdate(promocodeId, {
           $set: { users: userId },
         });
@@ -368,13 +401,16 @@ export const verifyPayment = async (req, res) => {
       }
     }
 
+
     // Reduce stock
     for (const item of list_items) {
       const { productId, variantPrices } = item;
       if (!productId || !Array.isArray(variantPrices)) continue;
 
+
       const product = await ProductModel.findById(productId);
       if (!product) continue;
+
 
       for (const variant of variantPrices) {
         const { weight, quantity } = variant;
@@ -383,12 +419,14 @@ export const verifyPayment = async (req, res) => {
         );
         if (!matchedVariant) continue;
 
+
         await ProductModel.updateOne(
           { _id: productId, "weightVariants._id": matchedVariant._id },
           { $inc: { "weightVariants.$.qty": -quantity } }
         );
       }
     }
+
 
     // Gift wrapping
     let giftPackingTotal = 0;
@@ -403,23 +441,28 @@ export const verifyPayment = async (req, res) => {
       payload.special_Gift_packing = giftPackingTotal;
     }
 
+
     // Create order
     const generatedOrder = await OrderModel.create(payload);
     newordersseHandler(generatedOrder);
     // Clear user cart
     await UserModel.updateOne({ _id: userId }, { shopping_cart: [] });
 
+
     // Email notifications
     const user = await UserModel.findById(userId);
     const adminEmail = process.env.ADMIN_EMAIL;
+
 
     if (user?.email) {
       await sendOrderConfirmationEmail(user.email, generatedOrder);
     }
 
+
     if (adminEmail) {
       await sendNewOrderNotificationEmail(adminEmail, generatedOrder);
     }
+
 
     return res.status(200).json({ success: true, data: generatedOrder });
   } catch (error) {
@@ -430,6 +473,7 @@ export const verifyPayment = async (req, res) => {
     });
   }
 };
+
 
 
 export async function CashOnDeliveryOrderController(request, response) {
@@ -459,11 +503,14 @@ export async function CashOnDeliveryOrderController(request, response) {
       country: selectedAddress.country,
       mobile: selectedAddress.mobile
     };
-
+ const today = new Date().toISOString().slice(0,10).replace(/-/g, '');
+const orderSeq = await getNextSequence(); // from Redis
+const padded = String(orderSeq).padStart(3, '0');
+const generatedOrderId = `ORD-${today}${padded}`;
     // Create the base order payload
     const payload = {
       userId: userId,
-      orderId : `ORD-${nanoid(6)}`,
+      orderId : generatedOrderId,
 
       products: list_items,
       paymentId: `pyt-${new mongoose.Types.ObjectId()}`,
@@ -474,9 +521,7 @@ export async function CashOnDeliveryOrderController(request, response) {
       orderStatus: "Not Assigned", // Default status
     };
     payload.special_Gift_packing = special_Gift_packing;
-    console.log("********************************");
     
-console.log(JSON.stringify(payload));
 
     // If promocode is provided, verify and apply it
     if (promocodeId) {

@@ -53,7 +53,7 @@ const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0
           <div className="flex flex-row justify-between items-center gap-1 mt-1">
             <div className="flex flex-col gap-2">
               <div className="flex flex-row gap-1">
-                {renderStars(product.averageRating || 4.5)}
+                {renderStars(product.averageRating)}
               </div>
               <div className="w-fit hidden">
                 <span className="flex justify-between items-center gap-1 bg-yellow-50 text-yellow-500 rounded-lg px-3 text-xs"></span>

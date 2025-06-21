@@ -5,72 +5,59 @@ import SummaryApi from "../common/SummaryApi";
 import toast from "react-hot-toast";
 import renderStars from "./RenderStars";
 import RatingBar from "./RatingStates";
-import { useSelector  } from "react-redux"; // Corrected import for useSelector
+import { useSelector } from "react-redux"; // Corrected import for useSelector
 import { ThankYouModal } from "./ThankYouMessage";
 const ReviewDisplay = ({ productId }) => {
-   const user = useSelector((state) => state.user);
- 
+  const user = useSelector((state) => state.user);
+
   const [ratingstats, setRatingStats] = useState([]);
   const [isopen, setisopen] = useState(false);
-
-
-  const handleAddreview = async () => {
-    // Logic to handle adding a review
-   
-    try {
-      const response = await Axios({
-        ...SummaryApi.addReview,
-        data: { productid: productId, rating: rating, comment: review },
-      });
-      console.log("Response from server:", response);
-      if (response.status === 200) {
-        setAllReviews((prevReviews) => [
-          ...prevReviews,
-          {
-            user: {_id: user._id,name: user.name, avatar: user.avatar},
-            rating: rating,
-            comment: review,
-          },]);
-          const newstate= [...ratingstats];
-          newstate.find((item) => item.rating === rating)
-            ? newstate.find((item) => item.rating === rating).count++
-            : newstate.push({"_id": rating, "count": 1});
-           setRatingStats(newstate);
-
-
-        console.log("Review submitted successfully:", response.data);
-        // Close the modal after successful submission
-       
-        setIsModalOpen(false);
-          setisopen(true);
-        toast.success("Review submitted successfully!");
-        // Optionally, you can reset the form fields
-        setRating(0);
-        setReview("");
-      } else {
-        console.error("Failed to submit review:", response);
-        // Handle error appropriately, e.g., show a notification
-      }
-    } catch (error) {
-      console.log("this is error", error);
-      if (error.response.status === 401) {
-        toast.error("Please login to submit a review.");
-      }
-    }
-  };
   const [allReviews, setAllReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
- 
+
+  const handleAddreview = async () => {
+    try {
+      const response = await Axios({
+        ...SummaryApi.addReview,
+        data: { productid: productId, rating: rating, comment: review },
+      });
+      if (response.status === 200) {
+        setAllReviews((prevReviews) => [
+          ...prevReviews,
+          {
+            user: { _id: user._id, name: user.name, avatar: user.avatar },
+            rating: rating,
+            comment: review,
+          },
+        ]);
+        const newstate = [...ratingstats];
+        newstate.find((item) => item.rating === rating)
+          ? newstate.find((item) => item.rating === rating).count++
+          : newstate.push({ _id: rating, count: 1 });
+        setRatingStats(newstate);
+        setIsModalOpen(false);
+        setisopen(true);
+        toast.success("Review submitted successfully!");
+        setRating(0);
+        setReview("");
+      } else {
+        console.error("Failed to submit review:", response);
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        toast.error("Please login to submit a review.");
+      }
+    }
+  };
   const fetchallreviews = async () => {
     try {
       const response = await Axios({ ...SummaryApi.getReview(productId) });
       console.log("Response from server:", response);
       setAllReviews(response.data.data);
-
 
       setRatingStats(response.data.ratingsStats);
       console.log("Rating stats: res", response.data.ratingsStats);
@@ -84,18 +71,15 @@ const ReviewDisplay = ({ productId }) => {
     fetchallreviews();
   }, [productId]);
 
-
   // Disable page scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "auto";
   }, [isModalOpen]);
 
-
   const handleStarClick = (index) => {
     setRating(index);
     console.log("Rating submitted:", index);
   };
-
 
   return (
     <>
@@ -109,7 +93,6 @@ const ReviewDisplay = ({ productId }) => {
             </h2>
           </div>
 
-
           <div className="flex-1 flex flex-col justify-center space-y-6">
             <div className="text-center">
               <div className="text-8xl font-bold text-green-600 shine-text overflow-hidden"></div>
@@ -119,12 +102,10 @@ const ReviewDisplay = ({ productId }) => {
               </div>
             </div>
 
-
             <div className="space-y-3">
               <RatingBar ratingstats={ratingstats} />
             </div>
           </div>
-
 
           <div className="pt-6">
             <button
@@ -135,7 +116,6 @@ const ReviewDisplay = ({ productId }) => {
             </button>
           </div>
         </div>
-
 
         {/* Right Testimonials */}
         <div className="w-full lg:w-2/3 bg-white border p-4 rounded-xl overflow-y-auto max-h-[70vh]">
@@ -178,7 +158,13 @@ const ReviewDisplay = ({ productId }) => {
         </div>
       </section>
       {/* Modal */}
-      {isopen && <ThankYouModal close={()=>{setisopen(false)}} />}
+      {isopen && (
+        <ThankYouModal
+          close={() => {
+            setisopen(false);
+          }}
+        />
+      )}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all">
           <div className="bg-white w-[90%] max-w-lg rounded-xl shadow-xl animate-fadeIn">
@@ -189,14 +175,12 @@ const ReviewDisplay = ({ productId }) => {
               </h3>
             </div>
 
-
             {/* Body */}
             <div className="p-4 space-y-4 font-semibold">
               <div className="flex items-center justify-center gap-1 text-4xl">
                 {[1, 2, 3, 4, 5].map((index) => {
                   const isRated = rating >= index;
                   const isHovered = hoverRating >= index;
-
 
                   return (
                     <span
@@ -210,7 +194,7 @@ const ReviewDisplay = ({ productId }) => {
               : "text-gray-300"
           }
           `}
-          onClick={() => handleStarClick(index)}
+                      onClick={() => handleStarClick(index)}
                       onMouseEnter={() => setHoverRating(index)}
                       onMouseLeave={() => setHoverRating(0)}
                     >
@@ -220,48 +204,30 @@ const ReviewDisplay = ({ productId }) => {
                 })}
               </div>
 
-
-             <span className="text-xs text-gray-500 float-end">
-        {review.length}/70
-      </span>
+              <span className="text-xs text-gray-500 float-end">
+                {review.length}/70
+              </span>
               <div className="grid my-3">
-                     
-
-
                 <div className="w-full relative flex rounded-xl">
-                 <textarea
-  required
-  maxLength={70} // ✅ Limit to 70 characters
-  id="addressline"
-  className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-  onChange={(e) => setReview(e.target.value)}
-/>
+                  <textarea
+                    required
+                    maxLength={70} // ✅ Limit to 70 characters
+                    id="addressline"
+                    className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
+                    onChange={(e) => setReview(e.target.value)}
+                  />
                   <label
                     htmlFor="addressline"
                     className="absolute  bg-white text-black/70 -translate-y-1/2 rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
                   >
                     Write your review
                   </label>
-                 
                 </div>
               </div>
             </div>
 
-
-           
             {/* Footer */}
             <div className="p-4 border-t flex justify-end gap-2 font-semibold">
-              <button
-                onClick={() =>
-                  speechSynthesis.speak(
-                    new SpeechSynthesisUtterance(addressline.value)
-                  )
-                }
-                className="px-4 py-1.5 rounded-full text-yellow-600 bg-gray-100 hover:bg-gray-200 transition"
-              >
-                Listen
-              </button>
-               
               <button
                 onClick={handleCloseModal}
                 className="px-4 py-1.5 rounded-full text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
@@ -281,6 +247,5 @@ const ReviewDisplay = ({ productId }) => {
     </>
   );
 };
-
 
 export default ReviewDisplay;

@@ -651,11 +651,11 @@ const Header = () => {
                                 </li>
                                 <li>
                                   <a
-                                    href="/settings"
+                                    href="/dashboard/address"
                                     className="px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
                                     onClick={closeDropdown}
                                   >
-                                    <FaMapMarkerAlt /> Track Orders
+                                    <FaMapMarkerAlt />Address
                                   </a>
                                 </li>
                                 <li>
@@ -869,45 +869,7 @@ const Header = () => {
                     </div>
                   </ul>
                 </li>
-                {/* Account */}
-                <li>
-                  <div
-                    className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleSubmenu("Account")}
-                  >
-                    <span>Account</span>
-                    <span>{submenuOpen === "Account" ? "−" : "+"}</span>
-                  </div>
-
-                  {/* Submenu under Account */}
-                  <ul
-                    className={`pl-3 mt-1  overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "Account" ? "max-h-[500px]" : "max-h-0"
-                    }`}
-                  >
-                    <div className="mt-2 gap-2 flex flex-col">
-                      <li className="p-1 rounded-2xl">
-                        <a href="">My Account</a>
-                      </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Track Your Order</a>
-                      </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Chat With Us</a>
-                      </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Write a Review</a>
-                      </li>
-                    </div>
-                  </ul>
-                  <ul class="sub-menu">
-                    <li>
-                      <a class="p-0" href="shop-left-sidebar-col-3.html">
-                        <img class="img-responsive" src={SampleOffer} alt="" />
-                      </a>
-                    </li>
-                  </ul>
-                </li>
+                
                 <li>
                   <div
                     className="flex justify-between items-center cursor-pointer"
@@ -924,17 +886,23 @@ const Header = () => {
                     }`}
                   >
                     <div className="mt-2 gap-2 flex flex-col">
-                      <li className="p-1 rounded-2xl">
-                        <a href="">About</a>
+                      <li className="p-1 rounded-2xl" onClick={() => {
+                              setIsMenuOpen(false);
+                              setSubmenuOpen(false);
+                            }}>
+                        <Link  to="/about-us">About Us</Link>
                       </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Our Vision & Mission</a>
+                      <li className=" p-1  rounded-2xl" onClick={() => {
+                              setIsMenuOpen(false);
+                              setSubmenuOpen(false);
+                            }}>
+                        <Link to="/Privacy-Policy">Privacy Policy</Link>
                       </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Privacy Policy</a>
-                      </li>
-                      <li className=" p-1  rounded-2xl">
-                        <a href="">Certificates</a>
+                      <li className=" p-1  rounded-2xl" onClick={() => {
+                              setIsMenuOpen(false);
+                              setSubmenuOpen(false);
+                            }}>
+                        <Link to="/Terms-conditions">Terms & Condition</Link>
                       </li>
                     </div>
                   </ul>
@@ -954,8 +922,11 @@ const Header = () => {
             {/* Help Center */}
             <div className="border-b pb-3 pt-4 ">
               <ul className="text-[15px] font-bold">
-                <li className="cursor-pointer hover:text-blue-500 flex items-center gap-2">
-                  <RiCustomerServiceLine className="text-xl" /> Help Center
+                <li className="cursor-pointer hover:text-blue-500 flex items-center gap-2" onClick={() => {
+                              setIsMenuOpen(false);
+                              setSubmenuOpen(false);
+                            }} >
+                <RiCustomerServiceLine className="text-xl"  /> <Link to="/Contact-Us"> Contact Us</Link> 
                 </li>
               </ul>
             </div>
@@ -974,7 +945,7 @@ const Header = () => {
                 href="https://www.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-blue-600 text-blue-600 hover:text-white transition-colors"
+                className="bg-gray-200 p-3 rounded-full hover:bg-orange-600 text-orange-600 hover:text-white transition-colors"
               >
                 <FaFacebook size={20} />
               </a>

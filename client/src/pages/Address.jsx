@@ -7,13 +7,17 @@ import toast from "react-hot-toast";
 import AxiosToastError from "../utils/AxiosToastError";
 import { useGlobalContext } from "../provider/GlobalProvider";
 
+
 import AddAddressDesktop from "../components/AddAddressDesktop";
 import { Link, useNavigate } from "react-router-dom";
 import { CiUser } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 import ProfileSideBar from "../components/ProfileSideBar";
 
+
 const Address = () => {
+  const [deleteconfirm, setDeleteConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
   const addressList = useSelector((state) => state.addresses.addressList);
   const [openAddress, setOpenAddress] = useState(false);
   const [openForm, setOpenForm] = useState(false);
@@ -21,25 +25,31 @@ const Address = () => {
   const [editData, setEditData] = useState({});
   const { fetchAddress } = useGlobalContext();
 
+
   // const navigate = useNavigate();
   //     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
 
   //     useEffect(() => {
   //       const handleResize = () => {
   //         setScreenWidth(window.innerWidth);
   //       };
 
+
   //       // Listen to resize
   //       window.addEventListener("resize", handleResize);
+
 
   //       // Initial check
   //       if (window.innerWidth > 1024) {
   //         navigate("/dashboard"); // or home
   //       }
 
+
   //       // Cleanup
   //       return () => window.removeEventListener("resize", handleResize);
   //     }, []);
+
 
   //     // Also check after resize
   //     useEffect(() => {
@@ -47,6 +57,7 @@ const Address = () => {
   //         navigate("/dashboard");
   //       }
   //     }, [screenWidth]);
+
 
   const handleDisableAddress = async (id) => {
     try {
@@ -63,12 +74,14 @@ const Address = () => {
     }
   };
 
+
   const handleOpenAddForm = () => {
     setFormMode("add");
     setEditData({});
     setOpenForm(true);
     setOpenAddress(true);
   };
+
 
   const handleOpenEditForm = (address) => {
     setFormMode("edit");
@@ -96,8 +109,9 @@ const Address = () => {
             </button>
           </div>
 
+
           {/* Address List */}
-          <div className="bg-gray-50 p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
+          <div className="bg-white p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3  overflow-y-auto">
             {addressList
               .filter((address) => address.status)
               .map((address, index) => (
@@ -121,10 +135,12 @@ const Address = () => {
                       </p>
                     </div>
 
+
                     <p className="text-gray-600 mt-1 flex gap-2 items-center">
                       <IoCallOutline className="text-lg" /> {address.mobile}
                     </p>
                   </div>
+
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-4">
@@ -135,7 +151,7 @@ const Address = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDisableAddress(address._id)}
+                      onClick={() => setDeleteConfirm(true) & setDeleteId(address._id)}
                       className="flex-1 text-sm text-red-600 border border-red-300 rounded-md py-1 hover:bg-red-600 hover:text-white transition"
                     >
                       Delete
@@ -143,6 +159,7 @@ const Address = () => {
                   </div>
                 </div>
               ))}
+
 
             {/* Conditional Add Box */}
            
@@ -179,13 +196,46 @@ const Address = () => {
                className="hidden lg:flex border-2 border-dashed border-gray-300 bg-white rounded-lg cursor-pointer items-center justify-center hover:border-orange-200 transition h-full min-h-[120px]"
              >
                <p className="text-gray-500 text-center px-5">
-             Add Your Friend's Address 
+             Add Your Friend's Address
                </p>
              </div>
            </>
            
             )}
           </div>
+          {
+            deleteconfirm &&
+            (
+              <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-sm mx-auto">
+                  <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+                  <p>Are you sure you want to delete this address?</p>
+                  <div className="flex justify-end mt-4">
+                    <button
+                       onClick={async () => {
+   await handleDisableAddress(deleteId);
+    setDeleteConfirm(false);
+    setDeleteId("");
+  }}
+                     className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDeleteConfirm(false);
+                        setDeleteId("");
+                      }}
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition ml-2"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
 
           {/* Address Form Modal */}
           {openForm && (
@@ -202,4 +252,7 @@ const Address = () => {
   );
 };
 
+
 export default Address;
+
+

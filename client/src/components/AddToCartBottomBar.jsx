@@ -30,12 +30,8 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
      if (open) {
        document.body.style.overflow = "hidden";
      } else {
-       document.body.style.overflow = "";
+       document.body.style.overflow = "auto";
      }
- 
-     return () => {
-       document.body.style.overflow = "";
-     };
    }, [open]);
   const addCartItem = async () => {
     if (user._id === undefined) {
@@ -249,15 +245,11 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
         )}
 
         <div className="hidden md:block flex justify-center items-center text-center gap-2 mt-4">
-          {product.weightVariants[selectedVariant].discount > 0 ? (
+          {product.weightVariants[selectedVariant].discount > 0 && (
             <span className="text-xs font-semibold text-green-600">
               {product.weightVariants[selectedVariant].discount}% Off
             </span>
-          ) : (
-            <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
-              <AiFillInfoCircle /> Select Bigger Size for Discount
-            </span>
-          )}
+          ) }
         </div>
 
         <div className="flex justify-center items-center text-center gap-2 mt-5 md:mt-2">
@@ -274,15 +266,12 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
             )}
           </span>
           <div className="block md:hidden">
-            {product.weightVariants[selectedVariant].discount > 0 ? (
+            {product.weightVariants[selectedVariant].discount > 0 && (
               <span className="text-xs font-semibold text-green-600">
                 ( {product.weightVariants[selectedVariant].discount}% Off )
               </span>
-            ) : (
-              <span className="text-xs font-semibold text-yellow-600 flex items-center gap-1">
-                <AiFillInfoCircle /> Select Bigger Size for Discount
-              </span>
-            )}
+            ) 
+            }
           </div>
         </div>
 
@@ -325,10 +314,7 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
                   className="flex-1 bg-orange-500 text-white font-bold py-4 tracking-wider px-5 rounded-full shadow-md transition active:scale-95"
                   onClick={addCartItem}
                 >
-                  Add{" "}
-                  {selectedVariant
-                    ? `(${product.weightVariants[selectedVariant].weight})`
-                    : ""}{" "}
+                  Add
                   to Cart
                 </button>
               )}

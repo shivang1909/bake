@@ -19,11 +19,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import CookiesModel from "../components/Cookies"
+import CookiesModel from "../components/Cookies";
 
 import CategoryWiseProductDisplay from "../components/CategoryWiseProductDisplay";
 import axios from "axios";
 import BottomToolBar from "../components/BottomToolBar";
+import { FaArrowUp } from "react-icons/fa6";
 
 const Home = () => {
   const [banners, setBanners] = useState({
@@ -35,6 +36,20 @@ const Home = () => {
   const categoryData = useSelector((state) => state.product.allCategory);
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Updated to remove subcategory logic
   const handleRedirectProductListpage = (id, cat) => {
@@ -245,6 +260,14 @@ const Home = () => {
         </div>
         <a href="javascript:void(0)" className="icon-btn recent-close">×</a>
     </div> */}
+      <button
+        onClick={scrollToTop}
+          className={`fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-slate-950/80 backdrop-blur-lg text-white p-3 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:scale-110 active:scale-90 ${
+            showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+      >
+        <FaArrowUp className="w-full h-full" />
+      </button>
     </section>
   );
 };

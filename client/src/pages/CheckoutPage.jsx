@@ -6,7 +6,7 @@ import AxiosToastError from "../utils/AxiosToastError";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { updatedShoppingCart } from "../store/userSlice";
@@ -22,14 +22,19 @@ import "./CheckoutPage.css";
 import SkeletonCardLoader from "./SkeletonCardLoader";
 import Razorpay from "../../assets/images/Custom/razorpay.png";
 import COD from "../../assets/images/Custom/COD.png";
+import Logo from "../../assets/images/Custom/BakeFlavors.png";
 import AddAddressDesktop from "../components/AddAddressDesktop";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
 import { FaAngleUp } from "react-icons/fa6";
 import { CiGift } from "react-icons/ci";
 import { CiEdit } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa6";
-
+import ProcesspaymentModal from "../components/ProcesspaymentModal";
 import { IoCaretBackOutline } from "react-icons/io5";
+import Breadcrumbs from "../components/Breadcrumbs";
+import { GiShoppingBag } from "react-icons/gi";
+import { BsCart3 } from "react-icons/bs";
+
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -52,25 +57,25 @@ const Accordion = ({
   onToggle,
   footerButton,
   onPrevious,
+  customHeaderButton, // 👈 new prop
 }) => {
   const accordionRef = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setVisible(true); // show with animation
+      setVisible(true);
       setTimeout(() => {
         accordionRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
         });
-      }, 50); // slight delay to let DOM catch up
+      }, 50);
     } else {
-      setVisible(false); // reset animation when closed
+      setVisible(false);
     }
   }, [isOpen]);
 
-  // If accordion is active
   if (isOpen) {
     return (
       <div
@@ -78,25 +83,39 @@ const Accordion = ({
         className={`fixed inset-0 z-50 bg-white flex flex-col transition-all duration-500 ease-in-out
         ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
+        
         {/* Sticky Header */}
-        <div className="px-4 py-3 font-semibold border-b bg-white sticky top-0 z-10 mt-16">
-          <div className="flex justify-between items-center">
+        <div className=" font-semibold border-b bg-white sticky top-0 z-10">
+        <div className="flex justify-center items-center py-3 px-3 gap-2 mb-2 border-b">
+       
+            <img src={Logo} alt="" className="mx-auto w-24 h-auto" />
+            </div>
+            
+          
+          <div className="px-4 py-3">
+            <div className="flex justify-between items-center">
             <span>{title}</span>
-            {onPrevious && (
+
+            {/* 🧠 Conditional logic for header button */}
+            {customHeaderButton ? (
+              customHeaderButton
+            ) : onPrevious ? (
               <button
                 onClick={onPrevious}
-                className="text-sm flex items-center font-medium text-indigo-600 "
+                className="text-sm flex items-center font-medium text-indigo-600"
               >
                 <IoCaretBackOutline /> Previous
               </button>
-            )}
+            ) : null}
           </div>
+          </div>
+          
         </div>
 
-        {/* Scrollable content */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">{children}</div>
 
-        {/* Sticky Footer */}
+        {/* Footer */}
         <div className="p-4 border-t bg-white sticky bottom-0 z-10">
           {footerButton}
         </div>
@@ -104,9 +123,8 @@ const Accordion = ({
     );
   }
 
-  // If not active, render compact view
   return (
-    <div className="border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300 mt-20">
+    <div className="hidden border border-gray-300 h-fit rounded-lg overflow-hidden transition-all duration-300 mt-20">
       <button
         className="w-full text-left px-4 py-3 font-medium flex justify-between items-center bg-white"
         onClick={onToggle}
@@ -119,6 +137,13 @@ const Accordion = ({
 };
 
 const CheckoutPage = () => {
+  const [paymentStatus, setPaymentStatus] = useState({
+    isProcessing: false, // true when payment is being processed
+    method: null, // 'online' or 'cod'
+    hasFailed: false,
+    paymentcancel: false, // true if payment failed
+  });
+  const user = useSelector((state) => state.user);
   const [openAddress, setOpenAddress] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [GiftWrapCharges, setGiftWrapCharges] = useState(0);
@@ -145,20 +170,30 @@ const CheckoutPage = () => {
 
   const [selectedMethod, setSelectedMethod] = useState("razorpay");
 
-  const handleAddressComplete = () => setOpenSection("product");
+  const handleAddressComplete = () => {
+    if (addressList.length === 0) {
+      toast.error("Please add an address to proceed");
+      return;
+    }
+    setOpenSection("product");
+  };
   const handleProductComplete = () => setOpenSection("promo");
   const handlePromoComplete = () => setOpenSection("checkout");
   const [checked, setChecked] = useState(false);
-  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  // const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const promoRef = useRef(null);
   const promoRefAlt = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
+    const fromCart = location.state?.fromCart;
+    console.log("this is ", fromCart);
     const orderCompleted = sessionStorage.getItem("orderCompleted");
-    if (orderCompleted === "true") {
-      // Clear the flag
+    console.log("this is orderCompleted", orderCompleted);
+    console.log("this is user", user);
+    if (fromCart === undefined || user.shopping_cart.length === 0) {
       sessionStorage.removeItem("orderCompleted");
       // Redirect to home
       navigate("/", { replace: true });
@@ -173,6 +208,7 @@ const CheckoutPage = () => {
 
   const handleClick = () => {
     vibrate();
+    
     if (selectedMethod === "cod") {
       handleCashOnDelivery();
     } else if (selectedMethod === "razorpay") {
@@ -215,6 +251,18 @@ const CheckoutPage = () => {
       });
     }
   }, [appliedPromocode]);
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "warning dont close"; // Required for Chrome to show the confirmation dialog
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(() => {
     if (appliedPromocode && promoRefAlt.current) {
@@ -484,69 +532,18 @@ const CheckoutPage = () => {
     setSelectedPromocode(code);
   };
 
-  //for updated code - will use it later on
-  // const handleCashOnDelivery = async () => {
-  //   try {
-  //     toast.loading("Processing order...");
-
-  //     // Prepare items with gift notes
-  //     const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
-  //       ...item,
-  //       variantPrices: item.variantPrices.map((variant, vIndex) => {
-  //         const notes = [];
-  //         const noteQty =
-  //           giftNoteQtys[${pIndex}-${vIndex}] || variant.quantity;
-
-  //         for (let i = 0; i < noteQty; i++) {
-  //           notes.push(giftNotes[${pIndex}-${vIndex}-${i}] || "");
-  //         }
-
-  //         return {
-  //           ...variant,
-  //           giftNotes: variant.isGiftWrap ? notes : undefined,
-
-  //         };
-  //       }),
-  //     }));
-  //     console.log('itemwithgiftdetailss',itemsWithGiftDetails)
-
-  //     const response = await Axios({
-  //       ...SummaryApi.CashOnDeliveryOrder,
-  //       data: {
-  //         list_items: itemsWithGiftDetails,
-  //         addressId: addressList[selectAddress]?._id,
-  //         total: grandTotal,
-  //         special_Gift_packing: GiftWrapCharges,
-  //         promocodeId: appliedPromocode?._id || null,
-  //         promocodeDiscount: promocodeDiscount || 0,
-  //       },
-  //     });
-
-  //     toast.dismiss();
-  //     const { data: responseData } = response;
-
-  //     if (responseData.success) {
-  //       toast.success(responseData.message);
-  //       setGiftWrapCharges(0);
-  //       setCartItem([]);
-  //       dispatch(updatedShoppingCart([]));
-  //       setTotalQty(0);
-  //       navigate("/success", {
-  //         state: {
-  //           text: "Order",
-  //         },
-  //       });
-  //     }
-  //   } catch (error) {
-  //     toast.dismiss();
-  //     AxiosToastError(error);
-  //   }
-  // };
-
   const handleCashOnDelivery = async () => {
     try {
-      toast.loading("Processing order...");
-      console.log("checkoutitems", checkoutItems);
+      setPaymentStatus({
+        isProcessing: true,
+        method: "cod",
+        hasFailed: false,
+        paymentcancel: false,
+      });
+      if (!addressList[selectAddress]) {
+        toast.error("Please select a delivery address");
+        return;
+      }
 
       // Prepare items with gift notes
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
@@ -597,6 +594,12 @@ const CheckoutPage = () => {
           setIsAnimating(true);
           setTimeout(() => {
             setIsAnimating(false);
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: false,
+            });
             navigate("/success", {
               replace: true,
               state: { fromCheckout: true },
@@ -612,8 +615,16 @@ const CheckoutPage = () => {
 
   const handleOnlinePayment = async () => {
     try {
-      setIsProcessingOrder(true); // 🚨 Start blocking user
-
+      if (!addressList[selectAddress]) {
+        toast.error("Please select a delivery address");
+        return;
+      }
+      setPaymentStatus({
+        isProcessing: true,
+        method: "online",
+        hasFailed: false,
+        paymentcancel: false,
+      });
       const itemsWithGiftDetails = checkoutItems.map((item, pIndex) => ({
         ...item,
         variantPrices: item.variantPrices.map((variant, vIndex) => {
@@ -646,10 +657,24 @@ const CheckoutPage = () => {
         name: "Bake Flavour",
         description: "Test Transaction",
         order_id: order.id,
+        modal: {
+          ondismiss: () => {
+            console.log("Razorpay popup closed by user");
+
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: true,
+            });
+
+            toast.error("Payment was cancelled.");
+          },
+        },
+
         handler: async (response) => {
           try {
-            console.log("Razorpay Response:", response);
-
+            // 🚨 Start blocking user
             const verifyRes = await fetch(
               `${import.meta.env.VITE_API_URL}/api/order/verifyPayment`,
               {
@@ -688,17 +713,36 @@ const CheckoutPage = () => {
                 setIsAnimating(true);
                 setTimeout(() => {
                   setIsAnimating(false);
-                  setIsProcessingOrder(false); // ✅ Allow access again
+                  setPaymentStatus({
+                    isProcessing: false,
+                    method: null,
+                    hasFailed: false,
+                    paymentcancel: false,
+                  });
+
                   navigate("/success", {
                     replace: true,
                     state: { fromCheckout: true },
                   });
                 }, 10000); // wait 10 seconds
               }
+            } else if (!verifyData.success) {
+              setPaymentStatus({
+                isProcessing: false,
+                method: null,
+                hasFailed: true,
+                paymentcancel: false,
+              });
             }
           } catch (err) {
-            console.error("Verification failed:", err);
-            setIsProcessingOrder(false); // 🔓 unblock even if error
+            console.error("this is", err);
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: true,
+              paymentcancel: false,
+            });
+            toast.error("Payment verification failed. Please Wait.");
           }
         },
       };
@@ -707,7 +751,13 @@ const CheckoutPage = () => {
       rzp.open();
     } catch (error) {
       console.log(error);
-      setIsProcessingOrder(false); // 🔓 unblock on error
+      setPaymentStatus({
+        isProcessing: false,
+        method: null,
+        hasFailed: true,
+        paymentcancel: false,
+      });
+
       // AxiosToastError(error);
     }
   };
@@ -842,13 +892,33 @@ const CheckoutPage = () => {
   };
 
   return (
-    <section className="bg-white text-black font-normal lg:mt-16">
+    <section className="bg-white text-black font-normal ">
+      <div className="hidden lg:block md:flex flex-col items-center justify-center pt-10 pb-5">
+        <style>
+        {`
+          @font-face {
+            font-family: 'Bartex';
+            src: url('/Fonts/Bartex-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+        `}
+      </style>
+        <h2 style={{ fontFamily: "Bartex, sans-serif" }} className="text-4xl font-semibold">CheckOut</h2>
+        <Breadcrumbs />
+      </div>
+
       <div className="hidden  container lg:p-8 lg:px-0 xl:px-3 lg:flex flex-col lg:flex-row w-full 2xl:gap-10 lg:gap-5 [@media(min-width:1600px)]:gap-8 justify-center">
         {/* First column : for address */}
-        <div className="w-full max-w-md">
+        
+        <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
           {addressList.filter((a) => a.status).length === 0 ? (
-            // Empty State
-            <div className="max-w-md w-full h-full  border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
+            <>
+           <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white pb-3 p-4 rounded-t-xl">
+                  <FaLocationDot className="text-lg" /> Choose your address
+                </div>
+            <div className="h-full mt-3 max-h-[70vh] lg:min-h-[70vh]  rounded-xl flex flex-col justify-center items-center">
+              <div className=" rounded-xl  p-3 flex flex-col justify-center items-center text-center">
               <div className="text-4xl text-gray-400 mb-2">
                 <FaLocationDot />
               </div>
@@ -864,17 +934,19 @@ const CheckoutPage = () => {
               >
                 Add Address
               </button>
+                </div>
             </div>
+            </>
           ) : (
             <>
-              <div className="w-full h-full max-w-md bg-white rounded-xl border-1">
+              <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
                 <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white pb-3 p-4 rounded-t-xl">
                   <FaLocationDot /> Choose your address
                 </div>
 
-                <div className="rounded-xl overflow-hidden h-full max-h-[75vh] flex flex-col pt-3 px-5">
+                <div className="rounded-xl overflow-auto h-[70vh] flex flex-col pb-3 mt-3 ">
                   {/* Scrollable Address Cards */}
-                  <div className="overflow-y-auto flex-1 gap-4 flex flex-col items-center">
+                  <div className="overflow-y-auto flex-1  px-4 gap-4 flex flex-col items-center scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                     {addressList.map((address, index) => {
                       const isActive = selectAddress === index;
                       if (!address.status) return null;
@@ -882,7 +954,7 @@ const CheckoutPage = () => {
                       return (
                         <div
                           key={index}
-                          className={`border rounded-xl p-4 flex flex-col gap-2 w-full max-w-md h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                          className={`border  rounded-xl p-4 flex flex-col gap-2 w-full max-w-md h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
                             isActive
                               ? "border-orange-400 border-2 bg-orange-50"
                               : "border-gray-300 bg-white"
@@ -952,7 +1024,7 @@ const CheckoutPage = () => {
                   {addressList.filter((a) => a.status).length > 1 && (
                     <div
                       onClick={() => setOpenAddress(true)}
-                      className="py-4 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 bg-white mt-3"
+                      className="py-4 mx-3 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 bg-white mt-3"
                     >
                       <MdMyLocation className="text-lg" /> Add Another Address
                     </div>
@@ -964,12 +1036,15 @@ const CheckoutPage = () => {
         </div>
 
         {/* second column : for product checkout */}
-        <div className="w-full max-w-md border-1 rounded-xl bg-white py-4 px-2">
+        <div className="w-full h-full max-h-[80vh] max-w-md bg-white rounded-xl border-1">
+          <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-[#607D8B] to-[#607D8B] text-white pb-3 p-4 rounded-t-xl">
+                  <BsCart3 className="text-lg" /> Your cart
+                </div>
           {/**summary**/}
-          <div className="overflow-y-auto max-h-[75vh] lg:min-h-[75vh]">
+          <div className="rounded-xl overflow-y-auto max-h-[70vh] mt-3 lg:min-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent" >
             {checkoutItems.length > 0 ? (
               <>
-                <div className="flex items-center justify-between px-4 py-2 font-semibold border border-green-200 bg-green-100 text-green-700 rounded-lg">
+                <div className="flex items-center justify-between mx-4 px-4 py-2 font-semibold border border-green-200 bg-green-100 text-green-700 rounded-lg">
                   <p>Your total savings</p>
                   <p>
                     {DisplayPriceInRupees(discountedPrice + promocodeDiscount)}
@@ -1158,7 +1233,7 @@ const CheckoutPage = () => {
                                           : `Shoutout ${giftIndex + 1}`}
                                       </label>
                                       <span className="text-xs text-gray-500">
-                                        {currentNote.length}/200
+                                        {currentNote.length}/70
                                       </span>
                                     </div>
 
@@ -1283,11 +1358,11 @@ const CheckoutPage = () => {
         </div>
 
         {/* Third column : for promo code and  Bill details*/}
-        <div className="w-full max-w-md bg-white border-1  rounded-xl">
+        <div className="w-full max-h-[80vh] max-w-md bg-white border-1  rounded-xl">
           <div className="flex font-semibold items-center gap-2 bg-gradient-to-r from-[#008E97] to-[#00a0abe1] text-white pb-3 p-4 rounded-t-xl mb-3 text-md">
             <IoBagCheckOutline className="text-lg" /> Checkout
           </div>
-          <div className="contentarea px-2 overflow-y-auto max-h-[75vh] lg:min-h-[75vh]">
+          <div className="contentarea px-2 overflow-y-auto max-h-[70vh] lg:min-h-[70vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
             {/* Promocode Section */}
             <div className="bg-white p-4">
               <h3 className="font-semibold mb-2">Apply Promocode</h3>
@@ -1517,21 +1592,31 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
-                  <div className="text-sm text-gray-600">
-                    John Doe
-                    <br />
-                    123 Main Street, Near Central Mall
-                    <br />
-                    Mumbai, Maharashtra - 400001
-                    <br />
-                    Phone: +91 98765 43210
-                  </div>
+                  {addressList[selectAddress] ? (
+                    <div className="text-sm text-gray-600">
+                      {addressList[selectAddress].name || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line1 || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line2 || "NA"}
+                      <br />
+                      {addressList[selectAddress].city || "NA"}
+                      <br />
+                      {addressList[selectAddress].country || "NA"}
+                      <br />
+                      {addressList[selectAddress].mobile || "NA"}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">
+                      No address selected
+                    </div>
+                  )}
                 </div>
 
                 {/* Place Order Button */}
                 <div className="flex items-center justify-center">
                   <button
-                    className={`order ${isAnimating ? "animate" : ""}`}
+                    className={`order mb-2 ${isAnimating ? "animate" : ""}`}
                     onClick={handleClick}
                   >
                     <span className="default">Complete Order</span>
@@ -1559,12 +1644,22 @@ const CheckoutPage = () => {
         </div>
       </div>
 
-      <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2 mt-20">
+      <div className="lg:hidden sticky flex flex-col gap-4 p-4 px-2">
+        
         <Accordion
           title={<span className="text-lg font-semibold">Confirm Address</span>}
           isOpen={openSection === "address"}
           onToggle={() =>
             setOpenSection(openSection === "address" ? null : "address")
+          }
+          customHeaderButton={
+            <button
+              onClick={() => navigate("/shopall")}
+              className="flex  gap-1 items-center text-sm font-semibold bg-gray-100 border border-gray-300 p-1 px-2 rounded-xl text-black hover:bg-gray-100 transition-all duration-300 active:scale-95"
+            >
+              Shop More
+              <GiShoppingBag />
+            </button>
           }
           footerButton={
             <button
@@ -1579,7 +1674,7 @@ const CheckoutPage = () => {
             <div>
               {addressList.filter((a) => a.status).length === 0 ? (
                 // Empty State
-                <div className="m-3 max-w-sm w-full p-4 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
+                <div className="m-3  p-4 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50 flex flex-col justify-center items-center text-center">
                   <div className="text-4xl text-gray-400 mb-2">
                     <FaLocationDot />
                   </div>
@@ -1602,7 +1697,7 @@ const CheckoutPage = () => {
               <FaLocationDot /> Choose your address
             </div> */}
 
-                  <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[60vh] lg:min-h-[60vh]">
+                  <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[72vh] lg:h-[60vh]">
                     {/* // Address Cards */}
                     {addressList.map((address, index) => {
                       const isActive = selectAddress === index;
@@ -1612,7 +1707,7 @@ const CheckoutPage = () => {
                         // <div key={index} className="mx-3">
                         <>
                           <div
-                            className={`border rounded-xl p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                            className={`border rounded-[20px] p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
                               isActive
                                 ? "border-orange-400 border-2 bg-orange-50"
                                 : "border-gray-300 bg-white"
@@ -1667,10 +1762,10 @@ const CheckoutPage = () => {
                     {/* Add Another Address only when one address is active */}
                   </div>
                   {addressList.filter((a) => a.status).length === 1 && (
-                    <div className="flex-1 flex items-stretch">
+                    <div className="flex-1 px-4 mt-5 flex items-stretch">
                       <div
                         onClick={() => setOpenAddress(true)}
-                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
+                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm h-full py-32 max-h-full cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
                       >
                         <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
                           <MdOutlineAddHomeWork className="text-4xl" />
@@ -1680,12 +1775,27 @@ const CheckoutPage = () => {
                     </div>
                   )}
                   {addressList.filter((a) => a.status).length > 1 && (
-                    <div
-                      onClick={() => setOpenAddress(true)}
-                      className="py-4 text-md gap-2 rounded-xl border text-md border-gray-500 border-dashed flex justify-center items-center cursor-pointer transition-all duration-300 active:scale-95 mt-3"
-                    >
-                      <MdMyLocation className="text-lg" /> Add Another Address
-                    </div>
+<div className="fixed right-2 bottom-24 z-50 flex flex-col items-center  animate-bounce">
+  {/* Tooltip with arrow */}
+  <div className="relative mb-2 animate-pulse ">
+    <div className="z-20 border border-orange-400 border-dotted backdrop:blur-sm bg-white text-orange-400 text-sm font-semibold px-3 py-1 rounded-lg shadow-md">
+      Add Address
+    </div>
+    {/* Arrow */}
+<div className="absolute left-1/2 -bottom-2 transform -translate-x-1/2 w-0 h-0 
+  border-l-8 border-l-transparent 
+  border-r-8 border-r-transparent 
+  border-t-8 border-t-orange-400">
+</div>
+  </div>
+
+  {/* Floating Button */}
+  <div className=" text-white text-lg rounded-full bg-orange-500 p-4 hover:scale-110 transition-transform duration-300 shadow-lg">
+    <MdMyLocation  onClick={() => setOpenAddress(true)} />
+  </div>
+</div>
+
+
                   )}
                 </div>
               )}
@@ -1918,7 +2028,7 @@ const CheckoutPage = () => {
                                             : `Shoutout ${giftIndex + 1}`}
                                         </label>
                                         <span className="text-xs text-gray-500">
-                                          {currentNote.length}/200
+                                          {currentNote.length}/70
                                         </span>
                                       </div>
 
@@ -2360,23 +2470,26 @@ const CheckoutPage = () => {
                   <div className="font-semibold text-gray-800 mb-2">
                     Shipping Address
                   </div>
-                 { console.log("this is selected Address",addressList[selectAddress])}
-                  
-                  {/* {addressList[selectAddress] } */}
-                  <div className="text-sm text-gray-600">
-                    {addressList[selectAddress].name}
-                    <br />
-                    {addressList[selectAddress].address_line1}
-                    <br />
-                    {addressList[selectAddress].address_line2}
-                    <br />
-                    {addressList[selectAddress].city}
-                    <br />
-                    {addressList[selectAddress].country}
-                    <br />
-                    {addressList[selectAddress].mobile}
-                    
-                  </div>
+
+                  {addressList[selectAddress] ? (
+                    <div className="text-sm text-gray-600">
+                      {addressList[selectAddress].name || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line1 || "NA"}
+                      <br />
+                      {addressList[selectAddress].address_line2 || "NA"}
+                      <br />
+                      {addressList[selectAddress].city || "NA"}
+                      <br />
+                      {addressList[selectAddress].country || "NA"}
+                      <br />
+                      {addressList[selectAddress].mobile || "NA"}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">
+                      No address selected
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2385,40 +2498,20 @@ const CheckoutPage = () => {
           </div>
         </Accordion>
       </div>
-
-      {isProcessingOrder && (
-      <div className="fixed inset-0 z-[1000] bg-black bg-opacity-20 backdrop-blur-sm overflow-hidden">
-        {/* Bottom sheet container */}
-        <div
-          className={`absolute bottom-0 left-0 w-full bg-white rounded-t-2xl shadow-lg px-6 py-8 text-center transition-all duration-500 ease-in-out h-1/2
-      ${isProcessingOrder ? "h-1/2" : "h-0"}
-    `}
-          style={{ transitionProperty: "height" }}
-        >
-          <div
-            className={`overflow-hidden transition-opacity duration-500 ${
-              isProcessingOrder ? "opacity-100" : "opacity-100"
-            }`}
-          >
-            <h2 className="text-xl font-bold mb-4">Processing Payment</h2>
-            <p className="text-gray-600 text-sm mb-4">
-              Please don’t refresh or close this tab while we’re verifying your
-              payment. <br />
-               This may take a few seconds.
-            </p>
-            {/* <div className="flex justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
-      </div> */}
-
-            <div class="flex-col gap-4 w-full flex items-center justify-center mt-12">
-              <div class="w-20 h-20 border-4 border-transparent text-[#008E97] text-4xl animate-spin flex items-center justify-center border-t-[#008E97] rounded-full">
-                <div class="w-16 h-16 border-4 border-transparent text-orange-400 text-2xl animate-spin flex items-center justify-center border-t-orange-400 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {(paymentStatus.isProcessing ||
+        paymentStatus.hasFailed ||
+        paymentStatus.paymentcancel) && (
+        <ProcesspaymentModal
+          status={paymentStatus}
+          onClose={() =>
+            setPaymentStatus({
+              isProcessing: false,
+              method: null,
+              hasFailed: false,
+              paymentcancel: false,
+            })
+          }
+        />
        )} 
 
       {showModal && (

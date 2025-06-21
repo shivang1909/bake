@@ -36,7 +36,7 @@ import { BsSearch } from "react-icons/bs";
 
 
 const sortOptions = [
-  {name : "Sorting", value: "no"},
+  {name : "Sort", value: "no"},
   { name: "Best Rating", icon: <MdStarRate />,  value: "rating"},
   {
     name: "Price: Low to High",
@@ -65,6 +65,20 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
   const [activeVariant,setActiveVariant] = useState(0);
     const [filter, setFilter] = useState([]); 
       const allCategory = useSelector((state) => state.product.allCategory);
+
+        // useEffect(() => {
+        //   const mediaQuery = window.matchMedia("(max-width: 1024px)"); // lg = 1024px
+        
+        //   // Set initial value
+        //   setIsListView(mediaQuery.matches); // true for md/sm, false for lg+
+        
+        //   // Listener for resize
+        //   const handler = (e) => setIsListView(e.matches);
+        //   mediaQuery.addEventListener("change", handler);
+        
+        //   // Cleanup
+        //   return () => mediaQuery.removeEventListener("change", handler);
+        // }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -182,6 +196,7 @@ const ProductPage = ({ category, setMobileFiltersOpen, weight, priceRange, maxsh
       const num2 = parseInt(match[2]);
       if(priceRange[0]!==num1||priceRange[1]!==num2)
       {
+        console.log(priceRange)
         setFilter(prev => {
     const withoutOldPriceRange = prev.filter(item => item !== oldPriceRange);
     if(priceRange[0]!==10||priceRange[1]!==1000)
@@ -297,9 +312,9 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
       <div className={`z-20 transition-all duration-300 ${isSticky ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b" : ""}`}>
       <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
         {/* apllied filters section start */}
-        <div className="flex flex-row-reverse gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
+        <div className="flex flex-row gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
           {
-            filter.map((f)=>(
+            [...filter].reverse().map((f)=>(
           <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
             <RxCross2 className="text-sm cursor-pointer" onClick={()=>{removeFilter(f)}} />
             {f}
@@ -349,8 +364,8 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
                     >
                       <Menu.Items
                         static
-                         className={`overflow-hidden md:absolute  font-medium md:right-0 z-10 mt-2 md:w-60 origin-top-right rounded-lg bg-white shadow-2xl
-    fixed w-3/4 max-w-xs sm:relative sm:translate-x-0  focus:outline-none focus:ring-0 focus:border-none`}
+                         className={`overflow-hidden absolute  font-medium md:right-0 z-10 mt-2 md:w-60 origin-top-right rounded-lg bg-white shadow-2xl
+     w-60  sm:translate-x-0  focus:outline-none focus:ring-0 focus:border-none`}
                         >
                         <div className="py-1">
                           {sortOptions.map((option,index) => (
@@ -454,6 +469,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
                         setCartProduct={setCartProduct}
                         activeIndex = {selectedIndex}
                         setActiveVariant = {setActiveVariant}
+                          className="md:max-w-[200px] md:min-w-[220px]"
                       />
                     );
                   }

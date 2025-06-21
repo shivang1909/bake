@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from 'react-helmet-async';
 import {
   Dialog,
   DialogBackdrop,
@@ -33,6 +34,7 @@ import RangeSlider from "./RangeSlider";
 import ShelfLifeSlider from "./ShelfLifeSlider";
 import Breadcrumbs from "./Breadcrumbs";
 
+
 const ShopAll = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const allCatagory = useSelector((state) => state.product.allCategory);
@@ -45,6 +47,14 @@ const ShopAll = () => {
   const [value, setValue] = useState(0);
   const [search,setSearch] = useState("");
   const [isDirect,setDirect] = useState(false);
+
+  useEffect(() => {
+     if (mobileFiltersOpen) {
+       document.body.style.overflow = "hidden";
+     } else {
+       document.body.style.overflow = "auto";
+     }
+   }, [mobileFiltersOpen]);
 
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -72,6 +82,7 @@ const ShopAll = () => {
       console.log("Error fetching weight variant:", err);
     }
   };
+    const handleClose = () => setMobileFiltersOpen(false);
 
   useEffect(() => {
     fetchCategory();
@@ -80,6 +91,19 @@ const ShopAll = () => {
 
   return (
     <div className="bg-white mt-20">
+      <Helmet>
+        <title>Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad</title>
+        <meta
+          name="description"
+          content="Explore and shop delicious sweets, cakes, cookies, dry fruit sweets, and namkeen from Bake Flavour – your favorite Ahmedabad bakery."
+        />
+        <meta
+          name="keywords"
+          content="shop sweets Ahmedabad, buy namkeen online, cakes, cookies, dry fruit sweets, chavana, bake flavour shop"
+        />
+        <link rel="canonical" href="https://bakeflavours.com/shopall" />
+      </Helmet>
+
       <style>
         {`
           @font-face {
@@ -106,112 +130,108 @@ const ShopAll = () => {
         </div>
       </div>
       <div>
+         <div
+        className={`
+          fixed inset-0 bg-black/50 z-50 transition-opacity duration-300
+          ${mobileFiltersOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+        `}
+        onClick={handleClose}
+      />
         {/* Mobile filter dialog */}
-        <Dialog
-          open={mobileFiltersOpen}
-          onClose={setMobileFiltersOpen}
-          className="relative z-40 lg:hidden"
-        >
-          <DialogBackdrop className="fixed inset-0 bg-black/50 transition-opacity duration-300 ease-linear" />
+ <div
+        className={`
+          fixed top-0 bottom-0 right-0 w-60 pb-12  bg-white z-50 transition-transform duration-300 ease-in-out
+          ${mobileFiltersOpen ? "translate-x-0" : "translate-x-full"}
+        `}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <span className="text-lg font-semibold text-gray-900">Filters</span>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
 
-          <div className="fixed inset-0 z-40 flex">
-            <DialogPanel
-              className={`relative ml-auto flex h-full w-60 flex-col  bg-white py-4 pb-12 shadow-xl transform transition-transform duration-300 ease-in-out ${
-                mobileFiltersOpen ? "translate-x-0" : "translate-x-full"
-              }`}
-            >
-              <div className="flex items-center justify-between px-4">
-                <span className="text-lg font-medium text-gray-900">
-                  Filters
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setMobileFiltersOpen(false)}
-                  className="-mr-2 flex size-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                >
-                  <span className="sr-only">Close menu</span>
-                  <XMarkIcon aria-hidden="true" className="size-6" />
-                </button>
-              </div>
-
-              {/* Filters */}
-              <form className="mt-4 border-t overflow-y-auto border-gray-200">
-                {/* <h3 className="sr-only">Categories</h3> */}
-                <span className="font-bold text-xl flex items-center gap-2 px-4 py-3">
-                  <AiOutlineProduct />
-                  Category
-                </span>
-                <ul role="list" className="px-6 py-3 font-medium text-gray-900">
-                  {allCatagory.map((category) => (
-                    <li key={category._id}>
-                      <article className="checkbox-container flex items-center space-x-1">
-                        <label className="checkbox">
-                          <input
-                            type="checkbox"
-                            id={category._id}
-                             checked={Category.includes(category._id)} 
-                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
-                            onChange={(e) => {
-                              console.log(
-                                "Checkbox changed:",
-                                 e.target.checked
-                              );
-                              e.target.checked
-                                ? setCategory((prev) => [
-                                    ...prev,
-                                    category._id,
-                                  ])
-                                : setCategory((prev) =>
-                                    prev.filter(
-                                      (cat) => cat !== category._id
-                                    )
-                                  );
-                              
-                            }}
-                          />
-                        </label>
-                        <label
-                          htmlFor={category._id}
-                          className="cursor-pointer"
-                        >
-                          {category.name}
-                        </label>
-                      </article>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="px-4">
-                  {filters.map((section) => {
-                    return (
-                      <Disclosure key={section.id} as="div" className="py-2">
-                        {({ open }) => (
-                          <>
-                            <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
-                              <div>
-                                <span
-                                  className={`font-bold px-2 text-lg flex items-center gap-3 ${
-                                    open ? "text-purple-600" : "text-gray-800"
-                                  }`}
+        {/* Body */}
+        <div className="overflow-y-auto px-4 py-4 h-full">
+          <form>
+            {/* Category Filter */}
+            <span className="font-bold text-xl flex items-center gap-2 py-3 px-2">
+              <AiOutlineProduct /> Category
+            </span>
+            <ul className="space-y-2 pl-4">
+              {allCatagory.map((category) => (
+                                            <li key={category._id}>
+                              <article className="checkbox-container flex items-center space-x-2">
+                                <label className="checkbox">
+                                  <input
+                                    name="category"
+                                    type="checkbox"
+                                    checked={Category.includes(category._id)} 
+                                    onChange={(e) => {
+                                      console.log(
+                                        "Checkbox changed:",
+                                        e.target.checked
+                                      );
+                                      e.target.checked
+                                        ? setCategory((prev) => [
+                                            ...prev,
+                                            category._id,
+                                          ])
+                                        : setCategory((prev) =>
+                                            prev.filter(
+                                              (cat) => cat !== category._id
+                                            )
+                                          );
+                                      console.log(
+                                        "Current categories:",
+                                        Category
+                                      );
+                                    }}
+                                    id={category.name}
+                                    className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
+                                  />
+                                </label>
+                                <label
+                                  htmlFor={category.name}
+                                  className="cursor-pointer"
                                 >
-                                  {section.icon} {section.name}
-                                </span>
-                              </div>
-                              <span className="flex items-center">
-                                {open ? (
-                                  <MinusIcon className="w-5 text-gray-500" />
-                                ) : (
-                                  <PlusIcon className="w-5 text-gray-500" />
-                                )}
-                              </span>
-                            </DisclosureButton>
+                                  {category.name}
+                                </label>
+                              </article>
+                            </li>
+              ))}
+            </ul>
 
-                            <DisclosurePanel className="pt-4">
-                              {section.id === "Varients" ? (
-                                // ✅ DEMO CHECKBOXES for Varients
-                                <div className="space-y-2 pl-4">
-                                  {WeightVarient.map((varient, idx) => (
-                                    <li>
+            {/* Other Filters (Variants, Price, Shelf Life) */}
+            <div className="pt-4">
+              {filters.map((section) => (
+                <Disclosure key={section.id} as="div" className="py-2">
+                  {({ open }) => (
+                    <>
+                      <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-gray-700 hover:text-gray-900">
+                        <span
+                          className={`font-bold px-2 text-lg flex items-center gap-3 ${open ? "text-orange-600" : "text-gray-800"}`}
+                        >
+                          {section.icon} {section.name}
+                        </span>
+                        <span className="flex items-center">
+                          {open ? (
+                            <span className="text-gray-500">-</span>
+                          ) : (
+                            <span className="text-gray-500">+</span>
+                          )}
+                        </span>
+                      </DisclosureButton>
+                      <DisclosurePanel className="pt-2">
+                        {section.id === "Varients" ? (
+                          <ul className="space-y-2 pl-4">
+                            {WeightVarient.map((varient, idx) => (
+                                    <li key={idx}>
                                       <article className="checkbox-container flex items-center space-x-1">
                                         <label className="checkbox">
                                           <input
@@ -234,7 +254,10 @@ const ShopAll = () => {
                                                       (varientName) => varientName !== varient.weight
                                                     )
                                                   );
-
+                                                  console.log(
+                                                    "Current weight:",
+                                                    selectedWeight
+                                                  );
                                             }}
                                           />
                                         </label>
@@ -246,31 +269,38 @@ const ShopAll = () => {
                                         </label>
                                       </article>
                                     </li>
-                                  ))}
-                                </div>
-                              ) : section.id==="Price"?(
-                                // ✅ Replaced range sliders with demo text
-                                <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                   <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
-                                </div>
-                              ):(
-                                <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
-                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
-                                </div>
-                              )}
-                            </DisclosurePanel>
-                          </>
+                            ))}
+                          </ul>
+                        ) : section.id === "Price" ? (
+                          <div className="pt-2">
+                            <RangeSlider
+                              values={values}
+                              setValues={setValues}
+                              isDirect={isDirect}
+                              setDirect={setDirect}
+                            />
+                          </div>
+                        ) : (
+                          <div className="pt-2">
+                            <ShelfLifeSlider
+                              value={value}
+                              setValue={setValue}
+                              isDirect={isDirect}
+                              setDirect={setDirect}
+                            />
+                          </div>
                         )}
-                      </Disclosure>
-                    );
-                  })}
-                </div>
-              </form>
-            </DialogPanel>
-          </div>
-        </Dialog>
+                      </DisclosurePanel>
+                    </>
+                  )}
+                </Disclosure>
+              ))}
+            </div>
+          </form>
+        </div>
+      </div>
 
-        <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
+        <main className={`mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20 z-20 `}>
           <section aria-labelledby="products-heading" className="">
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
               {/* Filters */}
@@ -435,7 +465,7 @@ const ShopAll = () => {
                                 </DisclosureButton>
 
                                 <DisclosurePanel className="pt-4">
-                                  <div className="pl-4 rounded-lg w-[250px] bg-white text-center text-gray-700">
+                                  <div className=" rounded-lg  bg-white text-center text-gray-700">
                                     <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
                                   </div>
                                 </DisclosurePanel>
@@ -467,7 +497,7 @@ const ShopAll = () => {
                                 </DisclosureButton>
 
                                 <DisclosurePanel className="pt-4">
-                                  <div className="space-y-2 pl-4">
+                                  <div className="space-y-2 ">
                                     <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
                                   </div>
                                 </DisclosurePanel>

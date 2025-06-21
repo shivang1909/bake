@@ -55,8 +55,8 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
     };
 
     return (
-      <div className="relative">
-        <div ref={containerRef} className="range-slider-container p-4 bg-white rounded-lg shadow-lg">
+      <div className="relative px-2">
+        <div ref={containerRef} className="range-slider-container py-4 bg-white rounded-lg ">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center justify-between mb-2">
               <span className="block font-semibold text-gray-700">Price - ₹</span>
@@ -88,41 +88,42 @@ const RangeSlider = ({values,setValues,isDirect,setDirect}) => {
                 type="text"
                 value={tempPriceRange[0]}
                 readOnly
-                className="border rounded-full w-full text-center bg-orange-50"
+                className="border rounded-full w-full text-center bg-gray-50 shadow-inner"
               />
               <input
                 type="text"
                 value={tempPriceRange[1]}
                 readOnly
-                className="border rounded-full w-full text-center bg-orange-50"
+                className="border rounded-full w-full text-center bg-gray-50 shadow-inner"
               />
             </div>
           </form>
         </div>
   
         {showConfirmDialog && (
-          <div className="fixed inset-0 z-50 bg-slate-900 bg-opacity-50 flex items-center justify-center transition-all duration-300">
-            <div className="bg-white p-6 rounded-2xl shadow-2xl text-center space-y-4 w-[300px]">
-              <p className="text-gray-800 font-semibold text-lg">
-                You have unsaved changes
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={handleSubmit}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm"
-                >
-                  Apply Changes
-                </button>
-                <button
-                  onClick={handleRevert}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm"
-                >
-                  Revert
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="fixed inset-0 z-[99999999] bg-slate-900 bg-opacity-50 flex items-center justify-center transition-all duration-300">
+    <div className="bg-white p-6 rounded-2xl shadow-2xl text-center space-y-4 w-[300px]">
+      <p className="text-gray-800 font-semibold text-lg">
+        You have unsaved changes
+      </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={handleSubmit}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm"
+        >
+          Apply Changes
+        </button>
+        <button
+          onClick={handleRevert}
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm"
+        >
+          Revert
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     );
   };

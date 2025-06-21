@@ -106,7 +106,7 @@ const MyProfile = () => {
           <ProfileSideBar activesection={"Myprofile"} />
         </div>
 
-        <div className="md:w-3/4 w-full bg-white  rounded-xl p-6 h-full mt-5 relative">
+        <div className="md:w-3/4 w-full bg-white  rounded-xl p-6 h-full md:min-h-[100vh] mt-5 relative">
           <div className="flex flex-col items-center mb-8 relative">
             <div className="relative w-24 h-24">
               <div className="w-full h-full rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">

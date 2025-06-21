@@ -77,7 +77,7 @@ const HomeProducts = () => {
         sections.map((section, index) => (
           <div
             key={index}
-            className="mt-5 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-purple-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm"
+            className="mt-5 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm"
           >
             <div className="flex justify-between items-center pl-5 lg:pl-7 pt-4 mb-2">
               <span className="text-2xl font-semibold">

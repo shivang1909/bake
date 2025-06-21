@@ -3,7 +3,7 @@ import React from "react";
 const AboutUs = () => {
   return (
     <>
-      <div className="lg:mt-20">
+      <div className="mt-10 lg:mt-20">
         <div className="relative w-full h-[520px]" id="home">
           <div className="absolute inset-0 opacity-70">
             <img
