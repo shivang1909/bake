@@ -48,6 +48,7 @@
 // };
 
 import CategoryModel from "../models/category.model.js";
+import ProductModel from "../models/product.model.js";
 import sharp from "sharp";
 import fs from "fs";
 import path from "path";

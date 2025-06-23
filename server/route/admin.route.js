@@ -8,7 +8,10 @@ import {
   deleteUser, 
   setPassword, 
   userDetails,
-  loginController
+  loginController,
+adminForgotPasswordController,
+adminVerifyOtpController,
+adminResetPasswordController,
 } from '../controllers/admin.controller.js';
 import { 
   getHomepageSections,
@@ -20,6 +23,9 @@ const adminRouter = Router();
 
 // User routes
 adminRouter.post('/login', loginController);
+adminRouter.put('/forgot-password', adminForgotPasswordController);
+adminRouter.put('/verify-forgot-password-otp', adminVerifyOtpController);
+adminRouter.put('/reset-password', adminResetPasswordController);
 adminRouter.post('/add', auth, admin, addUser);
 adminRouter.get('/list', auth, admin, getUsers);
 adminRouter.put('/update/:id', auth, admin, updateUser);

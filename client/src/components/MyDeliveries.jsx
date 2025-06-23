@@ -256,14 +256,18 @@ const handleVerifyOtp = async (orderId, otp) => {
         data: { orderId, otpEntered: otp },
     });
 
-    if (response.data.success) {
+      if (response.data.success) {
         alert("✅ OTP Verified! Payment updated & Order Delivered.");
         setShowPaymentModal(false);
         setPaymentStatus("Paid"); // Update UI with new status
+         setOrders((prevOrders) =>
+            prevOrders.filter((order) => order.orderId !== orderId)
+          );
         // fetchUpdatedOrderData(orderId); // Fetch latest order details if needed
     } else {
         alert("❌ Invalid OTP. Please try again.");
     }
+
 } catch (error) {
     console.error("Error verifying OTP:", error);
     alert("❌ Something went wrong.");

@@ -36,11 +36,11 @@ const pathname = window.location.pathname;
     const excludedRoutesForLoader = [
     "/login", "/register", "/checkout", "/dashboard/checkout", "/forgot-password", "/success"
     ,"/search","/about-us", "/Privacy-Policy", "/Terms-conditions", "/Contact-Us","/dashboard/myorders", "/dashboard/Myprofile",
-    "/dashboard/address","/verification-otp","/reset-password"
+    "/dashboard/address","/verification-otp","/reset-password",
   ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
-      "/verification-otp", "/success" ,"/admin/login"
+      "/verification-otp", "/success" ,"/admin/login","/admin/forgot-password"  ,"/admin/reset-password","/admin/verification-otp"
     ];
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
@@ -132,7 +132,8 @@ const pathname = window.location.pathname;
                 <Outlet />
               </motion.div>
             </main>
-            {!hideLayout && <Footer />}
+            {!hideLayout && (!user.role || user.role === "USER") && <Footer />}
+
             <Toaster />
             {location.pathname !== "/checkout" && <CartMobileLink />}
           </>

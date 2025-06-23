@@ -109,6 +109,19 @@ const SummaryApi = {
     url: "/api/admin/login",
     method: "post",
   },
+  admin_forgot_password:{
+    url : "api/admin/forgot-password",
+    method:"put",
+  },
+admin_forgot_password_otp_verification: {
+  url: "api/admin/verify-forgot-password-otp",
+  method: "PUT"
+},
+ admin_resetPassword: {
+    url: "/api/admin/reset-password",
+    method: "put",
+  },
+
   adminDetails: {
     url: "/api/admin/user-details",
     method: "get",

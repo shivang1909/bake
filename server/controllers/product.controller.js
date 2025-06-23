@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import CategoryModel from "../models/category.model.js";
 import { json } from "stream/consumers";
 import HomepageSection from "../models/homepagesection.model.js";
+import sharp from "sharp";
 
 dotenv.config();
 

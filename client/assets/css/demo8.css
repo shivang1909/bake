@@ -20732,7 +20732,7 @@ i.ecicon.eci-star.fill {
     display: block !important;
   }
 }
-@media only screen and (max-width: 991px) {
+@media only screen and (max-width: 1024px) {
   .section-space-p {
     padding: 35px 0;
   }

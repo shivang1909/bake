@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import "../assets/styles/paymentloader.css";
+
 export default function ProcesspaymentModal({ status, onClose }) {
   const title = status.hasFailed
     ? "Payment Failed"
@@ -11,11 +14,12 @@ export default function ProcesspaymentModal({ status, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center">
-      <div className="relative w-full sm:w-[90%] max-w-sm bg-white rounded-t-2xl sm:rounded-2xl shadow-xl px-6 py-6 sm:py-8 transition-all duration-500 ease-in-out">
-
+      <div className="relative h-full max-h-fit lg:max-h-fit w-full sm:w-[90%] max-w-sm bg-white rounded-t-2xl sm:rounded-2xl shadow-xl   transition-all duration-500 ease-in-out">
         {/* Header */}
-        <div className="flex items-center justify-center relative  border-b">
-          <span className="text-lg font-semibold text-gray-800 mb-3">{title}</span>
+        <div className="flex items-center justify-center relative py-5 border-b">
+          <span className="text-lg font-semibold text-gray-800 ">
+            {title}
+          </span>
           {showClose && (
             <button
               onClick={onClose}
@@ -30,37 +34,52 @@ export default function ProcesspaymentModal({ status, onClose }) {
         {/* Description */}
         <div className="mt-1 text-center">
           {status.isProcessing && !status.hasFailed && (
-            <>
-              <p className="text-sm text-gray-600">
-                {status.method === "cod"
-                  ? "Your order will be processed and you will pay upon delivery."
-                  : "Please don’t close or refresh while we’re verifying your payment."}
-                <br />
-                This may take a few seconds.
-              </p>
+          <>
+          <div className="flex justify-center items-center py-5">
+            <div class="coin ">
+              <span class="engraving">₹</span>
+            </div>
+          </div>
+            
 
-              {/* Spinner */}
-              <div className="mt-2 flex justify-center items-center">
-                <div className="relative w-16 h-16">
-                  <div className="absolute inset-0 border-4 border-t-orange-400 border-transparent rounded-full animate-spin" />
-                  <div className="absolute inset-2 border-4 border-t-[#008E97] border-transparent rounded-full animate-spin-slower" />
-                </div>
-              </div>
-            </>
+            <p className="text-sm text-gray-800 font-semibold px-7 py-8 ">
+              {status.method === "cod"
+                ? "Your order will be processed and you will pay upon delivery."
+                : "Please don’t close or refresh while we’re verifying your payment."}
+              <br />
+              This may take a few seconds.
+            </p>
+          </>
           )}
 
-          {status.hasFailed && (
-            <p className="mt-2 text-sm font-semibold text-balance text-red-600">
+           {status.hasFailed && ( 
+            <>
+             <p className="mt-2 text-sm font-semibold text-balance text-red-600 py-3">
               Oops! Your payment could not be completed. If any amount was
               deducted, it will be refunded in 5 to 7 working days.
             </p>
-           )} 
+            <div className="flex justify-center items-center py-5 px-5">
+              <button className="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300" onClick={onClose}>
+             <Link to="/">Go to Home</Link>   
+              </button>
+            </div>
+            </>
+           
+          )} 
 
           {status.paymentcancel && (
-          <p className="mt-2 font-semibold text-sm text-yellow-600">
-  You’ve cancelled the payment. If that wasn’t intentional, feel free to try again or pick a different payment method.
-</p>
-
+          <>
+           <p className="mt-2 font-semibold text-sm text-yellow-600 py-3">
+              You’ve cancelled the payment. If that wasn’t intentional, feel
+              free to try again or pick a different payment method.
+            </p>
+            <div className="flex justify-center items-center py-5 px-5">
+              <button className="w-full bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg  transition-colors duration-300" onClick={onClose}>
+             <Link to="/">Go to Home</Link>   
+              </button>
+            </div>
+          </>
+           
            )} 
         </div>
       </div>

@@ -54,7 +54,7 @@ const ProductForm = ({ close, isEdit = false, updatedata }) => {
   console.log(data);
   const file1 = useRef(null);
   const handleAddWeightVariant = () => {
-    const newWeightVariant = { weight: "", price: "", qty: "", discount: 0 }; // Added discount with default value 0
+    const newWeightVariant = { weight: "", price: "", qty: "", discount: 0 }; 
     setData((prev) => ({
       ...prev,
       weightVariants: [...prev.weightVariants, newWeightVariant],
@@ -660,6 +660,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                   {/* Price Field */}
                   <div className="flex-1">
                     <input
+                    required
                       type="number"
                       name="price"
                       placeholder="Price"
@@ -678,6 +679,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                   {/* Quantity Field */}
                   <div className="flex-1">
                     <input
+                    required
                       type="number"
                       name="qty"
                       placeholder="Quantity"
@@ -691,10 +693,11 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                   {/* Discount Field */}
                   <div className="flex-1">
                     <input
+                    required
                       type="number"
                       name="discount"
                       placeholder="Discount"
-                      value={variant.discount} 
+                      value={variant.discount } 
                       onChange={(e) =>
                         handleWeightVariantChange(
                           index,

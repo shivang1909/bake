@@ -424,7 +424,7 @@ const DisplayCartItem = ({ close, open }) => {
             {cartItems.length > 0 && (
               <div
                 style={{ boxShadow: "0 -4px 8px rgba(0, 0, 0, 0.1)" }}
-                className={`bg-white p-4 border-t font-normal text-black rounded-[35px]  flex flex-col space-y-4`}
+                className={`bg-white p-4 border-t font-normal text-black rounded-[35px]  flex flex-col `}
               >
                 <h3 className="font-semibold text-lg text-center mb-3">
                   Bill Details
@@ -474,10 +474,10 @@ const DisplayCartItem = ({ close, open }) => {
                 </div>
 
 
-                <div className=" px-2 p-2 bg-white ">
+                <div className=" pt-3 bg-white ">
                   <div
                     onClick={redirectToCheckoutPage}
-                    className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer"
+                    className="bg-red-600  text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer"
                   >
                     <div>{DisplayPriceInRupees(totalPrice)}</div>
                     <button

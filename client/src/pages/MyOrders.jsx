@@ -143,7 +143,7 @@ useEffect(() => {
       <ProfileSideBar activesection={"myorders"} />
 
       <div className="md:w-3/4 bg-white md:p-6 h-full min-h-[50vh] overflow-y-auto px-2 mt-12 md:mt-0">
-       { orders.length === 0 && !loadingOrders && (
+       { orders.length === 0 && (
         <div className=" bg-white flex flex-col justify-center items-center rounded-xl p-8 text-center max-w-md mx-auto h-[85vh] lg:h-auto">
         <div className="flex justify-center pb-5">
           <img src={NoOrder} alt="No Orders" className="h-44 w-44 grayscale" />

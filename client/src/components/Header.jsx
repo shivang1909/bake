@@ -266,81 +266,16 @@ const Header = () => {
 
       <header className="ec-header">
         <div
-          className={`header-top d-md-block d-lg-none text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm ${
+          className={`header-top block lg:hidden text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm top-0 ${
             showMobileHeader ? "translate-y-0" : "-translate-y-full"
           }`}
         >
           <div className="container">
             <div className="row align-items-center">
-              <div className="col text-left header-top-left d-none d-lg-block">
-                <div className="header-top-social">
-                  <span className="social-text text-upper">Follow us on:</span>
-                  <ul className="mb-0">
-                    <li className="list-inline-item">
-                      <a className="hdr-facebook" href="#">
-                        <i className="ecicon eci-facebook"></i>
-                      </a>
-                    </li>
-                    <li className="list-inline-item">
-                      <a className="hdr-twitter" href="#">
-                        <i className="ecicon eci-twitter"></i>
-                      </a>
-                    </li>
-                    <li className="list-inline-item">
-                      <a className="hdr-instagram" href="#">
-                        <i className="ecicon eci-instagram"></i>
-                      </a>
-                    </li>
-                    <li className="list-inline-item">
-                      <a className="hdr-linkedin" href="#">
-                        <i className="ecicon eci-linkedin"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              {/* <a
-                href="#ec-mobile-sidebar"
-                className="ec-header-btn ec-sidebar-toggle d-lg-none"
-              >
-                <i className="fi fi-rr-apps"></i>
-              </a> */}
-              <p></p>
-              <div className="col text-center header-top-center">
-                {/* <img src={Logo} alt="Site Logo" className="mx-auto w-20 h-auto" /> */}
-              </div>
-              <div className="col header-top-right d-none d-lg-block">
-                <div className="header-top-lan-curr d-flex justify-content-end">
-                  <div className="header-top-lan dropdown">
-                    <button
-                      className="dropdown-toggle text-upper"
-                      data-bs-toggle="dropdown"
-                    >
-                      Order{" "}
-                      <i
-                        className="ecicon eci-caret-down"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                    <ul className="dropdown-menu">
-                      <li className="active">
-                        <a className="dropdown-item" href="#">
-                          Track Order
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Order History
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
               <div className="flex flex-row gap-4 items-center ">
                 <a
                   href="#ec-mobile-menu"
-                  className="ec-header-btn ec-side-toggle d-lg-none text-xl h-6"
+                  className="ec-header-btn ec-side-toggle block lg:hidden text-xl h-6"
                   onClick={(e) => {
                     e.preventDefault();
                     setIsMenuOpen(true);
@@ -355,7 +290,7 @@ const Header = () => {
                     className="mx-auto w-20 h-auto"
                   />
                 </Link>
-                <div className="col d-lg-none ">
+                <div className="col block lg:hidden ">
                   <div className="ec-header-bottons flex items-center">
                     <Link to="/search">
                     <span
@@ -432,7 +367,7 @@ const Header = () => {
         </div>
 
         <div
-          className={`ec-header-bottom d-none d-lg-block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 ${
+          className={`ec-header-bottom hidden lg:block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 top-0 ${
             showHeader ? "translate-y-0" : "-translate-y-full"
           }`}
         >
@@ -454,12 +389,12 @@ const Header = () => {
                     </a>
                   </div>
                 </div>
-                <div className="align-self-center -mr-44">
+                <div className="align-self-center ">
                   {/* for desktop */}
 
                   <div
                     id="ec-main-menu-desk"
-                    className="d-none d-lg-block sticky-nav"
+                    className="hidden lg:block sticky-nav"
                   >
                     <div className="container position-relative">
                       <div className="row">
@@ -543,9 +478,12 @@ const Header = () => {
 
                 <div className="">
                   <div className="ec-header-bottons">
-                    <div className="mt-1 px-3 overflow-hidden">
+                    <div className="mt-1 px-3 overflow-hidden hidden xl:block">
                       <Search />
                     </div>
+                     <Link className="mt-1 px-3 hidden lg:flex justify-center items-center xl:hidden" to={"/search"}>
+                                            <IoIosSearch size={25} />
+                      </Link>
                     <div className="ec-header-user dropdown">
                       {/* Mobile User Icon */}
                       <button
@@ -664,70 +602,11 @@ const Header = () => {
                         )}
                       </div>
 
-                      {/* Dropdown Menu */}
-                      <ul className="dropdown-menu dropdown-menu-right">
-                        {user?._id ? (
-                          <li className="relative">
-                            <div
-                              onClick={() => setOpenUserMenu((prev) => !prev)}
-                              className="flex select-none items-center gap-1 cursor-pointer"
-                            >
-                              <p>Account</p>
-                              {openUserMenu ? (
-                                <GoTriangleUp size={25} />
-                              ) : (
-                                <GoTriangleDown size={25} />
-                              )}
-                            </div>
-                            {openUserMenu && (
-                              <div className="absolute right-0 top-12">
-                                <div className="bg-white rounded p-4 min-w-52 lg:shadow-lg">
-                                  <UserMenu close={handleCloseUserMenu} />
-                                </div>
-                              </div>
-                            )}
-                          </li>
-                        ) : (
-                          <>
-                            <li>
-                              <a className="dropdown-item" href="/login">
-                                Login
-                              </a>
-                            </li>
-                            <li>
-                              <a className="dropdown-item" href="/admin-login">
-                                Admin Login
-                              </a>
-                            </li>
-                          </>
-                        )}
-                      </ul>
                     </div>
 
-                    {/* Cart icon (static example) */}
-                    {/* <a href="#ec-side-cart" className="ec-header-btn ec-side-toggle">
-      <div className="header-icon">
-        <i className="fi-rr-shopping-basket"></i>
-      </div>
-      <span className="ec-header-count ec-cart-count cart-count-lable">
-        3
-      </span>
-    </a> */}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className=" ">
-          <div className="container position-relative">
-            <div
-              className={`overflow-hidden  transition-all duration-500 ease-in-out ${
-                isSearchOpen ? "mt-4 max-h-40 opacity-100" : "max-h-0 opacity-0"
-              }`}
-            >
-              <Search />
             </div>
           </div>
         </div>

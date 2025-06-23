@@ -96,7 +96,7 @@ const fetchProductData = async () => {
   }, [search, searchType]);
 
   return (
-    <section className="mt-20">
+    <section className="">
       <div className="p-2 bg-white shadow-md flex items-center justify-between gap-4">
         <h2 className="font-semibold">Product</h2>
 

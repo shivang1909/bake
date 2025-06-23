@@ -1123,15 +1123,10 @@ export async function getCODOrdersHistory(request, response) {
   try {
     let filterConditions = {
       cod_status: { $ne: "COMPLETED" }, // COD status should NOT be "COMPLETED"
+      payment_status: {$ne: "ONLINE PAYMENT"},
       orderStatus: "Delivered",
-      // deliveryPartnerId: request.userId // Filter by the current delivery partner's ID
     };
-    console.log("1210", request.role);
-
-    // If the user is a Delivery Partner, filter by deliveryPartnerId
     if (request.role === "Delivery Partner") {
-      console.log("1213");
-
       filterConditions.deliveryPartnerId = request.userId; // Only fetch orders for the specific delivery partner
     }
 
