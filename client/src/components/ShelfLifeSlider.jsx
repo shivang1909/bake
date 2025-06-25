@@ -9,16 +9,33 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   const containerRef = useRef(null);
   const [hasInteracted, setHasInteracted] = useState(false); // To avoid popup on mount
   
-  const handleSliderChange = (newValues) => {
-    setTempPrice(newValues)  
+  const handleSliderChange = (newValue) => {
+    setTempPrice(newValue)  
     setHasInteracted(true);
   };
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleApply = () => {
     setValue(tempPrice);
-    setShowConfirmDialog(false); 
+    showConfirmDialog && setShowConfirmDialog(false); 
+    setHasInteracted(false);
     };
+
+        useEffect(() => {
+          if(window.innerWidth>=1024)
+          if (showConfirmDialog) {
+            document.body.style.overflow = "hidden"; // Disable scrolling
+          } else {
+            document.body.style.overflow = "auto"; // Enable scrolling
+          }
+        }, [showConfirmDialog]);
+
+        useEffect(()=>{
+                if(isDirect)
+          {
+            setTempPrice(value);
+            setDirect(false)
+          }
+        },[value])
     
     // 👇 Detect focus-out from slider
     useEffect(() => {
@@ -32,20 +49,12 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
               (tempPrice !== value)
             ) {
               setShowConfirmDialog(true);
+              document.removeEventListener("mousedown", handleClickOutside);
             }
           }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        if(isDirect)
-        {
-          setTempPrice(value)
-          setShowConfirmDialog(false);  
-          setDirect(false)
-        }
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, [tempPrice, value, hasInteracted]);
+      }, [hasInteracted]);
       
       const handleRevert = () => {
         setTempPrice(value);
@@ -57,13 +66,13 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   return (
     <div className="relative">
     <div ref={containerRef} className="range-slider-container">
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className='flex items-center justify-between'>
         <span className="block font-semibold text-gray-700">
           Shelf Life - in Days
         </span>
 
-    <button className='border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs' onClick={handleSubmit}>
+    <button className='border border-orange-500 rounded-xl hover:bg-orange-500 hover:text-white px-3 py-1 text-xs' onClick={handleApply} type='button'>
         Apply
     </button>
         </div>
@@ -89,17 +98,17 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
             className="border rounded-full w-full text-center bg-orange-50 font-medium"
           />
         </div>
-      </form>
+      </div>
     </div>
-      {showConfirmDialog && (
-        <div className="fixed inset-0 z-50 bg-slate-900 bg-opacity-50 flex items-center justify-center transition-all duration-300">
+              {showConfirmDialog && createPortal(
+        <div className="fixed inset-0 z-[99999999] bg-slate-900 bg-opacity-50 flex items-center justify-center transition-all duration-300">
           <div className="bg-white p-6 rounded-2xl shadow-2xl text-center space-y-4 w-[300px]">
             <p className="text-gray-800 font-semibold text-lg">
               You have unsaved changes
             </p>
             <div className="flex justify-center gap-4">
               <button
-                onClick={handleSubmit}
+                onClick={handleApply}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm"
               >
                 Apply Changes
@@ -112,7 +121,8 @@ const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+          document.body 
       )}
     </div>
   );

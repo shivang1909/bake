@@ -27,12 +27,12 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
   const [isAdded, setCart] = useState(false);
 
   useEffect(() => {
-     if (open) {
+     if (isVisible) {
        document.body.style.overflow = "hidden";
      } else {
        document.body.style.overflow = "auto";
      }
-   }, [open]);
+   }, [isVisible]);
   const addCartItem = async () => {
     if (user._id === undefined) {
       // If toast is already active, dismiss it

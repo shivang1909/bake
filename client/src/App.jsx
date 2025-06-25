@@ -22,31 +22,28 @@
   import SignUp from './pages/SignUp.jsx';
   import Login from './pages/Login.jsx';
   import checkout from './pages/CheckoutPage.jsx';
-
-
-
+import AdminHeader from './components/AdminHeader.jsx'
 
   function App() {
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
+    const user = useSelector((state) => state.user);
+    
 
-
+const pathname = window.location.pathname;
     const [isLoading, setIsLoading] = useState();
     const excludedRoutesForLoader = [
     "/login", "/register", "/checkout", "/dashboard/checkout", "/forgot-password", "/success"
-    ,"/search","/about-us", "/Privacy-Policy","/dashboard/myorders", "/dashboard/Myprofile",
+    ,"/search","/about-us", "/Privacy-Policy", "/Terms-conditions", "/Contact-Us","/dashboard/myorders", "/dashboard/Myprofile",
     "/dashboard/address","/verification-otp","/reset-password"
-
-
-
-
   ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
-      "/verification-otp", "/success",
+      "/verification-otp", "/success" ,"/admin/login"
     ];
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
+
 
 
     const fetchUser = async () => {
@@ -54,6 +51,7 @@
         dispatch(setDataLoading(false));
         const userData = await fetchUserDetails();
         dispatch(setUserDetails(userData.data));
+        
         dispatch(setDataLoading(true));
         if (userData === "Provide  token") {
           const pathParts = location.pathname.split("/").filter(Boolean);
@@ -68,15 +66,41 @@
       }
     };
 
+    const fetchCategory = async()=>{
+    try {
+        const response = await Axios({
+            ...SummaryApi.getCategory
+        })   
+        const { data : responseData } = response;
+        console.log(`this is response of category ${JSON.stringify(responseData.data)}`);
+        
+        if(responseData.success){
+           dispatch(setAllCategory(responseData.data)) 
+        }
+        console.log(`this is category `,responseData.data);
+        
+    } catch (error) {
+      console.log("Error fetching categories:", error);
+      
+    }finally{
+      dispatch(setLoadingCategory(false))
+    }
+  }
+
 
     useEffect(() => {
       fetchUser();
+      fetchCategory();
     }, []);
+
+    useEffect(()=>{
+      console.log(user)
+    },[user])
 
 
     // ⚡ Trigger loader every time the route changes
     useEffect(() => {
-        if (excludedRoutesForLoader.includes(location.pathname)) {
+        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")) {
       setIsLoading(false);
       return;
     }
@@ -97,7 +121,7 @@
           <Loader />
         ) : (
           <>
-            {!hideLayout && <Header />}
+            {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
             <main className="bg-white">
               <motion.div
                 initial={{ opacity: 0 }}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaArrowUp, FaRegUserCircle } from "react-icons/fa";
 import UserProfileAvatarEdit from "../components/UserProfileAvatarEdit";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
@@ -30,9 +30,19 @@ const MyProfile = () => {
   const dispatch = useDispatch();
 
   const [openProfileAvatarEdit, setProfileAvatarEdit] = useState(false);
-  const [openProfileAvatarEditMobile, setProfileAvatarEditMobile] =
-    useState(false);
-  //
+  const [openProfileAvatarEditMobile, setProfileAvatarEditMobile] =useState(false);
+   const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+        const handleScroll = () => {
+          setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, []);
+      const scrollToTop = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
@@ -228,6 +238,14 @@ const MyProfile = () => {
               close={() => setProfileAvatarEditMobile(false)}
             />
           )}
+        <button
+                                onClick={scrollToTop}
+                                className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                                }`}
+                              >
+                                <FaArrowUp className="w-full h-full text-orange-500" />
+                              </button>
         </div>
       </div>
     </>

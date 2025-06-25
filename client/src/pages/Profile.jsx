@@ -8,101 +8,71 @@ import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
 import { setUserDetails } from "../store/userSlice";
 import fetchUserDetails from "../utils/fetchUserDetails";
-import MyOrders from "./MyOrders";
-import { BsChevronRight } from "react-icons/bs";
-import { CgProfile } from "react-icons/cg";
-import { TbTruckDelivery } from "react-icons/tb";
-import { LuBox } from "react-icons/lu";
-import { IoChatboxEllipsesOutline } from "react-icons/io5";
-import { AiOutlineLogout } from "react-icons/ai";
-// import "./Profile.css";
-import { IoArrowBackOutline } from "react-icons/io5";
-import { FaPencilAlt } from "react-icons/fa";
-import AddAddress from "./Address";
-import { Link, useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const user = useSelector((state) => state.user);
   const role = user.role;
-  const dispatch = useDispatch();
-
-  const [activeSection, setActiveSection] = useState("profile");
 
   const [openProfileAvatarEdit, setProfileAvatarEdit] = useState(false);
-  const [openProfileAvatarEditMobile, setProfileAvatarEditMobile] =
-    useState(false);
-  //
-
   const [userData, setUserData] = useState({
     name: user.name,
     email: user.email,
     mobile: user.mobile,
-    avatar: user.avatar,
-    alt_Mobile: user.alt_Mobile || "",
   });
   const [loading, setLoading] = useState(false);
-  const [showMobileSection, setShowMobileSection] = useState(false);
-  const [transitionDirection, setTransitionDirection] = useState("left"); // "left" or "right"
-
-  const navigate = useNavigate();
-    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  
-    useEffect(() => {
-      const handleResize = () => {
-        setScreenWidth(window.innerWidth);
-      };
-  
-      // Listen to resize
-      window.addEventListener("resize", handleResize);
-  
-      // Initial check
-      if (window.innerWidth > 1024) {
-        navigate("/dashboard"); // or home
-      }
-  
-      // Cleanup
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-  
-    // Also check after resize
-    useEffect(() => {
-      if (screenWidth > 1024) {
-        navigate("/dashboard");
-      }
-    }, [screenWidth]);
-  
-
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setUserData({
       name: user.name,
       email: user.email,
       mobile: user.mobile,
-      avatar: user.avatar,
-      altMobile: user.altMobile || "",
     });
   }, [user]);
+  console.log(userData);
 
   const handleOnChange = (e) => {
-    console.log("handleOnChange called", e.target.name, e.target.value);
     const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
+
+    setUserData((preve) => {
+      return {
+        ...preve,
+        [name]: value,
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setLoading(true);
-      const apiCall =
-        role === "USER" 
-          ? SummaryApi.updateUserDetails
-          : SummaryApi.UpdateAdminDetails;
-      const response = await Axios({ ...apiCall, data: userData });
-      const { data: responseData } = response;
-      if (responseData.success) {
-        toast.success(responseData.message);
-        const updatedUser = await fetchUserDetails();
-        dispatch(setUserDetails(updatedUser.data));
+      if (role === "USER") {
+        const response = await Axios({
+          ...SummaryApi.updateUserDetails,
+          data: userData,
+        });
+        const { data: responseData } = response;
+        if (responseData.success) {
+          toast.success(responseData.message);
+          const userData = await fetchUserDetails();
+          dispatch(setUserDetails(userData.data));
+        }
+      } else if (role !== "user") {
+        const response = await Axios({
+          ...SummaryApi.UpdateAdminDetails,
+          data: userData,
+        });
+        const { data: responseData } = response;
+        console.log(responseData);
+
+        if (responseData.success) {
+          toast.success(responseData.message);
+          const userData = await fetchUserDetails();
+          console.log("this is userdata", userData);
+
+          dispatch(setUserDetails(userData.data));
+        }
       }
     } catch (error) {
       AxiosToastError(error);
@@ -110,506 +80,76 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
   return (
-    <div className="lg:mt-20 lg:h-[75vh] flex flex-col md:flex-row gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
-      <div className="mobilemenusection md:hidden my-6 flex flex-col min-h-screen relative overflow-hidden">
-        
-        <div
-          className={`flex transition-transform duration-500 ease-in-out w-[100%] h-full`}
-        >
-          {/* === LEFT PANEL: MENU === */}
-          <div className="w-full h-full bg-white rounded-xl flex flex-col">
-            {/* Header */}
-            <div className="bg-white rounded-xl flex items-center gap-4 px-4 py-4">
-              <div className="rounded-full bg-gray-100 overflow-hidden flex items-center justify-center w-12 h-12">
-                {user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <FaRegUserCircle size={50} className="text-gray-500" />
-                )}
-              </div>
-              <div>
-                <p className="font-semibold text-lg">{userData.name}</p>
-                <p className="text-gray-500 text-sm">{userData.email}</p>
-              </div>
-            </div>
-
-            {/* Sidebar Menu */}
-            <div className="flex-grow overflow-y-auto">
-              <ul className="space-y-2 p-4">
-                <li>
-                  <button
-                    className="flex justify-between w-full py-3 text-left"
-                  >
-                    <Link to="MyProfile">
-                    <div className="flex gap-1 items-center">
-                      <CgProfile size={20} className="text-gray-500" />
-                      <span className="ml-2">Profile</span>
-                    </div>
-                    </Link>
-                    <BsChevronRight />
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setActiveSection("MyOrders");
-                      setShowMobileSection(true);
-                    }}
-                    className="flex justify-between w-full py-3 text-left"
-                  >
-                    <div className="flex gap-1 items-center">
-                      <LuBox size={20} className="text-gray-500" />
-                      <span className="ml-2">My Orders</span>
-                    </div>
-                    <BsChevronRight />
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setActiveSection("address");
-                      setShowMobileSection(true);
-                    }}
-                    className="flex justify-between w-full py-3 text-left"
-                  >
-                    <div className="flex gap-1 items-center">
-                      <TbTruckDelivery size={20} className="text-gray-500" />
-                      <span className="ml-2">Shipping Addresses</span>
-                    </div>
-                    <BsChevronRight />
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => {
-                      setActiveSection("reviews");
-                      setShowMobileSection(true);
-                    }}
-                    className="flex justify-between w-full py-3 text-left"
-                  >
-                    <div className="flex gap-1 items-center">
-                      <IoChatboxEllipsesOutline
-                        size={20}
-                        className="text-gray-500"
-                      />
-                      <span className="ml-2">My Reviews</span>
-                    </div>
-                    <BsChevronRight />
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Sticky Logout */}
-            <div className="p-4 sticky bottom-0 bg-white border-t">
-              <button
-                className="w-full py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 font-semibold transition duration-300 active:scale-95"
-                onClick={() => {
-                  // log out logic
-                }}
-              >
-                <div className="flex gap-1 justify-center items-center">
-                  <span className="ml-2">Logout</span>
-                  <AiOutlineLogout size={20} className="text-red-500" />
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* === RIGHT PANEL: SECTION === */}
-          {/* <div className="w-full h-full bg-white rounded-xl p-4 overflow-y-auto">
-           
-            <button
-              onClick={() => setShowMobileSection(false)}
-              className="text-3xl text-blue-600 underline mb-4"
-            >
-              <IoArrowBackOutline />
-            </button>
-
-            {activeSection === "profile" && (
-              <div>
-                <div className="flex flex-col items-center mb-8">
-                  <div className="w-24 h-24 rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <FaRegUserCircle size={80} className="text-gray-500" />
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setProfileAvatarEditMobile(true)}
-                    className="mt-3 text-sm px-5 py-1.5 border border-orange-400 text-orange-500 hover:bg-orange-100 rounded-full transition"
-                  >
-                    Edit Profile Photo
-                  </button>
-                </div>
-
-                <form
-                  onSubmit={handleSubmit}
-                  className="grid grid-cols-1 gap-5"
-                >
-                  <div className="grid my-3">
-                    <div className="w-full relative flex rounded-xl">
-                      <input
-                        type="text"
-                        name="name"
-                        id="email"
-                        value={userData.name}
-                        onChange={handleOnChange}
-                        className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-gray-200 border-2 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                        required
-                      />
-                      <label
-                        htmlFor="name"
-                        className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                      >
-                        Name
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="grid my-3">
-                    <div className="w-full relative flex rounded-xl">
-                      <input
-                        required
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={userData.email}
-                        onChange={handleOnChange}
-                        className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                      />
-                      <label
-                        htmlFor="email"
-                        className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                      >
-                        Email
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="grid my-3">
-                    <div className="w-full relative flex rounded-xl">
-                      <input
-                        required
-                        type="text"
-                        name="mobile"
-                        value={userData.mobile}
-                        onChange={handleOnChange}
-                        id="mobile"
-                        className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                      />
-                      <label
-                        htmlFor="mobile"
-                        className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                      >
-                        Mobile No
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="grid my-3">
-                    <div className="w-full relative flex rounded-xl">
-                      <input
-                        name="altMobile"
-                        onChange={handleOnChange}
-                        value={userData.alt_Mobile}
-                        type="text"
-                        id="AltMobile"
-                        className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                      />
-                      <label
-                        htmlFor="mobile"
-                        className="absolute mt-3 bg-white text-black/70 -translate-y-1/2  rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                      >
-                        Alternative Mobile No
-                      </label>
-                    </div>
-                  </div>
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition"
-                    >
-                      {loading ? "Loading..." : "Save Changes"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-            {openProfileAvatarEditMobile && (
-              
-                  <UserProfileAvatarEdit
-                    close={() => setProfileAvatarEditMobile(false)}
-                  />
-               
-            )}
-
-            {activeSection === "MyOrders" && (
-              <div>
-                <div className="flex items-center mb-4">
-                  <button
-                    onClick={() => setShowMobileSection(false)}
-                    className="text-3xl text-blue-600 underline mb-4"
-                  >
-                    <IoArrowBackOutline />
-                  </button>
-                  <span className="flex-grow text-lg font-semibold mb-2 text-center">
-                    My Orders
-                  </span>
-                </div>
-
-                <div className="overflow-y-auto h-[75vh] bg-gray-50 rounded-lg">
-                  <MyOrders />
-                </div>
-              </div>
-            )}
-
-            {activeSection === "address" && (
-              <div>
-                <h2 className="text-lg font-semibold mb-2">
-                  Shipping Addresses here
-                </h2>
-                <AddAddress />
-              </div>
-            )}
-
-            {activeSection === "reviews" && (
-              <div>
-                <h2 className="text-lg font-semibold mb-2">My Reviews</h2>
-              
-              </div>
-            )}
-          </div> */}
-        </div>
+    <div className="p-4">
+      {/**profile upload and display image */}
+      <div className="w-20 h-20 bg-red-500 flex items-center justify-center rounded-full overflow-hidden drop-shadow-sm">
+        {user.avatar ? (
+          <img
+            alt={user.name}
+            src={`${import.meta.env.VITE_API_URL}/` + user.avatar}
+            className="w-full h-full"
+          />
+        ) : (
+          <FaRegUserCircle size={65} />
+        )}
       </div>
+      <button
+        onClick={() => setProfileAvatarEdit(true)}
+        className="text-sm min-w-20 border border-primary-100 hover:border-primary-200 hover:bg-primary-200 px-3 py-1 rounded-full mt-3"
+      >
+        Edit
+      </button>
 
-      {/* Sidebar */}
-      <aside className="hidden md:block md:w-1/4 w-full bg-white rounded-xl border p-4 sticky ">
-        <h2 className="text-lg font-semibold mb-4">Hello {userData.name}</h2>
-        <ul className="space-y-2">
-          <li>
-            <button
-              onClick={() => setActiveSection("profile")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
-                activeSection === "profile"
-                  ? "bg-orange-100 text-orange-600 font-semibold"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <div className="flex gap-1 items-center justify-start">
-                <CgProfile size={20} className="" />
-                <span className="ml-2">Profile</span>
-              </div>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveSection("MyOrders")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
-                activeSection === "MyOrders"
-                  ? "bg-orange-100 text-orange-600 font-semibold"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <div className="flex gap-1 items-center justify-start">
-                <LuBox size={20} className="" />
-                <span className="ml-2">My Orders</span>
-              </div>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveSection("address")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
-                activeSection === "address"
-                  ? "bg-orange-100 text-orange-600 font-semibold"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <div className="flex gap-1 items-center justify-start">
-                <TbTruckDelivery size={20} className="" />
-                <span className="ml-2">Shipping Addresses</span>
-              </div>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => setActiveSection("reviews")}
-              className={`w-full text-left text-md lg:text-xl px-4 py-5 rounded-lg ${
-                activeSection === "reviews"
-                  ? "bg-orange-100 text-orange-600 font-semibold"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <div className="flex gap-1 items-center justify-start">
-                <IoChatboxEllipsesOutline size={20} className="" />
-                <span className="ml-2">My Reviews</span>
-              </div>
-            </button>
-          </li>
-        </ul>
-      </aside>
+      {openProfileAvatarEdit && (
+        <UserProfileAvatarEdit close={() => setProfileAvatarEdit(false)} />
+      )}
 
-      {/* Main Content */}
-      <section className="hidden md:block md:w-3/4 w-full bg-white rounded-xl border p-6 h-full max-h-[75vh] ">
-        {activeSection === "profile" && (
-          <>
-            {/* Avatar */}
-            <div className="flex flex-col items-center mb-8 relative">
-              <div className="relative">
-                {/* Profile Image Circle */}
-                <div className="w-24 h-24 rounded-full bg-gray-100 shadow-md overflow-hidden flex items-center justify-center">
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FaRegUserCircle size={80} className="text-gray-500" />
-                  )}
-                </div>
+      {/**name, mobile , email, change password */}
+      <form className="my-4 grid gap-4" onSubmit={handleSubmit}>
+        <div className="grid">
+          <label>Name</label>
+          <input
+            type="text"
+            placeholder="Enter your name"
+            className="p-2 bg-blue-50 outline-none border focus-within:border-primary-200 rounded"
+            value={userData.name}
+            name="name"
+            onChange={handleOnChange}
+            required
+          />
+        </div>
+        <div className="grid">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            className="p-2 bg-blue-50 outline-none border focus-within:border-primary-200 rounded"
+            value={userData.email}
+            name="email"
+            onChange={handleOnChange}
+            required
+          />
+        </div>
+        <div className="grid">
+          <label htmlFor="mobile">Mobile</label>
+          <input
+            type="text"
+            id="mobile"
+            placeholder="Enter your mobile"
+            className="p-2 bg-blue-50 outline-none border focus-within:border-primary-200 rounded"
+            value={userData.mobile}
+            name="mobile"
+            onChange={handleOnChange}
+            required
+          />
+        </div>
 
-                {/* Pencil Icon Button on the edge */}
-                <button
-                  onClick={() => setProfileAvatarEdit(true)}
-                  className="absolute -bottom-0 -right-0 bg-white border border-zinc-700 text-zinc-700 p-2 rounded-full shadow hover:bg-zinc-100 transition-all duration-300 active:scale-95 hover:p-2.5"
-                >
-                  <FaPencilAlt size={14} />
-                </button>
-              </div>
-
-              {openProfileAvatarEdit && (
-                <UserProfileAvatarEdit
-                  close={() => setProfileAvatarEdit(false)}
-                />
-              )}
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-5">
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={userData.name}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              {/* <div className="grid my-8">
-                <div className="w-full relative flex rounded-xl">
-                <input
-                  type="text"
-                  name="name"
-                  value={userData.name}
-                  onChange={handleOnChange}
-                    id="name"
-                    className="peer w-full bg-transparent outline-none px-3 py-3 text-sm rounded-lg h-10 leading-tight bg-white border border-gray-300 focus:shadow-md"
-                   
-                  />
-                  <label
-                    htmlFor="name"
-                    className="absolute bg-white text-black/70 rounded-full left-4 px-2 font-normal text-xs duration-150 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/2 -translate-y-1/2 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                  >
-                    Name
-                  </label>
-                </div>
-              </div> */}
-
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={userData.email}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Mobile
-                </label>
-                <input
-                  type="text"
-                  name="mobile"
-                  value={userData.mobile}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block mb-1 text-sm text-gray-700">
-                  Alt. Mobile
-                </label>
-                <input
-                  type="text"
-                  name="altMobile"
-                  value={userData.alt_Mobile}
-                  onChange={handleOnChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-orange-300 outline-none"
-                  required
-                />
-              </div>
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-6 py-2 rounded-full font-semibold hover:opacity-90 transition"
-                >
-                  {loading ? "Loading..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-
-        {activeSection === "MyOrders" && (
-          <div className="font-normal">
-            <h3 className="text-xl font-semibold mb-4">My Orders</h3>
-            <p className="text-gray-500">You can manage your Orders here.</p>
-            <div className="overflow-y-auto h-[60vh]">
-              <MyOrders />
-            </div>
-          </div>
-        )}
-        {activeSection === "address" && (
-          <div>
-            {/* <h3 className="text-xl font-semibold mb-4">Shipping Addresses</h3>
-            <p className="text-gray-500">
-              You can manage your shipping addresses here.
-            </p> */}
-            <AddAddress />
-          </div>
-        )}
-
-        {activeSection === "reviews" && (
-          <div>
-            <h3 className="text-xl font-semibold mb-4">My Reviews</h3>
-            <p className="text-gray-500">
-              Your product reviews will appear here.
-            </p>
-            {/* Add reviews logic here */}
-          </div>
-        )}
-      </section>
+        <button className="border px-4 py-2 font-semibold hover:bg-primary-100 border-primary-100 text-primary-200 hover:text-neutral-800 rounded">
+          {loading ? "Loading..." : "Submit"}
+        </button>
+      </form>
     </div>
   );
 };

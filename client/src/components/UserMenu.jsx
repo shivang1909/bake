@@ -8,13 +8,6 @@ import { logout } from "../store/userSlice";
 import toast from "react-hot-toast";
 import AxiosToastError from "../utils/AxiosToastError";
 import { HiOutlineExternalLink } from "react-icons/hi";
-import {
-  isAdmin,
-  isInventoryManager,
-  isFinanceManager,
-  isDeliveryPartner,
-  isUser,
-} from "../utils/isAdmin";
 import User from "../assets/BottomIcon/user.png";
 import Address from "../assets/BottomIcon/location.png";
 import Track from "../assets/BottomIcon/pending.png";
@@ -22,11 +15,6 @@ import Logout from "../assets/BottomIcon/switch.png";
 import Tracking from "../assets/BottomIcon/order-tracking.png";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { setIsCartOpen } from "../store/loadingSlice";
-
-
-
-
-
 
 const UserMenu = ({ close, open }) => {
   const user = useSelector((state) => state.user);
@@ -94,8 +82,6 @@ const UserMenu = ({ close, open }) => {
   return (
     <>
       {/* Backdrop */}
-
-
       <div
         className={`
     fixed inset-0 bg-zinc-800/60 backdrop-blur-[3px] z-40

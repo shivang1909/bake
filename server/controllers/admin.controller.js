@@ -50,7 +50,7 @@ export async function loginController(request,response){
         const cookiesOption = {
                 httpOnly : true,
                 secure : false, 
-            sameSite : "None"
+            sameSite : "Lax"
         }
         response.cookie('accessToken',accesstoken,cookiesOption)
         response.cookie('refreshToken',refreshToken,cookiesOption)

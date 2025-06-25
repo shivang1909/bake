@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 import {
   Dialog,
   DialogBackdrop,
@@ -11,7 +11,9 @@ import {
   MenuButton,
   MenuItem,
   MenuItems,
+  Transition
 } from "@headlessui/react";
+import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -21,11 +23,11 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import ProductPage from "../pages/ProductPage";
-import "./ProductsLeftBar.css";
+import "../assets/styles/ProductsLeftBar.css";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FaBagShopping } from "react-icons/fa6";
 import { FaHeartCircleCheck } from "react-icons/fa6";
-import { FaChevronRight } from "react-icons/fa";
+import { FaArrowUp, FaChevronRight } from "react-icons/fa";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
@@ -42,20 +44,24 @@ const ShopAll = () => {
   const dispatch = useDispatch();
   const allProduct = useSelector((state) => state.product.Allproduct);
   const [WeightVarient, setWeightVarient] = useState([]);
-  const [selectedWeight,setSelectedWeight] = useState([]);
+  const [selectedWeight, setSelectedWeight] = useState([]);
   const [values, setValues] = useState([10, 1000]);
   const [value, setValue] = useState(0);
-  const [search,setSearch] = useState("");
-  const [isDirect,setDirect] = useState(false);
-
+  const [search, setSearch] = useState("");
+  const [isDirect, setDirect] = useState(false);
+const [showScrollTop, setShowScrollTop] = useState(false);
   useEffect(() => {
-     if (mobileFiltersOpen) {
-       document.body.style.overflow = "hidden";
-     } else {
-       document.body.style.overflow = "auto";
-     }
-   }, [mobileFiltersOpen]);
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+    };
 
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
     { id: "Price", name: "Price", icon: <AiOutlineProduct /> },
@@ -82,17 +88,28 @@ const ShopAll = () => {
       console.log("Error fetching weight variant:", err);
     }
   };
-    const handleClose = () => setMobileFiltersOpen(false);
 
   useEffect(() => {
     fetchCategory();
     fetchWeightVarient();
   }, []);
 
+  useEffect(() => {
+     if (mobileFiltersOpen) {
+       document.body.style.overflow = "hidden";
+     } else {
+       document.body.style.overflow = "auto";
+     }
+   }, [mobileFiltersOpen]);
+
+      const handleClose = () => setMobileFiltersOpen(false);
+
   return (
     <div className="bg-white mt-20">
       <Helmet>
-        <title>Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad</title>
+        <title>
+          Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad
+        </title>
         <meta
           name="description"
           content="Explore and shop delicious sweets, cakes, cookies, dry fruit sweets, and namkeen from Bake Flavour – your favorite Ahmedabad bakery."
@@ -130,7 +147,7 @@ const ShopAll = () => {
         </div>
       </div>
       <div>
-         <div
+       <div
         className={`
           fixed inset-0 bg-black/50 z-50 transition-opacity duration-300
           ${mobileFiltersOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
@@ -140,7 +157,7 @@ const ShopAll = () => {
         {/* Mobile filter dialog */}
  <div
         className={`
-          fixed top-0 bottom-0 right-0 w-60 pb-12  bg-white z-50 transition-transform duration-300 ease-in-out
+          fixed top-0 bottom-0 right-0 w-60 pb-12  bg-white z-50 transition-transform duration-300 ease-in-out block lg:hidden
           ${mobileFiltersOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
@@ -299,20 +316,19 @@ const ShopAll = () => {
           </form>
         </div>
       </div>
-
-        <main className={`mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20 z-20 `}>
+        <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20 ">
           <section aria-labelledby="products-heading" className="">
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
               {/* Filters */}
               <div className="hidden lg:block lg:p-2 xl:p-4">
-                <div className="hidden lg:block lg:p-2 xl:p-4 sticky top-20">
-                  <div className="h-[85vh] bg-white border border-gray-200 rounded-2xl shadow-md">
+                <div className="hidden lg:block lg:p-2 xl:p-4 sticky top-0">
+                  <div className="h-[95vh] bg-white border border-gray-200 rounded-2xl shadow-md">
                     <div className="text-center bg-zinc-800 text-white p-3 rounded-t-xl">
                       <span className="text-xl font-semibold ">
                         Filter Products
                       </span>
                     </div>
-                    <div className="h-[75vh] overflow-y-auto">
+                    <div className="h-[85vh] overflow-y-auto">
                       <form className="lg:p-2 p-4 rounded-b-2xl">
                         <span className="font-bold text-xl flex items-center gap-2 px-2 py-3">
                           <AiOutlineProduct />
@@ -329,7 +345,7 @@ const ShopAll = () => {
                                   <input
                                     name="category"
                                     type="checkbox"
-                                    checked={Category.includes(category._id)} 
+                                    checked={Category.includes(category._id)}
                                     onChange={(e) => {
                                       console.log(
                                         "Checkbox changed:",
@@ -394,47 +410,52 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
-                                  {WeightVarient.map((varient, idx) => (
-                                    <li>
-                                      <article className="checkbox-container flex items-center space-x-1">
-                                        <label className="checkbox">
-                                          <input
-                                            type="checkbox"
-                                            id={`weight-${idx}`}
-                                             checked={selectedWeight.includes(varient.weight)} 
-                                            className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
-                                            onChange={(e) => {
-                                              console.log(
-                                                "Checkbox changed:",
+                                    {WeightVarient.map((varient, idx) => (
+                                      <li>
+                                        <article className="checkbox-container flex items-center space-x-1">
+                                          <label className="checkbox">
+                                            <input
+                                              type="checkbox"
+                                              id={`weight-${idx}`}
+                                              checked={selectedWeight.includes(
+                                                varient.weight
+                                              )}
+                                              className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                              onChange={(e) => {
+                                                console.log(
+                                                  "Checkbox changed:",
+                                                  e.target.checked
+                                                );
                                                 e.target.checked
-                                              );
-                                              e.target.checked
-                                                ? setSelectedWeight((prev) => [
-                                                    ...prev,
-                                                    varient.weight,
-                                                  ])
-                                                : setSelectedWeight((prev) =>
-                                                    prev.filter(
-                                                      (varientName) => varientName !== varient.weight
+                                                  ? setSelectedWeight(
+                                                      (prev) => [
+                                                        ...prev,
+                                                        varient.weight,
+                                                      ]
                                                     )
-                                                  );
-                                                  console.log(
-                                                    "Current weight:",
-                                                    selectedWeight
-                                                  );
-                                            }}
-                                          />
-                                        </label>
-                                        <label
-                                          htmlFor={`weight-${idx}`}
-                                          className="cursor-pointer"
-                                        >
-                                          {varient.weight}
-                                        </label>
-                                      </article>
-                                    </li>
-                                  ))}
-                                    
+                                                  : setSelectedWeight((prev) =>
+                                                      prev.filter(
+                                                        (varientName) =>
+                                                          varientName !==
+                                                          varient.weight
+                                                      )
+                                                    );
+                                                console.log(
+                                                  "Current weight:",
+                                                  selectedWeight
+                                                );
+                                              }}
+                                            />
+                                          </label>
+                                          <label
+                                            htmlFor={`weight-${idx}`}
+                                            className="cursor-pointer"
+                                          >
+                                            {varient.weight}
+                                          </label>
+                                        </article>
+                                      </li>
+                                    ))}
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -466,7 +487,12 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className=" rounded-lg  bg-white text-center text-gray-700">
-                                    <RangeSlider values={values} setValues={setValues} isDirect={isDirect} setDirect={setDirect}/>
+                                    <RangeSlider
+                                      values={values}
+                                      setValues={setValues}
+                                      isDirect={isDirect}
+                                      setDirect={setDirect}
+                                    />
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -498,7 +524,12 @@ const ShopAll = () => {
 
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 ">
-                                    <ShelfLifeSlider value={value} setValue={setValue} isDirect={isDirect} setDirect={setDirect}/>
+                                    <ShelfLifeSlider
+                                      value={value}
+                                      setValue={setValue}
+                                      isDirect={isDirect}
+                                      setDirect={setDirect}
+                                    />
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -520,11 +551,11 @@ const ShopAll = () => {
                   priceRange={values}
                   maxshelfLife={value}
                   search={search}
-                  weightVariants = {WeightVarient}
-                  setShelf= {setValue}
-                  setPrice = {setValues}
-                  setCategory = {setCategory}
-                  setWeight = {setSelectedWeight}
+                  weightVariants={WeightVarient}
+                  setShelf={setValue}
+                  setPrice={setValues}
+                  setCategory={setCategory}
+                  setWeight={setSelectedWeight}
                   setDirect={setDirect}
                 />
               </div>
@@ -532,6 +563,14 @@ const ShopAll = () => {
           </section>
         </main>
       </div>
+      <button
+              onClick={scrollToTop}
+              className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+              }`}
+            >
+              <FaArrowUp className="w-full h-full text-orange-500" />
+            </button>
     </div>
   );
 };

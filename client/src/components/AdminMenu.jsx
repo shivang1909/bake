@@ -8,8 +8,14 @@ import { logout } from "../store/userSlice";
 import toast from "react-hot-toast";
 import AxiosToastError from "../utils/AxiosToastError";
 import { HiOutlineExternalLink } from "react-icons/hi";
+import {
+  isAdmin,
+  isInventoryManager,
+  isFinanceManager,
+  isDeliveryPartner,
+} from "../utils/isAdmin";
 
-const UserMenu = ({ close }) => {
+const AdminMenu = ({ close }) => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,13 +40,10 @@ const UserMenu = ({ close }) => {
     if (close) close();
   };
 
-  const profileUrl = !isUser(user.role)
-    ? "/admin/dashboard/profile"
-    : "/dashboard/profile";
 
 
   return (
-    <div className="z-50">
+    <div>
       <div className="font-semibold">My Account</div>
       <div className="text-sm flex items-center gap-2">
         <span className="max-w-52 text-ellipsis line-clamp-1">
@@ -49,7 +52,7 @@ const UserMenu = ({ close }) => {
         </span>
         <Link
           onClick={handleClose}
-          to={profileUrl}
+          to={"/admin/dashboard/profile"}
           className="hover:text-primary-200"
         >
           <HiOutlineExternalLink size={15} />
@@ -63,6 +66,13 @@ const UserMenu = ({ close }) => {
         {/* ============================== Admin Role Dashboard Menu ============================== */}
         {isAdmin(user.role) && (
           <>
+          <Link
+              onClick={handleClose}
+              to="/admin/dashboard/HeroSection"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              Hero section
+            </Link>
             <Link
               onClick={handleClose}
               to="/admin/dashboard/category"
@@ -78,6 +88,12 @@ const UserMenu = ({ close }) => {
             >
               Product
             </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/HomePageSection"
+              className="px-2 hover:bg-orange-200 py-1">
+                Home Pagee section
+              </Link>
             <Link
               onClick={handleClose}
               to="/admin/dashboard/add-admin"
@@ -120,6 +136,12 @@ const UserMenu = ({ close }) => {
             >
               Promo Code
             </Link>
+            <Link
+              onClick={handleClose}
+              to="/admin/dashboard/weightvariant"
+              className="px-2 hover:bg-orange-200 py-1">
+              Weight Variants / Gift wrap
+              </Link>
           </>
         )}
 
@@ -134,27 +156,8 @@ const UserMenu = ({ close }) => {
             >
               Product List
             </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/stock-management"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Stock Management
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/supplier-management"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Supplier Management
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/inventory-reports"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Reports
-            </Link>
+           
+           
           </>
         )}
 
@@ -224,55 +227,9 @@ const UserMenu = ({ close }) => {
             >
               COD STATUS
             </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/map-view"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Map View
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/notifications"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Notifications
-            </Link>
-            <Link
-              onClick={handleClose}
-              to="/admin/dashboard/support"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Support
-            </Link>
-          </>
-        )}
-
-
-        {/* ============================== End User Role Dashboard Menu ============================== */}
-        <Link
-          onClick={handleClose}
-          to={profileUrl}
-          className="px-2 hover:bg-orange-200 py-1"
-        >
-          My Profile 
-        </Link>
-        {isUser(user.role) && (
-          <>
-            <Link
-              onClick={handleClose}
-              to="/dashboard/myorders"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              My Order
-            </Link> 
-            <Link
-              onClick={handleClose}
-              to="/dashboard/address"
-              className="px-2 hover:bg-orange-200 py-1"
-            >
-              Address
-            </Link> 
+           
+            
+          
           </>
         )}
         <button
@@ -286,4 +243,4 @@ const UserMenu = ({ close }) => {
   );
 };
 
-export default UserMenu;
+export default AdminMenu;

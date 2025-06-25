@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../components/ProductsLeftBar.css";
+import "../assets/styles/ProductsLeftBar.css";
 import { IoIosGlobe } from "react-icons/io";
 import S1 from "../../assets/images/Custom/s1.png";
 import S2 from "../../assets/images/Custom/s2.png";

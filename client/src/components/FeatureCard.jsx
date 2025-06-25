@@ -11,14 +11,14 @@ import Blob1 from "../../src/assets/blob.svg";
 const featuresLeft = [
   {
     icon: <FaShippingFast />,
-    title: "Fast Shipping",
-    text: "We are available for fast shipping in every season 24x7 deliver in the world.",
+    title: "Quick & Fresh Delivery",
+    text: "From oven to doorstep – we ensure speedy delivery of fresh bakery and snack items across India.",
     blobColor: "bg-orange-400",
   },
   {
     icon: <FaShieldAlt />,
-    title: "Trust Guarantee",
-    text: "We are available for fast shipping in every season 24x7 deliver in the world.",
+    title: "Quality You Can Trust",
+    text: "Each bite is made with premium ingredients, hygienic practices, and loads of love – guaranteed!",
     blobColor: "bg-[#00ABB8]",
   },
 ];
@@ -26,14 +26,14 @@ const featuresLeft = [
 const featuresRight = [
   {
     icon: <FaHeadset />,
-    title: "24x7 Free Support",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    title: "Friendly Customer Support",
+    text: "Got a craving or query? We're always just a message away to help you with your orders.",
     blobColor: "bg-[#00ABB8]",
   },
   {
     icon: <FaCalendarAlt />,
-    title: "Daily Discounts",
-    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    title: "Festive & Daily Offers",
+    text: "Celebrate every day with exciting discounts on cakes, namkeens, mithai, and more!",
     blobColor: "bg-orange-400",
   },
 ];

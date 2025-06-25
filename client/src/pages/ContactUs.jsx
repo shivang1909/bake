@@ -1,156 +1,115 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import { FaArrowUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
-const ContactUs =()=> {
+const ContactUs = () => {
+   const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+        const handleScroll = () => {
+          setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, []);
+    
+      const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
   return (
-    <>
-        {/* Contact Us */}
-<div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto mt-12">
-  <div className="max-w-2xl lg:max-w-5xl mx-auto">
-    <div className="text-center">
-      <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">
-        Contact us
-      </h1>
-      <p className="mt-1 text-gray-600">
-        We'd love to talk about how we can help you.
-      </p>
-    </div>
-
-    <div className="mt-12 grid items-center lg:grid-cols-2 gap-6 lg:gap-16">
-      {/* Card */}
-      <div className="flex flex-col border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8">
-        <h2 className="mb-8 text-xl font-semibold text-gray-800">
-          Fill in the form
-        </h2>
-
-        <form>
-          <div className="grid gap-4">
-            {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-              <div className="">
-                  <div className="w-full relative flex rounded-xl">
-                    <input
-                      required
-                      type="text"
-                      id="name"
-                      className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-lg leading-tight bg-white border border-gray-200 border-2 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-orange-300"
-                     
-                    />
-                    <label
-                      htmlFor="name"
-                      className="absolute mt-3 bg-white text-black/70 -translate-y-1/2 rounded-full left-4 px-2 font-normal text-sm duration-150 peer-focus:mt-0 peer-valid:mt-0 peer-focus:text-xs peer-focus:top-0 peer-focus:left-3 peer-focus:text-orange-500 top-1/4 peer-valid:top-0 peer-valid:text-xs peer-valid:left-3"
-                    >
-                      Name
-                    </label>
-                  </div>
-                  </div>
-              <div>
-                <label htmlFor="hs-lastname-contacts-1" className="sr-only">Last Name</label>
-                <input type="text" name="hs-lastname-contacts-1" id="hs-lastname-contacts-1" className="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Last Name" />
-              </div>
-            
-            {/* End Grid */}
-            </div>
-            <div/>
-
-            <div>
-              <label htmlFor="hs-email-contacts-1" className="sr-only">Email</label>
-              <input type="email" name="hs-email-contacts-1" id="hs-email-contacts-1" autocomplete="email" className="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Email" />
-            </div>
-
-            <div>
-              <label htmlFor="hs-phone-number-1" className="sr-only">Phone Number</label>
-              <input type="text" name="hs-phone-number-1" id="hs-phone-number-1" className="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Phone Number" />
-            </div>
-
-            <div>
-              <label htmlFor="hs-about-contacts-1" className="sr-only">Details</label>
-              <textarea id="hs-about-contacts-1" name="hs-about-contacts-1" rows="4" className="py-2.5 sm:py-3 px-4 block w-full border-gray-200 rounded-lg sm:text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Details"></textarea>
-            </div>
-          </div>
-          {/* End Grid */}
-
-          <div className="mt-4 grid">
-            <button type="submit" className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">Send inquiry</button>
-          </div>
-
-          <div className="mt-3 text-center">
-            <p className="text-sm text-gray-500">
-              We'll get back to you in 1-2 business days.
-            </p>
-          </div>
-        </form>
+    <div className="max-w-7xl mx-auto px-5 py-16 mt-5 lg:py-20">
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-bold text-orange-600">Contact Bake Flavours</h2>
+        <p className="mt-2 text-gray-600">
+          Have a question or feedback? We'd love to hear from you!
+        </p>
       </div>
-      {/* End Card */}
 
-      <div className="divide-y divide-gray-200">
-        {/* Icon Block */}
-        <div className="flex gap-x-7 py-6">
-          <svg className="shrink-0 size-6 mt-1.5 text-gray-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-          <div className="grow">
-            <h3 className="font-semibold text-gray-800">Knowledgebase</h3>
-            <p className="mt-1 text-sm text-gray-500">We're here to help with any questions or code.</p>
-            <a className="mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-hidden focus:text-gray-800" href="#">
-              Contact support
-              <svg className="shrink-0 size-2.5 transition ease-in-out group-hover:translate-x-1 group-focus:translate-x-1" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clip-rule="evenodd" d="M0.975821 6.92249C0.43689 6.92249 -3.50468e-07 7.34222 -3.27835e-07 7.85999C-3.05203e-07 8.37775 0.43689 8.79749 0.975821 8.79749L12.7694 8.79748L7.60447 13.7596C7.22339 14.1257 7.22339 14.7193 7.60447 15.0854C7.98555 15.4515 8.60341 15.4515 8.98449 15.0854L15.6427 8.68862C16.1191 8.23098 16.1191 7.48899 15.6427 7.03134L8.98449 0.634573C8.60341 0.268455 7.98555 0.268456 7.60447 0.634573C7.22339 1.00069 7.22339 1.59428 7.60447 1.9604L12.7694 6.92248L0.975821 6.92249Z" fill="currentColor"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-        {/* End Icon Block */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        {/* Contact Info / Illustration */}
+        <div className="order-2 lg:order-1  text-center lg:text-left">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-2">Visit Us</h3>
+          <p className="text-gray-600 mb-4">
+            123 Sweet Street, Cake City, Delightland 400001
+          </p>
 
-        {/* Icon Block */}
-        <div className="flex gap-x-7 py-6">
-          <svg className="shrink-0 size-6 mt-1.5 text-gray-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg>
-          <div className="grow">
-            <h3 className="font-semibold text-gray-800">FAQ</h3>
-            <p className="mt-1 text-sm text-gray-500">Search our FAQ for answers to anything you might ask.</p>
-            <a className="mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-hidden focus:text-gray-800" href="#">
-              Visit FAQ
-              <svg className="shrink-0 size-2.5 transition ease-in-out group-hover:translate-x-1 group-focus:translate-x-1" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clip-rule="evenodd" d="M0.975821 6.92249C0.43689 6.92249 -3.50468e-07 7.34222 -3.27835e-07 7.85999C-3.05203e-07 8.37775 0.43689 8.79749 0.975821 8.79749L12.7694 8.79748L7.60447 13.7596C7.22339 14.1257 7.22339 14.7193 7.60447 15.0854C7.98555 15.4515 8.60341 15.4515 8.98449 15.0854L15.6427 8.68862C16.1191 8.23098 16.1191 7.48899 15.6427 7.03134L8.98449 0.634573C8.60341 0.268455 7.98555 0.268456 7.60447 0.634573C7.22339 1.00069 7.22339 1.59428 7.60447 1.9604L12.7694 6.92248L0.975821 6.92249Z" fill="currentColor"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-        {/* End Icon Block */}
+          <h3 className="text-2xl font-semibold text-gray-800 mb-2">Call Us</h3>
+          <p className="text-gray-600 mb-4">+91 98765 43210</p>
 
-        {/* Icon Block */}
-        <div className=" flex gap-x-7 py-6">
-          <svg className="shrink-0 size-6 mt-1.5 text-gray-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
-          <div className="grow">
-            <h3 className="font-semibold text-gray-800">Developer APIs</h3>
-            <p className="mt-1 text-sm text-gray-500">Check out our development quickstart guide.</p>
-            <a className="mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-hidden focus:text-gray-800" href="#">
-              Contact sales
-              <svg className="shrink-0 size-2.5 transition ease-in-out group-hover:translate-x-1 group-focus:translate-x-1" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clip-rule="evenodd" d="M0.975821 6.92249C0.43689 6.92249 -3.50468e-07 7.34222 -3.27835e-07 7.85999C-3.05203e-07 8.37775 0.43689 8.79749 0.975821 8.79749L12.7694 8.79748L7.60447 13.7596C7.22339 14.1257 7.22339 14.7193 7.60447 15.0854C7.98555 15.4515 8.60341 15.4515 8.98449 15.0854L15.6427 8.68862C16.1191 8.23098 16.1191 7.48899 15.6427 7.03134L8.98449 0.634573C8.60341 0.268455 7.98555 0.268456 7.60447 0.634573C7.22339 1.00069 7.22339 1.59428 7.60447 1.9604L12.7694 6.92248L0.975821 6.92249Z" fill="currentColor"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-        {/* End Icon Block */}
+          <h3 className="text-2xl font-semibold text-gray-800 mb-2">Email</h3>
+          <p className="text-gray-600 mb-4">support@bakeflavours.com</p>
 
-        {/* Icon Block */}
-        <div className=" flex gap-x-7 py-6">
-          <svg className="shrink-0 size-6 mt-1.5 text-gray-800" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
-          <div className="grow">
-            <h3 className="font-semibold text-gray-800">Contact us by email</h3>
-            <p className="mt-1 text-sm text-gray-500">If you wish to write us an email instead please use</p>
-            <a className="mt-2 inline-flex items-center gap-x-2 text-sm font-medium text-gray-600 hover:text-gray-800 focus:outline-hidden focus:text-gray-800" href="#">
-              example@site.com
-            </a>
-          </div>
+          <Link
+            to="/"
+            className="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-full transition"
+          >
+            Back to Home
+          </Link>
         </div>
-        {/* End Icon Block */}
+        {/* Contact Form */}
+        <div className=" order-1 lg:order-2 bg-white shadow-lg rounded-3xl p-8 border border-orange-100">
+          <h3 className="text-2xl font-semibold text-brown-800 mb-6">Send us a message</h3>
+          <form className="space-y-5">
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1 text-gray-700">Your Name</label>
+              <input
+                type="text"
+                placeholder="Enter your name"
+                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1 text-gray-700">Email Address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1 text-gray-700">Phone Number</label>
+              <input
+                type="tel"
+                placeholder="123-456-7890"
+                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1 text-gray-700">Message</label>
+              <textarea
+                rows="4"
+                placeholder="Write your message here..."
+                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-full transition"
+            >
+              Send Message
+            </button>
+          </form>
+        </div>
+
+        
       </div>
+       <button
+                                onClick={scrollToTop}
+                                className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+                                }`}
+                              >
+                                <FaArrowUp className="w-full h-full text-orange-500" />
+                              </button>
     </div>
-  </div>
-</div>
-{/* End Contact Us */}
-    </>
-  )
-}
+    
+  );
+};
 
-export default ContactUs
+export default ContactUs;
