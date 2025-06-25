@@ -16,13 +16,16 @@ import CategorySelect from "./CategorySelect";
 import WeightVariantSelector from "./WeightVariantSelector";
 import WeightVariantDropdown from "./WeightVariantSelector";
 
+
 const ProductForm = ({ close, isEdit = false, updatedata }) => {
   const usedispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const allProduct = useSelector((state) => state.product.Allproduct);
   const allCategory = useSelector((state) => state.product.allCategory);
 
+
   const [selectedCategory, setSelectedCategory] = useState(false);
+
 
   const [data, setData] = useState({
     _id: isEdit ? updatedata._id : "",
@@ -51,10 +54,11 @@ const ProductForm = ({ close, isEdit = false, updatedata }) => {
   const [fieldName, setFieldName] = useState("");
   const [weightvariant, setNewVariant] = useState();
 
+
   console.log(data);
   const file1 = useRef(null);
   const handleAddWeightVariant = () => {
-    const newWeightVariant = { weight: "", price: "", qty: "", discount: 0 }; 
+    const newWeightVariant = { weight: "", price: "", qty: "", discount: 0 };
     setData((prev) => ({
       ...prev,
       weightVariants: [...prev.weightVariants, newWeightVariant],
@@ -62,14 +66,19 @@ const ProductForm = ({ close, isEdit = false, updatedata }) => {
   };
 
 
+
+
 const handleWeightVariantChange = (index, selectedValue, name) => {
   console.log("Selected weight variant:", selectedValue);
+
 
   // Create a deep copy of the weightVariants array
   const updatedWeightVariants = [...data.weightVariants];
 
+
   // Clone the specific variant object to avoid mutation
   const updatedVariant = { ...updatedWeightVariants[index] };
+
 
   // Update the field safely
   if (
@@ -82,8 +91,10 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     updatedVariant[name] = selectedValue;
   }
 
+
   // Replace the old object with the updated one
   updatedWeightVariants[index] = updatedVariant;
+
 
   // Update the state
   setData((prev) => ({
@@ -91,6 +102,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     weightVariants: updatedWeightVariants,
   }));
 };
+
 
   const addUpload = (e) => {
     console.log("handleUploadImage");
@@ -113,6 +125,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     if (hasDuplicate) {
       alert(`${duplicateName} is already there, please select new images.`);
 
+
       return;
     }
     setData((preve) => {
@@ -126,6 +139,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
       ...allselectedfiles.map((file) => URL.createObjectURL(file)),
     ]);
   };
+
 
   const handleUploadCoverImage = (e) => {
     setCoverImagepreview(URL.createObjectURL(e.target.files[0]));
@@ -147,14 +161,21 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     });
   };
 
+
   const handleEditUpload = async (e) => {
     console.log("Editing Upload...");
 
+
     const files = file1.current.files; // Use file1 for Edit mode
+    console.log("this is files",files);
+
+
     const allSelectedFiles = Array.from(files);
+
 
     const imageNames = data.image.map((image) => image.split("/").pop()); // Extract existing image names
     const newImageNames = newimage.map((file) => file.name); // Names of newly selected images
+
 
     let duplicateName = null;
     const hasDuplicate = allSelectedFiles.some((newFile) => {
@@ -168,23 +189,30 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
       return false;
     });
 
+
     if (hasDuplicate) {
       alert(`${duplicateName} is already there, please select new images.`);
       return;
     }
 
+
     file1.current.value = ""; // Clear input after selecting images
+
 
     const newPreviews = allSelectedFiles.map((file) =>
       URL.createObjectURL(file)
     );
-
+    console.log("this is new previews", newPreviews);
+    console.log("this is all selected files", allSelectedFiles);
     setImagePreview((prev) => [...prev, ...newPreviews]);
+    console.log("this is new image", newimage);
     setNewImage((prev) => [...prev, ...allSelectedFiles]);
+
 
     blobimages.current.push(...newPreviews);
     console.log(blobimages);
   };
+
 
   const handleUploadImage = async (e) => {
     if (isEdit) {
@@ -193,6 +221,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
       addUpload(e);
     }
   };
+
 
   const deletepreviw = async (updatedPreviews) => {
     if (file1.current) {
@@ -216,6 +245,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     }));
   };
 
+
   const handleAddField = () => {
     setData((preve) => {
       return {
@@ -237,6 +267,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     }
   };
 
+
   const handleCategoryChange = (e) => {
     const selectedCategoryId = e.target.value;
     console.log("this is function");
@@ -245,7 +276,9 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
       (c) => c._id === selectedCategoryId
     );
 
+
     console.log("Selected Category:", selectedCategory);
+
 
     // Update the state with the selected category object
     setData((prev) => ({
@@ -255,19 +288,24 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     }));
   };
 
+
   const handleEditProduct = async (e) => {
     e.preventDefault();
+    console.log("this is edit function");
+
 
     console.log("data", data);
     const formData = new FormData();
     formData.append("_id", data._id);
     formData.append("name", data.name);
 
+
     if (data.checkcategory && data.category) {
       formData.append("category", data.category._id); // ✅ Send only the ObjectId
     } else if (data.category?._id) {
       formData.append("category", data.category._id);
     }
+
 
     formData.append("coverimage", data.coverimage);
     // formData.append("discount", data.discount);
@@ -277,18 +315,22 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     formData.append("sku_code", data.sku_code);
     formData.append("shelf_life", data.shelf_life);
 
+
     data.image.forEach((url) => {
       formData.append("existedImage", url);
     });
     // Append files
+    console.log("this is new image", newimage);
     newimage.forEach((file) => {
-      console.log(imagePreview);
+      console.log(file);
       formData.append("image", file); // Field name 'image' must match `upload.array("image")`
     });
     console.log(data);
     console.log(formData);
 
+
     console.log(newimage);
+
 
     try {
       const response = await Axios({
@@ -297,29 +339,33 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+
       const { data: responseData } = response;
       if (responseData.success) {
         console.log(data.category);
+        console.log("response", responseData);
+          const updatedProduct = responseData.responsedata;
 
-        const updatedData = {
-          ...data,
-          // category: data.checkcategory ? { ...data.category } : data.category._id,
-          // category: data.checkcategory ? data.category  : data.category._id, // Ensures a new object reference
-          image:
-            blobimages.current.length > 0
-              ? [...data.image, ...blobimages.current]
-              : data.image,
-          coverimage:
-            data.coverimage instanceof File
-              ? coverimaepreview
-              : data.coverimage,
-        };
-        console.log(updatedData);
 
-        const updatedproducts = allProduct.map((product) =>
-          product._id === updatedData._id ? updatedData : product
-        );
-        console.log("updated products", updatedproducts);
+
+
+        // const updatedData = {
+        //   ...data,
+        //   // category: data.checkcategory ? { ...data.category } : data.category._id,
+        //   // category: data.checkcategory ? data.category  : data.category._id, // Ensures a new object reference
+        //   image: data.image,
+         
+        // };
+        // console.log(updatedData);
+   
+
+
+        console.log("updated products", updatedProduct);
+       
+  const updatedproducts = allProduct.map((product) =>
+    product._id === updatedProduct._id ? updatedProduct : product
+  );
+
 
         usedispatch(setAllProduct([...updatedproducts]));
         console.log(allProduct);
@@ -341,6 +387,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     } catch (error) {
       console.log(error);
 
+
       AxiosToastError(error);
     }
   };
@@ -351,11 +398,14 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     setCoverImagepreview(null);
     setImagePreview([]);
 
+
     const formdata = new FormData();
     formdata.append("name", data.name);
 
+
     // formdata.append("category", data.category)
     formdata.append("category", data.category?._id || data.category); // Ensure `_id` is passed, or fallback to `data.category` if it's already an ID
+
 
     formdata.append("unit", data.unit);
     formdata.append("stock", data.stock);
@@ -367,11 +417,13 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     formdata.append("weightVariants", JSON.stringify(data.weightVariants)); // Append weightVariants
     formdata.append("sku_code", data.sku_code);
     formdata.append("shelf_life", data.shelf_life);
-    
+   
+
 
     for (let i = 0; i < data.image.length; i++) {
       formdata.append("image", data.image[i]);
     }
+
 
     for (const [key, value] of formdata) {
       if (key === "image") {
@@ -381,13 +433,14 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     }
     try {
       console.log("Submitting product data:", formdata);
-      
+     
       const response = await Axios({
         ...SummaryApi.createProduct,
         data: formdata,
         headers: { "Content-Type": "multipart/form-data" },
       });
       const { data: responseData } = response;
+
 
       if (responseData.success) {
         const updatedProduct = {
@@ -397,6 +450,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
         usedispatch(setAllProduct([...allProduct, responseData.data]));
         console.log(responseData.data);
         console.log(allProduct);
+
 
         successAlert(responseData.message);
         // toast.success(responseData.message);
@@ -420,6 +474,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
     }
   };
 
+
   return (
     <section className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 w-full max-w-4xl h-auto max-h-[80vh] overflow-y-auto rounded-lg shadow-lg">
@@ -431,6 +486,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
             <IoClose size={25} />
           </button>
         </div>
+
 
         <div className="grid p-3">
           <form
@@ -461,6 +517,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               />
             </div>
 
+
             {/* Description Section */}
             <div className="grid gap-1">
               <label htmlFor="description" className="font-medium">
@@ -484,6 +541,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               />
             </div>
 
+
             {/* SKU Code Section */}
             <div className="grid gap-1">
               <label htmlFor="sku_code" className="font-medium">
@@ -506,6 +564,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               />
             </div>
 
+
             {/* Shelf Life */}
              <div className="grid gap-1">
               <label htmlFor="shelf_life" className="font-medium">
@@ -527,6 +586,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                 }`}
               />
             </div>
+
 
             {/* Cover Image Section */}
             <div>
@@ -570,6 +630,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                 </div>
               </div>
             </div>
+
 
             {/* Product Image Section */}
             <div>
@@ -644,6 +705,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               </div>
             </div>
 
+
             {/* ========================= */}
             <div>
               {data.weightVariants.map((variant, index) => (
@@ -656,6 +718,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                       index={index}
                     />
                   </div>
+
 
                   {/* Price Field */}
                   <div className="flex-1">
@@ -675,6 +738,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                       className="bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded w-full"
                     />
                   </div>
+
 
                   {/* Quantity Field */}
                   <div className="flex-1">
@@ -697,7 +761,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                       type="number"
                       name="discount"
                       placeholder="Discount"
-                      value={variant.discount } 
+                      value={variant.discount }
                       onChange={(e) =>
                         handleWeightVariantChange(
                           index,
@@ -708,6 +772,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
                       className="bg-blue-50 p-2 outline-none border focus-within:border-primary-200 rounded w-full"
                     />
                   </div>
+
 
                   {/* Remove Button */}
                   <button
@@ -747,6 +812,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               </button>
             </div>
 
+
             {/* Add More Fields Section */}
             {Object?.keys(data?.more_details)?.map((k, index) => (
               <div className="grid gap-1" key={index}>
@@ -773,6 +839,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               </div>
             ))}
 
+
             {user.role !== "Inventory Manager" && (
               <div
                 onClick={() => setOpenAddField(true)}
@@ -782,12 +849,14 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
               </div>
             )}
 
+
             {/* Submit Button */}
             <button className="bg-primary-100 hover:bg-primary-200 py-2 rounded font-semibold">
               Submit
             </button>
           </form>
         </div>
+
 
         {ViewImageURL && (
           <ViewImage url={ViewImageURL} close={() => setViewImageURL("")} />
@@ -805,4 +874,7 @@ const handleWeightVariantChange = (index, selectedValue, name) => {
   );
 };
 
+
 export default ProductForm;
+
+

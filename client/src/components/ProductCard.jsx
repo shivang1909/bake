@@ -22,7 +22,6 @@ const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0
   return (
     <>
       <div
-       
         className={`bg-white md:rounded-[24px] min-h-full border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
       >
         <div className="image-section overflow-hidden pt-4 md:pt-2 p-2">
@@ -51,7 +50,7 @@ const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0
           </Link>
 
           <div className="flex flex-row justify-between items-center gap-1 mt-1">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col py-1 gap-2">
               <div className="flex flex-row gap-1">
                 {renderStars(product.averageRating)}
               </div>

@@ -1,52 +1,3 @@
-// import CategoryModel from "../models/category.model.js";
-// import ProductModel from "../models/product.model.js";
-// import fs from "fs";
-
-// export const AddCategoryController = async (request, response) => {
-//   try {
-//     const { name } = request.body;
-//     const image = `uploads/` + request.file.filename; // Only extract the filename or path
-
-//     console.log("this is image" + request.file);
-
-//     if (!name || !image) {
-//       return response.status(400).json({
-//         message: "Enter required fields",
-//         error: true,
-//         success: false,
-//       });
-//     }
-
-//     const addCategory = new CategoryModel({
-//       name,
-//       image,
-//     });
-
-//     const saveCategory = await addCategory.save();
-
-//     if (!saveCategory) {
-//       return response.status(500).json({
-//         message: "Not Created",
-//         error: true,
-//         success: false,
-//       });
-//     }
-
-//     return response.json({
-//       message: "Add Category",
-//       data: saveCategory,
-//       success: true,
-//       error: false,
-//     });
-//   } catch (error) {
-//     return response.status(500).json({
-//       message: error.message || error,
-//       error: true,
-//       success: false,
-//     });
-//   }
-// };
-
 import CategoryModel from "../models/category.model.js";
 import ProductModel from "../models/product.model.js";
 import sharp from "sharp";
@@ -182,12 +133,6 @@ export const updateCategoryController = async (request, response) => {
 export const deleteCategoryController = async (request, response) => {
   try {
     const { _id, image } = request.body;
-    //Image Delete  Logic
-    console.log("try block");
-    if (fs.existsSync(image)) {
-      console.log(image);
-      fs.unlinkSync(image); // Deletes the image file
-    }
 
     const checkProduct = await ProductModel.find({
       category: {
@@ -202,7 +147,9 @@ export const deleteCategoryController = async (request, response) => {
         success: false,
       });
     }
-
+    if (fs.existsSync(image)) {
+      fs.unlinkSync(image); // Deletes the image file
+    }
     const deleteCategory = await CategoryModel.deleteOne({ _id: _id });
 
     return response.json({
@@ -212,7 +159,6 @@ export const deleteCategoryController = async (request, response) => {
       success: true,
     });
   } catch (error) {
-    console.log(error);
     return response.status(500).json({
       message: error.message || error,
       success: false,

@@ -68,6 +68,13 @@ const AdminMenu = ({ close }) => {
           <>
           <Link
               onClick={handleClose}
+              to="/admin/dashboard/test"
+              className="px-2 hover:bg-orange-200 py-1"
+            >
+              Dashboard
+            </Link>
+          <Link
+              onClick={handleClose}
               to="/admin/dashboard/HeroSection"
               className="px-2 hover:bg-orange-200 py-1"
             >

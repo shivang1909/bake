@@ -220,12 +220,11 @@ const FetchFeaturedProduct = async () => {
           next={FetchFeaturedProduct}
           className="lg:py-3"
         >
-          {console.log(allProduct)}
           <div className={
             isListView
               ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3 px-3"
               :
-            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 justify-center items-center px-3 md:px-5 lg:px-44 lg:gap-10`}>
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 justify-center items-center px-3 md:px-5 lg:px-44 lg:gap-10`}>
             
             {FeaturedProduct.map((product, index) => 
               isListView ? (
@@ -236,7 +235,6 @@ const FetchFeaturedProduct = async () => {
                 />
               ) : (
                 <>
-                 {console.log(allProduct)}
                 <ProductCard
                   product={product}
                   setCartProduct={setCartProduct}

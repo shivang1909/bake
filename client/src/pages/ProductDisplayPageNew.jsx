@@ -273,7 +273,7 @@ const ProductDisplayPageNew = () => {
     }
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e) => {   
     const { left, top, width, height } =
       containerRef.current.getBoundingClientRect();
     const x = e.clientX - left;
@@ -304,7 +304,7 @@ const ProductDisplayPageNew = () => {
                   <img
                     src={data.coverimage}
                     alt="Main"
-                    className="w-full h-full ipadpro:h-[20vh] object-contain rounded-2xl" // match parent rounding
+                    className="w-full h-full ipadpro:h-[20vh] object-cover rounded-2xl" // match parent rounding
                   />
                   {/* Zoom lens */}
                   {zoom && isLargeScreen && (
@@ -347,7 +347,7 @@ const ProductDisplayPageNew = () => {
                       <img
                         src={img}
                         alt={`Thumb ${idx}`}
-                        className="w-16 h-16 object-contain rounded-md"
+                        className="w-16 h-16 object-cover rounded-md"
                       />
                     </button>
                   ))}

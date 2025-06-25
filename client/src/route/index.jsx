@@ -49,6 +49,7 @@ import NotFoundPage from "../components/NotFound";
 import HomepageSectionList from "../components/HomePageSection";
 import WeightVariantManager from "../components/WeightVariant";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ProperDashboard from "../components/ProperDashboard";
 
 const router = createBrowserRouter([
     {
@@ -185,6 +186,14 @@ const router = createBrowserRouter([
                         element: (
                             <ProtectedRoute allowedRoles={["Admin", "Inventory Manager", "Delivery Partner", "Finance Manager"]}>
                                 <Profile />
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "test",
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <ProperDashboard />
                             </ProtectedRoute>
                         )
                     },

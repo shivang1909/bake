@@ -99,8 +99,10 @@ const pathname = window.location.pathname;
 
 
     // ⚡ Trigger loader every time the route changes
-    useEffect(() => {
-        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")) {
+     useEffect(() => {
+        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")
+        || pathname.startsWith("/admin/")
+        ) {
       setIsLoading(false);
       return;
     }
@@ -110,16 +112,15 @@ const pathname = window.location.pathname;
         window.scrollTo(0, 0);
       }, 2000); // ⏳ minimum 2 seconds loader
 
-
       return () => clearTimeout(timer);
     }, [location.pathname]);
 
 
     return (
       <GlobalProvider>
-        {isLoading ? (
+        {/* {isLoading ? (
           <Loader />
-        ) : (
+        ) : ( */}
           <>
             {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
             <main className="bg-white">
@@ -137,7 +138,7 @@ const pathname = window.location.pathname;
             <Toaster />
             {location.pathname !== "/checkout" && <CartMobileLink />}
           </>
-        )}
+        {/* )} */}
       </GlobalProvider>
     );
   }
