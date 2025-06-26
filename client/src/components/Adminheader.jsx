@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import logo from "../assets/logo.png";
-import Search from "./Search";
+import Logo from "../../assets/images/Custom/BakeFlavors.png";import Search from "./Search";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
 import useMobile from "../hooks/useMobile";
@@ -147,14 +146,14 @@ useSSE(eventHandlers);
           <div className="h-full">
             <Link to={"/"} className="h-full flex justify-center items-center">
               <img
-                src={logo}
+                src={Logo}
                 width={170}
                 height={60}
                 alt="logo"
                 className="hidden lg:block"
               />
               <img
-                src={logo}
+                src={Logo}
                 width={120}
                 height={60}
                 alt="logo"

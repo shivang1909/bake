@@ -130,6 +130,7 @@ const WeightVariantDropdown = ({ value, onChange, index }) => {
     <div className="w-full max-w-sm">
       {/* <label className="block mb-1 text-gray-700 font-medium">Weight Variant</label> */}
       <CreatableSelect
+      required
         isClearable
         isDisabled={isLoading}
         isLoading={isLoading}

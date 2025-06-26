@@ -14633,9 +14633,8 @@ li {
 .ec-main-menu ul li.dropdown ul.sub-menu {
   -webkit-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
-  min-width: 215px;
-  margin-top: 15px;
-  padding: 15px 0;
+  min-width: 220px;
+  margin-top: 10px;
   position: absolute;
   text-align: left;
   opacity: 0;
@@ -14646,7 +14645,7 @@ li {
           box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.1);
   display: block;
   z-index: 9;
-  border-radius: 30px;
+  border-radius: 10px;
 }
 .ec-main-menu ul li.dropdown ul.sub-menu .bg {
   width: 100%;
@@ -14659,6 +14658,7 @@ li {
   background-size: 100% 100%;
   background-position: bottom;
   z-index: -1;
+  
 }
 .ec-main-menu ul li.dropdown ul li {
   padding: 0;
@@ -14668,10 +14668,10 @@ li {
 .ec-main-menu ul li.dropdown ul li a {
   display: block;
   line-height: 20px;
-  padding: 8px 20px;
+  padding: 6px 15px;
   font-weight: 400;
   font-size: 14px;
-  color: #777;
+  color: #232323;
   text-transform: capitalize;
   display: -webkit-box;
   display: -ms-flexbox;

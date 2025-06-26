@@ -5,6 +5,9 @@ import genertedRefreshToken from '../utils/generatedRefreshToken.js'
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import AdminModel from '../models/admin.model.js';
+import generatedOtp from '../utils/generatedOtp.js'
+
+import { sendResetOTP } from '../utils/emailService.js'
 
 //login controller
 export async function loginController(request,response){
@@ -74,6 +77,159 @@ export async function loginController(request,response){
     }
 }
 
+export async function adminForgotPasswordController(req, res) {
+  try {
+    
+    const { email } = req.body;
+
+    const admin = await AdminModel.findOne({ email });
+
+    if (!admin) {
+      return res.status(400).json({
+        message: "Admin email not found",
+        error: true,
+        success: false
+      });
+    }
+
+    const otp = generatedOtp();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    await AdminModel.findByIdAndUpdate(admin._id, {
+      otp,
+      otpExpiry: expiry
+    });
+
+    await sendResetOTP(email, otp);
+
+    return res.json({
+      message: "OTP sent to admin email",
+      error: false,
+      success: true
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Internal server error",
+      error: true,
+      success: false
+    });
+  }
+}
+
+
+export async function adminVerifyOtpController(req, res) {
+  try {
+    const { email, otp } = req.body;
+
+    const admin = await AdminModel.findOne({ email });
+
+    if (!admin) {
+      return res.status(400).json({
+        message: "Admin not found",
+        error: true,
+        success: false
+      });
+    }
+
+    if (!admin.otp || !admin.otpExpiry) {
+      return res.status(400).json({
+        message: "No OTP generated. Please request again.",
+        error: true,
+        success: false
+      });
+    }
+
+    if (new Date() > new Date(admin.otpExpiry)) {
+      return res.status(400).json({
+        message: "OTP expired",
+        error: true,
+        success: false
+      });
+    }
+
+    if (admin.otp !== otp) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+        error: true,
+        success: false
+      });
+    }
+
+    // Clear OTP
+    await AdminModel.findByIdAndUpdate(admin._id, {
+      otp: "",
+      otpExpiry: null
+    });
+
+    return res.json({
+      message: "OTP verified successfully",
+      error: false,
+      success: true
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Server error",
+      error: true,
+      success: false
+    });
+  }
+}
+
+export async function adminResetPasswordController(req, res) {
+  try {
+    const { email, password, confirmPassword } = req.body;
+
+    if (!email || !password || !confirmPassword) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        error: true,
+        success: false
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        message: "Passwords do not match",
+        error: true,
+        success: false
+      });
+    }
+
+    const admin = await AdminModel.findOne({ email });
+
+    if (!admin) {
+      return res.status(400).json({
+        message: "Admin not found",
+        error: true,
+        success: false
+      });
+    }
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    await AdminModel.findByIdAndUpdate(admin._id, {
+      password: hashedPassword,
+      isPasswordSet: true
+    });
+
+    return res.json({
+      message: "Password updated successfully",
+      error: false,
+      success: true
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Server error",
+      error: true,
+      success: false
+    });
+  }
+}
+
 
 export const addUser = async (req, res) => {
     const { name, email, mobile, role } = req.body;
@@ -110,7 +266,7 @@ export const addUser = async (req, res) => {
         await transporter.verify();
 
         // Generate the reset link
-        const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/set-admin-password/${newUser._id}`;
+        const resetLink = `${process.env.FRONTEND_URL}/set-admin-password/${newUser._id}`;
 
         // Email options
         const mailOptions = {

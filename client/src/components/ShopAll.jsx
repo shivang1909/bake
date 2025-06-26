@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "react-helmet-async"
 import {
   Dialog,
   DialogBackdrop,
@@ -23,6 +23,7 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import ProductPage from "../pages/ProductPage";
+import "../assets/styles/ProductsLeftBar.css";
 import "../assets/styles/ProductsLeftBar.css";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FaBagShopping } from "react-icons/fa6";
@@ -50,6 +51,7 @@ const ShopAll = () => {
   const [search, setSearch] = useState("");
   const [isDirect, setDirect] = useState(false);
 const [showScrollTop, setShowScrollTop] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
@@ -107,6 +109,9 @@ const [showScrollTop, setShowScrollTop] = useState(false);
   return (
     <div className="bg-white mt-20">
       <Helmet>
+        <title>
+          Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad
+        </title>
         <title>
           Buy Sweets, Cakes & Namkeen Online | Bake Flavours Ahmedabad
         </title>
@@ -456,6 +461,52 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                         </article>
                                       </li>
                                     ))}
+                                    {WeightVarient.map((varient, idx) => (
+                                      <li>
+                                        <article className="checkbox-container flex items-center space-x-1">
+                                          <label className="checkbox">
+                                            <input
+                                              type="checkbox"
+                                              id={`weight-${idx}`}
+                                              checked={selectedWeight.includes(
+                                                varient.weight
+                                              )}
+                                              className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
+                                              onChange={(e) => {
+                                                console.log(
+                                                  "Checkbox changed:",
+                                                  e.target.checked
+                                                );
+                                                e.target.checked
+                                                  ? setSelectedWeight(
+                                                      (prev) => [
+                                                        ...prev,
+                                                        varient.weight,
+                                                      ]
+                                                    )
+                                                  : setSelectedWeight((prev) =>
+                                                      prev.filter(
+                                                        (varientName) =>
+                                                          varientName !==
+                                                          varient.weight
+                                                      )
+                                                    );
+                                                console.log(
+                                                  "Current weight:",
+                                                  selectedWeight
+                                                );
+                                              }}
+                                            />
+                                          </label>
+                                          <label
+                                            htmlFor={`weight-${idx}`}
+                                            className="cursor-pointer"
+                                          >
+                                            {varient.weight}
+                                          </label>
+                                        </article>
+                                      </li>
+                                    ))}
                                   </div>
                                 </DisclosurePanel>
                               </>
@@ -547,6 +598,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                 <ProductPage
                   category={Category}
                   setMobileFiltersOpen={setMobileFiltersOpen}
+                  mobileFiltersOpen = {mobileFiltersOpen}
                   weight={selectedWeight}
                   priceRange={values}
                   maxshelfLife={value}
@@ -563,6 +615,14 @@ const [showScrollTop, setShowScrollTop] = useState(false);
           </section>
         </main>
       </div>
+      <button
+              onClick={scrollToTop}
+              className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
+                showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+              }`}
+            >
+              <FaArrowUp className="w-full h-full text-orange-500" />
+            </button>
       <button
               onClick={scrollToTop}
               className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${

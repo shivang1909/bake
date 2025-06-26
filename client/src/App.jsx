@@ -36,11 +36,11 @@ const pathname = window.location.pathname;
     const excludedRoutesForLoader = [
     "/login", "/register", "/checkout", "/dashboard/checkout", "/forgot-password", "/success"
     ,"/search","/about-us", "/Privacy-Policy", "/Terms-conditions", "/Contact-Us","/dashboard/myorders", "/dashboard/Myprofile",
-    "/dashboard/address","/verification-otp","/reset-password"
+    "/dashboard/address","/verification-otp","/reset-password",
   ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
-      "/verification-otp", "/success" ,"/admin/login"
+      "/verification-otp", "/success" ,"/admin/login","/admin/forgot-password"  ,"/admin/reset-password","/admin/verification-otp"
     ];
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
@@ -99,8 +99,10 @@ const pathname = window.location.pathname;
 
 
     // ⚡ Trigger loader every time the route changes
-    useEffect(() => {
-        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")) {
+     useEffect(() => {
+        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")
+        || pathname.startsWith("/admin/")
+        ) {
       setIsLoading(false);
       return;
     }
@@ -110,19 +112,18 @@ const pathname = window.location.pathname;
         window.scrollTo(0, 0);
       }, 2000); // ⏳ minimum 2 seconds loader
 
-
       return () => clearTimeout(timer);
     }, [location.pathname]);
 
 
     return (
       <GlobalProvider>
-        {isLoading ? (
+        {/* {isLoading ? (
           <Loader />
-        ) : (
+        ) : ( */}
           <>
+            <main className="bg-white w-[100vw]">
             {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
-            <main className="bg-white">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -131,12 +132,13 @@ const pathname = window.location.pathname;
               >
                 <Outlet />
               </motion.div>
+            {!hideLayout && (!user.role || user.role === "USER") && <Footer />}
             </main>
-            {!hideLayout && <Footer />}
+
             <Toaster />
             {location.pathname !== "/checkout" && <CartMobileLink />}
           </>
-        )}
+        {/* )} */}
       </GlobalProvider>
     );
   }

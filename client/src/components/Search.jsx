@@ -10,7 +10,6 @@ const Search = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const [isSearchPage,setIsSearchPage] = useState(false)
-    const [ isMobile ] = useMobile()
     const params = useLocation()
     const searchText = params.search.slice(3)
 
@@ -31,21 +30,13 @@ const Search = () => {
     }
 
   return (
-    <div className='md:w-full [@media(min-height:1366px)]:min-w-[30px]  lg:min-w-[200px] h-11 lg:h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text mt-20 lg:mt-0 mx-5 lg:mx-0'>
+    <div className='xl:min-w-[200px] min-w-[350px] h-12 rounded-full border overflow-hidden flex items-center text-neutral-500 bg-transparent group border-gray-300 focus-within:border-primary-200 cursor-text mt-0 mx-0'>
         <div>
-            {
-                (isMobile && isSearchPage ) ? (
-                    <Link to={"/"} className='flex justify-center items-center h-full p-2 m-1 group-focus-within:text-primary-200 bg-white rounded-full '>
-                        <FaArrowLeft size={18}/>
-                    </Link>
-                ) :(
                     <button className='flex justify-center items-center h-full p-3 group-focus-within:text-primary-200'>
                         <IoSearch size={22}/>
                     </button>
-                )
-            }
         </div>
-        <div className='w-full h-full [@media(min-height:1366px)]:hidden'>
+        <div className='w-full h-full'>
             {
                 !isSearchPage ? (
                      //not in search page

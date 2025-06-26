@@ -1,7 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
-
-
 import Home from "../pages/Home";
 import SearchPage from "../pages/SearchPage";
 import Login from "../pages/Login";
@@ -48,7 +46,10 @@ import ContactUs from "../pages/ContactUs";
 import SignUp from "../pages/SignUp";
 import Terms_Condition from "../pages/Terms_Condition";
 import NotFoundPage from "../components/NotFound";
-
+import HomepageSectionList from "../components/HomePageSection";
+import WeightVariantManager from "../components/WeightVariant";
+import ProtectedRoute from "../components/ProtectedRoute";
+import ProperDashboard from "../components/ProperDashboard";
 
 const router = createBrowserRouter([
     {
@@ -56,39 +57,39 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             {
-                path:"HomeProducts",
+                path: "HomeProducts",
                 element: <HomeProducts />
             },
             {
-                path:"Privacy-Policy",
+                path: "Privacy-Policy",
                 element: <PrivacyPolicy />
             },
             {
-                path:"Terms-conditions",
+                path: "Terms-conditions",
                 element: <Terms_Condition />
             },
             {
-                path:"About-Us",
+                path: "About-Us",
                 element: <AboutUs />
             },
             {
-                path:"Contact-Us",
+                path: "Contact-Us",
                 element: <ContactUs />
             },
             {
-                path:"Category/:Category",
+                path: "Category/:Category",
                 element: <Category />
             },
             {
-                path:"Featured/:Featured",
+                path: "Featured/:Featured",
                 element: <Featured />
             },
             {
-                path:"productpage",
+                path: "productpage",
                 element: <ProductPage />
             },
             {
-                path:"ShopAll",
+                path: "ShopAll",
                 element: <ShopAll />
             },
             {
@@ -108,7 +109,7 @@ const router = createBrowserRouter([
                 element: <Login />
             },
             {
-                path: "auth-success",    
+                path: "auth-success",
                 element: <AuthSuccess />
             },
             {
@@ -128,11 +129,23 @@ const router = createBrowserRouter([
                 element: <ForgotPassword />
             },
             {
+                path: "admin/forgot-password",
+                element: <ForgotPassword />
+            },
+            {
                 path: "verification-otp",
                 element: <OtpVerification />
             },
             {
+                path: "admin/verification-otp",
+                element: <OtpVerification />
+            },
+            {
                 path: "reset-password",
+                element: <ResetPassword />
+            },
+            {
+                path: "admin/reset-password",
                 element: <ResetPassword />
             },
             {
@@ -159,97 +172,175 @@ const router = createBrowserRouter([
                 path: "dashboard/Myprofile",
                 element: <MyProfile />
             },
-             {
-                path: "admin/dashboard",
-                element: <AdminDashboard />
-            },
-           
             {
                 path: "admin/dashboard/",
-                element: <AdminDashboard />,
+                element: (
+                    <ProtectedRoute allowedRoles={["Admin", "Delivery Partner", "Finance Manager", "Inventory Manager"]}>
+                        <AdminDashboard />
+                    </ProtectedRoute>
+                ),
                 children: [
+                    // Admin-only routes
                     {
                         path: "profile",
-                        element: <Profile />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin", "Inventory Manager", "Delivery Partner", "Finance Manager"]}>
+                                <Profile />
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "test",
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <ProperDashboard />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "HeroSection",
-                        element: <HeroSection />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <HeroSection />
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "HomePageSection",
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <HomepageSectionList />
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "weightvariant",
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <WeightVariantManager />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "category",
-                        element: <CategoryPage />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <CategoryPage />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "product",
-                        element: <ProductAdmin />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin", "Inventory Manager"]}>
+                                <ProductAdmin />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "add-admin",
-                        element: <AddAdmin />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <AddAdmin />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "admin-list",
-                        element: <AdminListPage />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <AdminListPage />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "order-list",
-                        element: <OrderListPage />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <OrderListPage />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "order-history",
-                        element: <OrderHistory />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <OrderHistory />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "admin-cod-status",
-                        element: <AdminCodStatus />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <AdminCodStatus />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "my-deliveries",
-                        element: <DeliveriesPage filterDelivered={false} />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Delivery Partner"]}>
+                                <DeliveriesPage filterDelivered={false} />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "delivery-history",
-                        element: <DeliveriesPage filterDelivered={true}/>
+                        element: (
+                            <ProtectedRoute allowedRoles={["Delivery Partner"]}>
+                                <DeliveriesPage filterDelivered={true} />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "delivery-cod-status",
-                        element: <CodStatus />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Delivery Partner"]}>
+                                <CodStatus />
+                            </ProtectedRoute>
+                        )
                     },
                     {
                         path: "admin-promo",
-                        element: <PromoCode />
+                        element: (
+                            <ProtectedRoute allowedRoles={["Admin"]}>
+                                <PromoCode />
+                            </ProtectedRoute>
+                        )
                     },
                 ]
             },
-            // {
-            //     path: "inventory",
-            //     element: <Dashboard />,
-            //     children: [
-            //         {
-            //             path: "profile",
-            //             element: <Profile />
-            //         },
-            //         {
-            //             path: "product",
-            //             element: <ProductAdmin />
-            //         },
-            //     ]
-            // },
-            // {
-            //     path: "deliveries",
-            //     element: <Dashboard />,
-            //     children: [
-            //         {
-            //             path: "profile",
-            //             element: <Profile />
-            //         },
-            //         {
-            //             path: "my-deliveries",
-            //             element: <MyDeliveries />
-            //         },
-            //     ]
-            // },
+
+         
+            // // {
+            // //     path: "inventory",
+            // //     element: <Dashboard />,
+            // //     children: [
+            // //         {
+            // //             path: "profile",
+            // //             element: <Profile />
+            // //         },
+            // //         {
+            // //             path: "product",
+            // //             element: <ProductAdmin />
+            // //         },
+            // //     ]
+            // // },
+            // // {
+            // //     path: "deliveries",
+            // //     element: <Dashboard />,
+            // //     children: [
+            // //         {
+            // //             path: "profile",
+            // //             element: <Profile />
+            // //         },
+            // //         {
+            // //             path: "my-deliveries",
+            // //             element: <MyDeliveries />
+            // //         },
+            // //     ]
+            // // },
             {
                 path: "product/:product",
                 element: <ProductDisplayPageNew />
@@ -258,7 +349,7 @@ const router = createBrowserRouter([
                 path: "productNew",
                 element: <ProductDisplayPageNew />
             },
-            
+
             {
                 path: "success",
                 element: <Success />
@@ -271,7 +362,7 @@ const router = createBrowserRouter([
     },
     {
         path: "*",
-        element: <NotFoundPage/>
+        element: <NotFoundPage />
     }
 
 ]);

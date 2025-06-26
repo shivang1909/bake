@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactSlider from 'react-slider';
 import './ShelfLifeSlider.css'; // Optional styles — no direction flip here
+import { createPortal } from 'react-dom';
 
 const ShelfLifeSlider = ({value,setValue,isDirect,setDirect}) => {
   

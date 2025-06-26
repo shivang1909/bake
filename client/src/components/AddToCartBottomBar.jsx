@@ -22,6 +22,7 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
   const { totalQty, setTotalQty } = useGlobalContext();
   const cartdata = useSelector((state) => state.user.shopping_cart);
   const loadingValue = useSelector((state) => state.loading.loadingValue);
+  const isCartOpen = useSelector ((state)=>state.loading.isCartOpen)
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
   const [isAdded, setCart] = useState(false);
@@ -29,7 +30,8 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
   useEffect(() => {
      if (isVisible) {
        document.body.style.overflow = "hidden";
-     } else {
+     } else if(!isCartOpen) {
+      
        document.body.style.overflow = "auto";
      }
    }, [isVisible]);

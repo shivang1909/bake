@@ -80,11 +80,11 @@ const SearchPage = () => {
 
   return (
     <>
-    <section className="bg-white font-normal ">
-      <span className="block md:hidden">
+    <section className="bg-white font-normal mt-24 xl:mt-8">
+      <span className="flex justify-center items-center xl:hidden">
        <Search/>
       </span>
-      <div className="container mx-auto px-0 py-4 justify-center lg:mt-10">
+      <div className="container mx-auto px-0 py-4 justify-center ">
         {searchText.trim() ? (
           <>
             <p className="font-normal text-center text-lg py-5">

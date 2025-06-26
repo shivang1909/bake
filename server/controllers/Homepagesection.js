@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import HomepageSection from "../models/homepagesection.model.js";
 import ProductModel from "../models/product.model.js";
 import product from "../models/product.model.js";
@@ -25,7 +26,7 @@ const getHomepageSections = async (req, res) => {
       query.populate({
         path: "productIds",
         model: "product", // This explicitly tells Mongoose to use the "Product" model
-        options: { limit: 5 },
+        options: { limit: 8 },
       });
     }
     const sections = await query;
@@ -35,6 +36,7 @@ const getHomepageSections = async (req, res) => {
     res.status(500).json({ message: "Error fetching sections" });
   }
 };
+
 const updatehomepageSection = async (req, res) => {
   try {
     console.log("body", req.body);
@@ -115,7 +117,6 @@ export const getProductByHomePageSection = async (req, res) => {
 
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
-    console.log("this is section id", request.body);
     if (!mongoose.Types.ObjectId.isValid(sectionId)) {
       return res.status(404).json({
         message: "No products found for this section",
@@ -151,7 +152,6 @@ export const getProductByHomePageSection = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const paginatedProductIds = section.productIds.slice(skip, skip + limit);
-    console.log("this is paginatedProductIds", paginatedProductIds);
     const products = await ProductModel.find({
       _id: { $in: paginatedProductIds },
     })
@@ -167,7 +167,7 @@ export const getProductByHomePageSection = async (req, res) => {
       totalNoPage: Math.ceil(totalCount / limit),
       data: products,
     });
-  } catch (error) {
+  } catch (error) {    
     return res.status(500).json({
       message: error.message || error,
       error: true,

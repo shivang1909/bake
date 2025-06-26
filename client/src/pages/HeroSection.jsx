@@ -8,7 +8,7 @@ const HeroSection = () => {
   const [deviceType, setDeviceType] = useState("mobile");
   const [selectedFile, setSelectedFile] = useState(null);
   const [banners, setBanners] = useState({ mobile: [], laptop: [] });
-
+const [previewUrl, setPreviewUrl] = useState(null);
 
   const fetchBanners = async () => {
     try {
@@ -28,15 +28,15 @@ const HeroSection = () => {
     }
   };
 
-
- const handleUpload = async () => {
-  if (!selectedFile) return alert("Select an image");
-
+const handleUpload = async () => {
+  if (!selectedFile) {
+    toast.error("Please select an image to upload.");
+    return;
+  }
 
   const formData = new FormData();
   formData.append("image", selectedFile);
   formData.append("deviceType", deviceType);
-
 
   try {
     await Axios({
@@ -49,13 +49,17 @@ const HeroSection = () => {
       },
     });
 
+    toast.success("Banner uploaded successfully!"); // ✅ Success message
 
-    setSelectedFile(null);
-    fetchBanners();
+    setSelectedFile(null);       // ✅ Clear file state
+    setPreviewUrl(null);         // ✅ Clear preview image
+    fetchBanners();              // ✅ Refresh banner list
   } catch (error) {
     console.error("Upload failed:", error);
+    toast.error("Banner upload failed. Please try again.");
   }
 };
+
 
 
 const handleStatusChange = async (bannerId, currentStatus, device) => {
@@ -75,6 +79,8 @@ const handleStatusChange = async (bannerId, currentStatus, device) => {
 
 
     fetchBanners();
+    setPreviewUrl(null);
+    setSelectedFile(null);
   } catch (error) {
     if (
       error.response &&
@@ -89,10 +95,9 @@ const handleStatusChange = async (bannerId, currentStatus, device) => {
 };
 
 
-
-
 const handleDelete = async (bannerId, device) => {
-
+  const confirmDelete = window.confirm("Are you sure you want to delete this banner?");
+  if (!confirmDelete) return;
 
   try {
     await Axios({
@@ -104,13 +109,13 @@ const handleDelete = async (bannerId, device) => {
       withCredentials: true,
     });
 
-
-    fetchBanners();
+    toast.success("Banner deleted successfully."); // ✅ success feedback
+    fetchBanners(); // ✅ refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
+    toast.error("Failed to delete banner. Please try again."); // ❌ error feedback
   }
 };
-
 
   useEffect(() => {
     fetchBanners();
@@ -135,18 +140,38 @@ const handleDelete = async (bannerId, device) => {
         </select>
 
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setSelectedFile(e.target.files[0])}
-          className="block mb-2"
-        />
-        <button
-          onClick={handleUpload}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Upload Banner
-        </button>
+      <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  }}
+  className="block mb-2"
+/>
+
+{previewUrl && (
+  <div className="mb-4">
+    <p className="text-sm text-gray-600 mb-1">Image Preview:</p>
+    <img
+      src={previewUrl}
+      alt="Preview"
+      className="w-full max-w-xs h-auto border rounded shadow"
+    />
+  </div>
+)}
+
+<button
+  onClick={handleUpload}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Upload Banner
+</button>
+
       </div>
 
 

@@ -49,6 +49,7 @@
     "react-slider": "^2.0.6",
     "react-toastify": "^11.0.5",
     "react-type-animation": "^3.2.0",
+    "recharts": "^3.0.0",
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",
     "sweetalert2": "^11.14.0",

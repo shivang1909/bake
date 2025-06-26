@@ -52,6 +52,8 @@ const DisplayCartItem = ({ close, open }) => {
 
 
 
+
+
   useEffect(() => {
     setActiveTab("cart")
     const stored = localStorage.getItem("lastViewedProducts");
@@ -60,11 +62,11 @@ const DisplayCartItem = ({ close, open }) => {
     } else {
       setRecentlyViewed([]);
     }
-  }, [isCartOpen]);
-
-
-  useEffect(() => {
     if (isCartOpen) {
+          window.scrollBy({
+  top: -500, // scroll up by 100px
+  behavior: 'smooth' // for smooth scrolling
+});
       document.body.style.overflow = "hidden"; // Disable scrolling
     } else {
       document.body.style.overflow = "auto"; // Enable scrolling
@@ -267,7 +269,7 @@ const DisplayCartItem = ({ close, open }) => {
         fixed inset-0 bg-zinc-800/60 z-50 transition-opacity duration-300
         ${
           isCartOpen
-            ? "opacity-100 pointer-events-auto"
+            ? "opacity-0 pointer-events-none"
             : "opacity-0 pointer-events-none"
         }
       `}
@@ -278,7 +280,7 @@ const DisplayCartItem = ({ close, open }) => {
       <div
         className={`
         bg-white w-full  max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out
-        ${isCartOpen ? "translate-x-0" : "translate-x-full"}
+        ${isCartOpen ? "translate-x-full" : "translate-x-full"}
       `}
       >
         {/* Top bar */}
@@ -424,7 +426,7 @@ const DisplayCartItem = ({ close, open }) => {
             {cartItems.length > 0 && (
               <div
                 style={{ boxShadow: "0 -4px 8px rgba(0, 0, 0, 0.1)" }}
-                className={`bg-white p-4 border-t font-normal text-black rounded-[35px]  flex flex-col space-y-4`}
+                className={`bg-white p-4 border-t font-normal text-black rounded-[35px]  flex flex-col `}
               >
                 <h3 className="font-semibold text-lg text-center mb-3">
                   Bill Details
@@ -474,10 +476,10 @@ const DisplayCartItem = ({ close, open }) => {
                 </div>
 
 
-                <div className=" px-2 p-2 bg-white ">
+                <div className=" pt-3 bg-white ">
                   <div
                     onClick={redirectToCheckoutPage}
-                    className="bg-red-600 mt-5 text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer"
+                    className="bg-red-600  text-neutral-100 px-4 font-bold text-base py-3 rounded-full flex items-center justify-between transition-all duration-300 active:scale-95 cursor-pointer"
                   >
                     <div>{DisplayPriceInRupees(totalPrice)}</div>
                     <button

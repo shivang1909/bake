@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import CategoryModel from "../models/category.model.js";
 import { json } from "stream/consumers";
 import HomepageSection from "../models/homepagesection.model.js";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -383,9 +384,11 @@ export const getProductDetails = async (request, response) => {
   }
 };
 
+
 export const updateProductDetails = async (request, response) => {
   try {
     const { _id } = request.body;
+
 
     if (!_id) {
       return response.status(400).json({
@@ -394,6 +397,7 @@ export const updateProductDetails = async (request, response) => {
         success: false,
       });
     }
+
 
     const existingProduct = await ProductModel.findById(_id);
     if (!existingProduct) {
@@ -404,8 +408,10 @@ export const updateProductDetails = async (request, response) => {
       });
     }
 
+
     const imagefullpath = process.env.VITE_API_URL;
     const uploadsDir = 'uploads';
+
 
     const data = {
       name: request.body.name,
@@ -417,9 +423,11 @@ export const updateProductDetails = async (request, response) => {
       shelf_life: request.body.shelf_life,
     };
 
+
     // Handle existed images
     let newimages = [];
     let existedImage = [];
+
 
     if (request.body.existedImage !== undefined) {
       if (Array.isArray(request.body.existedImage)) {
@@ -428,8 +436,9 @@ export const updateProductDetails = async (request, response) => {
         existedImage.push(request.body.existedImage);
       }
     }
-
+    console.log("existedImage", existedImage);
     newimages = [...existedImage];
+
 
     // 🔥 Delete removed images from the server
     const removedImages = existingProduct.image.filter((img) => !existedImage.includes(img));
@@ -440,24 +449,31 @@ export const updateProductDetails = async (request, response) => {
       }
     }
 
+
     // Handle new images
     if (request.files?.image && request.files.image.length > 0) {
       for (let i = 0; i < request.files.image.length; i++) {
         const img = request.files.image[i];
+        console.log("this is img in loop from request.file", img);
         const webpFilename = `${Date.now()}-${i}-product.webp`;
         const webpPath = `${uploadsDir}/${webpFilename}`;
+
 
         await sharp(img.path)
           .webp({ quality: 80 })
           .toFile(webpPath);
 
+
         fs.unlinkSync(img.path); // remove original image
+
 
         newimages.push(`${imagefullpath}/${webpPath}`);
       }
     }
 
+
     data.image = newimages;
+
 
     // Handle cover image
     if (request.files?.coverimage && request.files.coverimage.length > 0) {
@@ -465,11 +481,14 @@ export const updateProductDetails = async (request, response) => {
       const coverWebpFilename = `${Date.now()}-cover.webp`;
       const coverWebpPath = `${uploadsDir}/${coverWebpFilename}`;
 
+
       await sharp(coverImgOriginal.path)
         .webp({ quality: 80 })
         .toFile(coverWebpPath);
 
+
       fs.unlinkSync(coverImgOriginal.path);
+
 
       // Delete old cover image if exists and different
       if (
@@ -482,15 +501,23 @@ export const updateProductDetails = async (request, response) => {
         }
       }
 
+
       data.coverimage = `${imagefullpath}/${coverWebpPath}`;
     }
 
+
+    console.log("Data to update:", data,data.image);
     // Update product
-    const updateProduct = await ProductModel.updateOne({ _id }, data);
+   const updatedProduct = await ProductModel.findOneAndUpdate(
+  { _id },
+  data,
+  { new: true } // <-- this makes it return the updated document
+);
+
 
     return response.json({
       message: "Product updated successfully",
-      data: updateProduct,
+      responsedata:  updatedProduct,
       error: false,
       success: true,
     });
@@ -503,6 +530,128 @@ export const updateProductDetails = async (request, response) => {
     });
   }
 };
+
+
+// export const updateProductDetails = async (request, response) => {
+//   try {
+//     const { _id } = request.body;
+
+//     if (!_id) {
+//       return response.status(400).json({
+//         message: "Provide product _id",
+//         error: true,
+//         success: false,
+//       });
+//     }
+
+//     const existingProduct = await ProductModel.findById(_id);
+//     if (!existingProduct) {
+//       return response.status(404).json({
+//         message: "Product not found",
+//         error: true,
+//         success: false,
+//       });
+//     }
+
+//     const imagefullpath = process.env.VITE_API_URL;
+//     const uploadsDir = 'uploads';
+
+//     const data = {
+//       name: request.body.name,
+//       category: request.body.category,
+//       description: request.body.description,
+//       more_details: JSON.parse(request.body.more_details),
+//       weightVariants: JSON.parse(request.body.weightVariants) || [],
+//       sku_code: request.body.sku_code,
+//       shelf_life: request.body.shelf_life,
+//     };
+
+//     // Handle existed images
+//     let newimages = [];
+//     let existedImage = [];
+
+//     if (request.body.existedImage !== undefined) {
+//       if (Array.isArray(request.body.existedImage)) {
+//         existedImage = request.body.existedImage;
+//       } else {
+//         existedImage.push(request.body.existedImage);
+//       }
+//     }
+
+//     newimages = [...existedImage];
+
+//     // 🔥 Delete removed images from the server
+//     const removedImages = existingProduct.image.filter((img) => !existedImage.includes(img));
+//     for (const imgUrl of removedImages) {
+//       const filePath = imgUrl.replace(`${imagefullpath}/`, '');
+//       if (fs.existsSync(filePath)) {
+//         fs.unlinkSync(filePath);
+//       }
+//     }
+
+//     // Handle new images
+//     if (request.files?.image && request.files.image.length > 0) {
+//       for (let i = 0; i < request.files.image.length; i++) {
+//         const img = request.files.image[i];
+//         const webpFilename = `${Date.now()}-${i}-product.webp`;
+//         const webpPath = `${uploadsDir}/${webpFilename}`;
+
+//         await sharp(img.path)
+//           .webp({ quality: 80 })
+//           .toFile(webpPath);
+
+//         fs.unlinkSync(img.path); // remove original image
+
+//         newimages.push(`${imagefullpath}/${webpPath}`);
+//       }
+//     }
+
+//     data.image = newimages;
+
+//     // Handle cover image
+//     if (request.files?.coverimage && request.files.coverimage.length > 0) {
+//       const coverImgOriginal = request.files.coverimage[0];
+//       const coverWebpFilename = `${Date.now()}-cover.webp`;
+//       const coverWebpPath = `${uploadsDir}/${coverWebpFilename}`;
+
+//       await sharp(coverImgOriginal.path)
+//         .webp({ quality: 80 })
+//         .toFile(coverWebpPath);
+
+//       fs.unlinkSync(coverImgOriginal.path);
+
+//       // Delete old cover image if exists and different
+//       if (
+//         existingProduct.coverimage &&
+//         existingProduct.coverimage !== `${imagefullpath}/${coverWebpPath}`
+//       ) {
+//         const oldCoverPath = existingProduct.coverimage.replace(`${imagefullpath}/`, '');
+//         if (fs.existsSync(oldCoverPath)) {
+//           fs.unlinkSync(oldCoverPath);
+//         }
+//       }
+
+//       data.coverimage = `${imagefullpath}/${coverWebpPath}`;
+//     }
+
+//     // Update product
+//     const updateProduct = await ProductModel.updateOne({ _id }, data);
+
+//     return response.json({
+//       message: "Product updated successfully",
+//       data: updateProduct,
+//       error: false,
+//       success: true,
+//     });
+//   } catch (error) {
+//     console.error("UpdateProduct Error:", error);
+//     return response.status(500).json({
+//       message: error.message || error,
+//       error: true,
+//       success: false,
+//     });
+//   }
+// };
 
 
 //delete product

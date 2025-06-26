@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
-import { useNavigate ,useLocation} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AxiosToastError from "../utils/AxiosToastError";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
@@ -10,11 +10,12 @@ import Logo from "../../assets/images/Custom/BakeFlavors.png";
 
 const ResetPassword = () => {
   const [data, setData] = useState({
-    email : "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
-  const location = useLocation()
+  const location = useLocation();
+  const isAdmin = location.pathname.includes("/admin");
   const [errors, setErrors] = useState({ errormessage: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,33 +33,27 @@ const ResetPassword = () => {
     noSpaces: false,
   });
 
-  const isPasswordValid = Object.values(passwordRules).every(rule => rule === true);
+  const isPasswordValid = Object.values(passwordRules).every(Boolean);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const valideValue = Object.values(data).every((el) => el);
+  const valideValue = Object.values(data).every(Boolean);
 
-    useEffect(()=>{
-    if(!(location?.state?.data?.success)){
-        navigate("/")
-    }
-    console.log("this is email",location.state.email);
-    
-    if(location?.state?.email){
-        setData((preve)=>{
-            return{
-                ...preve,
-                email : location?.state?.email
-            }
-        })
-    }
-  },[])
   useEffect(() => {
-    if (errors.errormessage !== "") {
+    if (!location?.state?.data?.success) {
+      navigate(isAdmin ? "/admin/login" : "/login");
+    }
+
+    if (location?.state?.email) {
+      setData((prev) => ({
+        ...prev,
+        email: location.state.email,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (errors.errormessage) {
       AxiosToastError({
-        response: {
-          data: {
-            message: errors.errormessage,
-          },
-        },
+        response: { data: { message: errors.errormessage } },
       });
     }
   }, [errors]);
@@ -107,24 +102,22 @@ const ResetPassword = () => {
     // Proceed to call API
     console.log("Resetting password...");
 
-     try {
-        console.log("this is datqa",data);
-        
+    try {
       const response = await Axios({
-        ...SummaryApi.resetPassword,
-        data: data,
+        ...(isAdmin ? SummaryApi.admin_resetPassword : SummaryApi.resetPassword),
+        data,
       });
 
       if (response.data.success) {
         toast.success(response.data.message);
-        navigate('/login');
+        navigate(isAdmin ? "/admin/login" : "/login");
         setData({
-          email: '',
-          newPassword: '',
-          confirmPassword: '',
+          email: "",
+          password: "",
+          confirmPassword: "",
         });
       }
-    } catch (error) {        
+    } catch (error) {
       AxiosToastError(error);
     }
   };
