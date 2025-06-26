@@ -95,9 +95,9 @@ const Home = () => {
 
   return (
     <section className="bg-white">
-      <div className="container mx-auto mt-20 lg:mt-24">
+      <div className=" mt-20 lg:mt-24">
         {/* ✅ Desktop Swiper */}
-        <div className="hidden md:block">
+        <div className="hidden md:block ">
           <Swiper
             spaceBetween={30}
             effect="slide"
@@ -113,12 +113,12 @@ const Home = () => {
             {activeLaptopBanners.length > 0 ? (
               activeLaptopBanners.map((banner, index) => (
                 <SwiperSlide key={index}>
-                  <div className="lg:h-fit md:h-[400px] px-2">
+                  <div className="lg:h-fit md:h-auto px-2">
                     <img
                       src={`${import.meta.env.VITE_API_URL}/${banner.imageUrl}`}
                       loading="lazy"
                       alt={`banner-${index}`}
-                      className="w-full h-full object-cover rounded-[30px] border-gray-200 "
+                      className="w-full h-full object-fit rounded-[30px] border-gray-200 "
                       onError={() =>
                         console.error(
                           `❌ Failed to load image for banner ${index}`

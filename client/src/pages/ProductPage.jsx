@@ -317,7 +317,7 @@ const ProductPage = ({
             : ""
         }`}
       >
-        <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
+        <div className="flex flex-col-reverse md:flex-row  justify-between md:gap-3 md:mb-5 md:mx-4">
           {/* apllied filters section start */}
           <div className="flex flex-row gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
             {filter.map((f) => (
@@ -341,7 +341,7 @@ const ProductPage = ({
 
             <div className="filters flex gap-3 w-full justify-between bg-gray-50 border border-gray-200 rounded-[24px] shadow-inner px-3 p-2 md:py-1">
               <div className="flex items-center">
-                <div className="relative inline-block text-left z-50 ">
+                <div className="relative inline-block text-left z-30 ">
                   <button
                     onClick={() => setIsOpen(!isOpen)}
                     className="flex items-center justify-between gap-2 text-sm font-medium text-black hover:text-gray-900 px-1"
@@ -376,7 +376,7 @@ const ProductPage = ({
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="-m-2 ml-1 p-2 text-gray-600 hover:text-gray-500 sm:ml-6 lg:hidden"
+                  className="-m-2 ml-1 p-2 text-gray-600 hover:text-gray-500 sm:ml-6 [@media(min-width:768px)_and_(min-height:1366px)]:block lg:hidden"
                 >
                   <span className="sr-only">Filters</span>
                   <FunnelIcon aria-hidden="true" className="size-5" />
@@ -415,8 +415,8 @@ const ProductPage = ({
             ref={ref}
             className={
               isListView
-                ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3"
-                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 items-center"
+                ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3 px-3"
+                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 items-center px-3"
             }
           >
             {allProduct.map((product) => {
@@ -452,7 +452,7 @@ const ProductPage = ({
                   setCartProduct={setCartProduct}
                   activeIndex={selectedIndex}
                   setActiveVariant={setActiveVariant}
-                  className="md:max-w-[200px] md:min-w-[220px]"
+                  className=" md:min-w-[220px]"
                 />
               );
             })}

@@ -140,7 +140,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
         <Transition show={mobileFiltersOpen} as={Fragment}>
   <Dialog
     as="div"
-    className="relative z-40 lg:hidden"
+    className="relative z-40 [@media(min-width:768px)_and_(min-height:1366px)]:block lg:hidden"
     onClose={setMobileFiltersOpen}
   >
     {/* Backdrop */}
@@ -309,9 +309,9 @@ const [showScrollTop, setShowScrollTop] = useState(false);
 </Transition>
         <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20">
           <section aria-labelledby="products-heading" className="">
-            <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 [@media(min-width:768px)_and_(min-height:1366px)]:grid-cols-3">
               {/* Filters */}
-              <div className="hidden lg:block lg:p-2 xl:p-4">
+              <div className="[@media(min-width:768px)_and_(min-height:1366px)]:hidden hidden lg:block lg:p-2 xl:p-4">
                 <div className="hidden lg:block lg:p-2 xl:p-4 sticky top-20">
                   <div className="h-[85vh] bg-white border border-gray-200 rounded-2xl shadow-md">
                     <div className="text-center bg-zinc-800 text-white p-3 rounded-t-xl">

@@ -84,7 +84,7 @@ const ReviewDisplay = ({ productId }) => {
   return (
     <>
       {/* Main Layout */}
-      <section className="flex flex-col lg:flex-row w-full p-4 gap-4">
+      <section className="flex flex-col lg:flex-row w-full p-4 gap-4 md:max-w-2xl justify-self-center">
         {/* Left Box */}
         <div className="w-full lg:w-1/3 h-fit bg-white p-6 rounded shadow flex flex-col justify-between font-semibold">
           <div>
