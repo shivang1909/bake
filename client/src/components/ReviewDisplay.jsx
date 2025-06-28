@@ -10,6 +10,7 @@ import { ThankYouModal } from "./ThankYouMessage";
 const ReviewDisplay = ({ productId }) => {
   const user = useSelector((state) => state.user);
 
+
   const [ratingstats, setRatingStats] = useState([]);
   const [isopen, setisopen] = useState(false);
   const [allReviews, setAllReviews] = useState([]);
@@ -18,6 +19,7 @@ const ReviewDisplay = ({ productId }) => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
+
 
   const handleAddreview = async () => {
     try {
@@ -59,6 +61,7 @@ const ReviewDisplay = ({ productId }) => {
       console.log("Response from server:", response);
       setAllReviews(response.data.data);
 
+
       setRatingStats(response.data.ratingsStats);
       console.log("Rating stats: res", response.data.ratingsStats);
     } catch (error) {
@@ -71,20 +74,24 @@ const ReviewDisplay = ({ productId }) => {
     fetchallreviews();
   }, [productId]);
 
+
   // Disable page scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "auto";
   }, [isModalOpen]);
+
 
   const handleStarClick = (index) => {
     setRating(index);
     console.log("Rating submitted:", index);
   };
 
+
   return (
     <>
       {/* Main Layout */}
-      <section className="flex flex-col lg:flex-row w-full p-4 gap-4">
+<section className="flex flex-col lg:flex-row w-full p-4 gap-4 md:max-w-2xl lg:max-w-6xl  justify-self-center">
+         {/* <section className="flex flex-col lg:flex-row w-full p-4 gap-4"> */}
         {/* Left Box */}
         <div className="w-full lg:w-1/3 h-fit bg-white p-6 rounded shadow flex flex-col justify-between font-semibold">
           <div>
@@ -92,6 +99,7 @@ const ReviewDisplay = ({ productId }) => {
               Customer Reviews
             </h2>
           </div>
+
 
           <div className="flex-1 flex flex-col justify-center space-y-6">
             <div className="text-center">
@@ -102,10 +110,12 @@ const ReviewDisplay = ({ productId }) => {
               </div>
             </div>
 
+
             <div className="space-y-3">
               <RatingBar ratingstats={ratingstats} />
             </div>
           </div>
+
 
           <div className="pt-6">
             <button
@@ -116,6 +126,7 @@ const ReviewDisplay = ({ productId }) => {
             </button>
           </div>
         </div>
+
 
         {/* Right Testimonials */}
         <div className="w-full lg:w-2/3 bg-white border p-4 rounded-xl overflow-y-auto max-h-[70vh]">
@@ -175,12 +186,14 @@ const ReviewDisplay = ({ productId }) => {
               </h3>
             </div>
 
+
             {/* Body */}
             <div className="p-4 space-y-4 font-semibold">
               <div className="flex items-center justify-center gap-1 text-4xl">
                 {[1, 2, 3, 4, 5].map((index) => {
                   const isRated = rating >= index;
                   const isHovered = hoverRating >= index;
+
 
                   return (
                     <span
@@ -204,6 +217,7 @@ const ReviewDisplay = ({ productId }) => {
                 })}
               </div>
 
+
               <span className="text-xs text-gray-500 float-end">
                 {review.length}/70
               </span>
@@ -225,6 +239,7 @@ const ReviewDisplay = ({ productId }) => {
                 </div>
               </div>
             </div>
+
 
             {/* Footer */}
             <div className="p-4 border-t flex justify-end gap-2 font-semibold">
@@ -248,4 +263,8 @@ const ReviewDisplay = ({ productId }) => {
   );
 };
 
+
 export default ReviewDisplay;
+
+
+

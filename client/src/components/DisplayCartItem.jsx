@@ -63,10 +63,6 @@ const DisplayCartItem = ({ close, open }) => {
       setRecentlyViewed([]);
     }
     if (isCartOpen) {
-          window.scrollBy({
-  top: -500, // scroll up by 100px
-  behavior: 'smooth' // for smooth scrolling
-});
       document.body.style.overflow = "hidden"; // Disable scrolling
     } else {
       document.body.style.overflow = "auto"; // Enable scrolling
@@ -269,7 +265,7 @@ const DisplayCartItem = ({ close, open }) => {
         fixed inset-0 bg-zinc-800/60 z-50 transition-opacity duration-300
         ${
           isCartOpen
-            ? "opacity-0 pointer-events-none"
+            ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }
       `}
@@ -280,7 +276,7 @@ const DisplayCartItem = ({ close, open }) => {
       <div
         className={`
         bg-white w-full  max-w-md h-screen ml-auto fixed top-0 bottom-0 right-0 left-0 z-50 transition-transform duration-300 ease-in-out
-        ${isCartOpen ? "translate-x-full" : "translate-x-full"}
+        ${isCartOpen ? "translate-x-0" : "translate-x-full"}
       `}
       >
         {/* Top bar */}
@@ -500,8 +496,8 @@ const DisplayCartItem = ({ close, open }) => {
           <div className="p-4 flex flex-col overflow-y-auto">
             <p className="font-semibold text-lg mb-4">Recently Viewed</p>
             <div className="divide-y divide-gray-200">
-              {recentlyViewed.map((item) => (
-                <Link to={`/product/${valideURLConvert(item.name)}-${item._id}`}
+              {recentlyViewed.map((item,index) => (
+                <Link key={index} to={`/product/${valideURLConvert(item.name)}-${item._id}`}
                 onClick={close}
                 >
                 <div key={item._id} className="flex gap-4 py-4 items-center">

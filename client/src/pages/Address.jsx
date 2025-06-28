@@ -29,10 +29,10 @@ const Address = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200);
+      setShowScrollTop(document.body.scrollTop > 200);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.body.addEventListener("scroll", handleScroll);
+    return () => document.body.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Address = () => {
   }, [showDeleteMobileModal]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteAddress = async (id) => {

@@ -25,6 +25,7 @@ import shapegrey from "../../assets/images/Custom/shape-grey.png";
 import Breadcrumbs from "../components/Breadcrumbs";
 import ProductDisplaySkeleton from "../components/ProductDisplaySkeleton";
 
+
 const ProductDisplayPageNew = () => {
   const ref = useRef(null);
   const { totalQty, setTotalQty, setIsSearchOpen } = useGlobalContext();
@@ -34,10 +35,13 @@ const ProductDisplayPageNew = () => {
   const user = useSelector((state) => state.user);
   const cartdata = useSelector((state) => state.user.shopping_cart);
 
+
   const navigate = useNavigate();
+
 
   const [quantity, setQuantity] = useState(1);
   const [suggestedproduct, setsuggestproduct] = useState([]);
+
 
   const [data, setData] = useState({
     name: "",
@@ -58,33 +62,45 @@ const ProductDisplayPageNew = () => {
   };
   const [mainImage, setMainImage] = useState(Kajukatri);
 
+
   const [zoom, setZoom] = useState(false);
   const [lensPosition, setLensPosition] = useState({ x: 0, y: 0 });
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+
+useEffect(() => {
+
+        const initialScroll = () =>{
+      document.body.scrollTo({ top: 0});
+    }
+
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    initialScroll();
+
+    document.body.addEventListener("scroll", handleScroll);
+    return () => document.body.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTo({ top: 0, behavior: "smooth" });
   };
+
 
   useEffect(() => {
     const handleResize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
     };
 
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
 
   const containerRef = useRef(null);
   const dispatch = useDispatch();
@@ -94,13 +110,16 @@ const ProductDisplayPageNew = () => {
   useEffect(() => {
     console.log(user.shopping_cart);
 
+
     if (user._id != undefined) {
       console.log("inside if ");
+
 
       setCart(false);
       compareCart(selectedVariant);
     }
   }, [selectedVariant, cartdata]);
+
 
   const fetchproductbycategory = async (categoryId) => {
     console.log("Fetching products by category ID:", categoryId);
@@ -133,7 +152,11 @@ const ProductDisplayPageNew = () => {
       });
 
 
+
+
       const { data: responseData } = response;
+
+
 
 
       if (responseData.success) {
@@ -147,17 +170,25 @@ const ProductDisplayPageNew = () => {
         }));
 
 
+
+
         // ✅ Store to localStorage for Recently Viewed
         const { _id, name, coverimage, weightVariants } = responseData.data;
         const LAST_VIEWED_KEY = "lastViewedProducts";
+
+
 
 
         const stored = localStorage.getItem(LAST_VIEWED_KEY);
         let lastViewed = stored ? JSON.parse(stored) : [];
 
 
+
+
         // Remove if already exists
         lastViewed = lastViewed.filter((p) => p._id !== _id);
+
+
 
 
         // Add to front
@@ -169,10 +200,14 @@ const ProductDisplayPageNew = () => {
         });
 
 
+
+
         // Keep max 5 items
         if (lastViewed.length > 10) {
           lastViewed = lastViewed.slice(0, 10);
         }
+
+
 
 
         localStorage.setItem(LAST_VIEWED_KEY, JSON.stringify(lastViewed));
@@ -191,6 +226,7 @@ const ProductDisplayPageNew = () => {
       AxiosToastError(error);
     }
   };
+
 
   const handleCartOpen = () => {
     console.log("Opening cart from product display page");
@@ -234,6 +270,7 @@ const ProductDisplayPageNew = () => {
       cartQty: 1,
     };
 
+
     console.log(cartdata);
     // Find the product in the cart
     const productIndex = cartdata.findIndex(
@@ -241,6 +278,7 @@ const ProductDisplayPageNew = () => {
     );
     console.log(productIndex);
     let updatedCartData;
+
 
     if (productIndex === -1) {
       // Product does not exist, add it as a new entry with the selected variant
@@ -253,6 +291,7 @@ const ProductDisplayPageNew = () => {
       console.log("new product", updatedCartData);
     } else {
       let existingProduct = { ...cartdata[productIndex] };
+
 
       existingProduct.variants = [...existingProduct.variants, newVariant];
       setCart(true);
@@ -273,7 +312,8 @@ const ProductDisplayPageNew = () => {
     }
   };
 
-  const handleMouseMove = (e) => {   
+
+  const handleMouseMove = (e) => {  
     const { left, top, width, height } =
       containerRef.current.getBoundingClientRect();
     const x = e.clientX - left;
@@ -281,21 +321,22 @@ const ProductDisplayPageNew = () => {
     setLensPosition({ x, y });
   };
 
+
   return (
     <>
       {isLoading ? (
         <ProductDisplaySkeleton />
       ) : (
         <>
-          <div className="mt-10 max-w-7xl mx-auto px-4 py-10 bg-white lg:mt-20">
+          <div className="mt-10   px-4 py-10 bg-white lg:mt-20 md:max-w-2xl lg:max-w-7xl flex flex-col justify-self-center items-center">
             <div className="flex  space-y-2 mb-5">
               <Breadcrumbs />
             </div>
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row gap-6 md:gap-4 xl:gap-12">
               {/* Left: Images */}
-              <div className="w-full lg:w-1/2 h-full [@media(min-height:1366px)]:max-h-[25vh] max-h-[75vh] lg:max-h-[60vh]">
+              <div className="w-full lg:w-1/2    flex flex-col h-full justify-center lg:justify-start ">
                 <div
-                  className="relative h-fit  w-full min-w-fit [@media(min-height:1366px)]:max-h-[25vh] lg:h-[58vh] mb-3 border rounded-2xl overflow-hidden"
+                  className="relative   w-full  h-[50vh] md:h-[35vh] lg:h-[55vh]  2xl:h-[45vh]    border rounded-2xl overflow-hidden"
                   onMouseEnter={() => isLargeScreen && setZoom(true)}
                   onMouseLeave={() => isLargeScreen && setZoom(false)}
                   onMouseMove={handleMouseMove}
@@ -304,7 +345,7 @@ const ProductDisplayPageNew = () => {
                   <img
                     src={data.coverimage}
                     alt="Main"
-                    className="w-full h-full ipadpro:h-[20vh] object-cover rounded-2xl" // match parent rounding
+                    className="w-full h-full object-cover  rounded-2xl" // match parent rounding
                   />
                   {/* Zoom lens */}
                   {zoom && isLargeScreen && (
@@ -330,8 +371,9 @@ const ProductDisplayPageNew = () => {
                   )}
                 </div>
 
+
                 {/* Thumbnails */}
-                <div className="flex space-x-8 overflow-x-auto">
+                <div className="flex space-x-8 overflow-x-auto mt-3">
                   {data.image.map((img, idx) => (
                     <button
                       key={idx}
@@ -354,8 +396,9 @@ const ProductDisplayPageNew = () => {
                 </div>
               </div>
 
+
               {/* Right: Product Info */}
-              <div className="w-full lg:w-1/2 px-3 md:px-0">
+              <div className="w-full lg:w-1/2 px-3 md:px-0  flex flex-col h-full ">
                 <div className="flex justify-between items-start">
                   <div className="">
                     <p className="text-sm text-white bg-orange-500 rounded-md font-bold w-fit px-2 mb-2">
@@ -375,12 +418,24 @@ const ProductDisplayPageNew = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 max-w-md">
-                  <p className="font-medium  text-gray-700 tracking-wider ">
+
+                <div className="mt-4 ">
+                  <p className="font-medium  text-gray-700 tracking-wider text-justify ">
                     {data.description}
                   </p>
+                 
                 </div>
-
+{/* More Details */}
+  {data.more_details && (
+    <div className="mt-4 space-y-2">
+      {Object.entries(data.more_details).map(([label, value]) => (
+        <div key={label}>
+          <span className="font-semibold text-gray-800">{label}</span>
+          <span className="text-gray-600 mt-1 text-justify">{value}</span>
+        </div>
+      ))}
+    </div>
+  )}
                 {/* Price and Rating */}
                 <div className="flex items-center gap-4 mt-5">
                   <p className="text-2xl font-bold text-gray-800">
@@ -396,6 +451,7 @@ const ProductDisplayPageNew = () => {
                     {data.weightVariants[selectedVariant]?.discount}% Off
                   </span>
                 </div>
+
 
                 {/* Size Options */}
                 <div className="mt-5">
@@ -418,6 +474,7 @@ const ProductDisplayPageNew = () => {
                     ))}
                   </div>
                 </div>
+
 
                 <div className="block md:hidden mt-10 max-w-md">
                   {/* <div className="flex gap-3 justify-between ">
@@ -448,6 +505,7 @@ const ProductDisplayPageNew = () => {
                 </div>
               </div> */}
 
+
                   {/* <div className="samplebanner mt-4">
                 <img
                   src={SampleBanner}
@@ -455,6 +513,7 @@ const ProductDisplayPageNew = () => {
                   className="rounded-xl block md:hidden"
                 />
               </div> */}
+
 
                   {/* <ul className="mt-4 grid grid-cols-2 w-full list-disc list-inside text-gray-800 font-semibold space-y-2">
               <li className="flex gap-2 items-center">
@@ -476,6 +535,7 @@ const ProductDisplayPageNew = () => {
             </ul> */}
                 </div>
 
+
                 <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 font-normal">
                   {/* <div className="flex items-center justify-between font-bold border rounded-full w-full md:w-fit px-3 py-2">
                 <button
@@ -492,6 +552,7 @@ const ProductDisplayPageNew = () => {
                   +
                 </button>
               </div> */}
+
 
                   {data.weightVariants[selectedVariant] &&
                   data.weightVariants[selectedVariant].qty > 0 ? (
@@ -522,14 +583,16 @@ const ProductDisplayPageNew = () => {
                   )}
                 </div>
 
+
                 {/* Quantity & Actions */}
               </div>
             </div>
           </div>
 
-          <img src={shapegrey} alt="" className="lg:mt-28  w-full" />
+
+          {/* <img src={shapegrey} alt="" className="lg:mt-28  w-full" /> */}
           <div className="bg-[#FAF7F2] py-10 w-full flex justify-center">
-            <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4">
+            <div className="grid grid-cols-2 md:flex gap-6 justify-between max-w-4xl w-full px-4 md:max-w-2xl">
               {/* Icon 1 */}
               <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                 <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
@@ -541,6 +604,7 @@ const ProductDisplayPageNew = () => {
                 </span>
               </div>
 
+
               {/* Icon 2 */}
               <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                 <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
@@ -551,6 +615,7 @@ const ProductDisplayPageNew = () => {
                 </span>
               </div>
 
+
               {/* Icon 3 */}
               <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
                 <div className="text-orange-600 text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
@@ -560,6 +625,7 @@ const ProductDisplayPageNew = () => {
                   Free <br /> Shipping
                 </span>
               </div>
+
 
               {/* Icon 4 */}
               <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
@@ -573,7 +639,9 @@ const ProductDisplayPageNew = () => {
             </div>
           </div>
 
-          <img src={shapegrey} alt="" className="w-full rotate-180" />
+
+          {/* <img src={shapegrey} alt="" className="w-full rotate-180" /> */}
+
 
           <div className="lg:mt-28 mt-8 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm">
             <div className="flex justify-between items-center pl-5  lg:pl-7 pt-4 mb-2">
@@ -594,6 +662,7 @@ const ProductDisplayPageNew = () => {
               ))}
             </div>
           </div>
+
 
           <div className="lg:mx-20">
             <ReviewDisplay productId={productId} />
@@ -619,4 +688,6 @@ const ProductDisplayPageNew = () => {
   );
 };
 
+
 export default ProductDisplayPageNew;
+

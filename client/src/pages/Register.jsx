@@ -153,9 +153,9 @@ const Register = () => {
     }
   };
   return (
-    <div className="bg-white h-screen md:min-h-screen flex items-center justify-center p-4">
-      <div className="w-full h-screen md:max-h-[90vh] max-w-[1200px] md:border md:border-gray-200 md:shadow-inner bg-white rounded-3xl overflow-hidden  flex flex-col md:flex-row ">
-        <div className="w-full md:w-1/2 relative overflow-hidden">
+    <div className="bg-white min-h-screen  flex items-center justify-center p-4">
+      <div className="w-full h-fit lg:max-h-[90vh] max-w-[1200px] lg:border lg:border-gray-200 lg:shadow-inner bg-white rounded-3xl   flex flex-col lg:flex-row ">
+        <div className="hidden lg:block w-1/2 relative ">
           <a
             href="/"
             className="absolute top-6 right-6 bg-orange-100 text-orange-600 px-2 py-2 rounded-full text-sm hover:bg-orange-200 transition-colors z-10"
@@ -191,8 +191,8 @@ const Register = () => {
         </div>
 
         {/* Right Section */}
-        <div className="md:w-1/2 md:flex md:flex-col md:justify-center">
-          <div className="w-full   px-6 md:px-0 py-4 md:py-2 md:p-12">
+        <div className="lg:w-1/2 w-full    overflow-y-scroll">
+          <div className="w-full flex flex-col items-center   px-6 md:px-0 py-4 md:py-2 md:p-12">
             <div className="sm:block lg:hidden flex items-center justify-center ">
               <Link to="/">
                 <img src={Logo} alt="logo" className="w-44" />

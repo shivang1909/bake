@@ -17,7 +17,7 @@ const Footer = () => {
   ];
   return (
     <>
-    <div className="justify-center items-center flex flex-col ">
+    <div className="justify-center items-center flex flex-col w-[100vw]">
        <div className="marquee">
       <div className="marquee-track">
         {[...items, ...items].map((item, index) => (
@@ -101,16 +101,6 @@ const Footer = () => {
                 <p className="footer-list-item">Shop all</p>
                 </Link>
               </li>
-              <li>
-                <Link to="/Category/Sweets-67ade28fcab3e4e31c09cd0f">
-                <p className="footer-list-item">Categories</p>
-                </Link>
-              </li>
-              <li>
-                <Link to="/Featured/Trending-Section-6842c3985e487e24a4e62882">
-                <p className="footer-list-item">Featured</p>
-                </Link>
-              </li>
             </ul>
 
             <ul className="footer-list lg:ml-12">
@@ -135,7 +125,7 @@ const Footer = () => {
         </div>
 
         <div className="footer-bottom">
-          <div className="container">
+          <div>
             <p className="copyright-text">
               &copy; 2024{" "}
               <a href="#" className="copyright-link">

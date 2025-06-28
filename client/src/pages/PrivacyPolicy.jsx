@@ -5,15 +5,15 @@ const PrivacyPolicy = () => {
      const [showScrollTop, setShowScrollTop] = useState(false);
   useEffect(() => {
         const handleScroll = () => {
-          setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+          setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
         };
     
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        document.body.addEventListener("scroll", handleScroll);
+        return () => document.body.removeEventListener("scroll", handleScroll);
       }, []);
     
       const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        document.body.scrollTo({ top: 0, behavior: "smooth" });
       };
   return (
     <section className="mt-8 lg:mt-20 max-w-4xl mx-auto px-6 py-14 text-base text-gray-800 leading-loose font-sans">

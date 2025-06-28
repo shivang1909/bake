@@ -34,14 +34,14 @@ const MyProfile = () => {
    const [showScrollTop, setShowScrollTop] = useState(false);
   useEffect(() => {
         const handleScroll = () => {
-          setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+          setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
         };
     
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        document.body.addEventListener("scroll", handleScroll);
+        return () => document.body.removeEventListener("scroll", handleScroll);
       }, []);
       const scrollToTop = () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.body.scrollTo({ top: 0, behavior: "smooth" });
     };
   const [userData, setUserData] = useState({
     name: user.name,

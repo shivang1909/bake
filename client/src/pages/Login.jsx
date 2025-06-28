@@ -85,8 +85,8 @@ const Login = () => {
     }
   };
   return (
-    <section className="bg-white md:min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-[280px] md:max-w-[800px] lg:max-w-[400px] bg-white rounded-3xl overflow-hidden mt-20 ">
+    <section className="bg-white min-h-screen flex flex-col items-center justify-center   p-4 ">
+      <div className="w-full max-w-[280px]  md:max-w-[400px] bg-white rounded-3xl overflow-hidden  ">
         <div className="flex items-center justify-center lg:mt-10 xl:mt-0">
          <Link to="/">
          <img src={Logo} alt="logo" className="w-44" />
@@ -104,6 +104,9 @@ const Login = () => {
                 type="email"
                 id="email"
                 name="email"
+                autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                 value={data.email}
                 onChange={handleChange}
                 className="peer w-full bg-transparent outline-none px-3 py-6 text-md rounded-[24px] leading-tight bg-white  border border-2 border-gray-200 focus:shadow-md focus:outline-none focus:ring-1 focus:border-none focus:ring-orange-300"

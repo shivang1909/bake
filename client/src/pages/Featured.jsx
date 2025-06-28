@@ -1,80 +1,98 @@
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { FaShippingFast, FaGlobe, FaLeaf } from "react-icons/fa";
 import { BiTimeFive } from "react-icons/bi";
 import { useNavigate, useParams } from "react-router-dom";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import ProductCard from "../components/ProductCard";
-import ProductLoader from "../components/ProductLoader";
 import AddToCartBottomBar from "../components/AddToCartBottomBar";
 import Breadcrumbs from "../components/Breadcrumbs";
-import { setAllCategory, setAllProduct } from "../store/productSlice";
-import { useDispatch, useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
-import shapegrey from "../../assets/images/Custom/shape-grey.png";
-import { GiDuration, GiIndiaGate } from "react-icons/gi";
+import { GiIndiaGate } from "react-icons/gi";
 import { FaArrowUp, FaTruckFast } from "react-icons/fa6";
 import { IoGrid } from "react-icons/io5";
 import { TfiLayoutListThumbAlt } from "react-icons/tfi";
 import ListProductCardComponent from "../components/ListProductCard";
+import RingLoader from "./RingLoader";
 
-const features = [
-  {
-    icon: <FaShippingFast size={28} />,
-    text: "National Shipping in 5–7 days",
-  },
-  {
-    icon: <BiTimeFive size={28} />,
-    text: "15 Days Shelf Life",
-  },
-  {
-    icon: <FaGlobe size={28} />,
-    text: "International Shipping in 5–7 Days",
-  },
-  {
-    icon: <FaLeaf size={28} />,
-    text: "No Preservatives",
-  },
-];
+
+
 
 const Featured = () => {
       const navigate = useNavigate();
-  
+ 
   const [FeaturedProduct, setFeaturedProduct] = useState([]);
   const [FeaturedId, setFeaturedId] = useState();
   const [cartProduct, setCartProduct] = useState(null);
   const [totalPage, setTotalPage] = useState(null);
    const [isListView, setIsListView] = useState(false);
-    
+   
   const handleCloseBottomBar = () => {
     setCartProduct(null);
   };
+  const ref = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  useEffect(() => {
+
+      const [loading, setLoading] = useState(true);
+      const [minDuration,setMinDuration] = useState(true);
+  const pendingTasks = useRef(0);
+
+
+useEffect(() => {
+
+    const initialScroll = () =>{
+      document.body.scrollTo({ top: 0});
+    }
+
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+     const timeOutId = setTimeout(() => {
+      setMinDuration(false)
+    }, 1000);
+
+    initialScroll();
+
+    document.body.addEventListener("scroll", handleScroll);
+       return () => {
+      document.body.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeOutId);
+    } 
   }, []);
 
+      const registerTask = () => pendingTasks.current++;
+
+      const markDone = () => {
+    pendingTasks.current--;
+    if (pendingTasks.current === 0) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setLoading(false);
+        });
+      });
+    }
+  };
+
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const [page, setPage] = useState(1);
-  const dispatch = useDispatch();
-  const allProduct = useSelector((state) => state.product.Allproduct);
-  const ref = useRef(null);
+
 
   const params = useParams();
   const fullFeaturedParam = params?.Featured || "";
 
+
   const FeaturedNameSlug = fullFeaturedParam.split("-").slice(0, -1).join("-");
 
+
 const FetchFeaturedProduct = async () => {
+    const isFirstLoad = page === 1;
+  if(isFirstLoad)
+    registerTask();
     try
     {
     const response = await Axios({
@@ -99,10 +117,13 @@ const FetchFeaturedProduct = async () => {
           navigate("/NotFound", { replace: true });
       }
       console.log(error);
-
-
+    }finally{
+      if(isFirstLoad)
+        markDone();
     }
   };
+
+
 
 
   useEffect(() => {
@@ -111,10 +132,12 @@ const FetchFeaturedProduct = async () => {
     setFeaturedId(fullFeaturedParam.split("-").slice(-1)[0]);
   }, [fullFeaturedParam]);
 
+
   useEffect(() => {
     if (!FeaturedId) return;
     FetchFeaturedProduct();
   }, [FeaturedId]);
+
 
   const hasmoredata = async () => {
     console.log("Checking if more data is available for page:", page);
@@ -125,9 +148,11 @@ const FetchFeaturedProduct = async () => {
     }
   };
 
+
   return (
     <>
-      <div className=" min-h-screen py-8 mt-20">
+        {(loading||minDuration)&&<RingLoader/>}
+      <div className=" min-h-fit py-8 mt-20">
         <style>
           {`
           @font-face {
@@ -148,15 +173,17 @@ const FetchFeaturedProduct = async () => {
             {/* <span className="text-yellow-600 text-3xl">💮</span> */}
           </span>
 
+
           <p className="flex gap-2 items-center text-gray-700">
             <Breadcrumbs />
           </p>
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
 
+
         {/* <img src={shapegrey} alt="" className="lg:mt-28  w-full" /> */}
         <div className="bg-white py-3 w-full flex justify-center">
-          <div className="flex md:flex-row md:flex gap-6 justify-between  max-w-4xl w-full px-4">
+          <div className="flex md:flex-row md:flex md:max-w-2xl gap-6 justify-between  max-w-4xl w-full px-4">
             {/* Icon 2 */}
             <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
               <div className="text-orange-600 text-4xl md:text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
@@ -167,6 +194,7 @@ const FetchFeaturedProduct = async () => {
               </span>
             </div>
 
+
             {/* Icon 3 */}
             <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
               <div className="text-orange-600 text-4xl md:text-6xl bg-white border border-orange-300 border-dotted px-3 py-3 rounded-full">
@@ -176,6 +204,7 @@ const FetchFeaturedProduct = async () => {
                 Free <br /> Shipping
               </span>
             </div>
+
 
             {/* Icon 4 */}
             <div className="flex flex-col space-y-2 justify-center items-center whitespace-nowrap">
@@ -189,7 +218,8 @@ const FetchFeaturedProduct = async () => {
           </div>
         </div>
 
-             <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between px-3  md:gap-3 md:mb-5 md:mx-4 py-5">
+
+             <div className="lg:hidden sm:block flex flex-col-reverse md:flex-row justify-between px-3 md:gap-3 md:mb-5 md:mx-4 py-5">
                       <div className="filters flex gap-3 w-full justify-between items-center rounded-full bg-gray-50 border border-gray-200  shadow-inner py-3 px-3 p-2 md:py-1">
                         <div>
                           <span className="text-gray-700 text-sm font-semibold">
@@ -213,20 +243,22 @@ const FetchFeaturedProduct = async () => {
                       </div>
                     </div>
 
+
         {/* <img src={shapegrey} alt="" className="w-full rotate-180" /> */}
         <InfiniteScroll
           dataLength={FeaturedProduct.length}
           hasMore={hasmoredata}
           next={FetchFeaturedProduct}
           className="lg:py-3"
+          scrollableTarget="infinitebody"
         >
           <div className={
             isListView
               ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:gap-3 px-3"
               :
-            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 justify-center items-center px-3 md:px-5 lg:px-44 lg:gap-10`}>
-            
-            {FeaturedProduct.map((product, index) => 
+            `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 md:gap-5 justify-center items-center px-3 md:px-5 lg:px-18 [@media(width:1280px)]:px-18 xl:px-44  `}>
+           
+            {FeaturedProduct.map((product, index) =>
               isListView ? (
                 <ListProductCardComponent
                   key={product._id}
@@ -242,6 +274,7 @@ const FetchFeaturedProduct = async () => {
                 />
                 </>
             ))}
+
 
           </div>
         </InfiniteScroll>
@@ -259,11 +292,14 @@ const FetchFeaturedProduct = async () => {
           reference={ref}
           product={cartProduct}
           onClose={handleCloseBottomBar}
-          activeIndex={0}
         />
       )}
     </>
   );
 };
 
+
 export default Featured;
+
+
+

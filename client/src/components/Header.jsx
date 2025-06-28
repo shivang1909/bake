@@ -1,34 +1,22 @@
 import { useState, useRef, useEffect } from "react";
-import logo from "../assets/logo.png";
 import Search from "./Search";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
-import useMobile from "../hooks/useMobile";
 import { BsCart4 } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
-import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
 import UserMenu from "./UserMenu";
-import { DisplayPriceInRupees } from "../utils/DisplayPriceInRupees";
 import { useGlobalContext } from "../provider/GlobalProvider";
 import DisplayCartItem from "./DisplayCartItem";
 import { setIsCartOpen } from "../store/loadingSlice";
 import SummaryApi from "../common/SummaryApi";
 import Axios from "../utils/Axios";
 import Logo from "../../assets/images/Custom/BakeFlavors.png";
-import SampleOffer from "../../assets/images/Custom/bnnerNew.png";
-import "../assets/js/Header.js";
 import { IoLogInOutline } from "react-icons/io5";
-import { CgProfile } from "react-icons/cg";
 import { IoPerson } from "react-icons/io5";
 import { FaCartShopping } from "react-icons/fa6";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { HiOutlineLogout } from "react-icons/hi";
 import { IoIosSearch } from "react-icons/io";
-import SideMenu from "./SideMenu";
-import { BsInstagram } from "react-icons/bs";
-import { FaFacebook } from "react-icons/fa";
-import { FaAmazon } from "react-icons/fa";
-import { SiZomato } from "react-icons/si";
 import { RiCustomerServiceLine } from "react-icons/ri";
 import { logout } from "../store/userSlice";
 import { valideURLConvert } from "../utils/valideURLConvert.js";
@@ -36,37 +24,52 @@ import UserDefault from "../../assets/images/Custom/user.png";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { fetchCartDetails, totalQty, isSearchOpen, setIsSearchOpen } =
+  const { fetchCartDetails, totalQty } =
     useGlobalContext();
-  const [isMobile] = useMobile();
-  // const isCartOpen = useSelector((state) => state.loading.isCartOpen);
   const location = useLocation();
   const isCheckOut = location.pathname === "/dashboard/checkout";
-  const isSearchPage = location.pathname === "/search";
   const navigate = useNavigate();
   const user = useSelector((state) => state?.user);
   const [openUserMenu, setOpenUserMenu] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuState, setMenuState] = useState({
-    categories: false,
-    classic: false,
-    banner: false,
-    account: false,
-    about: false,
-  });
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isFeaturedOpen, setIsFeaturedOpen] = useState(true);
+   const [isCatOpen, setIsCatOpen] = useState(true);
   const [submenuOpen, setSubmenuOpen] = useState(null);
-  const [nestedOpen, setNestedOpen] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  // const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const timeoutRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [Featured, setFeatured] = useState([
     { sectionName: "", sectionId: null },
   ]);
   const [showHeader, setShowHeader] = useState(true);
   const [showMobileHeader, setShowMobileHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const featuredRef = useRef(null);
+  const catRef = useRef(null);
+
+
+  useEffect(() => {
+   const route =  location.pathname.split('/')[1]
+  if(route==="Featured")
+  {
+    setIsFeaturedOpen(false); // Close submenu on route change
+    const handleFeatured = () => {
+      setIsFeaturedOpen(true);
+      featuredRef.current.removeEventListener("mouseenter",handleFeatured);
+    }
+    featuredRef.current.addEventListener("mouseenter",handleFeatured);
+  }
+  else if(route==="Category")
+  {
+    setIsCatOpen(false); // Close submenu on route change
+    const handleCat = () => {
+      setIsCatOpen(true);
+      catRef.current.removeEventListener("mouseenter",handleCat);
+    }
+    catRef.current.addEventListener("mouseenter",handleCat);
+  }
+}, [location.pathname]);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -81,6 +84,41 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
+  const handleScroll = () => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    const currentScrollY = document.body.scrollTop;
+
+
+    if (currentScrollY > 100) {
+      if (currentScrollY > lastScrollYRef.current) {
+        // Scrolling down
+        setShowHeader(false);
+        setShowMobileHeader(false);
+      } else {
+        // Scrolling up
+        setShowHeader(true);
+        setShowMobileHeader(true);
+
+        // Auto-hide after 2 seconds
+        timeoutRef.current = setTimeout(() => {
+          setShowHeader(false);
+          setShowMobileHeader(false);
+        }, 2000);
+      }
+    } else {
+      setShowHeader(true);
+      setShowMobileHeader(true);
+    }
+
+    // Update the last scroll position
+    lastScrollYRef.current = currentScrollY;
+  };
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -91,31 +129,17 @@ const Header = () => {
     // Initial check
     handleResize();
 
+    document.body.addEventListener("scroll", handleScroll);
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      document.body.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
 
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // scrolling down
-        setShowHeader(false);
-        setShowMobileHeader(false);
-      } else {
-        // scrolling up
-        setShowHeader(true);
-        setShowMobileHeader(true);
-      }
 
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
 
   const fetchAllFeatured = async () => {
     try {
@@ -130,9 +154,6 @@ const Header = () => {
     }
   };
 
-  const handleOpenSearch = () => {
-    setIsSearchOpen((prev) => !prev);
-  };
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -173,7 +194,6 @@ const Header = () => {
 
   const toggleSubmenu = (menu) => {
     setSubmenuOpen(submenuOpen === menu ? null : menu);
-    setNestedOpen(null); // reset nested on switch
   };
   useEffect(() => {
     if (isMenuOpen) {
@@ -204,16 +224,7 @@ const Header = () => {
     }
   };
 
-  const toggleNested = (submenu) => {
-    setNestedOpen(nestedOpen === submenu ? null : submenu);
-  };
 
-  const toggleMenu = (key) => {
-    setMenuState((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
 
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
 
@@ -262,354 +273,226 @@ const Header = () => {
   };
   return (
     <>
+          <UserMenu close={handleCloseUserMenu} open={openUserMenu} />
       <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
 
-      <header className="ec-header">
-        <div
-          className={`header-top block lg:hidden text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm top-0 ${
-            showMobileHeader ? "translate-y-0" : "-translate-y-full"
-          }`}
-        >
-          <div className="container">
-            <div className="row align-items-center">
-              <div className="flex flex-row gap-4 items-center ">
-                <a
-                  href="#ec-mobile-menu"
-                  className="ec-header-btn ec-side-toggle block lg:hidden text-xl h-6"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsMenuOpen(true);
-                  }}
+   <header className="fixed top-0 w-full z-40 transition-transform duration-1000">
+      <div
+      className={`block lg:hidden text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm top-0 ${
+        showMobileHeader ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      <div className="max-w-screen-xl mx-auto px-4">
+        <div className="flex flex-row gap-4 items-center justify-between">
+          {/* Menu Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsMenuOpen(true);
+            }}
+            className="text-xl h-6 block lg:hidden"
+          >
+            <i className="fi-rr-menu-burger"></i>
+          </button>
+
+          {/* Logo */}
+          <Link to="/">
+            <img src={Logo} alt="Site Logo" className="w-20 h-auto" />
+          </Link>
+
+          {/* Right Buttons */}
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Search */}
+            <Link to="/search">
+              <span className="text-3xl -mb-1 flex justify-center items-center transition-all duration-300 active:scale-95 cursor-pointer">
+                <IoIosSearch />
+              </span>
+            </Link>
+
+            {/* Auth Buttons */}
+            {user?._id ? (
+              <>
+                {/* Cart Button */}
+                <button
+                  className="relative -mb-1"
+                  onClick={handleOpenCart}
+                  aria-label="Open Cart"
                 >
-                  <i className="fi-rr-menu-burger"></i>
-                </a>
-                <Link to="/">
-                  <img
-                    src={Logo}
-                    alt="Site Logo"
-                    className="mx-auto w-20 h-auto"
-                  />
-                </Link>
-                <div className="col block lg:hidden ">
-                  <div className="ec-header-bottons flex items-center">
-                    <Link to="/search">
-                    <span
-                      className="text-3xl -mb-1 flex justify-center items-center  transition-all duration-300 active:scale-95 cursor-pointer"
-                     
-                    >
-                      
-                        <IoIosSearch />
-                     
+                  <i className="fi-rr-shopping-basket text-xl" />
+                  {totalQty > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      {totalQty}
                     </span>
-                    </Link>
-                    
-                    {user._id ? (
-                      <>
-                        <a
-                          className="ec-header-btn ec-side-toggle -mb-2"
-                          onClick={handleOpenCart}
-                        >
-                          <div className="header-icon">
-                            <i className="fi-rr-shopping-basket"></i>
-                          </div>
-                          {totalQty ? (
-                            <span className="ec-header-count ec-cart-count cart-count-lable">
-                              {totalQty}
-                            </span>
-                          ) : (
-                            ``
-                          )}
-                        </a>
+                  )}
+                </button>
 
-                        <div
-                          className="ec-header-user dropdown"
-                          onClick={() => setOpenUserMenu((prev) => !prev)}
-                        >
-                          {user.avatar ? (
-                            <div className="h-8 w-8 ml-3 mx-2">
-                              <img
-                                src={user.avatar}
-                                className="h-full w-full object-cover border border-gray-300 rounded-full"
-                                alt="user"
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-8 w-8 ml-3 mx-2">
-                              <img
-                                src={UserDefault}
-                                className="h-full w-full border-2 border-gray-300 rounded-full"
-                                alt="user"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={redirectToLoginPage}
-                          className="text-xs px-3 py-1.5 font-bold  rounded-full border border-[#ff7e22]  hover:text-white text-[#ff7e22] flex gap-1 justify-center items-center"
-                        >
-                          Login <IoLogInOutline className="text-lg" />
-                        </button>
-                      </>
-                    )}
-
-                    {/* <a href="wishlist.html" className="ec-header-btn ec-header-wishlist">
-                                <div className="header-icon"><i className="fi-rr-heart"></i></div>
-                                <span className="ec-header-count">4</span>
-                            </a> */}
-                  </div>
+                {/* User Avatar */}
+                <div
+                  className="cursor-pointer"
+                  onClick={() => setOpenUserMenu((prev) => !prev)}
+                >
+                  <img
+                    src={user.avatar || UserDefault}
+                    alt="User"
+                    className="h-8 w-8 object-cover border border-gray-300 rounded-full mx-2"
+                  />
                 </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <button
+                onClick={redirectToLoginPage}
+                className="text-xs px-3 py-1.5 font-bold rounded-full border border-[#ff7e22] hover:bg-[#ff7e22] hover:text-white text-[#ff7e22] flex gap-1 justify-center items-center"
+              >
+                Login <IoLogInOutline className="text-lg" />
+              </button>
+            )}
           </div>
         </div>
+      </div>
+    </div>
 
-        <div
-          className={`ec-header-bottom hidden lg:block bg-white/60 backdrop-blur-xl py-3 shadow-sm z-40 fixed w-full transition-transform duration-1000 top-0 ${
-            showHeader ? "translate-y-0" : "-translate-y-full"
-          }`}
-        >
-          <div className="container position-relative">
-            <div className="row">
-              <div className="ec-flex">
-                <div className="align-self-center flex">
-                  <div className="header-logo">
-                    <a href="/">
-                      <Link to="/">
-                        <img src={Logo} alt="Site Logo" />
-                        <img
-                          className="dark-logo"
-                          src={Logo}
-                          alt={Logo}
-                          style={{ display: "none" }}
-                        />
-                      </Link>
-                    </a>
-                  </div>
-                </div>
-                <div className="align-self-center ">
-                  {/* for desktop */}
+  <div className={`bg-white/60 backdrop-blur-xl hidden lg:block shadow-sm py-3 transition-transform duration-1000 ${showHeader ? "translate-y-0" : "-translate-y-full"} hover:translate-y-0`}>
+          <div className="container mx-auto">
+            <div className="flex items-center justify-between">
+              {/* Logo */}
+              <div className="flex items-center">
+                <Link to="/">
+                  <img src={Logo} alt="Site Logo" className="h-10" />
+                </Link>
+              </div>
 
-                  <div
-                    id="ec-main-menu-desk"
-                    className="hidden lg:block sticky-nav"
-                  >
-                    <div className="container position-relative">
-                      <div className="row">
-                        <div className="align-self-center">
-                          <div className="ec-main-menu">
-                            <ul>
-                              <li>
-                                <Link to="/">
-                                  <a>Home</a>
-                                </Link>
-                              </li>
-                              <li className="dropdown position-static">
-                                <Link to="/ShopAll">
-                                  <a href="javascript:void(0)">Shop All</a>
-                                </Link>
-                              </li>
-                              <li className="dropdown">
-                                <a href="javascript:void(0)">Categories</a>
-                                <ul className="sub-menu">
-                                  {categories.map((cat) => (
-                                    <li key={cat._id}>
-                                      <Link
-                                        to={`/Category/${valideURLConvert(
-                                          cat.name
-                                        )}-${cat._id}`}
-                                      >
-                                        <a>{cat.name}</a>
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </li>
-                              <li className="dropdown">
-                                <a href="javascript:void(0)">Featured</a>
-                                <ul className="sub-menu">
-                                  {Featured.map((featured) => (
-                                    <li key={featured.sectionId}>
-                                      <Link
-                                        to={`/Featured/${valideURLConvert(
-                                          featured.sectionName
-                                        )}-${featured.sectionId}`}
-                                      >
-                                        <a>{featured.sectionName}</a>
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </li>
-                              <li className="dropdown">
-                                <a href="javascript:void(0)">About us</a>
-                                <ul className="sub-menu">
-                                  <li>
-                                    <Link to={'/about-us'}>
-                                     <a > About Us </a>
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link to={'/Contact-Us'}>
-                                     <a> Contact Us</a>
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link to={'/Terms-conditions'}>
-                                     <a> Terms Condition</a>
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link to={'/Privacy-Policy'}>
-                                     <a> Privacy Policy</a>
-                                    </Link>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Main Menu */}
+              <nav className="hidden lg:block">
+                <ul className="flex gap-6 text-sm font-medium">
+                  <li>
+                    <Link to="/" className="hover:text-orange-500">Home</Link>
+                  </li>
+                  <li>
+                    <Link to="/ShopAll" className="hover:text-orange-500">Shop All</Link>
+                  </li>
 
-                <div className="">
-                  <div className="ec-header-bottons">
-                    <div className="mt-1 px-3 overflow-hidden hidden xl:block">
-                      <Search />
-                    </div>
-                     <Link className="mt-1 px-3 hidden lg:flex justify-center items-center xl:hidden" to={"/search"}>
-                                            <IoIosSearch size={25} />
-                      </Link>
-                    <div className="ec-header-user dropdown">
-                      {/* Mobile User Icon */}
-                      <button
-                        className="text-neutral-600 lg:hidden"
-                        onClick={handleMobileUser}
-                      >
-                        <FaRegCircleUser size={26} />
-                      </button>
-
-                      {/* Desktop View */}
-                      <div className="hidden lg:flex z-20 items-center gap-2">
-                        {user?._id && user.role === "USER" && (
-                          <button
-                            onClick={handleOpenCart}
-                            className="flex items-center gap-2 bg-orange-500  px-3 py-2 rounded-full text-white transition-all duration-300 active:scale-95 cursor-pointer hover:bg-orange-600"
-                          >
-                            <div className="animate-bounce">
-                              <BsCart4 size={26} />
-                            </div>
-                            <div className="font-semibold text-sm ">
-                              {totalQty ? (
-                                <p>{totalQty} Items</p>
-                              ) : (
-                                // <p></p>
-                                <>
-                                  <span>Cart</span>
-                                </>
-                              )}
-                            </div>
-                          </button>
-                        )}
-
-                        {/* <span className="bg-[#ff6a00d9] p-2 rounded-full transition-all duration-300 active:scale-95 cursor-pointer ">
-                          <Link to="/search">
-                            <IoIosSearch className="text-2xl text-white" />
+                  <li className="relative group" ref={catRef}>
+                    <span className="cursor-pointer hover:text-orange-500">Categories</span>
+                    {
+                      isCatOpen && 
+                    <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50">
+                      {categories.map((cat,index) => (
+                        <li key={index}>
+                          <Link to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`} className="block px-4 py-2 hover:bg-gray-100">
+                            {cat.name}
                           </Link>
-                        </span> */}
+                        </li>
+                      ))}
+                    </ul>
+                  }
+                  </li>
 
-                        {user?._id ? (
-                          <div className="relative" ref={dropdownRef}>
-                            <button
-                              onClick={toggleDropdown}
-                              className="flex items-center gap-1 text-black hover:bg-gray-200  rounded-full"
-                            >
-                              {user.avatar ? (
-                                <div className="h-10 w-10">
-                                  <img
-                                    src={user.avatar}
-                                    className="h-full w-full object-cover border border-gray-300 rounded-full"
-                                    alt="user"
-                                  />
-                                </div>
-                              ) : (
-                                <img
-                                  src="../../assets/images/Custom/user.png"
-                                  className="h-10 w-10 border border-gray-300 rounded-full"
-                                  alt="user"
-                                />
-                              )}
-                            </button>
+                    <li className="relative group" ref={featuredRef}>
+                    <span className="cursor-pointer hover:text-orange-500">Featured</span>
+                    { isFeaturedOpen && 
+                    <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50">
+                      {Featured.map((item,index) => (
+                        <li key={index}>
+                          <Link to={`/Featured/${valideURLConvert(item.sectionName)}-${item.sectionId}`} className="block px-4 py-2 hover:bg-gray-100">
+                            {item.sectionName}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    }
+                  </li>
 
-                            {isDropdownOpen && (
-                              <ul className="absolute right-0 mt-2 font-semibold bg-white border rounded-md shadow-md w-48 z-50 p-2">
-                                <li>
-                                  <Link to="/dashboard/Myprofile">
-                                    <a
-                                      className=" px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
-                                      onClick={closeDropdown}
-                                    >
-                                      <IoPerson /> Profile
-                                    </a>
-                                  </Link>
-                                </li>
-                                <li>
-                                  <Link to="/dashboard/myorders">
-                                    <a
-                                      className="px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
-                                      onClick={closeDropdown}
-                                    >
-                                      <FaCartShopping />
-                                      My Orders
-                                    </a>
-                                  </Link>
-                                </li>
-                                <li>
-                                  <a
-                                    href="/dashboard/address"
-                                    className="px-4 py-2 hover:bg-gray-100 flex gap-2 items-center rounded-full"
-                                    onClick={closeDropdown}
-                                  >
-                                    <FaMapMarkerAlt />Address
-                                  </a>
-                                </li>
-                                <li>
-                                  <button
-                                    onClick={() => {
-                                      handleLogout();
-                                      closeDropdown();
-                                    }}
-                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 flex gap-2 items-center rounded-full"
-                                  >
-                                    <HiOutlineLogout />
-                                    Logout
-                                  </button>
-                                </li>
-                              </ul>
-                            )}
-                          </div>
-                        ) : (
-                          <button
-                            onClick={redirectToLoginPage}
-                            className="text-lg px-4 py-2 font-bold rounded-full border border-orange-500  hover:bg-orange-50 text-orange-500 active:scale-95 flex gap-1 justify-center items-center"
-                          >
-                            Login <IoLogInOutline className="text-3xl" />
-                          </button>
-                        )}
-                      </div>
 
-                    </div>
+                  <li className="relative group">
+                    <span className="cursor-pointer hover:text-orange-500">About us</span>
+                    <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50">
+                      <li><Link to="/about-us" className="block px-4 py-2 hover:bg-gray-100">About Us</Link></li>
+                      <li><Link to="/Contact-Us" className="block px-4 py-2 hover:bg-gray-100">Contact Us</Link></li>
+                      <li><Link to="/Terms-conditions" className="block px-4 py-2 hover:bg-gray-100">Terms Condition</Link></li>
+                      <li><Link to="/Privacy-Policy" className="block px-4 py-2 hover:bg-gray-100">Privacy Policy</Link></li>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
 
-                  </div>
+              {/* Right side buttons */}
+              <div className="flex items-center gap-3">
+                <div className="hidden xl:block">
+                  <Search />
                 </div>
+
+                <Link to="/search" className="block xl:hidden">
+                  <IoIosSearch size={24} />
+                </Link>
+
+                <button onClick={handleMobileUser} className="text-neutral-600 lg:hidden">
+                  <FaRegCircleUser size={26} />
+                </button>
+
+                {user?._id ? (
+                  <div className="relative hidden lg:block" ref={dropdownRef}>
+                    <button onClick={toggleDropdown} className="flex items-center gap-1">
+                      <img
+                        src={user.avatar || "../../assets/images/Custom/user.png"}
+                        alt="user"
+                        className="h-10 w-10 rounded-full border border-gray-300 object-cover"
+                      />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <ul className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md p-2 z-50">
+                        <li>
+                          <Link to="/dashboard/Myprofile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                            <IoPerson /> Profile
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/dashboard/myorders" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                            <FaCartShopping /> My Orders
+                          </Link>
+                        </li>
+                        <li>
+                          <Link to="/dashboard/address" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                            <FaMapMarkerAlt /> Address
+                          </Link>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => {
+                              handleLogout();
+                              closeDropdown();
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-gray-100 rounded-full w-full text-left"
+                          >
+                            <HiOutlineLogout /> Logout
+                          </button>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <button onClick={redirectToLoginPage} className="text-lg px-4 py-2 font-bold rounded-full border border-orange-500 text-orange-500 hover:bg-orange-50 active:scale-95 flex items-center gap-1">
+                    Login <IoIosSearch className="text-2xl" />
+                  </button>
+                )}
+
+                {user?._id && user.role === "USER" && (
+                  <button
+                    onClick={handleOpenCart}
+                    className="flex items-center gap-2 bg-orange-500 text-white px-3 py-2 rounded-full hover:bg-orange-600 active:scale-95"
+                  >
+                    <BsCart4 size={24} className="animate-bounce" />
+                    <span className="text-sm font-semibold">
+                      {totalQty ? `${totalQty} Items` : "Cart"}
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile Sidebar  Start*/}
 
         {isMenuOpen && (
           <div
@@ -623,333 +506,183 @@ const Header = () => {
           ></div>
         )}
 
-        <div
-          id="ec-mobile-menu"
-          className={`ec-side-cart ec-mobile-menu ${
-            isMenuOpen ? "ec-open" : ""
-          }`}
+         <div
+      className={`fixed top-0 bottom-0 left-0 w-72 max-w-full bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${
+        isMenuOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
+      {/* Menu Title */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <span className="text-lg font-semibold">Explore Flavours</span>
+        <button
+          onClick={() => {
+            setIsMenuOpen(false);
+            setSubmenuOpen(false);
+          }}
+          className="text-2xl font-light"
         >
-          <div className="ec-menu-title">
-            <span className="menu_title">Explore Flavours</span>
-            <button
-              className="ec-close"
+          ×
+        </button>
+      </div>
+
+      {/* Menu Content */}
+      <div className="overflow-y-auto h-[calc(100%-160px)] px-4 py-4">
+        <ul className="flex flex-col space-y-3 font-semibold text-sm">
+          <li>
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/ShopAll" onClick={() => setIsMenuOpen(false)}>
+              Shop Now
+            </Link>
+          </li>
+
+          {/* Categories Dropdown */}
+          <li>
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleSubmenu("categories")}
+            >
+              <span>Categories</span>
+              <span>{submenuOpen === "categories" ? "−" : "+"}</span>
+            </div>
+            <ul
+              className={`mt-2 space-y-2 pl-3 transition-all duration-300 overflow-hidden ${
+                submenuOpen === "categories"
+                  ? "max-h-[200px] overflow-y-auto"
+                  : "max-h-0"
+              }`}
+            >
+              {categories.map((cat,index) => (
+                <li key={index}>
+                  <Link
+                    to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setSubmenuOpen(false);
+                    }}
+                    className="block border-b border-gray-200 hover:text-orange-500"
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+
+          {/* Featured Dropdown */}
+          <li>
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleSubmenu("featured")}
+            >
+              <span>Featured New</span>
+              <span>{submenuOpen === "featured" ? "−" : "+"}</span>
+            </div>
+            <ul
+              className={`mt-2 pl-3 transition-all duration-300 overflow-hidden ${
+                submenuOpen === "featured"
+                  ? "max-h-[200px] overflow-y-auto"
+                  : "max-h-0"
+              }`}
+            >
+              {Featured.map((item, index) => (
+                <li key={index}>
+                  <Link
+                    to={`/Featured/${valideURLConvert(
+                      item.sectionName
+                    )}-${item.sectionId}`}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setSubmenuOpen(false);
+                    }}
+                    className="block hover:text-orange-500"
+                  >
+                    {item.sectionName}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+
+          {/* About Dropdown */}
+          <li>
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleSubmenu("About")}
+            >
+              <span>About</span>
+              <span>{submenuOpen === "About" ? "−" : "+"}</span>
+            </div>
+            <ul
+              className={`mt-2 pl-3 space-y-2 transition-all duration-300 overflow-hidden ${
+                submenuOpen === "About" ? "max-h-[500px]" : "max-h-0"
+              }`}
+            >
+              <li>
+                <Link
+                  to="/about-us"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setSubmenuOpen(false);
+                  }}
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/Privacy-Policy"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setSubmenuOpen(false);
+                  }}
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/Terms-conditions"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setSubmenuOpen(false);
+                  }}
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
+            </ul>
+          </li>
+
+          {/* Contact */}
+          <li>
+            <Link
+              to="/Contact-Us"
               onClick={() => {
                 setIsMenuOpen(false);
                 setSubmenuOpen(false);
               }}
+              className="flex items-center gap-2 hover:text-blue-600"
             >
-              ×
-            </button>
-          </div>
-          <div class="ec-menu-inner">
-            <div class="ec-menu-content">
-              <ul className="flex flex-col space-y-2 text-[15px] tracking-wider gap-2 font-bold ">
-                <Link to="/" onClick={() => setIsMenuOpen(false)}>
-                  <li>
-                    <div className="flex justify-between items-center cursor-pointer">
-                      <span>Home</span>
-                    </div>
-                  </li>
-                </Link>
-                <Link to="/ShopAll" onClick={() => setIsMenuOpen(false)}>
-                  <li>
-                    <div className="flex justify-between items-center cursor-pointer">
-                      <span>Shop Now</span>
-                    </div>
-                  </li>
-                </Link>
-                {/* Categories */}
-                <li className="">
-                  <div
-                    className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleSubmenu("categories")}
-                  >
-                    <span>Categories</span>
-                    <span>{submenuOpen === "categories" ? "−" : "+"}</span>
-                  </div>
+              <RiCustomerServiceLine className="text-lg" /> Contact Us
+            </Link>
+          </li>
+        </ul>
+      </div>
 
-                  {/* Submenu under Categories */}
-                  <ul
-  className={`pl-2 mt-1 overflow-hidden transition-all duration-300 ease-in-out
-    scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100
-    ${submenuOpen === "categories" ? "max-h-[200px] overflow-y-auto" : "max-h-0"}
-  `}
->
-  {categories.map((cat) => (
-    <li key={cat._id} className="mt-2">
-      <Link
-        onClick={() => {
-          setIsMenuOpen(false);
-          setSubmenuOpen(false);
-        }}
-        to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`}
-        className="block border-b border-gray-300 hover:text-orange-500"
-      >
-        {cat.name}
-      </Link>
-    </li>
-  ))}
-</ul>
+    </div>
 
-                </li>
+        {/* Mobile Sidebar  End*/}
 
-                <li>
-                  <div
-                    className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleSubmenu("featured")}
-                  >
-                    <span>Featured New</span>
-                    <span>{submenuOpen === "featured" ? "−" : "+"}</span>
-                  </div>
-
-                  {/* Submenu under Categories */}
-                  <ul
-                    className={`pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "featured"
-                        ? "max-h-[200px] overflow-y-auto"
-                        : "max-h-0"
-                    }`}
-                  >
-                    <div className="flex flex-col gap-2 mt-2 justify-center">
-                      {Featured.map((featured) => (
-                        <li key={featured._id} className="rounded-2xl">
-                          <Link
-                            onClick={() => {
-                              setIsMenuOpen(false);
-                              setSubmenuOpen(false);
-                            }}
-                            to={`/Featured/${valideURLConvert(
-                              featured.sectionName
-                            )}-${featured.sectionId}`}
-                          >
-                            {featured.sectionName}
-                          </Link>
-                        </li>
-                      ))}
-                    </div>
-                  </ul>
-                </li>
-                
-                <li>
-                  <div
-                    className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleSubmenu("About")}
-                  >
-                    <span>About</span>
-                    <span>{submenuOpen === "About" ? "−" : "+"}</span>
-                  </div>
-
-                  {/* Submenu under About */}
-                  <ul
-                    className={`pl-3 mt-1  overflow-hidden transition-all duration-300 ease-in-out ${
-                      submenuOpen === "About" ? "max-h-[500px]" : "max-h-0"
-                    }`}
-                  >
-                    <div className="mt-2 gap-2 flex flex-col">
-                      <li className="p-1 rounded-2xl" onClick={() => {
-                              setIsMenuOpen(false);
-                              setSubmenuOpen(false);
-                            }}>
-                        <Link  to="/about-us">About Us</Link>
-                      </li>
-                      <li className=" p-1  rounded-2xl" onClick={() => {
-                              setIsMenuOpen(false);
-                              setSubmenuOpen(false);
-                            }}>
-                        <Link to="/Privacy-Policy">Privacy Policy</Link>
-                      </li>
-                      <li className=" p-1  rounded-2xl" onClick={() => {
-                              setIsMenuOpen(false);
-                              setSubmenuOpen(false);
-                            }}>
-                        <Link to="/Terms-conditions">Terms & Condition</Link>
-                      </li>
-                    </div>
-                  </ul>
-                  <ul class="sub-menu">
-                    <li>
-                      <a class="p-0" href="shop-left-sidebar-col-3.html">
-                        <img class="img-responsive" src={SampleOffer} alt="" />
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-          </div>
-          {/* Bottom Section: Help Center + Social Icons */}
-          <div className="flex flex-col mt-auto z-50 fixed bottom-5 space-y-4">
-            {/* Help Center */}
-            <div className="border-b pb-3 pt-4 ">
-              <ul className="text-[15px] font-bold">
-                <li className="cursor-pointer hover:text-blue-500 flex items-center gap-2" onClick={() => {
-                              setIsMenuOpen(false);
-                              setSubmenuOpen(false);
-                            }} >
-                <RiCustomerServiceLine className="text-xl"  /> <Link to="/Contact-Us"> Contact Us</Link> 
-                </li>
-              </ul>
-            </div>
-
-            {/* Social Media Icons */}
-            <div className="flex justify-center gap-6">
-              <a
-                href="https://www.instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-pink-500 text-pink-600 hover:text-white transition-colors"
-              >
-                <BsInstagram size={20} />
-              </a>
-              <a
-                href="https://www.facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-orange-600 text-orange-600 hover:text-white transition-colors"
-              >
-                <FaFacebook size={20} />
-              </a>
-              <a
-                href="https://www.amazon.in"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-yellow-500 text-yellow-700 hover:text-white transition-colors"
-              >
-                <FaAmazon size={20} />
-              </a>
-              <a
-                href="https://www.zomato.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-200 p-3 rounded-full hover:bg-red-500 text-red-600 hover:text-white transition-colors"
-              >
-                <SiZomato size={20} />
-              </a>
-            </div>
-          </div>
-        </div>
       </header>
 
-      {/* <header className="h-24 lg:h-20 lg:shadow-md sticky top-0 z-40 flex flex-col justify-center gap-1 bg-white">
-        {!(isSearchPage && isMobile) && (
-          <div className="container mx-auto flex items-center px-2 justify-between">
-            {/**logo */}
-      {/* <div className="h-full">
-              <Link
-                to={"/"}
-                className="h-full flex justify-center items-center"
-              >
-                <img
-                  src={logo}
-                  width={170}
-                  height={60}
-                  alt="logo"
-                  className="hidden lg:block"
-                />
-                <img
-                  src={logo}
-                  width={120}
-                  height={60}
-                  alt="logo"
-                  className="lg:hidden"
-                />
-              </Link>
-            </div> */}
 
-      {/**Search */}
-      {/* <div className="hidden lg:block">
-              <Search />
-            </div> */}
-
-      {/**login and my cart */}
-      {/* <div className=""> */}
-      {/**user icons display in only mobile version**/}
-      {/* <button
-                className="text-neutral-600 lg:hidden"
-                onClick={handleMobileUser}
-              >
-                <FaRegCircleUser size={26} />
-              </button> */}
-
-      {/**Desktop**/}
-      {/* <div className="hidden lg:flex  items-center gap-10">
-                {user?._id ? (
-                  <div className="relative">
-                    <div
-                      onClick={() => setOpenUserMenu((preve) => !preve)}
-                      className="flex select-none items-center gap-1 cursor-pointer"
-                    >
-                      <p>Account</p>
-                      {openUserMenu ? (
-                        <GoTriangleUp size={25} />
-                      ) : (
-                        <GoTriangleDown size={25} />
-                      )}
-                    </div>
-                    {openUserMenu && (
-                      <div className="absolute right-0 top-12">
-                      <div className="bg-white rounded p-4 min-w-52 lg:shadow-lg">
-                      <UserMenu close={handleCloseUserMenu} />
-                      </div>
-                      </div>
-                      )}
-                  </div> */}
-      {/* ) : (
-                  <>
-                    <button
-                      onClick={redirectToAdminLoginPage}
-                      className="text-lg px-2"
-                    >
-                      Admin Login
-                    </button>
-                    <button
-                      onClick={redirectToLoginPage}
-                      className="text-lg px-2"
-                    >
-                      Login
-                    </button>
-                  </>
-                )}
-                {
-                  
-                  user?._id && user.role === "USER" && (
-                    <button
-                      onClick={handleOpenCart}
-                      className="flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white"
-                    > */}
-      {/** Add to cart icon */}
-      {/* <div className="animate-bounce">
-                        <BsCart4 size={26} />
-                      </div>
-                      <div className="font-semibold text-sm">
-                      {totalQty ? (
-                        <div>
-                            <p>{totalQty} Items</p>
-                          </div>
-                        ) : (
-                          <p>My Cart</p>
-                        )}
-                      </div>
-                    </button> */}
-      {/* )
-                }
-              </div>
-            </div> 
-          </div>
-        )} */}
-
-      {/* <div className="container mx-auto px-2 lg:hidden">
-          <Search />
-        </div> */}
-      {/* 
-        {isCartOpen && (
-          <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
-        )}
-      </header> */}
-
-      <UserMenu close={handleCloseUserMenu} open={openUserMenu} />
     </>
   );
 };
+
 
 export default Header;

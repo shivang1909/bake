@@ -1,9 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
 import { GoChevronRight } from "react-icons/go";
-import Search from "./Search";
-
-import React from "react";
 
 const Breadcrumbs = () => {
   const location = useLocation();
@@ -35,7 +32,8 @@ const Breadcrumbs = () => {
                   </>
                 ) : (
                   <span className={` capitalize ${isLast?"font-semibold text-black":"hover:underline"}`}>
-                      {decodeURIComponent(name).split("-")[0]}
+  {decodeURIComponent(name).split("-").filter(word => /^[A-Za-z]+$/.test(word)).join(" ")}
+
                     
                   </span>
                 )}

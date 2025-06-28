@@ -1,26 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Helmet } from "react-helmet-async"
 import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-  Transition
 } from "@headlessui/react";
-import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
-  ChevronDownIcon,
-  FunnelIcon,
   MinusIcon,
   PlusIcon,
-  Squares2X2Icon,
 } from "@heroicons/react/20/solid";
 import ProductPage from "../pages/ProductPage";
 import "../assets/styles/ProductsLeftBar.css";
@@ -28,7 +16,7 @@ import "../assets/styles/ProductsLeftBar.css";
 import { AiOutlineProduct } from "react-icons/ai";
 import { FaBagShopping } from "react-icons/fa6";
 import { FaHeartCircleCheck } from "react-icons/fa6";
-import { FaArrowUp, FaChevronRight } from "react-icons/fa";
+import { FaArrowUp } from "react-icons/fa";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import { setAllCategory, setAllProduct } from "../store/productSlice";
@@ -36,14 +24,15 @@ import { useDispatch, useSelector } from "react-redux";
 import RangeSlider from "./RangeSlider";
 import ShelfLifeSlider from "./ShelfLifeSlider";
 import Breadcrumbs from "./Breadcrumbs";
+import RingLoader from "../pages/RingLoader";
 
 
 const ShopAll = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [minDuration,setMinDuration] = useState(true);
   const allCatagory = useSelector((state) => state.product.allCategory);
   const [Category, setCategory] = useState([]);
   const dispatch = useDispatch();
-  const allProduct = useSelector((state) => state.product.Allproduct);
   const [WeightVarient, setWeightVarient] = useState([]);
   const [selectedWeight, setSelectedWeight] = useState([]);
   const [values, setValues] = useState([10, 1000]);
@@ -51,18 +40,48 @@ const ShopAll = () => {
   const [search, setSearch] = useState("");
   const [isDirect, setDirect] = useState(false);
 const [showScrollTop, setShowScrollTop] = useState(false);
+    const [loading, setLoading] = useState(true);
+  const pendingTasks = useRef(0);
+
+      const registerTask = () => pendingTasks.current++;
+
+      const markDone = () => {
+    pendingTasks.current--;
+    if (pendingTasks.current === 0) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setLoading(false);
+        });
+      });
+    }
+  };
 
   useEffect(() => {
+
+        const initialScroll = () =>{
+      document.body.scrollTo({ top: 0});
+    }
+
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200); // show button after 200px scroll
+      console.log(document.body.scrollTop)
+      setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const timeOutId = setTimeout(() => {
+      setMinDuration(false)
+    }, 1000);
+
+    initialScroll();
+
+    document.body.addEventListener("scroll", handleScroll);
+    return () => {
+      document.body.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeOutId);
+    } 
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.body.scrollTo({ top: 0, behavior: "smooth" });
   };
   const filters = [
     { id: "Varients", name: "Varients", icon: <FaBagShopping /> },
@@ -71,6 +90,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
   ];
 
   const fetchCategory = async () => {
+    registerTask();
     try {
       dispatch(setAllCategory([]));
       const response = await Axios(SummaryApi.getCategory);
@@ -81,6 +101,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
   };
 
   const fetchWeightVarient = async () => {
+    registerTask();
     try {
       console.log("URL I'm passing:", SummaryApi.getallWeightVariant); // 👀 Check it
       const response = await Axios.get(SummaryApi.getallWeightVariant.url);
@@ -89,7 +110,14 @@ const [showScrollTop, setShowScrollTop] = useState(false);
     } catch (err) {
       console.log("Error fetching weight variant:", err);
     }
+    markDone();
   };
+
+    useEffect(() => {
+    if (allCatagory.length > 0) {
+      markDone();
+    }
+  }, [allCatagory]);
 
   useEffect(() => {
     fetchCategory();
@@ -107,6 +135,8 @@ const [showScrollTop, setShowScrollTop] = useState(false);
       const handleClose = () => setMobileFiltersOpen(false);
 
   return (
+    <>
+    {(loading||minDuration) && <RingLoader/>}
     <div className="bg-white mt-20">
       <Helmet>
         <title>
@@ -323,9 +353,9 @@ const [showScrollTop, setShowScrollTop] = useState(false);
       </div>
         <main className="mx-auto max-w-[100%]  lg:px-8 xl:px-10 [@media(min-width:1600px)]:px-20 ">
           <section aria-labelledby="products-heading" className="">
-            <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 ">
+                       <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4 [@media(min-width:768px)_and_(min-height:1366px)]:grid-cols-3">
               {/* Filters */}
-              <div className="hidden lg:block lg:p-2 xl:p-4">
+                   <div className="[@media(min-width:768px)_and_(min-height:1366px)]:hidden hidden lg:block lg:p-2 xl:p-4">
                 <div className="hidden lg:block lg:p-2 xl:p-4 sticky top-0">
                   <div className="h-[95vh] bg-white border border-gray-200 rounded-2xl shadow-md">
                     <div className="text-center bg-zinc-800 text-white p-3 rounded-t-xl">
@@ -609,6 +639,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                   setCategory={setCategory}
                   setWeight={setSelectedWeight}
                   setDirect={setDirect}
+                  onRegister={registerTask} onDone={markDone} 
                 />
               </div>
             </div>
@@ -623,15 +654,8 @@ const [showScrollTop, setShowScrollTop] = useState(false);
             >
               <FaArrowUp className="w-full h-full text-orange-500" />
             </button>
-      <button
-              onClick={scrollToTop}
-              className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
-                showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
-              }`}
-            >
-              <FaArrowUp className="w-full h-full text-orange-500" />
-            </button>
     </div>
+    </>
   );
 };
 

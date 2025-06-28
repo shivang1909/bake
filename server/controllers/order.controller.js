@@ -981,7 +981,7 @@ export const updateOrderStatusController = async (request, response) => {
 
     // ✅ Check if order can be marked as Delivered
     if (status === "Delivered" && order.orderStatus !== "Delivered") {
-        return response.status(400).json({
+        return response.status(200).json({
           message:
             "Enter otp to mark order as Delivered.",
           error: true,

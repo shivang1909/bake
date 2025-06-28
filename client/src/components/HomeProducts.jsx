@@ -1,38 +1,24 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
-import { TbShoppingBagPlus } from "react-icons/tb";
+import React,{ useEffect, useRef, useState } from "react";
 import AddToCartBottomBar from "./AddToCartBottomBar";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
-import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import throttle from "lodash.throttle";
 import ProductCard from "./ProductCard";
-import { setAllProduct } from "../store/productSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { setDataLoading } from "../store/loadingSlice";
-import { RxCornerTopLeft } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import { valideURLConvert } from "../utils/valideURLConvert";
 
 const HomeProducts = () => {
   const [cartProduct, setCartProduct] = useState(null);
   const [sections, setsections] = useState([]);
-  // const [sections, setSections] = useState([]);
   useEffect(() => {
-    console.log("fetch called");
     fetchProducts();
     
   }, []);
-  const dispatch = useDispatch();
-  const allProduct = useSelector((state) => state.product.Allproduct);
-  console.log(allProduct);
 
   const fetchProducts = async () => {
     const response = await Axios({ ...SummaryApi.getHomepageSections });
     setsections(response.data);
-    console.log(response.data);
-    // setSections(response.data);
   };
 
 
@@ -74,9 +60,9 @@ const HomeProducts = () => {
   return (
     <>
       {
-        sections.map((section, index) => (
+        sections.map((section,index) => (
           <div
-            key={index}
+            key={section._id}
             className="mt-5 ml-5 md:mx-10 lg:mx-20 xl:mx-32 2xl:mx-40 bg-gray-50 rounded-l-[20px] lg:rounded-[20px] shadow-sm"
           >
             <div className="flex justify-between items-center pl-5 lg:pl-7 pt-4 mb-2">
@@ -99,17 +85,13 @@ const HomeProducts = () => {
               className="flex gap-4 overflow-x-auto px-5 pb-4 cursor-grab active:cursor-grabbing select-none"
             >
              
-              {section.productIds.map((product) => (
-                <>
-                {console.log("Cat is here in Home :)")}
-                {console.log(product)}
-               
+              {section.productIds.map((product,productIndex) => (
                 <ProductCard
+                key={"s"+index+"p"+productIndex}
                   product={product}
                   setCartProduct={setCartProduct}
                    className="rounded-[15px] min-w-[200px] max-w-[200px] md:min-w-[220px]"
                 />
-                </>
               ))}
             </div>
           </div>

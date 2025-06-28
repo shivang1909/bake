@@ -11,17 +11,9 @@
   import { useDispatch, useSelector } from 'react-redux';
   import Axios from './utils/Axios';
   import { setDataLoading } from './store/loadingSlice';
-  import { AnimatePresence, motion } from 'framer-motion'
-  import Loader from './pages/Loader.jsx'
   import SummaryApi from './common/SummaryApi';
   import GlobalProvider from './provider/GlobalProvider';
-  import { FaCartShopping } from "react-icons/fa6";
-  import CartMobileLink from './components/CartMobile';
-  import ProductPage from './pages/ProductPage';
-  import BottomToolBar from './components/BottomToolBar.jsx'
-  import SignUp from './pages/SignUp.jsx';
-  import Login from './pages/Login.jsx';
-  import checkout from './pages/CheckoutPage.jsx';
+  import CartMobileLink from './components/CartMobile';;
 import AdminHeader from './components/AdminHeader.jsx'
 
   function App() {
@@ -29,6 +21,19 @@ import AdminHeader from './components/AdminHeader.jsx'
     const location = useLocation();
     const navigate = useNavigate();
     const user = useSelector((state) => state.user);
+
+useEffect(() => {
+  const handleScroll = () => {
+    console.trace("Body scrolled");
+  };
+
+  document.body.addEventListener("scroll", handleScroll);
+
+  return () => {
+    document.body.removeEventListener("scroll", handleScroll);
+  };
+}, []);
+
     
 
 const pathname = window.location.pathname;
@@ -98,22 +103,6 @@ const pathname = window.location.pathname;
     },[user])
 
 
-    // ⚡ Trigger loader every time the route changes
-     useEffect(() => {
-        if (excludedRoutesForLoader.includes(location.pathname) || pathname.startsWith("/product/")
-        || pathname.startsWith("/admin/")
-        ) {
-      setIsLoading(false);
-      return;
-    }
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-        window.scrollTo(0, 0);
-      }, 2000); // ⏳ minimum 2 seconds loader
-
-      return () => clearTimeout(timer);
-    }, [location.pathname]);
 
 
     return (
@@ -122,18 +111,11 @@ const pathname = window.location.pathname;
           <Loader />
         ) : ( */}
           <>
-            <main className="bg-white w-[100vw]">
             {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
+            <main className="bg-white w-[100vw]">
                 <Outlet />
-              </motion.div>
-            {!hideLayout && (!user.role || user.role === "USER") && <Footer />}
             </main>
+            {!hideLayout && (!user.role || user.role === "USER") && <Footer />}
 
             <Toaster />
             {location.pathname !== "/checkout" && <CartMobileLink />}
