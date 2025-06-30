@@ -29,7 +29,7 @@ const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0
             <div className="flex justify-center rounded-xl items-center  mb-2 h-[100px] lg:h-[130px]">
               <LazyLoadImage
                 alt="Example"
-                wrapperClassName="h-[130px] lg:h-[130px] md:rounded-[24px] md:bg-zinc-50 w-full overflow-hidden"
+                wrapperClassName=" h-[130px] lg:h-[130px] md:rounded-[24px] md:bg-zinc-50 w-full overflow-hidden"
                 className=" w-full h-full object-contain overflow-hidden rounded-lg transition-transform duration-500 ease-in-out scale-110 hover:scale-100"
                 effect="blur"
                 src={product.coverimage}

@@ -331,14 +331,6 @@ const AddToCartBottomBar = ({ product, onClose , activeIndex = 0 }) => {
           )}
         </div>
       </div>
-
-      {/* Floating Close Button */}
-      {/* <button
-        onClick={handleClose}
-        className="fixed bottom-[calc(300px+2rem)] left-1/2 transform -translate-x-1/2 z-50 text-white text-3xl"
-      >
-        <IoMdCloseCircle className="drop-shadow-lg text-gray-700 hover:text-red-500" />
-      </button> */}
     </>
   );
 };

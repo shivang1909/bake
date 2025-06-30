@@ -105,7 +105,7 @@ const Home = () => {
     {
       
     <section className={`bg-white ${loading?"opacity-0":"opacity-100"} `}>
-      <div className=" mt-20 lg:mt-24">
+      <div className=" mt-20">
         {/* ✅ Desktop Swiper */}
         <div className="hidden md:block ">
           <Swiper

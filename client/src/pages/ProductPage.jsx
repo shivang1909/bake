@@ -63,6 +63,8 @@ const ProductPage = ({
     const [filter, setFilter] = useState([]); 
       const allCategory = useSelector((state) => state.product.allCategory);
       const [isOpen, setIsOpen] = useState(false);
+      const dropdownRef = useRef(null);
+
 
 useEffect(()=>{
   if(mobileFiltersOpen)
@@ -71,7 +73,18 @@ useEffect(()=>{
   }
 },[mobileFiltersOpen])
 
+
+
   useEffect(() => {
+
+      const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsSticky(!entry.isIntersecting);
@@ -84,6 +97,7 @@ useEffect(()=>{
     }
 
     return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
       if (stickyRef.current) {
         observer.unobserve(stickyRef.current);
       }
@@ -93,6 +107,17 @@ useEffect(()=>{
   //new
   const [page, setPage] = useState(1);
   const [allProduct, setAllProduct] = useState([]);
+
+    useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const removeFilter = (value) => {
     if (/^\d+\s*Day$/.test(value)) {
@@ -300,171 +325,193 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
   }, [selectedProduct]);
   const [focusedOrFilled, setFocusedOrFilled] = useState(false);
   const [value, setValue] = useState("");
-
+  
   return (
-    <div className="py-4 bg-white flex-col items-center justify-center">
-      {/* View Toggle Buttons */}
-      <div ref={stickyRef}></div>
-      <div
-        className={`z-20 transition-all duration-300 ${
-          isSticky
-            ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b"
-            : ""
-        }`}
-      >
-        <div className="flex flex-col-reverse md:flex-row  justify-between md:gap-3 md:mb-5 md:mx-4">
-          {/* apllied filters section start */}
-          <div className="flex flex-row gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
-            {filter.map((f) => (
-              <span className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200  flex gap-1 justify-center items-center">
-                <RxCross2
-                  className="text-sm cursor-pointer"
-                  onClick={() => {
-                    removeFilter(f);
-                  }}
-                />
-                {f}
-              </span>
-            ))}
-          </div>
-          {/* apllied filters section end  */}
+    <>
+<div className="py-4 bg-white flex-col items-center justify-center">
+  {/* Backdrop for dropdown */}
+  {isOpen && (
+    <div
+      className="fixed inset-0 z-20 pointer-events-auto"
+      onClick={() => setIsOpen(false)}
+    />
+  )}
 
-          <div className="flex justify-center items-center px-3 mt-5">
-            {/* <div className="flex items-center px-3">
-           
-          </div> */}
+  {/* View Toggle and Sort */}
+  <div
+    className={`z-30 transition-all duration-300 ${
+      isSticky
+        ? "sticky top-0 bg-white/60 backdrop-blur-xl rounded-b-[20px] shadow-sm border-b"
+        : ""
+    }`}
+    ref={stickyRef}
+  >
+    <div className="flex flex-col-reverse md:flex-row justify-between md:gap-3 md:mb-5 md:mx-4">
+      {/* Filter Tags */}
+      <div className="flex flex-row gap-1 px-3 overflow-y-auto whitespace-nowrap flex-nowrap tracking-widest my-3 md:my-0 md:mt-5">
+        {filter.map((f) => (
+          <span
+            key={f}
+            className="text-xs font-semibold py-1.5 md:py-3 px-3 bg-gray-50 rounded-full border border-gray-200 flex gap-1 justify-center items-center"
+          >
+            <RxCross2
+              className="text-sm cursor-pointer"
+              onClick={() => removeFilter(f)}
+            />
+            {f}
+          </span>
+        ))}
+      </div>
 
-            <div className="filters flex gap-3 w-full justify-between bg-gray-50 border border-gray-200 rounded-[24px] shadow-inner px-3 p-2 md:py-1">
-              <div className="flex items-center">
-                <div className="relative inline-block text-left z-30 ">
-                  <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center justify-between gap-2 text-sm font-medium text-black hover:text-gray-900 px-1"
-                  >
-                    {sortOptions[selectedSort].name}
-                    <span className="text-gray-400">{isOpen ? "▲" : "▼"}</span>
-                  </button>
+      {/* Filters + Sort + View Toggle */}
+      <div className="flex justify-center items-center px-3 mt-5">
+        <div className="filters flex gap-3 w-full justify-between bg-gray-50 border border-gray-200 rounded-[24px] shadow-inner px-3 p-2 md:py-1">
+          <div className="flex items-center">
+            {/* Sort Dropdown */}
+            <div
+              className="relative inline-block text-left"
+              ref={dropdownRef}
+            >
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between gap-2 text-sm font-medium text-black hover:text-gray-900 px-1"
+              >
+                {sortOptions[selectedSort].name}
+                <span className="text-gray-400">
+                  {isOpen ? "▲" : "▼"}
+                </span>
+              </button>
 
-                  {isOpen && (
-                    <div className="absolute mt-4 w-60 rounded-xl bg-white shadow-xl border border-gray-200 ">
-                      {sortOptions.map((option, index) => (
-                        <div
-                          key={option.value}
-                          onClick={() => {
-                            setSelectedSort(index);
-                            setIsOpen(false);
-                          }}
-                          className={`${
-                            index === selectedSort
-                              ? "bg-gray-100 text-black"
-                              : "text-gray-600"
-                          } flex items-center gap-2 w-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-100`}
-                        >
-                          {option.icon}
-                          {option.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+           <div
+  className={`absolute z-30 mt-4 lg:-left-10 w-48 rounded-xl bg-white shadow-xl border border-gray-200 transition-all duration-300 transform ${
+    isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+  }`}
+>
+  {sortOptions.map((option, index) => (
+    <div
+      key={option.value}
+      onClick={() => {
+        setSelectedSort(index);
+        setIsOpen(false);
+      }}
+      className={`${
+        index === selectedSort
+          ? "bg-gray-100 text-black"
+          : "text-gray-600"
+      } flex items-center gap-2 w-full px-4 py-2 text-sm cursor-pointer hover:bg-gray-100`}
+    >
+      {option.icon}
+      {option.name}
+    </div>
+  ))}
+</div>
 
-                <button
-                  type="button"
-                  onClick={() => setMobileFiltersOpen(true)}
-                  className="-m-2 ml-1 p-2 text-gray-600 hover:text-gray-500 sm:ml-6 [@media(min-width:768px)_and_(min-height:1366px)]:block lg:hidden"
-                >
-                  <span className="sr-only">Filters</span>
-                  <FunnelIcon aria-hidden="true" className="size-5" />
-                </button>
-              </div>
-
-              <div className="grid-list-buttons mt-1">
-                <button
-                  onClick={() => setIsListView(!isListView)}
-                  title={
-                    isListView ? "Switch to Card View" : "Switch to List View"
-                  }
-                >
-                  {isListView ? (
-                    <IoGrid className="text-2xl text-gray-700  transition-all duration-300 active:scale-95" />
-                  ) : (
-                    <TfiLayoutListThumbAlt className="text-2xl text-gray-700 transition-all duration-300 active:scale-95" />
-                  )}
-                </button>
-              </div>
             </div>
+
+            {/* Mobile Filter Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen(true)}
+              className="-m-2 ml-1 p-2 text-gray-600 hover:text-gray-500 sm:ml-6 [@media(min-width:768px)_and_(min-height:1366px)]:block lg:hidden"
+            >
+              <span className="sr-only">Filters</span>
+              <FunnelIcon aria-hidden="true" className="size-5" />
+            </button>
+          </div>
+
+          {/* Grid/List Toggle */}
+          <div className="grid-list-buttons mt-1">
+            <button
+              onClick={() => setIsListView(!isListView)}
+              title={
+                isListView ? "Switch to Card View" : "Switch to List View"
+              }
+            >
+              {isListView ? (
+                <IoGrid className="text-2xl text-gray-700 transition-all duration-300 active:scale-95" />
+              ) : (
+                <TfiLayoutListThumbAlt className="text-2xl text-gray-700 transition-all duration-300 active:scale-95" />
+              )}
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Product Display Section */}
-      <div className="">
-        <InfiniteScroll
-          key={filterKey}
-          dataLength={allProduct.length}
-          hasMore={page <= totalPage}
-          next={loadMore}
-          className="px-1"
-          scrollableTarget="infinitebody"
-        >
-          <div
-            ref={ref}
-            className={
-              isListView
-                ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 lg:gap-3 md:px-3 px-0"
-                : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 items-center md:px-3 px-0"
-            }
-          >
-            {allProduct.map((product) => {
-              const { minPrice, maxPrice, weightVariants } = product;
-              let selectedIndex = 0;
-              if (sortOptions[selectedSort].value === "highToLow") {
-                selectedIndex = weightVariants.findIndex((variant) => {
-                  return (
-                    variant.price - (variant.price * variant.discount) / 100 ===
-                    maxPrice
-                  );
-                });
-              } else {
-                selectedIndex = weightVariants.findIndex((variant) => {
-                  return (
-                    variant.price - (variant.price * variant.discount) / 100 ===
-                    minPrice
-                  );
-                });
-              }
-              return isListView ? (
-                <ListProductCardComponent
-                  key={product._id}
-                  product={product}
-                  setCartProduct={setCartProduct}
-                  activeIndex={selectedIndex}
-                  setActiveVariant={setActiveVariant}
-                />
-              ) : (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  setCartProduct={setCartProduct}
-                  activeIndex={selectedIndex}
-                  setActiveVariant={setActiveVariant}
-                  className=" md:min-w-[220px]"
-                />
-              );
-            })}
-          </div>
-        </InfiniteScroll>
-      </div>
-
-      {cartProduct && (
-        <AddtoCartBottomBar
-          activeIndex={activeVariant}
-          refeernce={ref}
-          product={cartProduct}
-          onClose={handleCloseBottomBar}
-        />
-      )}
     </div>
+  </div>
+
+  {/* Product Cards */}
+  <div className="z-0">
+    <InfiniteScroll
+      key={filterKey}
+      dataLength={allProduct.length}
+      hasMore={page <= totalPage}
+      next={loadMore}
+      className="px-1"
+      scrollableTarget="infinitebody"
+    >
+      <div
+        ref={ref}
+        className={
+          isListView
+            ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 lg:gap-3 md:px-3 px-0"
+            : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mx-1 lg:mx-2 gap-0 md:gap-4 lg:gap-4 items-center md:px-3 px-0"
+        }
+      >
+        {allProduct.map((product) => {
+          const { minPrice, maxPrice, weightVariants } = product;
+          let selectedIndex = 0;
+
+          if (sortOptions[selectedSort].value === "highToLow") {
+            selectedIndex = weightVariants.findIndex(
+              (variant) =>
+                variant.price -
+                  (variant.price * variant.discount) / 100 ===
+                maxPrice
+            );
+          } else {
+            selectedIndex = weightVariants.findIndex(
+              (variant) =>
+                variant.price -
+                  (variant.price * variant.discount) / 100 ===
+                minPrice
+            );
+          }
+
+          return isListView ? (
+            <ListProductCardComponent
+              key={product._id}
+              product={product}
+              setCartProduct={setCartProduct}
+              activeIndex={selectedIndex}
+              setActiveVariant={setActiveVariant}
+            />
+          ) : (
+            <ProductCard
+              key={product._id}
+              product={product}
+              setCartProduct={setCartProduct}
+              activeIndex={selectedIndex}
+              setActiveVariant={setActiveVariant}
+              className="md:min-w-[220px]"
+            />
+          );
+        })}
+      </div>
+    </InfiniteScroll>
+  </div>
+
+  {/* Bottom Add to Cart Bar */}
+  {cartProduct && (
+    <AddtoCartBottomBar
+      activeIndex={activeVariant}
+      refeernce={ref}
+      product={cartProduct}
+      onClose={handleCloseBottomBar}
+    />
+  )}
+</div>
+
+    </>
   );
 };
 

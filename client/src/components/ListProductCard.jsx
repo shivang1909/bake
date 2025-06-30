@@ -58,7 +58,7 @@ state={isloaded}>
                 onMouseLeave={() => setShowTooltip(false)}
               >
                 <div
-                  className={`absolute hidden lg:flex left-0 bottom-full  w-max max-w-xs border border-dashed border-orange-200 bg-white text-orange-500 font-normal text-xs rounded-lg px-3 py-1 shadow-sm z-50 transition-all duration-300 transform
+                  className={`absolute hidden lg:flex left-0 bottom-full  w-max max-w-xs border border-dashed border-orange-200 bg-white text-orange-500 font-normal text-xs rounded-lg px-3 py-1 shadow-sm z-10 transition-all duration-300 transform
                ${
                  showTooltip
                    ? "opacity-100 scale-100"
