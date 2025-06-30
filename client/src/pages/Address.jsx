@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { MdDelete, MdEdit } from "react-icons/md";
+
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import toast from "react-hot-toast";
-import AxiosToastError from "../utils/AxiosToastError";
+
 import { useGlobalContext } from "../provider/GlobalProvider";
 
 import AddAddressDesktop from "../components/AddAddressDesktop";
@@ -12,6 +12,7 @@ import { CiUser } from "react-icons/ci";
 import { IoCallOutline } from "react-icons/io5";
 import ProfileSideBar from "../components/ProfileSideBar";
 import { FaArrowUp } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Address = () => {
   const addressList = useSelector((state) => state.addresses.addressList);
@@ -26,6 +27,17 @@ const Address = () => {
   const [showDeleteMobileModal, setShowDeleteMobileModal] = useState(false);
   const [animateModal, setAnimateModal] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const navigate = useNavigate();
+      const user = useSelector((state) => state.user);
+      useEffect(()=>{
+        if(user.email === "")
+        {
+          navigate('/')
+        }
+      },[user])
+  
+  
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,7 +73,7 @@ const Address = () => {
         fetchAddress && fetchAddress();
       }
     } catch (error) {
-      AxiosToastError(error);
+      toast.error("Unable to Remove Address")
     }
   };
 

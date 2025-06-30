@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialValue = {
     _id : "",
     name : "",
-    email : "",
+    email : undefined,
     avatar : "",
     mobile : "",
     alt_Mobile : "",
@@ -46,10 +46,10 @@ const userSlice  = createSlice({
             console.log(state.shopping_cart);
            
         },
-        logout : (state,action)=>{
+        logout : (state)=>{
             state._id = ""
             state.name  = ""
-            state.email = ""
+            state.email = undefined
             state.avatar = ""
             state.mobile = ""
             state.alt_Mobile = ""

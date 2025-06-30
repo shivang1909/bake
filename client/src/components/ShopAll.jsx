@@ -63,7 +63,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
     }
 
     const handleScroll = () => {
-      console.log(document.body.scrollTop)
+      
       setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
     };
 
@@ -96,19 +96,19 @@ const [showScrollTop, setShowScrollTop] = useState(false);
       const response = await Axios(SummaryApi.getCategory);
       dispatch(setAllCategory(response.data.data));
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      
     }
   };
 
   const fetchWeightVarient = async () => {
     registerTask();
     try {
-      console.log("URL I'm passing:", SummaryApi.getallWeightVariant); // 👀 Check it
+
       const response = await Axios.get(SummaryApi.getallWeightVariant.url);
       setWeightVarient(response.data.data);
-      console.log("wweeeeiiigghhhttttt", response);
+      
     } catch (err) {
-      console.log("Error fetching weight variant:", err);
+      
     }
     markDone();
   };
@@ -175,9 +175,9 @@ const [showScrollTop, setShowScrollTop] = useState(false);
             products
           </span>
 
-          <p className="flex gap-2 items-center text-gray-700">
+          <div className="flex gap-2 items-center text-gray-700">
             <Breadcrumbs />
-          </p>
+          </div>
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
       </div>
@@ -225,10 +225,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                     type="checkbox"
                                     checked={Category.includes(category._id)} 
                                     onChange={(e) => {
-                                      console.log(
-                                        "Checkbox changed:",
-                                        e.target.checked
-                                      );
+                                      
                                       e.target.checked
                                         ? setCategory((prev) => [
                                             ...prev,
@@ -239,10 +236,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                               (cat) => cat !== category._id
                                             )
                                           );
-                                      console.log(
-                                        "Current categories:",
-                                        Category
-                                      );
+
                                     }}
                                     id={category.name}
                                     className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
@@ -292,10 +286,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                              checked={selectedWeight.includes(varient.weight)} 
                                             className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
                                             onChange={(e) => {
-                                              console.log(
-                                                "Checkbox changed:",
-                                                e.target.checked
-                                              );
+                                              
                                               e.target.checked
                                                 ? setSelectedWeight((prev) => [
                                                     ...prev,
@@ -306,10 +297,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                                       (varientName) => varientName !== varient.weight
                                                     )
                                                   );
-                                                  console.log(
-                                                    "Current weight:",
-                                                    selectedWeight
-                                                  );
+                                                  
                                             }}
                                           />
                                         </label>
@@ -382,10 +370,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                     type="checkbox"
                                     checked={Category.includes(category._id)}
                                     onChange={(e) => {
-                                      console.log(
-                                        "Checkbox changed:",
-                                        e.target.checked
-                                      );
+
                                       e.target.checked
                                         ? setCategory((prev) => [
                                             ...prev,
@@ -396,10 +381,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                               (cat) => cat !== category._id
                                             )
                                           );
-                                      console.log(
-                                        "Current categories:",
-                                        Category
-                                      );
+
                                     }}
                                     id={category.name}
                                     className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-orange-500 checked:border-transparent focus:outline-none"
@@ -446,7 +428,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                 <DisclosurePanel className="pt-4">
                                   <div className="space-y-2 pl-4">
                                     {WeightVarient.map((varient, idx) => (
-                                      <li>
+                                      <li key={idx}>
                                         <article className="checkbox-container flex items-center space-x-1">
                                           <label className="checkbox">
                                             <input
@@ -457,10 +439,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                               )}
                                               className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
                                               onChange={(e) => {
-                                                console.log(
-                                                  "Checkbox changed:",
-                                                  e.target.checked
-                                                );
+
                                                 e.target.checked
                                                   ? setSelectedWeight(
                                                       (prev) => [
@@ -475,10 +454,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                                           varient.weight
                                                       )
                                                     );
-                                                console.log(
-                                                  "Current weight:",
-                                                  selectedWeight
-                                                );
+
                                               }}
                                             />
                                           </label>
@@ -492,7 +468,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                       </li>
                                     ))}
                                     {WeightVarient.map((varient, idx) => (
-                                      <li>
+                                      <li key={idx}>
                                         <article className="checkbox-container flex items-center space-x-1">
                                           <label className="checkbox">
                                             <input
@@ -503,10 +479,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                               )}
                                               className="appearance-none w-4 h-4 border border-gray-300 rounded-sm checked:bg-indigo-600 checked:border-transparent focus:outline-none"
                                               onChange={(e) => {
-                                                console.log(
-                                                  "Checkbox changed:",
-                                                  e.target.checked
-                                                );
+
                                                 e.target.checked
                                                   ? setSelectedWeight(
                                                       (prev) => [
@@ -521,10 +494,7 @@ const [showScrollTop, setShowScrollTop] = useState(false);
                                                           varient.weight
                                                       )
                                                     );
-                                                console.log(
-                                                  "Current weight:",
-                                                  selectedWeight
-                                                );
+
                                               }}
                                             />
                                           </label>

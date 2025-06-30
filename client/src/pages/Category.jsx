@@ -118,9 +118,8 @@ useEffect(() => {
         data: { id: categoryId, page: page },
       });
       const data = response.data;
-      console.log(categoryId);
+    
      
-      console.log(response.data);
       setcatproducts((prev) => [...prev, ...response.data.data.product]);
       const TotalP =
         response.data.data.totalCount % 10 !== 0
@@ -132,7 +131,7 @@ useEffect(() => {
     catch(err)
     {
         const message = err?.response?.data?.message;
-        console.log("this is messgae",message);
+
        
       if(message === "Category not found" || message === "provide category id")
       {
@@ -159,13 +158,13 @@ useEffect(() => {
 
 
   useEffect(() => {
-    console.log("before fetchproductbycategory functionnnn");
+   
     categoryId && fetchproductbycategory();
   }, [categoryId]);
 
 
   const hasmoredata = () => {
-    console.log("Checking if more data is available for page:", page);
+   
     if (page > totalPage) {
       return false;
     } else {
@@ -199,9 +198,9 @@ useEffect(() => {
           </span>
 
 
-          <p className="flex gap-2 items-center text-gray-700">
+          <div className="flex gap-2 items-center text-gray-700">
             <Breadcrumbs />
-          </p>
+          </div>
           {/* <p className="font-semibold text-lg">30 Products</p> */}
         </div>
         <div className="mt-5">
@@ -290,14 +289,14 @@ useEffect(() => {
                     setCartProduct={setCartProduct}
                   />
                 ) : (
-                  <>
+                  
                     <ProductCard
                       product={product}
                       setCartProduct={setCartProduct}
                       key={product._id}
                       className="md:max-w-[200px] md:min-w-[220px]"
                     />
-                  </>
+                  
                 )
               )}
           </div>

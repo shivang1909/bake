@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
+
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import renderStars from "./RenderStars";
 import { valideURLConvert } from "../utils/valideURLConvert";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const ListProductCard = ({ product, setCartProduct , activeIndex = 0, setActiveVariant = null}) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const [isloaded, setloaded] = useState(true);
+  
 
   const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
 
@@ -20,8 +20,7 @@ const ListProductCard = ({ product, setCartProduct , activeIndex = 0, setActiveV
 
   return (
     <>
-      {/* {console.log("List Product is here")} */}
-      {/* {console.log(product)} */}
+      
       <div
         key={product._id}
         className="bg-white border shadow-sm rounded-2xl mb-3 m-0 md:m-4  md:min-h-[200px] relative  duration-200 transition-all flex"
@@ -29,7 +28,7 @@ const ListProductCard = ({ product, setCartProduct , activeIndex = 0, setActiveV
         {/* Product Image */}
         <Link to={url}
         className="justify-center w-2/5 items-center flex bg-gray-50 rounded-l-2xl"
-state={isloaded}>
+>
         <div className="">
          <div className="h-32 w-32">
             <img
@@ -50,7 +49,8 @@ state={isloaded}>
             onClick={() => onView(product)}
           >
             <Link to={url}
-state={isloaded}>
+
+>
             <div className="text-left">
               <div
                 className="relative inline-block"

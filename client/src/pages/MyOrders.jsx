@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import NoOrder from "../../assets/images/Custom/basket.png";
 import ProfileSideBar from "../components/ProfileSideBar";
 import ContentLoader from "../components/ContentLoader";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+
 
 
 
@@ -24,11 +27,16 @@ const MyOrders = () => {
   const [animateModal, setAnimateModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const navigate = useNavigate();
+    const user = useSelector((state) => state.user);
 
 
 
-
-
+    useEffect(()=>{
+      if(user.email === undefined)
+      {
+        navigate('/')
+      }
+    },[user])
 
 
 
@@ -39,9 +47,9 @@ const MyOrders = () => {
         setLoadingOrders(false);
  
         setOrders(Array.isArray(response.data) ? response.data : []);
-        console.log("Fetched Orders:", response.data);
+        
       } catch (error) {
-        console.error("Error fetching orders:", error);
+      
         setOrders([]);
       }
     };
@@ -146,7 +154,8 @@ const MyOrders = () => {
         )
       );
     } catch (error) {
-      console.error("Cancel error:", error);
+      toast.error("Failed to cancel the order. Please try again.");
+
     }
   };
 
@@ -173,11 +182,6 @@ const MyOrders = () => {
 
 
 
-  // if (orders.length === 0 && !loadingOrders) {
-  //   return (
- 
-  //   );
-  // }
 
 
 

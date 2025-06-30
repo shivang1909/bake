@@ -21,11 +21,11 @@ import { RiCustomerServiceLine } from "react-icons/ri";
 import { logout } from "../store/userSlice";
 import { valideURLConvert } from "../utils/valideURLConvert.js";
 import UserDefault from "../../assets/images/Custom/user.png";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { fetchCartDetails, totalQty } =
-    useGlobalContext();
+  const { fetchCartDetails, totalQty } = useGlobalContext() || {};
   const location = useLocation();
   const isCheckOut = location.pathname === "/dashboard/checkout";
   const navigate = useNavigate();
@@ -48,23 +48,21 @@ const Header = () => {
   const featuredRef = useRef(null);
   const catRef = useRef(null);
 
-
   useEffect(() => {
-    const route = location.pathname.split('/')[1]
+    const route = location.pathname.split("/")[1];
     if (route === "Featured") {
       setIsFeaturedOpen(false); // Close submenu on route change
       const handleFeatured = () => {
         setIsFeaturedOpen(true);
         featuredRef.current.removeEventListener("mouseenter", handleFeatured);
-      }
+      };
       featuredRef.current.addEventListener("mouseenter", handleFeatured);
-    }
-    else if (route === "Category") {
+    } else if (route === "Category") {
       setIsCatOpen(false); // Close submenu on route change
       const handleCat = () => {
         setIsCatOpen(true);
         catRef.current.removeEventListener("mouseenter", handleCat);
-      }
+      };
       catRef.current.addEventListener("mouseenter", handleCat);
     }
   }, [location.pathname]);
@@ -90,7 +88,6 @@ const Header = () => {
     }
 
     const currentScrollY = document.body.scrollTop;
-
 
     if (currentScrollY > 100) {
       if (currentScrollY > lastScrollYRef.current) {
@@ -133,11 +130,8 @@ const Header = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
       document.body.removeEventListener("scroll", handleScroll);
-    }
+    };
   }, []);
-
-
-
 
   const fetchAllFeatured = async () => {
     try {
@@ -148,10 +142,9 @@ const Header = () => {
       }));
       setFeatured(simplified);
     } catch (err) {
-      console.log("Error fetching featured sections:", err);
+    
     }
   };
-
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -164,11 +157,11 @@ const Header = () => {
   const fetchcategories = async () => {
     try {
       const response = await Axios({ ...SummaryApi.getCategory });
-      console.log("Categories response:", response);
+      
       setCategories(response.data.data);
-      console.log("categoris test 2", categories);
+      
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      
     }
   };
 
@@ -217,29 +210,26 @@ const Header = () => {
         navigate("/");
       }
     } catch (error) {
-      console.error(error);
-      AxiosToastError(error);
+                  
+       toast.error("Something Went Wrong")
     }
   };
-
-
 
   const isCartOpen = useSelector((state) => state?.loading.isCartOpen);
 
   // Fetch Cart Details
   useEffect(() => {
+    if(isCartOpen)
     fetchCartDetails();
   }, [isCartOpen]);
 
   const redirectToLoginPage = () => {
     navigate("/login");
   };
-  const redirectToAdminLoginPage = () => {
-    navigate("/admin/login");
-  };
+  
 
   const handleCloseUserMenu = () => {
-    console.log("close");
+    
     setOpenUserMenu(false);
   };
 
@@ -252,7 +242,7 @@ const Header = () => {
     navigate("/user");
   };
   const handleOpenCart = () => {
-    console.log("clicked");
+    
 
     if (isCheckOut) {
       const confirmLeave = confirm(
@@ -265,7 +255,7 @@ const Header = () => {
         return;
       }
     } else {
-      console.log("elsee");
+      
       dispatch(setIsCartOpen(true));
     }
   };
@@ -273,10 +263,17 @@ const Header = () => {
     <>
       <DisplayCartItem close={() => dispatch(setIsCartOpen(false))} />
 
-      <header className={`fixed top-0 w-full z-40 ${(showHeader||showMobileHeader)?"pointer-events-auto":"pointer-events-none"} transition-transform duration-1000`}>
+      <header
+        className={`fixed top-0 w-full z-40 ${
+          showHeader || showMobileHeader
+            ? "pointer-events-auto"
+            : "pointer-events-none"
+        } transition-transform duration-1000`}
+      >
         <div
-          className={`block lg:hidden text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm top-0 ${showMobileHeader ? "translate-y-0" : "-translate-y-full"
-            }`}
+          className={`block lg:hidden text-center items-center py-3 fixed bg-white/60 backdrop-blur-xl z-40 transition-transform duration-300 w-full shadow-sm top-0 ${
+            showMobileHeader ? "translate-y-0" : "-translate-y-full"
+          }`}
         >
           <div className="max-w-screen-xl mx-auto px-4">
             <div className="flex flex-row gap-4 items-center justify-between">
@@ -347,7 +344,11 @@ const Header = () => {
           </div>
         </div>
 
-        <div className={`bg-white/60 backdrop-blur-xl hidden lg:block shadow-sm py-4 transition-transform duration-1000 ${showHeader ? "translate-y-0" : "-translate-y-full"} hover:translate-y-0`}>
+        <div
+          className={`bg-white/60 backdrop-blur-xl hidden lg:block shadow-sm py-4 transition-transform duration-1000 ${
+            showHeader ? "translate-y-0" : "-translate-y-full"
+          } hover:translate-y-0`}
+        >
           <div className="container mx-auto">
             <div className="flex items-center justify-between">
               {/* Logo */}
@@ -360,63 +361,170 @@ const Header = () => {
               {/* Main Menu */}
               <nav className="hidden lg:block ml-8">
                 <ul className="flex gap-8 text-[16px] font-medium">
-                  <li className="py-2 border-b-2 border-b-transparent hover:border-b-orange-500 hover:text-orange-500 ">
-                    <Link
-                      to="/"
-                    >
-                      Home
-                    </Link>
-
-
-
+                  <li
+                    className={`py-2 border-b-2 ${
+                      location.pathname === "/"
+                        ? "border-b-orange-500 text-orange-500"
+                        : "border-b-transparent hover:border-b-orange-500 hover:text-orange-500"
+                    }`}
+                  >
+                    <Link to="/">Home</Link>
                   </li>
-                  <li className="py-2 border-b-2 border-b-transparent hover:border-b-orange-500 hover:text-orange-500 ">
-                    <Link to="/ShopAll"
-                    >Shop All</Link>
+
+                  <li
+                    className={`py-2 border-b-2 ${
+                      location.pathname === "/ShopAll"
+                        ? "border-b-orange-500 text-orange-500"
+                        : "border-b-transparent hover:border-b-orange-500 hover:text-orange-500"
+                    }`}
+                  >
+                    <Link to="/ShopAll">Shop All</Link>
                   </li>
 
                   <li className="relative group" ref={catRef}>
-                    <span className="py-2 border-b-2 border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500"
-                    >Categories</span>
-                    {
-                      isCatOpen &&
+
+                      <span
+                      className={`py-2 border-b-2 ${
+                        location.pathname.startsWith('/Category/')
+                          ? "border-b-orange-500 text-orange-500"
+                          : "border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500"
+                      }`}
+                    >
+                      Category
+                    </span>
+                    {isCatOpen && (
                       <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50 text-[14px]">
                         {categories.map((cat, index) => (
-                          <li key={index}>
-                            <Link to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`} className="block px-4 py-2 hover:text-orange-500">
+                          <li key={index}
+                          className={` block   ${
+                          location.pathname === `/Category/${valideURLConvert(cat.name)}-${
+                                cat._id
+                              }`
+                            ? " text-orange-500"
+                            : "  hover:text-orange-500"
+                        }`} 
+                          >
+                            <Link
+
+                              to={`/Category/${valideURLConvert(cat.name)}-${
+                                cat._id
+                              }`}
+                              className="block px-4 py-2 hover:text-orange-500"
+                            >
                               {cat.name}
                             </Link>
                           </li>
                         ))}
                       </ul>
-                    }
+                    )}
                   </li>
 
                   <li className="relative group" ref={featuredRef}>
-                    <span className="py-2 border-b-2 border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500 "
-                    >Featured</span>
-                    {isFeaturedOpen &&
+                     <span
+                      className={`py-2 border-b-2 ${
+                        location.pathname.startsWith('/Featured/')
+                          ? "border-b-orange-500 text-orange-500"
+                          : "border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500"
+                      }`}
+                    >
+                      Featured
+                    </span>
+                    {isFeaturedOpen && (
                       <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50 text-[14px] ">
                         {Featured.map((item, index) => (
-                          <li key={index}>
-                            <Link to={`/Featured/${valideURLConvert(item.sectionName)}-${item.sectionId}`} className="block px-4 py-2 hover:text-orange-500">
+                         <li
+  key={index}
+  className={`block ${
+    location.pathname === `/Featured/${valideURLConvert(item.sectionName)}-${item.sectionId}`
+      ? "text-orange-500"
+      : "hover:text-orange-500"
+  }`}
+>
+
+                            <Link
+                              to={`/Featured/${valideURLConvert(
+                                item.sectionName
+                              )}-${item.sectionId}`}
+                              className="block px-4 py-2 hover:text-orange-500"
+                            >
                               {item.sectionName}
                             </Link>
                           </li>
                         ))}
                       </ul>
-                    }
+                    )}
                   </li>
 
-
                   <li className="relative group">
-                    <span className="py-2 border-b-2 border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500 "
-                    >About us</span>
+                    
+
+                    <span
+                      className={`py-2 border-b-2 ${
+                        ["/about-us", "/Contact-Us", "/Terms-conditions", "/Privacy-Policy"].includes(location.pathname)
+                          ? "border-b-orange-500 text-orange-500"
+                          : "border-b-transparent group-hover:border-b-orange-500 group-hover:text-orange-500"
+                      }`}
+                    >
+                      About Us
+                    </span>
+
                     <ul className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-300 z-50 text-[14px]">
-                      <li><Link to="/about-us" className="block px-4 py-2 hover:text-orange-500">About Us</Link></li>
-                      <li><Link to="/Contact-Us" className="block px-4 py-2 hover:text-orange-500">Contact Us</Link></li>
-                      <li><Link to="/Terms-conditions" className="block px-4 py-2 hover:text-orange-500">Terms Condition</Link></li>
-                      <li><Link to="/Privacy-Policy" className="block px-4 py-2 hover:text-orange-500">Privacy Policy</Link></li>
+                      <li
+                        className={` block   ${
+                          location.pathname === "/about-us"
+                            ? " text-orange-500"
+                            : "  hover:text-orange-500"
+                        }`}
+                      >
+                        <Link
+                          to="/about-us"
+                          className="block px-4 py-2 hover:text-orange-500"
+                        >
+                          About Us
+                        </Link>
+                      </li>
+                      <li
+                        className={` block   ${
+                          location.pathname === "/Contact-Us"
+                            ? " text-orange-500"
+                            : "  hover:text-orange-500"
+                        }`}
+                      >
+                        <Link
+                          to="/Contact-Us"
+                          className="block px-4 py-2 hover:text-orange-500"
+                        >
+                          Contact Us
+                        </Link>
+                      </li>
+                      <li
+                       className={` block   ${
+                          location.pathname === "/Terms-conditions"
+                            ? " text-orange-500"
+                            : "  hover:text-orange-500"
+                        }`}
+                      >
+                        <Link
+                          to="/Terms-conditions"
+                          className="block px-4 py-2 hover:text-orange-500"
+                        >
+                          Terms Condition
+                        </Link>
+                      </li>
+                      <li
+                       className={` block   ${
+                          location.pathname === "/Privacy-Policy"
+                            ? " text-orange-500"
+                            : "  hover:text-orange-500"
+                        }`}
+                      >
+                        <Link
+                          to="/Privacy-Policy"
+                          className="block px-4 py-2 hover:text-orange-500"
+                        >
+                          Privacy Policy
+                        </Link>
+                      </li>
                     </ul>
                   </li>
                 </ul>
@@ -432,7 +540,10 @@ const Header = () => {
                   <IoIosSearch size={24} />
                 </Link>
 
-                <button onClick={handleMobileUser} className="text-neutral-600 lg:hidden">
+                <button
+                  onClick={handleMobileUser}
+                  className="text-neutral-600 lg:hidden"
+                >
                   <FaRegCircleUser size={26} />
                 </button>
 
@@ -450,9 +561,14 @@ const Header = () => {
 
                 {user?._id ? (
                   <div className="relative hidden lg:block" ref={dropdownRef}>
-                    <button onClick={toggleDropdown} className="flex items-center gap-1">
+                    <button
+                      onClick={toggleDropdown}
+                      className="flex items-center gap-1"
+                    >
                       <img
-                        src={user.avatar || "../../assets/images/Custom/user.png"}
+                        src={
+                          user.avatar || "../../assets/images/Custom/user.png"
+                        }
                         alt="user"
                         className="h-10 w-10 rounded-full border border-gray-300 object-cover"
                       />
@@ -461,17 +577,29 @@ const Header = () => {
                     {isDropdownOpen && (
                       <ul className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md p-2 z-50">
                         <li>
-                          <Link to="/dashboard/Myprofile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                          <Link
+                            to="/dashboard/Myprofile"
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full"
+                            onClick={closeDropdown}
+                          >
                             <IoPerson /> Profile
                           </Link>
                         </li>
                         <li>
-                          <Link to="/dashboard/myorders" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                          <Link
+                            to="/dashboard/myorders"
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full"
+                            onClick={closeDropdown}
+                          >
                             <FaCartShopping /> My Orders
                           </Link>
                         </li>
                         <li>
-                          <Link to="/dashboard/address" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full" onClick={closeDropdown}>
+                          <Link
+                            to="/dashboard/address"
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded-full"
+                            onClick={closeDropdown}
+                          >
                             <FaMapMarkerAlt /> Address
                           </Link>
                         </li>
@@ -490,12 +618,13 @@ const Header = () => {
                     )}
                   </div>
                 ) : (
-                  <button onClick={redirectToLoginPage} className="text-lg px-4 py-2 font-bold rounded-full border border-orange-500 text-orange-500 hover:bg-orange-50 active:scale-95 flex items-center gap-1">
-                    Login <IoIosSearch className="text-2xl" />
+                  <button
+                    onClick={redirectToLoginPage}
+                    className="text-lg px-4 py-2 font-bold rounded-full border border-orange-500 text-orange-500 hover:bg-orange-50 active:scale-95 flex items-center gap-1"
+                  >
+                    Login <IoLogInOutline className="text-3xl" />
                   </button>
                 )}
-
-
               </div>
             </div>
           </div>
@@ -505,8 +634,9 @@ const Header = () => {
 
         {isMenuOpen && (
           <div
-            className={`fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-              }`}
+            className={`fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${
+              isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
             onClick={() => {
               setIsMenuOpen(false);
               setSubmenuOpen(false);
@@ -515,12 +645,15 @@ const Header = () => {
         )}
 
         <div
-          className={`fixed top-0 bottom-0 left-0 w-72 max-w-full bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed top-0 bottom-0 left-0 w-72 max-w-full bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${
+            isMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
           {/* Menu Title */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-            <span className="text-lg font-semibold text-orange-500">Explore Flavours</span>
+            <span className="text-lg font-semibold text-orange-500">
+              Explore Flavours
+            </span>
             <button
               onClick={() => {
                 setIsMenuOpen(false);
@@ -533,161 +666,191 @@ const Header = () => {
           </div>
 
           {/* Menu Content */}
+
           <div className="overflow-y-auto h-[calc(100%-160px)] px-4 py-4">
-            <ul className="flex flex-col space-y-3 font-semibold text-[16px]">
-              <li>
-                <Link to="/" onClick={() => setIsMenuOpen(false)}>
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/ShopAll" onClick={() => setIsMenuOpen(false)}>
-                  Shop Now
-                </Link>
-              </li>
+                <ul className="flex flex-col space-y-3 font-semibold text-[16px]">
+      {/* Home */}
+      <li>
+        <Link
+          to="/"
+          onClick={() => setIsMenuOpen(false)}
+          className={location.pathname === "/" ? "text-orange-500" : ""}
+        >
+          Home
+        </Link>
+      </li>
 
-              {/* Categories Dropdown */}
-              <li>
-                <div
-                  className="flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleSubmenu("categories")}
-                >
-                  <span className={`${submenuOpen==="categories"?"text-orange-500":""}`}>Categories</span>
-                  <span>{submenuOpen === "categories" ? "−" : "+"}</span>
-                </div>
-                <ul
-                  className={`space-y-2 pl-3 transition-all duration-300 overflow-hidden ${submenuOpen === "categories"
-                      ? "max-h-[200px] overflow-y-auto mt-3"
-                      : "max-h-0"
-                    }`}
-                >
-                  {categories.map((cat, index) => (
-                    <li key={index} className="mb-3 text-[15px]">
-                      <Link
-                        to={`/Category/${valideURLConvert(cat.name)}-${cat._id}`}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setSubmenuOpen(false);
-                        }}
-                        
-                      >
-                        {cat.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
+      {/* Shop Now */}
+      <li>
+        <Link
+          to="/ShopAll"
+          onClick={() => setIsMenuOpen(false)}
+          className={location.pathname === "/ShopAll" ? "text-orange-500" : ""}
+        >
+          Shop Now
+        </Link>
+      </li>
 
-              {/* Featured Dropdown */}
-              <li>
-                <div
-                  className="flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleSubmenu("featured")}
-                >
-                  <span className={`${submenuOpen==="featured"?"text-orange-500":""}`}>Featured New</span>
-                  <span>{submenuOpen === "featured" ? "−" : "+"}</span>
-                </div>
-                <ul
-                  className={`pl-3 transition-all duration-300 overflow-hidden ${submenuOpen === "featured"
-                      ? "max-h-[200px] overflow-y-auto mt-3"
-                      : "max-h-0"
-                    }`}
-                >
-                  {Featured.map((item, index) => (
-                    <li key={index} className="mb-3  text-[15px]">
-                      <Link
-                        to={`/Featured/${valideURLConvert(
-                          item.sectionName
-                        )}-${item.sectionId}`}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setSubmenuOpen(false);
-                        }}
-                       
-                      >
-                        {item.sectionName}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-
-              {/* About Dropdown */}
-              <li>
-                <div
-                  className="flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleSubmenu("About")}
-                >
-                  <span className={`${submenuOpen==="About"?"text-orange-500":""}`}>About</span>
-                  <span>{submenuOpen === "About" ? "−" : "+"}</span>
-                </div>
-                <ul
-                  className={` pl-3 space-y-2 transition-all duration-300 overflow-hidden ${submenuOpen === "About" ? "max-h-[500px] mt-3" : "max-h-0"
-                    }`}
-                >
-                  <li className="mb-3 text-[15px]">
-                    <Link
-                      to="/about-us"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setSubmenuOpen(false);
-                      }}
-                    >
-                      About Us
-                    </Link>
-                  </li>
-                  <li className="mb-3 text-[15px]">
-                    <Link
-                      to="/Privacy-Policy"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setSubmenuOpen(false);
-                      }}
-                    >
-                      Privacy Policy
-                    </Link>
-                  </li>
-                  <li className="mb-3 text-[15px]">
-                    <Link
-                      to="/Terms-conditions"
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        setSubmenuOpen(false);
-                      }}
-                    >
-                      Terms & Conditions
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-
-              {/* Contact */}
-              <li className="absolute bottom-0 w-full  border-t-2 left-0 px-2 py-3">
+      {/* Categories */}
+      <li>
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={() => toggleSubmenu("categories")}
+        >
+          <span
+  className={`${
+    submenuOpen === "categories" || location.pathname.startsWith("/Category")
+      ? "text-orange-500"
+      : ""
+  }`}
+>
+            Categories
+          </span>
+          <span>{submenuOpen === "categories" ? "−" : "+"}</span>
+        </div>
+        <ul
+          className={`space-y-2 pl-3 transition-all duration-300 overflow-hidden ${
+            submenuOpen === "categories"
+              ? "max-h-[200px] overflow-y-auto mt-3"
+              : "max-h-0"
+          }`}
+        >
+          {categories.map((cat, index) => {
+            const catUrl = `/Category/${valideURLConvert(cat.name)}-${cat._id}`;
+            return (
+              <li key={index} className="mb-3 text-[15px]">
                 <Link
-                  to="/Contact-Us"
+                  to={catUrl}
+                  className={location.pathname === catUrl ? "text-orange-500" : ""}
                   onClick={() => {
                     setIsMenuOpen(false);
                     setSubmenuOpen(false);
                   }}
-                  className="flex items-center gap-2 hover:text-blue-600"
                 >
-                  <RiCustomerServiceLine className="text-lg" /> Contact Us
+                  {cat.name}
                 </Link>
               </li>
-            </ul>
-          </div>
+            );
+          })}
+        </ul>
+      </li>
 
+      {/* Featured */}
+      <li>
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={() => toggleSubmenu("featured")}
+        >
+          <span
+  className={`${
+    submenuOpen === "featured" || location.pathname.startsWith("/Featured")
+      ? "text-orange-500"
+      : ""
+  }`}
+>
+            Featured New
+          </span>
+          <span>{submenuOpen === "featured" ? "−" : "+"}</span>
+        </div>
+        <ul
+          className={`pl-3 transition-all duration-300 overflow-hidden ${
+            submenuOpen === "featured"
+              ? "max-h-[200px] overflow-y-auto mt-3"
+              : "max-h-0"
+          }`}
+        >
+          {Featured.map((item, index) => {
+            const featuredUrl = `/Featured/${valideURLConvert(item.sectionName)}-${item.sectionId}`;
+            return (
+              <li key={index} className="mb-3 text-[15px]">
+                <Link
+                  to={featuredUrl}
+                  className={location.pathname === featuredUrl ? "text-orange-500" : ""}
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setSubmenuOpen(false);
+                  }}
+                >
+                  {item.sectionName}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </li>
+
+      {/* About */}
+      <li>
+        <div
+          className="flex justify-between items-center cursor-pointer"
+          onClick={() => toggleSubmenu("About")}
+        >
+          <span
+  className={`${
+    submenuOpen === "About" ||
+    location.pathname === "/about-us" ||
+    location.pathname === "/Privacy-Policy" ||
+    location.pathname === "/Terms-conditions"
+      ? "text-orange-500"
+      : ""
+  }`}
+>
+
+            About
+          </span>
+          <span>{submenuOpen === "About" ? "−" : "+"}</span>
+        </div>
+        <ul
+          className={`pl-3 space-y-2 transition-all duration-300 overflow-hidden ${
+            submenuOpen === "About" ? "max-h-[500px] mt-3" : "max-h-0"
+          }`}
+        >
+          {[
+            { name: "About Us", path: "/about-us" },
+            { name: "Privacy Policy", path: "/Privacy-Policy" },
+            { name: "Terms & Conditions", path: "/Terms-conditions" },
+          ].map((link, index) => (
+            <li key={index} className="mb-3 text-[15px]">
+              <Link
+                to={link.path}
+                className={location.pathname === link.path ? "text-orange-500" : ""}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setSubmenuOpen(false);
+                }}
+              >
+                {link.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </li>
+
+      {/* Contact */}
+      <li className="absolute bottom-0 w-full border-t-2 left-0 px-2 py-3">
+        <Link
+          to="/Contact-Us"
+          onClick={() => {
+            setIsMenuOpen(false);
+            setSubmenuOpen(false);
+          }}
+          className={`flex items-center gap-2 hover:text-blue-600 ${
+            location.pathname === "/Contact-Us" ? "text-orange-500" : ""
+          }`}
+        >
+          <RiCustomerServiceLine className="text-lg" /> Contact Us
+        </Link>
+      </li>
+    </ul>
+          </div>
         </div>
 
         {/* Mobile Sidebar  End*/}
-
       </header>
 
       <UserMenu close={handleCloseUserMenu} open={openUserMenu} />
-
     </>
   );
 };
-
 
 export default Header;

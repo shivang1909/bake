@@ -21,7 +21,7 @@ import NotificationBell from "./NotificationToggle";
 
 const AdminHeader = () => {
   const dispatch = useDispatch();
-  const {fetchCartDetails,totalQty} = useGlobalContext()
+  
   const [isMobile] = useMobile();
   const location = useLocation();
   const [notificationcount, setNotificationCount] = useState(0);

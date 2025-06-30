@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
+
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { valideURLConvert } from "../utils/valideURLConvert";
@@ -7,9 +6,10 @@ import { Link } from "react-router-dom";
 import renderStars from "./RenderStars";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import { useState } from "react";
 
 const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0 , setActiveVariant = null}) => {
-  const [isloaded, setloaded] = useState(true);
+  
 
   const url = `/product/${valideURLConvert(product.name)}-${product._id}`;
 
@@ -25,7 +25,7 @@ const ProductCard = ({ product, setCartProduct, className = "" , activeIndex = 0
         className={`bg-white md:rounded-[24px] min-h-full border hover:shadow-md transition duration-300 flex flex-col justify-between ${className}`}
       >
         <div className="image-section overflow-hidden pt-4 md:pt-2 p-2">
-          <Link to={url} className="rounded-lg" state={isloaded}>
+          <Link to={url} className="rounded-lg" >
             <div className="flex justify-center rounded-xl items-center  mb-2 h-[100px] lg:h-[130px]">
               <LazyLoadImage
                 alt="Example"

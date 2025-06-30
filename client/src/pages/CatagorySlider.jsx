@@ -86,7 +86,7 @@
       return (
         <div className="w-full max-w-[1400px] mx-auto px-4 py-6  lg:mt-5">
           <Slider {...settings} ref={sliderRef}>
-            {console.log(categories)}
+            
             {categories.map((cat, i) => (
             
               <div

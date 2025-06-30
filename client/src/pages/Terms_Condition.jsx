@@ -17,7 +17,10 @@ const Terms_Condition = () => {
       };
   return (
     <section className="mt-8 lg:mt-20 max-w-4xl mx-auto px-6 py-14 text-base text-gray-800 leading-loose font-sans">
-      <h1 className="text-5xl font-bold mb-5">Terms & Conditions</h1>
+       <div className="mb-10 text-center">
+        <h1 className="text-4xl lg:text-5xl font-bold text-orange-500 mb-4">Terms & Conditions</h1>
+        <p className="text-sm text-gray-500 font-medium">Effective Date: June 5, 2025</p>
+      </div>
 
       <p className="mb-8 font-medium">Effective Date: June 5, 2025</p>
 

@@ -10,6 +10,7 @@ import fetchUserDetails from "../utils/fetchUserDetails";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "../store/userSlice";
 import Logo from "../../assets/images/Custom/BakeFlavors.png";
+import { setDataLoading } from "../store/loadingSlice";
 
 const Login = () => {
   const [data, setData] = useState({
@@ -73,7 +74,7 @@ const Login = () => {
 
         const userDetails = await fetchUserDetails();
         dispatch(setUserDetails(userDetails.data));
-
+        dispatch(setDataLoading(true))
         setData({
           email: "",
           password: "",
@@ -213,13 +214,13 @@ const Login = () => {
                     gradientTransform="matrix(.8032 0 0 1.0842 2.459 -.293)"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop offset=".368" stop-color="#ffcf09" />
+                    <stop offset=".368" stopColor="#ffcf09" />
                     <stop
                       offset=".718"
-                      stop-color="#ffcf09"
-                      stop-opacity=".7"
+                      stopColor="#ffcf09"
+                      stopOpacity=".7"
                     />
-                    <stop offset="1" stop-color="#ffcf09" stop-opacity="0" />
+                    <stop offset="1" stopColor="#ffcf09" stopOpacity="0" />
                   </radialGradient>
                   <radialGradient
                     id="prefix__c"
@@ -231,13 +232,13 @@ const Login = () => {
                     gradientTransform="matrix(1.3272 0 0 1.0073 -3.434 -.672)"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop offset=".383" stop-color="#34a853" />
+                    <stop offset=".383" stopColor="#34a853" />
                     <stop
                       offset=".706"
-                      stop-color="#34a853"
-                      stop-opacity=".7"
+                      stopColor="#34a853"
+                      stopOpacity=".7"
                     />
-                    <stop offset="1" stop-color="#34a853" stop-opacity="0" />
+                    <stop offset="1" stopColor="#34a853" stopOpacity="0" />
                   </radialGradient>
                   <linearGradient
                     id="prefix__d"
@@ -247,8 +248,8 @@ const Login = () => {
                     y2="20.299"
                     gradientUnits="userSpaceOnUse"
                   >
-                    <stop offset=".671" stop-color="#4285f4" />
-                    <stop offset=".885" stop-color="#4285f4" stop-opacity="0" />
+                    <stop offset=".671" stopColor="#4285f4" />
+                    <stop offset=".885" stopColor="#4285f4" stopOpacity="0" />
                   </linearGradient>
                   <clipPath id="prefix__a">
                     <path

@@ -72,13 +72,11 @@ const Home = () => {
         { withCredentials: true }
       );
       if (res.data.success) {
-        console.log("✅ Banner data received:", res.data.data);
+
         setBanners(res.data.data);
-      } else {
-        console.warn("⚠️ Failed banner response:", res.data);
-      }
+      } 
     } catch (error) {
-      console.error("❌ Error fetching banners:", error);
+      
     } finally {
       markDone();
     }
@@ -92,10 +90,6 @@ const Home = () => {
   const activeLaptopBanners =
     banners?.laptopBanners?.filter((b) => b?.status === "active") || [];
 
-  useEffect(() => {
-    console.log("🧪 RAW banners state:", banners);
-    console.log("✅ Active Laptop Banners:", activeLaptopBanners);
-  }, [banners]);
 
   const activeMobileBanner =
     banners.mobileBanners.filter((b) => b.status === "active") || [];
@@ -129,11 +123,7 @@ const Home = () => {
                       loading="lazy"
                       alt={`banner-${index}`}
                       className="w-full h-full object-fit rounded-[30px] border-gray-200 "
-                      onError={() =>
-                        console.error(
-                          `❌ Failed to load image for banner ${index}`
-                        )
-                      }
+
                     />
                   </div>
                 </SwiperSlide>
@@ -173,11 +163,7 @@ const Home = () => {
                     loading="lazy"
                     alt={`mobile-banner-${index}`}
                     className="w-full h-full rounded-[20px]"
-                    onError={() =>
-                      console.error(
-                        `❌ Failed to load image for banner ${index}`
-                      )
-                    }
+                   
                   />
                 </div>
               </SwiperSlide>

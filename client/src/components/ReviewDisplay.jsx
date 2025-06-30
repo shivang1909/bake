@@ -93,7 +93,8 @@ const ReviewDisplay = ({ productId }) => {
 <section className="flex flex-col lg:flex-row w-full p-4 gap-4 md:max-w-2xl lg:max-w-6xl  justify-self-center">
          {/* <section className="flex flex-col lg:flex-row w-full p-4 gap-4"> */}
         {/* Left Box */}
-        <div className="w-full lg:w-1/3 h-fit bg-white p-6 rounded shadow flex flex-col justify-between font-semibold">
+        <div className="w-full lg:w-1/3 h-fit bg-white p-6 rounded shadow-md border border-gray-200 flex flex-col justify-between font-semibold
+        ">
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
               Customer Reviews
@@ -129,7 +130,7 @@ const ReviewDisplay = ({ productId }) => {
 
 
         {/* Right Testimonials */}
-        <div className="w-full lg:w-2/3 bg-white border p-4 rounded-xl overflow-y-auto max-h-[70vh]">
+        <div className="w-full lg:w-2/3 bg-white border p-4 rounded-xl overflow-y-auto max-h-[70vh] border-gray-200 shadow-md">
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             {allReviews.map((data, index) => (
               <div

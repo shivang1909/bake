@@ -46,8 +46,7 @@ const UserMenu = ({ close, open }) => {
         navigate("/");
       }
     } catch (error) {
-      console.error(error);
-      AxiosToastError(error);
+      
     }
   };
 

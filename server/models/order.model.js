@@ -16,8 +16,7 @@ const variantSchema = new mongoose.Schema({
 const productSchema = new mongoose.Schema({
    itemname: { type: String, required: true },
    coverimage: { type: String, required: true },
-   variantPrices: [variantSchema],
-  gst: { type: Number, required: true, default:5 }
+   variantPrices: [variantSchema]
 },{_id:false});
 
 const orderSchema = new mongoose.Schema({

@@ -22,7 +22,6 @@ import userReducer from './userSlice';
 import productReducer from './productSlice';
 import cartReducer from './cartProduct';
 import addressReducer from './addressSlice';
-import orderReducer from './orderSlice';
 import loadingReducer from './loadingSlice';
 
 import { persistStore, persistReducer } from 'redux-persist';
@@ -34,8 +33,7 @@ const rootReducer = combineReducers({
   product: productReducer,
   cartItem: cartReducer,
   addresses: addressReducer,
-  orders: orderReducer,
-  loading: loadingReducer,
+  loading: loadingReducer
 });
 
 // Persist Config

@@ -6,9 +6,8 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { useGlobalContext } from "../provider/GlobalProvider";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
-import AxiosToastError from "../utils/AxiosToastError";
-import { MdMyLocation } from "react-icons/md";
-import { AiOutlineAlert } from "react-icons/ai";
+
+
 import Address from "../../assets/images/Custom/address.svg";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { MdOutlineAddLocationAlt } from "react-icons/md";
@@ -57,12 +56,6 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     };
   }, [open]);
 
-  // useEffect(() => {
-  //   if (isEdit) {
-  //     setPincodeChecked(true);
-  //     setShowCheckButton(false);
-  //   }
-  // }, [isEdit]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -129,6 +122,7 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
     }
 
     try {
+      
       const apiConfig = isEdit
         ? SummaryApi.updateAddress
         : SummaryApi.createAddress;
@@ -142,7 +136,8 @@ const AddAddressDesktop = ({ open, close, data = {}, mode = "add" }) => {
         fetchAddress();
       }
     } catch (error) {
-      AxiosToastError(error);
+        toast.error("Unable to Save Address");
+
     }
   };
 

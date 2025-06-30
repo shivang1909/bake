@@ -1,10 +1,10 @@
-  import { useEffect, useState } from 'react'
+  import { useEffect } from 'react'
   import { Outlet, useLocation,useNavigate } from 'react-router-dom'
   import './App.css'
   // import Header from './components/Header'
   import Header from  './components/Header.jsx'
   import Footer from './components/Footer'
-  import toast, { Toaster } from 'react-hot-toast';
+  import { Toaster } from 'react-hot-toast';
   import fetchUserDetails from './utils/fetchUserDetails';
   import { setUserDetails } from './store/userSlice';
   import { setAllCategory,setLoadingCategory } from './store/productSlice';
@@ -21,28 +21,10 @@ import AdminHeader from './components/AdminHeader.jsx'
     const location = useLocation();
     const navigate = useNavigate();
     const user = useSelector((state) => state.user);
+    const loadingvalue = useSelector((state)=> state.loading.loadingValue)
 
-useEffect(() => {
-  const handleScroll = () => {
-    console.trace("Body scrolled");
-  };
 
-  document.body.addEventListener("scroll", handleScroll);
 
-  return () => {
-    document.body.removeEventListener("scroll", handleScroll);
-  };
-}, []);
-
-    
-
-const pathname = window.location.pathname;
-    const [isLoading, setIsLoading] = useState();
-    const excludedRoutesForLoader = [
-    "/login", "/register", "/checkout", "/dashboard/checkout", "/forgot-password", "/success"
-    ,"/search","/about-us", "/Privacy-Policy", "/Terms-conditions", "/Contact-Us","/dashboard/myorders", "/dashboard/Myprofile",
-    "/dashboard/address","/verification-otp","/reset-password",
-  ];
     const hideLayoutRoutes = [
       "/register", "/login", "/dashboard/checkout", "/forgot-password",
       "/verification-otp", "/success" ,"/admin/login","/admin/forgot-password"  ,"/admin/reset-password","/admin/verification-otp"
@@ -67,7 +49,7 @@ const pathname = window.location.pathname;
           }
         }
       } catch (error) {
-        console.log(error);
+        dispatch(setUserDetails([]))
       }
     };
 
@@ -77,15 +59,15 @@ const pathname = window.location.pathname;
             ...SummaryApi.getCategory
         })   
         const { data : responseData } = response;
-        console.log(`this is response of category ${JSON.stringify(responseData.data)}`);
+        
         
         if(responseData.success){
            dispatch(setAllCategory(responseData.data)) 
         }
-        console.log(`this is category `,responseData.data);
+        
         
     } catch (error) {
-      console.log("Error fetching categories:", error);
+      console.error("Error fetching categories:", error);
       
     }finally{
       dispatch(setLoadingCategory(false))
@@ -94,22 +76,27 @@ const pathname = window.location.pathname;
 
 
     useEffect(() => {
-      fetchUser();
-      fetchCategory();
-    }, []);
+      if(loadingvalue === false)
+      {
 
-    useEffect(()=>{
-      console.log(user)
-    },[user])
+        fetchUser();
+      }
+       if(user.role !== "USER")
+       {
+
+         fetchCategory();
+       }
+    
+    }, [user]);
+
+
 
 
 
 
     return (
       <GlobalProvider>
-        {/* {isLoading ? (
-          <Loader />
-        ) : ( */}
+        
           <>
             {!hideLayout && ((user.role && user.role !== "USER") ? <AdminHeader /> : <Header />)}
             <main className="bg-white w-[100vw]">
@@ -120,7 +107,7 @@ const pathname = window.location.pathname;
             <Toaster />
             {location.pathname !== "/checkout" && <CartMobileLink />}
           </>
-        {/* )} */}
+        
       </GlobalProvider>
     );
   }

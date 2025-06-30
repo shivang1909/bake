@@ -2,19 +2,18 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useGlobalContext } from "../provider/GlobalProvider";
 import { DisplayPriceInRupees } from "../utils/DisplayPriceInRupees";
 import { useDispatch, useSelector } from "react-redux";
-import AxiosToastError from "../utils/AxiosToastError";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loadStripe } from "@stripe/stripe-js";
+
 import { pricewithDiscount } from "../utils/PriceWithDiscount";
 import { updatedShoppingCart } from "../store/userSlice";
-import wrapprice from "../utils/wrapprice.json";
+
 import { FaLocationDot } from "react-icons/fa6";
 import { useForm } from "react-hook-form";
 import { MdMyLocation } from "react-icons/md";
-import CheckOutSteps from "./CheckOutSteps";
+
 import confetti from "canvas-confetti";
 import { MdOutlineAddHomeWork } from "react-icons/md";
 import { IoBagCheckOutline } from "react-icons/io5";
@@ -27,8 +26,6 @@ import AddAddressDesktop from "../components/AddAddressDesktop";
 import { CiCircleChevDown, CiCircleChevUp } from "react-icons/ci";
 import { FaAngleUp } from "react-icons/fa6";
 import { CiGift } from "react-icons/ci";
-import { CiEdit } from "react-icons/ci";
-import { FaCheck } from "react-icons/fa6";
 import ProcesspaymentModal from "../components/ProcesspaymentModal";
 import { IoCaretBackOutline } from "react-icons/io5";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -36,19 +33,6 @@ import { GiShoppingBag } from "react-icons/gi";
 import { BsCart3 } from "react-icons/bs";
 
 
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    const listener = () => setMatches(media.matches);
-    listener();
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, [query]);
-
-  return matches;
-};
 
 const Accordion = ({
   title,
@@ -164,7 +148,6 @@ const CheckoutPage = () => {
   const [appliedPromocode, setAppliedPromocode] = useState(null);
   const [promocodeDiscount, setPromocodeDiscount] = useState(0);
   const [isLoadingPromocode, setIsLoadingPromocode] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 1023px)");
   const [openSection, setOpenSection] = useState("address");
   const [showGiftWrapDetails, setShowGiftWrapDetails] = useState({});
 
@@ -179,7 +162,6 @@ const CheckoutPage = () => {
   };
   const handleProductComplete = () => setOpenSection("promo");
   const handlePromoComplete = () => setOpenSection("checkout");
-  const [checked, setChecked] = useState(false);
   // const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -189,12 +171,11 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     const fromCart = location.state?.fromCart;
-    console.log("this is ", fromCart);
-    const orderCompleted = sessionStorage.getItem("orderCompleted");
-    console.log("this is orderCompleted", orderCompleted);
-    console.log("this is user", user);
+
+    
+   
     if (fromCart === undefined || user.shopping_cart.length === 0) {
-      sessionStorage.removeItem("orderCompleted");
+      
       // Redirect to home
       navigate("/", { replace: true });
     }
@@ -228,7 +209,7 @@ const CheckoutPage = () => {
     }
   }, [openAddress]);
   useEffect(() => {
-    console.log("useeffect for check out items", checkoutItems);
+    
   }, [checkoutItems]);
   useEffect(() => {
     if (appliedPromocode && promoRef.current) {
@@ -310,84 +291,7 @@ const CheckoutPage = () => {
     }));
   };
 
-  // const handleGiftWrapChange = (
-  //   productIndex,
-  //   variantIndex,
-  //   weight,
-  //   isChecked
-  // ) => {
-  //   const quantity =
-  //     checkoutItems[productIndex].variantPrices[variantIndex].quantity;
-  //   const pricePerWrap = giftWrapChargesList[weight];
-  //   console.log("pricePerWrap", pricePerWrap);
-  //   console.log("quantity", quantity);
-  //   console.log("handleGiftWrapChange", productIndex, variantIndex, isChecked);
-
-  //   if (isChecked) {
-  //     // Initialize with default quantity (all items)
-  //     setGiftNoteQtys((prev) => ({
-  //       ...prev,
-  //       [`${productIndex}-${variantIndex}`]: quantity,
-  //     }));
-
-  //     // Initialize empty notes for each item
-  //     const initialNotes = {};
-  //     for (let i = 0; i < quantity; i++) {
-  //       initialNotes[`${productIndex}-${variantIndex}-${i}`] = "";
-  //     }
-  //     setGiftNotes((prev) => ({ ...prev, ...initialNotes }));
-  //     console.log("GiftWrapCharges", GiftWrapCharges);
-  //     setGiftWrapCharges((prev) => prev + pricePerWrap * quantity);
-  //   } else {
-  //     // Clean up all related states
-  //     setGiftNotes((prev) => {
-  //       const updated = { ...prev };
-  //       for (let i = 0; i < quantity; i++) {
-  //         delete updated[`${productIndex}-${variantIndex}-${i}`];
-  //       }
-  //       return updated;
-  //     });
-
-  //     setGiftNoteEditable((prev) => {
-  //       const updated = { ...prev };
-  //       for (let i = 0; i < quantity; i++) {
-  //         delete updated[`${productIndex}-${variantIndex}-${i}`];
-  //       }
-  //       return updated;
-  //     });
-
-  //     setGiftNoteQtys((prev) => {
-  //       const updated = { ...prev };
-  //       delete updated[`${productIndex}-${variantIndex}`];
-  //       return updated;
-  //     });
-
-  //     setGiftWrapCharges(
-  //       (prev) =>
-  //         prev -
-  //         pricePerWrap *
-  //           (giftNoteQtys[`${productIndex}-${variantIndex}`] || quantity)
-  //     );
-  //   }
-
-  //   // Update checkout items
-  //   setcheckoutItems((prev) => {
-  //     const updated = [...prev];
-  //     updated[productIndex] = {
-  //       ...updated[productIndex],
-  //       variantPrices: updated[productIndex].variantPrices.map((v, i) =>
-  //         i === variantIndex
-  //           ? {
-  //               ...v,
-  //               isGiftWrap: isChecked,
-  //             }
-  //           : v
-  //       ),
-  //     };
-  //     return updated;
-  //   });
-  // };
-
+ 
   // Apply promocode
   const handleGiftWrapChange = (
     productIndex,
@@ -563,7 +467,7 @@ const CheckoutPage = () => {
           };
         }),
       }));
-      console.log("itemwithgiftdetailss", itemsWithGiftDetails);
+      
 
       const response = await Axios({
         ...SummaryApi.CashOnDeliveryOrder,
@@ -609,7 +513,7 @@ const CheckoutPage = () => {
       }
     } catch (error) {
       toast.dismiss();
-      AxiosToastError(error);
+      toast.error("Something Went Wrong ")
     }
   };
 
@@ -659,7 +563,7 @@ const CheckoutPage = () => {
         order_id: order.id,
         modal: {
           ondismiss: () => {
-            console.log("Razorpay popup closed by user");
+           
 
             setPaymentStatus({
               isProcessing: false,
@@ -701,8 +605,7 @@ const CheckoutPage = () => {
             );
 
             const verifyData = await verifyRes.json();
-            console.log(verifyData);
-
+      
             if (verifyData.success) {
               setCartItem([]);
               dispatch(updatedShoppingCart([]));
@@ -735,7 +638,7 @@ const CheckoutPage = () => {
               });
             }
           } catch (err) {
-            console.error("this is", err);
+            
             setPaymentStatus({
               isProcessing: false,
               method: null,
@@ -750,7 +653,7 @@ const CheckoutPage = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.log(error);
+      
       setPaymentStatus({
         isProcessing: false,
         method: null,
@@ -758,7 +661,7 @@ const CheckoutPage = () => {
         paymentcancel: false,
       });
 
-      // AxiosToastError(error);
+      
     }
   };
 
@@ -767,7 +670,7 @@ const CheckoutPage = () => {
     let quantity = 0;
     let discountedPrice = 0;
 
-    console.log("usememocalled");
+    
     checkoutItems.forEach((item) => {
       item.variantPrices.forEach((variant) => {
         finalTotal += variant.price * variant.quantity;
@@ -793,7 +696,7 @@ const CheckoutPage = () => {
     // Fetch all promocodes
     const fetchPromocodes = async () => {
       try {
-        console.log(finalTotal - discountedPrice);
+        
 
         const response = await Axios({
           method: "POST",
@@ -807,7 +710,7 @@ const CheckoutPage = () => {
           setPromocodes(response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching promocodes:", error);
+        
       }
     };
     fetchPromocodes();
@@ -821,12 +724,12 @@ const CheckoutPage = () => {
         });
         const { data: responseData } = response;
         if (responseData.success) {
-          console.log(responseData.giftwrapCharges);
+        
           setcheckoutItems(responseData.data);
           setGiftWrapChargesList(responseData.giftwrapCharges);
         }
       } catch (error) {
-        console.error("Error fetching cart details:", error);
+      
       }
     };
     fetchCartDetails();
@@ -842,15 +745,12 @@ const CheckoutPage = () => {
     change
   ) => {
     const key = `${productIndex}-${variantIndex}`;
-    console.log("inside button click ", giftNoteQtys);
+ 
     const currentQty =
       giftNoteQtys[key] ||
       checkoutItems[productIndex].variantPrices[variantIndex].quantity;
     const newQty = currentQty + change;
-    console.log("newQty", newQty);
-    console.log("this is ", change);
-    console.log("this is weight", weight);
-    // Validate new quantity is between 1 and item quantity
+
     if (
       newQty >= 1 &&
       newQty <= checkoutItems[productIndex].variantPrices[variantIndex].quantity
@@ -953,7 +853,7 @@ const CheckoutPage = () => {
 
                       return (
                         <div
-                          key={index}
+                          key={address._id}
                           className={`border  rounded-xl p-4 flex flex-col gap-2 w-full max-w-md h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
                             isActive
                               ? "border-orange-400 border-2 bg-orange-50"
@@ -1515,7 +1415,7 @@ const CheckoutPage = () => {
               </div>
               <div className="font-semibold flex items-center justify-between gap-4 mt-2 pt-2 border-t">
                 <p>Grand total</p>
-                {console.log(grandTotal)}
+                
                 <p>{DisplayPriceInRupees(grandTotal)}</p>
               </div>
             </div>
@@ -1697,84 +1597,85 @@ const CheckoutPage = () => {
               <FaLocationDot /> Choose your address
             </div> */}
 
-                  <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[72vh] lg:h-[60vh]">
-                    {/* // Address Cards */}
-                    {addressList.map((address, index) => {
-                      const isActive = selectAddress === index;
-                      if (!address.status) return null;
+                    <div className="bg-white gap-4 px-5 py-2 grid grid-cols-1 md:grid-cols-2 overflow-y-auto max-h-[72vh] lg:h-[60vh]">
+                      {/* // Address Cards */}
+                      {addressList.map((address, index) => {
+                        const isActive = selectAddress === index;
+                        if (!address.status) return null;
 
-                      return (
-                        // <div key={index} className="mx-3">
-                        <>
-                          <div
-                            className={`border rounded-[20px] p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
-                              isActive
-                                ? "border-orange-400 border-2 bg-orange-50"
-                                : "border-gray-300 bg-white"
-                            }`}
-                            onClick={() => setSelectAddress(index)}
-                          >
-                            <input
-                              id={"address" + index}
-                              type="radio"
-                              value={index}
-                              onChange={(e) =>
-                                setSelectAddress(Number(e.target.value))
-                              }
-                              name="address"
-                              checked={isActive}
-                              className="hidden"
-                            />
+                        return (
+                      
+                          
+                            <div
+                            key={index}
+                              className={`border rounded-[20px] p-4 flex flex-col gap-2 max-w-sm h-fit cursor-pointer transition-all duration-300 active:scale-95 shadow-sm ${
+                                isActive
+                                  ? "border-orange-400 border-2 bg-orange-50"
+                                  : "border-gray-300 bg-white"
+                              }`}
+                              onClick={() => setSelectAddress(index)}
+                            >
+                              <input
+                                id={"address" + index}
+                                type="radio"
+                                value={index}
+                                onChange={(e) =>
+                                  setSelectAddress(Number(e.target.value))
+                                }
+                                name="address"
+                                checked={isActive}
+                                className="hidden"
+                              />
 
-                            <div className="flex items-center justify-between">
-                              <span className="text-md font-semibold text-gray-800">
-                                {address.name || "Krunal Mistry"}
-                              </span>
-                              {isActive && (
-                                <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-md">
-                                  Selected
+                              <div className="flex items-center justify-between">
+                                <span className="text-md font-semibold text-gray-800">
+                                  {address.name || "Krunal Mistry"}
                                 </span>
-                              )}
-                            </div>
+                                {isActive && (
+                                  <span className="text-xs text-orange-600 font-medium bg-orange-100 px-2 py-0.5 rounded-md">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
 
-                            <div className="text-sm text-gray-600 leading-5">
-                              <p>{address.address_line1}</p>
-                              {address.address_line2 && (
-                                <p>{address.address_line2}</p>
-                              )}
-                              <p>
-                                {address.city}, {address.state}
+                              <div className="text-sm text-gray-600 leading-5">
+                                <p>{address.address_line1}</p>
+                                {address.address_line2 && (
+                                  <p>{address.address_line2}</p>
+                                )}
+                                <p>
+                                  {address.city}, {address.state}
+                                </p>
+                                <p>
+                                  {address.country} - {address.pincode}
+                                </p>
+                              </div>
+
+                              <p className="text-sm font-medium text-gray-700">
+                                📞 {address.mobile}
                               </p>
-                              <p>
-                                {address.country} - {address.pincode}
-                              </p>
                             </div>
+                          
+                          // {/* </div> */}
+                        );
+                      })}
 
-                            <p className="text-sm font-medium text-gray-700">
-                              📞 {address.mobile}
-                            </p>
-                          </div>
-                        </>
-                        // {/* </div> */}
-                      );
-                    })}
-
-                    {/* Add Another Address only when one address is active */}
-                  </div>
-                  {addressList.filter((a) => a.status).length === 1 && (
-                    <div className="flex-1 px-4 mt-5 flex items-stretch">
-                      <div
-                        onClick={() => setOpenAddress(true)}
-                        className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm h-full py-32 max-h-full cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
-                      >
-                        <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
-                          <MdOutlineAddHomeWork className="text-4xl" />
-                          Add Another Address
-                        </span>
-                      </div>
+                      {/* Add Another Address only when one address is active */}
                     </div>
-                  )}
-                  {addressList.filter((a) => a.status).length > 1 && (
+                    {addressList.filter((a) => a.status).length === 1 && (
+                      <div className="flex-1 px-4 mt-5 flex items-stretch">
+                        <div
+                          onClick={() => setOpenAddress(true)}
+                          className="border-2 border-dashed rounded-xl p-4 flex flex-col justify-center items-center w-full max-w-sm h-full py-32 max-h-full cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
+                        >
+                          <span className="text-md font-semibold text-orange-600 flex flex-col gap-1 items-center">
+                            <MdOutlineAddHomeWork className="text-4xl" />
+                            Add Another Address
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {addressList.filter((a) => a.status).length > 1 && (
 <div className="fixed right-2 bottom-24 z-50 flex flex-col items-center  animate-bounce">
   {/* Tooltip with arrow */}
   <div className="relative mb-2 animate-pulse ">
@@ -2145,11 +2046,11 @@ const CheckoutPage = () => {
                 </>
               ) : (
                 // <SkeletonCardLoader/>
-                <>
+                
                   <div className="flex flex-col items-center justify-center h-full ">
                     <SkeletonCardLoader className="max-w-sm" />
                   </div>
-                </>
+                
               )}
             </div>
           </div>
@@ -2157,9 +2058,9 @@ const CheckoutPage = () => {
 
         <Accordion
           title={
-            <>
+            
               <span className="text-lg font-semibold">Promo & Billing</span>
-            </>
+            
           }
           isOpen={openSection === "promo"}
           onToggle={() =>
@@ -2241,19 +2142,19 @@ const CheckoutPage = () => {
                       className="text-green-500 bg-white w-full px-2 py-1 rounded-lg text-sm mt-2 font-semibold"
                     >
                       {showPromocodes ? (
-                        <>
+                        
                           <div className="flex gap-1 items-center">
                             <CiCircleChevUp className="text-lg" />
                             Hide Available Codes
                           </div>
-                        </>
+                        
                       ) : (
-                        <>
+                        
                           <div className="flex gap-1 items-center">
                             <CiCircleChevDown className="text-lg" /> View
                             Available Promocodes
                           </div>
-                        </>
+                       
                       )}
                     </button>
 

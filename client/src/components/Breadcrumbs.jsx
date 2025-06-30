@@ -25,11 +25,11 @@ const Breadcrumbs = () => {
             return (
               <span key={index} className="flex items-center gap-1">
                  {!index === 0 ? (
-                  <>
+                  
                     <Link to={routeTo} className="hover:underline capitalize">
                      {decodeURIComponent(name)}
                     </Link>
-                  </>
+                  
                 ) : (
                   <span className={` capitalize ${isLast?"font-semibold text-black":"hover:underline"}`}>
   {decodeURIComponent(name).split("-").filter(word => /^[A-Za-z]+$/.test(word)).join(" ")}

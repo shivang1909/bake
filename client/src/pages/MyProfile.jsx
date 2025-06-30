@@ -19,7 +19,7 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { IoArrowBackOutline } from "react-icons/io5";
 
 import AddAddress from "./Address";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ProfileSideBar from "../components/ProfileSideBar";
 import { FaPencilAlt } from "react-icons/fa";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -28,6 +28,8 @@ const MyProfile = () => {
   const user = useSelector((state) => state.user);
   const role = user.role;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
 
   const [openProfileAvatarEdit, setProfileAvatarEdit] = useState(false);
   const [openProfileAvatarEditMobile, setProfileAvatarEditMobile] =useState(false);
@@ -52,7 +54,14 @@ const MyProfile = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+ 
+ useEffect(() => {
+  
+
+    if(user.email === undefined)
+    {
+      navigate('/')    
+    }
     setUserData({
       name: user.name,
       email: user.email,
@@ -62,10 +71,10 @@ const MyProfile = () => {
     });
   }, [user]);
 
-  useEffect(() => {}, []);
+  
 
   const handleOnChange = (e) => {
-    console.log("handleOnChange called", e.target.name, e.target.value);
+  
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
@@ -74,11 +83,8 @@ const MyProfile = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const apiCall =
-        role === "USER"
-          ? SummaryApi.updateUserDetails
-          : SummaryApi.UpdateAdminDetails;
-      const response = await Axios({ ...apiCall, data: userData });
+      
+      const response = await Axios({ ...SummaryApi.updateUserDetails, data: userData });
       const { data: responseData } = response;
       if (responseData.success) {
         toast.success(responseData.message);
@@ -86,7 +92,7 @@ const MyProfile = () => {
         dispatch(setUserDetails(updatedUser.data));
       }
     } catch (error) {
-      AxiosToastError(error);
+        toast.error('Unable to Update Details ')
     } finally {
       setLoading(false);
     }
@@ -95,22 +101,6 @@ const MyProfile = () => {
     <>
       <div className="mt-10 md:mt-20 lg:mt-20 mb-10 flex flex-col md:flex-row md:gap-3 max-w-7xl mx-auto font-medium  overflow-hidden">
 
-        {/* <div className="sm:block md:hidden flex justify-between items-center ">
-          <Link
-          to="/"
-          className="text-gray-500 flex gap-1 items-center justify-start px-2 py-3 mt-5"
-        >
-          <IoCaretBackOutline /> Go Back
-        </Link>
-
-        <div className="px-2 py-3 mt-5 flex items-center gap-1">
-         <span className="text-gray-700"> My Profile</span>
-        </div>
-        </div> */}
-        
-        {/* <div className="border w-full">
-
-        </div> */}
         
         <div>
           <ProfileSideBar activesection={"Myprofile"} />

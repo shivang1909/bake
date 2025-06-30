@@ -1,510 +1,244 @@
 import React, { useEffect, useState } from "react";
-import { FaArrowUp } from "react-icons/fa";
+import { FaArrowUp, FaBreadSlice, FaLeaf, FaAward, FaClock, FaHeart } from "react-icons/fa";
+import { GiWheat, GiHotSpices } from "react-icons/gi";
 
 const AboutUs = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  
   useEffect(() => {
-        const handleScroll = () => {
-          setShowScrollTop(document.body.scrollTop > 200); // show button after 200px scroll
-        };
-    
-        document.body.addEventListener("scroll", handleScroll);
-        return () => document.body.removeEventListener("scroll", handleScroll);
-      }, []);
-    
-      const scrollToTop = () => {
-        document.body.scrollTo({ top: 0, behavior: "smooth" });
-      };
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <>
-      <div className="mt-10 lg:mt-20">
-        <div className="relative w-full h-[520px]" id="home">
-          <div className="absolute inset-0 opacity-70">
-            <img
-              src="https://image1.jdomni.in/banner/13062021/0A/52/CC/1AF5FC422867D96E06C4B7BD69_1623557926542.png"
-              alt="Background Image"
-              className="object-cover object-center w-full h-full"
-            />
+    <div className="bg-white">
+      {/* Hero Banner */}
+
+ {/* Hero Banner with Brand Gradient */}
+    <div className="mt-20 relative w-full h-[90vh] max-h-[900px] overflow-hidden">
+    {/* Light gradient using softer versions of your brand colors */}
+    <div className="absolute inset-0 bg-gradient-to-br from-[#e6f7f8] via-[#fee9d7] to-orange-100 z-10"></div>
+    
+    <div className="absolute inset-0 z-20 flex items-center justify-center text-center px-6">
+      <div className="max-w-4xl mx-auto">
+       <h1 className="text-4xl md:text-6xl font-bold mb-6 font-serif tracking-tight">
+  About Bake Flavours
+</h1>
+<p className="text-xl md:text-2xl mb-8">
+  Where every bite is a celebration of tradition, taste, and love.
+</p>
+
+        <a
+          href="#visit"
+          className="inline-block px-8 py-3 bg-[#F58220] text-white hover:bg-[#e6730c] font-medium rounded-full transition duration-300 focus:outline-none focus:ring-2 focus:ring-[#F58220] focus:ring-offset-2 focus:ring-offset-[#e6f7f8]"
+          aria-label="Visit our bakery"
+        >
+          Visit Our Bakery
+        </a>
+      </div>
+    </div>
+    
+    {/* Subtle decorative elements */}
+    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent z-30"></div>
+    <div className="absolute top-1/4 right-10 w-32 h-32 rounded-full bg-[#008E97]/10"></div>
+    <div className="absolute bottom-1/3 left-20 w-24 h-24 rounded-full bg-[#F58220]/10"></div>
+    
+    {/* Optional subtle texture */}
+    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/light-paper-fibers.png')] opacity-10 z-10"></div>
+  </div>
+
+
+      {/* Our Story Section */}
+     <section className="py-20 px-6 sm:px-8 lg:px-10 max-w-7xl mx-auto">
+  <div className="text-center mb-16">
+    <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Story</h2>
+    <div className="w-20 h-1 bg-amber-500 mx-auto"></div>
+  </div>
+  
+  <div className="grid md:grid-cols-2 gap-12 items-center">
+    <div className="order-2 md:order-1">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+        From Local Oven to Loved Brand
+      </h3>
+      <p className="text-gray-600 mb-4">
+        Bake Flavours began with a simple mission — to serve fresh, flavorful, and comforting baked goods to the local community. What started with small batches and homemade recipes quickly turned into a neighborhood favorite.
+      </p>
+      <p className="text-gray-600 mb-4">
+        Over the years, we've expanded our offerings while staying true to traditional methods, quality ingredients, and a personal touch in every product we make. From soft cookies to crispy snacks, every item is a reflection of our love for baking.
+      </p>
+      <p className="text-gray-600">
+        Today, Bake Flavours continues to bring joy to homes with treats made fresh daily. Whether it's a festive sweet box or your everyday snack, our goal remains the same — delivering happiness, one bite at a time.
+      </p>
+    </div>
+    <div className="grid grid-cols-2 gap-4 order-1 md:order-2">
+      <img 
+        src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80" 
+        alt="Cozy bakery interior"
+        className="rounded-lg shadow-md object-cover h-64 w-full"
+        loading="lazy"
+      />
+      <img 
+        src="https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1172&q=80" 
+        alt="Baker preparing dough"
+        className="rounded-lg shadow-md object-cover h-64 w-full mt-8"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+
+      {/* Baking Philosophy */}
+      <section className="py-20 bg-amber-50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Baking Philosophy</h2>
+            <div className="w-20 h-1 bg-amber-500 mx-auto"></div>
           </div>
-          <div className="absolute inset-9 flex flex-col md:flex-row items-center justify-between">
-            <div className="md:w-1/2 mb-4 md:mb-0">
-              <h1 className="text-grey-700 font-medium text-4xl md:text-5xl leading-tight mb-2">
-                About Bake Flavours
-              </h1>
-              <p className="font-regular text-xl mb-8 mt-4">
-                One stop solution for flour grinding services
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-lg shadow-sm text-center hover:shadow-md transition duration-300">
+              <div className="text-amber-600 mb-4 flex justify-center">
+                <GiWheat className="text-5xl" aria-hidden="true" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Quality Ingredients</h3>
+              <p className="text-gray-600">
+                We source organic flours, local dairy, and seasonal fruits. No artificial preservatives or shortcuts - just real ingredients.
               </p>
+            </div>
+            
+            <div className="bg-white p-8 rounded-lg shadow-sm text-center hover:shadow-md transition duration-300">
+              <div className="text-amber-600 mb-4 flex justify-center">
+                <FaHeart className="text-5xl" aria-hidden="true" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Handcrafted With Care</h3>
+              <p className="text-gray-600">
+                Every product is made by skilled bakers who take pride in their craft. Our slow fermentation creates depth of flavor.
+              </p>
+            </div>
+            
+            <div className="bg-white p-8 rounded-lg shadow-sm text-center hover:shadow-md transition duration-300">
+              <div className="text-amber-600 mb-4 flex justify-center">
+                <GiHotSpices className="text-5xl" aria-hidden="true" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Innovative Flavors</h3>
+              <p className="text-gray-600">
+                While respecting tradition, we create seasonal specialties and modern twists on classic recipes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Why Choose Us */}
+      <section className="py-20 bg-gray-100">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Why Choose Bake Flavours</h2>
+            <div className="w-20 h-1 bg-amber-500 mx-auto"></div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: <FaBreadSlice className="text-4xl mb-4 text-amber-600" aria-hidden="true" />,
+                title: "Daily Freshness",
+                text: "We bake in small batches throughout the day to ensure peak freshness in every product."
+              },
+              {
+                icon: <FaLeaf className="text-4xl mb-4 text-amber-600" aria-hidden="true" />,
+                title: "Sustainable Practices",
+                text: "Committed to zero food waste, composting, and eco-friendly packaging."
+              },
+              {
+                icon: <FaAward className="text-4xl mb-4 text-amber-600" aria-hidden="true" />,
+                title: "Award Winning",
+                text: "Recipient of the 2022 National Artisan Bakery Award for excellence."
+              },
+              {
+                icon: <FaClock className="text-4xl mb-4 text-amber-600" aria-hidden="true" />,
+                title: "Early Birds Welcome",
+                text: "Our doors open at 6am with fresh coffee and warm pastries ready."
+              }
+            ].map((item, index) => (
+              <div key={index} className="bg-white p-8 rounded-lg text-center hover:shadow-md transition duration-300 h-full">
+                <div className="flex justify-center" aria-hidden="true">{item.icon}</div>
+                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+                <p className="text-gray-600">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Visit Us Section */}
+      <section className="py-20 px-6 sm:px-8 lg:px-10 max-w-7xl mx-auto" id="visit">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Visit Our Bakery</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Main Bakery</h3>
+                <p className="text-gray-600">123 Baker Street, Flour District</p>
+                <p className="text-gray-600">Open Daily: 6am - 6pm</p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Downtown Cafe</h3>
+                <p className="text-gray-600">456 Pastry Avenue, City Center</p>
+                <p className="text-gray-600">Open Daily: 7am - 5pm</p>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Contact Us</h3>
+                <p className="text-gray-600">hello@bakeflavours.com</p>
+                <p className="text-gray-600">(555) 123-4567</p>
+              </div>
               <a
-                href="#contactUs"
-                className="px-6 py-3 w-fit bg-[#c8a876] text-white font-medium rounded-full hover:bg-[#c09858]  transition duration-200"
+                href="https://maps.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-full transition duration-300 mt-4 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                aria-label="Get directions to our bakery"
               >
-                Contact Us
+                Get Directions
               </a>
             </div>
           </div>
+          <div className="h-96 bg-gray-200 rounded-lg overflow-hidden">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.215573291865!2d-73.9878449241646!3d40.74844097138962!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1689779993585!5m2!1sen!2sus" 
+              width="100%" 
+              height="100%" 
+              style={{border:0}} 
+              allowFullScreen="" 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Bake Flavours Bakery Location"
+              aria-label="Map showing bakery location"
+            ></iframe>
+          </div>
         </div>
+      </section>
 
-        <div className="mx-3 ">
-          
-
-          <section className="bg-gray-100" id="aboutus">
-            <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8">
-                <div className="max-w-lg">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-                    About Us
-                  </h2>
-                  <p className="mt-4 text-gray-600 text-lg">
-                    Bappa flour mill provides our customers with the highest
-                    quality products and services. We offer a wide variety of
-                    flours and spices to choose from, and we are always happy to
-                    help our customers find the perfect products for their
-                    needs. We are committed to providing our customers with the
-                    best possible experience. We offer competitive prices, fast
-                    shipping, and excellent customer service. We are also happy
-                    to answer any questions that our customers may have about
-                    our products or services. If you are looking for a flour and
-                    spices service business that can provide you with the
-                    highest quality products and services, then we are the
-                    company for you. We look forward to serving you!
-                  </p>
-                </div>
-                <div className="mt-12 md:mt-0">
-                  <img
-                    src="https://images.unsplash.com/photo-1531973576160-7125cd663d86"
-                    alt="About Us Image"
-                    className="object-cover rounded-lg shadow-md"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-
-          {/* Icon Blocks */}
-<div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-  {/* Grid */}
-  <div className="grid md:grid-cols-2 gap-12">
-    <div className="lg:w-3/4">
-      <h2 className="text-3xl text-gray-800 font-bold lg:text-4xl">
-        Collaborative tools to design better user experience
-      </h2>
-      <p className="mt-3 text-gray-800">
-        We help businesses bring ideas to life in the digital world, by designing and implementing the technology tools that they need to win.
-      </p>
-      <p className="mt-5">
-        <a className="inline-flex items-center gap-x-1 text-sm text-blue-600 decoration-2 hover:underline focus:outline-hidden focus:underline font-medium" href="#">
-          Contact sales to learn more
-          <svg className="shrink-0 size-4 transition ease-in-out group-hover:translate-x-1 group-focus:translate-x-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
-      </p>
+      {/* Scroll to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-40 w-14 h-14 rounded-full bg-white border border-gray-200 shadow-lg transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+          showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        aria-label="Scroll to top"
+      >
+        <FaArrowUp className="w-6 h-6 mx-auto text-amber-600" />
+      </button>
     </div>
-    {/* End Col */}
-
-    <div className="space-y-6 lg:space-y-10">
-      {/* Icon Block */}
-      <div className="flex gap-x-5 sm:gap-x-8">
-        {/* Icon */}
-        <span className="shrink-0 inline-flex justify-center items-center size-11 rounded-full border border-gray-200 bg-white text-gray-800 shadow-2xs mx-auto">
-          <svg className="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        </span>
-        <div className="grow">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-            Industry-leading documentation
-          </h3>
-          <p className="mt-1 text-gray-600">
-            Our documentation and extensive Client libraries contain everything a business needs to build a custom integration in a fraction of the time.
-          </p>
-        </div>
-      </div>
-      {/* End Icon Block */}
-
-      {/* Icon Block */}
-      <div className="flex gap-x-5 sm:gap-x-8">
-        {/* Icon */}
-        <span className="shrink-0 inline-flex justify-center items-center size-11 rounded-full border border-gray-200 bg-white text-gray-800 shadow-2xs mx-auto">
-          <svg className="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg>
-        </span>
-        <div className="grow">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-            Developer community support
-          </h3>
-          <p className="mt-1 text-gray-600">
-            We actively contribute to open-source projects—giving back to the community through development, patches, and sponsorships.
-          </p>
-        </div>
-      </div>
-      {/* End Icon Block */}
-
-      {/* Icon Block */}
-      <div className="flex gap-x-5 sm:gap-x-8">
-        {/* Icon */}
-        <span className="shrink-0 inline-flex justify-center items-center size-11 rounded-full border border-gray-200 bg-white text-gray-800 shadow-2xs mx-auto">
-          <svg className="shrink-0 size-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
-        </span>
-        <div className="grow">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-            Simple and affordable
-          </h3>
-          <p className="mt-1 text-gray-600">
-            From boarding passes to movie tickets, there's pretty much nothing you can't store with Preline.
-          </p>
-        </div>
-      </div>
-      {/* End Icon Block */}
-    </div>
-    {/* End Col */}
-  </div>
-  {/* End Grid */}
-</div>
-{/* End Icon Blocks */}
-
-
-<section className="py-10" id="services">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-                Our Services
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img
-                    src="https://image3.jdomni.in/banner/13062021/42/5C/B1/45AC18B7F8EE562BC3DDB95D34_1623559815667.png?output-format=webp"
-                    alt="wheat flour grinding"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Wheat Flour Grinding
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      Our wheat flour grinding service provides fresh,
-                      high-quality flour to businesses and individuals in the
-                      area. We use state-of-the-art equipment to grind wheat
-                      into flour, and we offer a variety of flours to meet the
-                      needs of our customers.
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1606854428728-5fe3eea23475?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3JhbSUyMGZsb3VyfGVufDB8fDB8fHww"
-                    alt="Coffee"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Gram Flour Grinding
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      Our gram flour is perfect for a variety of uses, including
-                      baking, cooking, and making snacks. It is also a good
-                      source of protein and fiber.Our gram flour grinding
-                      service is a convenient and affordable way to get the
-                      freshest gram flour possible.
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img
-                    src="https://image2.jdomni.in/banner/13062021/D2/99/0D/48D7F4AFC48C041DC8D80432E9_1623562146900.png?output-format=webp"
-                    alt="Coffee"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Jowar Flour Grinding
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      Our jowar grinding service is a convenient and affordable
-                      way to get fresh, high-quality jowar flour. We use
-                      state-of-the-art equipment to grind jowar into a fine
-                      powder, which is perfect for making roti, bread, and other
-                      dishes.
-                      <details>
-                        <summary>Read More</summary>
-                        <p>
-                          Our jowar flour is also a good source of protein and
-                          fiber, making it a healthy choice for your family.
-                        </p>
-                      </details>
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1607672632458-9eb56696346b?q=80&w=1914&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    alt="Coffee"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Chilli pounding
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      We specializes in the production of high-quality chili
-                      powder. Our chili powder is made from the finest, freshest
-                      chilies, and we use traditional pounding methods to ensure
-                      that our chili powder retains its full flavor and aroma.
-                      <details>
-                        <summary>Read More</summary>
-                        <p>
-                          {" "}
-                          We offer a variety of chili powder products, including
-                          mild, medium, and hot. We also offer custom blends to
-                          meet the specific needs of our customers.
-                        </p>
-                      </details>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg bg-gradient-to-tr from-pink-300 to-blue-300 p-0.5 shadow-lg overflow-hidden min-h-full">
-                  <div className="text-center text-white font-medium">
-                    Special product
-                  </div>
-                  <img
-                    src="https://images.unsplash.com/photo-1556910110-a5a63dfd393c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cmF3JTIwc3BhZ2hldHRpfGVufDB8fDB8fHww"
-                    alt="Coffee"
-                    className="w-full h-64 object-cover rounded-t-lg"
-                  />
-                  <div className="p-6 bg-white text-center rounded-b-lg md:min-h-full">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Flavoured Spaghetti
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      <span className="font-medium underline">
-                        Our speciality is
-                      </span>
-                      Bappa Flour Mill offers a variety of flavored spaghetti
-                      dishes that are sure to tantalize your taste buds. We use
-                      only the freshest ingredients Our flavors include: Mango,
-                      spinach
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <img
-                    src="https://media.istockphoto.com/id/1265641298/photo/fried-papad.jpg?s=612x612&w=0&k=20&c=e_iEy4CTvU6Thn02zGgKt_TiSYAheCKmgfTF5j52ovU="
-                    alt="papad"
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-medium text-gray-800 mb-2">
-                      Rice Papad
-                    </h3>
-                    <p className="text-gray-700 text-base">
-                      Our company produces high-quality rice papad that is made
-                      with the finest ingredients. We use traditional methods to
-                      make our papad, which gives it a unique flavor and
-                      texture. Our papad is also gluten-free and vegan.
-                      <details>
-                        <summary>Read More</summary>
-                        <p>
-                          {" "}
-                          We offer a variety of rice papad flavors, including
-                          plain, salted, spicy, and flavored. We also offer a
-                          variety of sizes and shapes to choose from. Our papad
-                          is available in bulk or in individual packages.
-                        </p>
-                      </details>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-
-
-          <section className="text-gray-700 body-font mt-10">
-            <div className="flex justify-center text-3xl font-bold text-gray-800 text-center">
-              Why Us?
-            </div>
-            <div className="container px-5 py-12 mx-auto">
-              <div className="flex flex-wrap text-center justify-center">
-                <div className="p-4 md:w-1/4 sm:w-1/2">
-                  <div className="px-4 py-6 transform transition duration-500 hover:scale-110">
-                    <div className="flex justify-center">
-                      <img
-                        src="https://image3.jdomni.in/banner/13062021/58/97/7C/E53960D1295621EFCB5B13F335_1623567851299.png?output-format=webp"
-                        className="w-32 mb-3"
-                      />
-                    </div>
-                    <h2 className="title-font font-regular text-2xl text-gray-900">
-                      Latest Milling Machinery
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="p-4 md:w-1/4 sm:w-1/2">
-                  <div className="px-4 py-6 transform transition duration-500 hover:scale-110">
-                    <div className="flex justify-center">
-                      <img
-                        src="https://image2.jdomni.in/banner/13062021/3E/57/E8/1D6E23DD7E12571705CAC761E7_1623567977295.png?output-format=webp"
-                        className="w-32 mb-3"
-                      />
-                    </div>
-                    <h2 className="title-font font-regular text-2xl text-gray-900">
-                      Reasonable Rates
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="p-4 md:w-1/4 sm:w-1/2">
-                  <div className="px-4 py-6 transform transition duration-500 hover:scale-110">
-                    <div className="flex justify-center">
-                      <img
-                        src="https://image3.jdomni.in/banner/13062021/16/7E/7E/5A9920439E52EF309F27B43EEB_1623568010437.png?output-format=webp"
-                        className="w-32 mb-3"
-                      />
-                    </div>
-                    <h2 className="title-font font-regular text-2xl text-gray-900">
-                      Time Efficiency
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="p-4 md:w-1/4 sm:w-1/2">
-                  <div className="px-4 py-6 transform transition duration-500 hover:scale-110">
-                    <div className="flex justify-center">
-                      <img
-                        src="https://image3.jdomni.in/banner/13062021/EB/99/EE/8B46027500E987A5142ECC1CE1_1623567959360.png?output-format=webp"
-                        className="w-32 mb-3"
-                      />
-                    </div>
-                    <h2 className="title-font font-regular text-2xl text-gray-900">
-                      Expertise in Industry
-                    </h2>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-gray-100">
-            <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:py-20 lg:px-8">
-              <div className="max-w-2xl lg:max-w-4xl mx-auto text-center">
-                <h2
-                  className="text-3xl font-extrabold text-gray-900"
-                  id="contactUs"
-                >
-                  Visit Our Location
-                </h2>
-                <p className="mt-3 text-lg text-gray-500">
-                  Let us serve you the best
-                </p>
-              </div>
-              <div className="mt-8 lg:mt-20">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <div className="max-w-full mx-auto rounded-lg overflow-hidden">
-                      <div className="border-t border-gray-200 px-6 py-4">
-                        <h3 className="text-lg font-bold text-gray-900">
-                          Contact
-                        </h3>
-                        <p className="mt-1 font-bold text-gray-600">
-                          <a href="tel:+123">Phone: +91 123456789</a>
-                        </p>
-                        <a className="flex m-1" href="tel:+919823331842">
-                          <div className="flex-shrink-0">
-                            <div className="flex items-center justify-between h-10 w-30 rounded-md bg-indigo-500 text-white p-2">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.5"
-                                stroke="currentColor"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
-                                />
-                              </svg>
-                              Call now
-                            </div>
-                          </div>
-                        </a>
-                      </div>
-                      <div className="px-6 py-4">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          Our Address
-                        </h3>
-                        <p className="mt-1 text-gray-600">
-                          Sale galli, 60 foot road, Latur
-                        </p>
-                      </div>
-                      <div className="border-t border-gray-200 px-6 py-4">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          Hours
-                        </h3>
-                        <p className="mt-1 text-gray-600">
-                          Monday - Sunday : 2pm - 9pm
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="rounded-lg overflow-hidden order-none sm:order-first">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3785.7850672491236!2d76.58802159999999!3d18.402630699999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcf83ca88e84341%3A0x841e547bf3ad066d!2zQmFwcGEgZmxvdXIgbWlsbCB8IOCkrOCkquCljeCkquCkviDgpKrgpYDgpKAg4KSX4KS_4KSw4KSj4KWALCDgpK7gpL_gpLDgpJrgpYAg4KSV4KS-4KSC4KSh4KSqIOCkhuCko-CkvyDgpLbgpYfgpLXgpL7gpK_gpL4!5e0!3m2!1sen!2sin!4v1713433597892!5m2!1sen!2sin"
-                      className="w-full"
-                      width="600"
-                      height="450"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <footer className="bg-gray-200 text-white py-4 px-3">
-              <div className="container mx-auto flex flex-wrap items-center justify-between">
-                <div className="w-full md:w-1/2 md:text-center md:mb-4 mb-8">
-                  <p className="text-xs text-gray-400 md:text-sm">
-                    Copyright 2024 &copy; All Rights Reserved
-                  </p>
-                </div>
-                <div className="w-full md:w-1/2 md:text-center md:mb-0 mb-8">
-                  <ul className="list-reset flex justify-center flex-wrap text-xs md:text-sm gap-3">
-                    <li>
-                      <a
-                        href="#contactUs"
-                        className="text-gray-400 hover:text-white"
-                      >
-                        Contact
-                      </a>
-                    </li>
-                    <li className="mx-4">
-                      <a
-                        href="/privacy"
-                        className="text-gray-400 hover:text-white"
-                      >
-                        Privacy Policy
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </footer>
-          </section>
-        </div>
-      </div>
-       <button
-                                onClick={scrollToTop}
-                                className={`fixed bottom-5 right-5 z-40 w-[55px] h-[55px] rounded-full bg-gray-50/80 border border-gray-200 backdrop-blur-sm text-white p-3 shadow-inner transition-all duration-300 hover:bg-gray-100 hover:scale-110 active:scale-90 ${
-                                  showScrollTop ? "opacity-100 visible" : "opacity-0 invisible"
-                                }`}
-                              >
-                                <FaArrowUp className="w-full h-full text-orange-500" />
-                              </button>
-    </>
   );
 };
 

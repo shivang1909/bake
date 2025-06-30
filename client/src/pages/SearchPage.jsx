@@ -6,8 +6,6 @@ import AxiosToastError from "../utils/AxiosToastError";
 import ProductCard from "../components/ProductCard";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useLocation } from "react-router-dom";
-import noDataImage from "../assets/nothing here yet.webp";
-import OfferBanner from "../../assets/images/Custom/Offer_banner.webp";
 import OfferBanner2 from "../../assets/images/Custom/Offer_banner_2.webp";
 import OfferBanner3 from "../../assets/images/Custom/Offer_banner_3.gif";
 import OfferBanner4 from "../../assets/images/Custom/Offer_banner_4.webp";

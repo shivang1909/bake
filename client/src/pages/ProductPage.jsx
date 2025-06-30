@@ -17,6 +17,7 @@ import {
   FaSortAmountDown,
   FaSortAmountDownAlt,
 } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 const sortOptions = [
   { name: "Sort", value: "no" },
@@ -160,7 +161,7 @@ useEffect(()=>{
         });
 
         const data = response.data;
-        console.log(data);
+        
         setAllProduct(data.data);
         setPage(2); // Next page to load
         const totalCount = data.totalCount;
@@ -171,7 +172,9 @@ useEffect(()=>{
         settotalPage(TotalP);
         setFilterKey((prev) => prev + 1); // Triggers key reset
       } catch (err) {
-        console.error("Error fetching filters:", err);
+        
+        toast.error("Failed To  Fetch Products")
+        
       } finally {
         onDone?.()
       }
@@ -181,13 +184,13 @@ useEffect(()=>{
     const updateFilterOnce = () => {
       const oldShelfLife = filter.find((item) => /^\d+\s*Day$/.test(item));
 
-    console.log(oldShelfLife)
+    
 
     if(oldShelfLife)
       {
         if(oldShelfLife!==maxshelfLife+" Day")
           {
-            console.log("hi")
+            
             setFilter(prev => {
               const withoutOldShelfLife = prev.filter(item => item !== oldShelfLife);
               if(maxshelfLife>0)
@@ -207,17 +210,17 @@ useEffect(()=>{
         }
         const oldPriceRange = filter.find(item => item.includes('-'));
 
-      console.log(oldPriceRange);
+      
 
     if(oldPriceRange)
     {
-      console.log(oldPriceRange)
+      
       const match = oldPriceRange.match(/(\d+)[^\d\-]*-[^\d\-]*(\d+)/);
       const num1 = parseInt(match[1]);
       const num2 = parseInt(match[2]);
       if(priceRange[0]!==num1||priceRange[1]!==num2)
       {
-        console.log(priceRange)
+        
         setFilter(prev => {
     const withoutOldPriceRange = prev.filter(item => item !== oldPriceRange);
     if(priceRange[0]!==10||priceRange[1]!==1000)
@@ -239,11 +242,11 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
         const weight = weightVariants.find((weight) => weight.weight === f);
         return weight ? weight.weight : [];
       });
-      console.log(weights);
+      
 
       if (weights.length > weight.length) {
         let uniqueId = weights.filter((w) => !weight.includes(w));
-        console.log(uniqueId);
+        
         setFilter((prev) => prev.filter((p) => p !== uniqueId[0]));
         return;
       } else if (weight.length) {
@@ -258,7 +261,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
         const cat = allCategory.find((cat) => cat.name === f);
         return cat ? cat._id : [];
       });
-      console.log(catIds);
+      
       if (catIds.length > category.length) {
         let uniqueId = catIds.filter((c) => !category.includes(c));
         const cat = allCategory.find((cat) => cat._id === uniqueId[0]).name;
@@ -277,9 +280,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
     updateFilterOnce();
   }, [weight, category, maxshelfLife, priceRange, search, selectedSort]);
 
-  useEffect(() => {
-    console.log("this is filters", filter);
-  }, [filter]);
+  
 
   const loadMore = async () => {
     try {
@@ -304,7 +305,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
       });
 
       const data = response.data;
-      console.log(data);
+      
       setAllProduct((prev) => [...prev, ...data.data]);
       setPage((prev) => prev + 1);
     } catch (err) {
@@ -312,9 +313,7 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
     }
   };
 
-  const handleAddToCart = (product) => {
-    setCartProduct(product);
-  };
+  
 
   const handleCloseBottomBar = () => {
     setCartProduct(null);
@@ -323,8 +322,6 @@ else if(priceRange[0]!==10||priceRange[1]!==1000)
   useEffect(() => {
     document.body.style.overflow = selectedProduct ? "hidden" : "auto";
   }, [selectedProduct]);
-  const [focusedOrFilled, setFocusedOrFilled] = useState(false);
-  const [value, setValue] = useState("");
   
   return (
     <>

@@ -7,17 +7,16 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
-import UserMenuMobile from "../pages/UserMenuMobile";
+
 import AdminDashboard from "../layouts/AdminDashboard";
 import Profile from "../pages/Profile";
 import MyOrders from "../pages/MyOrders";
 import Address from "../pages/Address";
 import CategoryPage from "../pages/CategoryPage";
 import ProductAdmin from "../pages/ProductAdmin";
-import ProductListPage from "../pages/ProductListPage";
-import ProductDisplayPage from "../pages/ProductDisplayPage";
+
 import ProductDisplayPageNew from "../pages/ProductDisplayPageNew";
-import CartMobile from "../pages/CartMobile";
+
 import CheckoutPage from "../pages/CheckoutPage";
 import Success from "../pages/Success";
 import Cancel from "../pages/Cancel";
@@ -36,14 +35,12 @@ import ShopAll from '../components/ShopAll'
 import HomeProducts from "../components/HomeProducts"
 import Category from "../pages/Category"
 import HeroSection from '../pages/HeroSection'
-import Ad from "../pages/Ad";
 import MyProfile from "../pages/MyProfile";
 import Featured from "../pages/Featured";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import AuthSuccess from '../pages/AuthSuccess';
 import AboutUs from "../pages/AboutUs";
 import ContactUs from "../pages/ContactUs";
-import SignUp from "../pages/SignUp";
 import Terms_Condition from "../pages/Terms_Condition";
 import NotFoundPage from "../components/NotFound";
 import HomepageSectionList from "../components/HomePageSection";
@@ -120,10 +117,7 @@ const router = createBrowserRouter([
                 path: "register",
                 element: <Register />
             },
-            {
-                path: "signup",
-                element: <SignUp />
-            },
+
             {
                 path: "forgot-password",
                 element: <ForgotPassword />
@@ -148,10 +142,7 @@ const router = createBrowserRouter([
                 path: "admin/reset-password",
                 element: <ResetPassword />
             },
-            {
-                path: "user",
-                element: <UserMenuMobile />
-            },
+          
             {
                 path: "profile",
                 element: <Profile />
